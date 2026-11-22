@@ -1,0 +1,1588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Introduction to Probiotics Project</title>
+  <style>
+    :root {
+      --bg-page: #fafafa;
+      --bg-card: #ffffff;
+      --bg-subtle: #f4f6f8;
+      --bg-banner: #eef6f3;
+      --border-banner: #bfe0d4;
+      --bg-active: #e3f2ed;
+      --border-default: #d0d7de;
+      --border-strong: #8c959f;
+      --text-primary: #1f2328;
+      --text-secondary: #424a53;
+      --accent-green: #0f6248;
+      --accent-green-hover: #0a4935;
+      --accent-navy: #16486c;
+      --accent-navy-bg: #eef4f8;
+      --accent-amber: #7a4b00;
+      --accent-amber-bg: #fff8e6;
+      --accent-amber-border: #e5c370;
+      --focus-ring: #0b57d0;
+      --radius-md: 8px;
+      --radius-sm: 6px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: clamp(10px, 2vw, 18px);
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      line-height: 1.48;
+      font-size: 14px;
+      overflow-x: hidden;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: -9999px;
+      top: 8px;
+      background: var(--accent-navy);
+      color: #ffffff;
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-weight: 700;
+      text-decoration: none;
+      z-index: 100;
+    }
+    .skip-link:focus { left: 12px; outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+    :focus-visible { outline: 2px solid var(--focus-ring); outline-offset: 2px; }
+    .container { max-width: 1180px; margin: 0 auto; }
+    .sr-only {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+    }
+
+    .top-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      margin-bottom: 12px;
+    }
+    .top-bar.needs-selection { background-color: var(--bg-banner); border: 2px solid var(--accent-green); }
+    .field-group { display: flex; flex-direction: column; max-width: 680px; }
+    .field-group label { font-size: 13.5px; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+
+    select {
+      width: 100%;
+      min-height: 44px;
+      padding: 8px 12px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text-primary);
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+    }
+    select:hover { border-color: var(--accent-green); }
+
+    .empty-state-box {
+      background: var(--bg-banner);
+      border: 1px solid var(--border-banner);
+      border-radius: var(--radius-md);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+    .empty-state-box h2 { margin: 0 0 4px 0; font-size: 16px; color: var(--accent-green); }
+    .empty-state-box p { margin: 0; font-size: 13.5px; color: var(--text-secondary); }
+
+    .explorer-stack { display: flex; flex-direction: column; gap: 12px; }
+    .panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border-default);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      min-width: 0;
+    }
+    .panel-header {
+      display: flex; justify-content: space-between; align-items: baseline;
+      flex-wrap: wrap; gap: 8px; margin-bottom: 10px;
+    }
+    .panel-title { margin: 0; font-size: 14.5px; font-weight: 700; color: var(--text-primary); }
+
+    .overview-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: 14px;
+      align-items: start;
+    }
+    @media (max-width: 780px) { .overview-grid { grid-template-columns: 1fr; } }
+
+    .product-title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .code-badge {
+      background-color: var(--accent-navy); color: #ffffff; font-size: 12px;
+      font-weight: 700; padding: 3px 9px; border-radius: 4px; letter-spacing: 0.4px;
+    }
+    .product-name { margin: 0; font-size: clamp(16px, 2vw, 18.5px); font-weight: 700; color: var(--text-primary); }
+    .meta-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+    .meta-pill {
+      font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 999px;
+      background-color: var(--bg-subtle); color: var(--text-primary); border: 1px solid var(--border-default);
+    }
+    .meta-pill.green { background-color: var(--bg-banner); color: var(--accent-green); border-color: var(--border-banner); }
+
+    .claims-box {
+      background-color: var(--accent-amber-bg);
+      border: 1px solid var(--accent-amber-border);
+      border-left: 4px solid #b87400;
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      margin-bottom: 8px;
+    }
+    .claims-box-title {
+      font-size: 12.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.3px; color: var(--accent-amber); margin: 0 0 6px 0;
+    }
+    .claims-list { margin: 0; padding-left: 18px; font-size: 13.5px; color: var(--text-primary); }
+    .claims-list li { margin-bottom: 4px; }
+    .fda-note { font-size: 12px; color: var(--text-secondary); margin: 0; font-style: italic; }
+
+    .critique-box {
+      background-color: #fdf2f4;
+      border: 1px solid #f1c0c8;
+      border-left: 4px solid #b4233c;
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      margin-top: 10px;
+    }
+    .critique-box-title {
+      font-size: 12.5px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.3px; color: #8f1d32; margin: 0 0 5px 0;
+    }
+    .critique-box-body { font-size: 12.5px; color: var(--text-primary); line-height: 1.48; }
+
+    .trial-check-box {
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-default);
+      border-left: 4px solid var(--accent-navy);
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      margin-top: 10px;
+    }
+    .trial-check-box.has-trial {
+      background-color: var(--bg-banner);
+      border-color: var(--border-banner);
+      border-left-color: var(--accent-green);
+    }
+    .trial-check-header {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 6px; margin-bottom: 5px;
+    }
+    .trial-check-title {
+      font-size: 12.5px; font-weight: 700; color: var(--accent-navy);
+      text-transform: uppercase; letter-spacing: 0.3px; margin: 0;
+    }
+    .trial-check-box.has-trial .trial-check-title { color: var(--accent-green); }
+    .trial-status-pill {
+      font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px;
+      background-color: var(--accent-navy-bg); color: var(--accent-navy); border: 1px solid #c3d8e8;
+    }
+    .trial-status-pill.verified {
+      background-color: #ffffff; color: var(--accent-green); border-color: var(--border-banner);
+    }
+    .trial-check-body { font-size: 12.5px; color: var(--text-primary); line-height: 1.48; }
+
+    .questions-box {
+      background-color: var(--accent-navy-bg);
+      border: 1px solid #c3d8e8;
+      border-left: 4px solid var(--accent-navy);
+      border-radius: var(--radius-sm);
+      padding: 11px 13px;
+    }
+    .questions-box-title { font-size: 13px; font-weight: 700; color: var(--accent-navy); margin: 0 0 6px 0; }
+    .questions-intro { font-size: 12.5px; color: var(--text-secondary); margin: 0 0 8px 0; line-height: 1.45; }
+    .questions-list { margin: 0; padding-left: 18px; font-size: 13px; color: var(--text-primary); line-height: 1.45; }
+    .questions-list li { margin-bottom: 7px; }
+    .questions-list li:last-child { margin-bottom: 0; }
+
+    .org-count { font-size: 13px; font-weight: 700; color: var(--accent-green); }
+    .org-list {
+      list-style: none; padding: 0; margin: 0;
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(225px, 1fr)); gap: 6px;
+    }
+    .org-list li { min-width: 0; }
+    .org-btn {
+      width: 100%; min-height: 44px; display: flex; align-items: center;
+      padding: 6px 10px; text-align: left; font-family: inherit; font-size: 12.5px;
+      line-height: 1.3; color: var(--text-primary); background-color: var(--bg-card);
+      border: 1px solid var(--border-default); border-radius: var(--radius-sm); cursor: pointer;
+    }
+    .org-btn:hover { background-color: var(--bg-banner); border-color: var(--accent-green); }
+    .org-btn.active {
+      background-color: var(--bg-active); border: 2px solid var(--accent-green);
+      padding: 5px 9px; font-weight: 700;
+    }
+    .org-expand-btn {
+      width: 100%; min-height: 44px; display: flex; align-items: center; justify-content: center;
+      padding: 6px 10px; font-family: inherit; font-size: 12.5px; font-weight: 700;
+      color: var(--accent-navy); background-color: var(--accent-navy-bg);
+      border: 1px solid #c3d8e8; border-radius: var(--radius-sm); cursor: pointer;
+    }
+    .org-expand-btn:hover { background-color: #dce9f2; }
+
+    .detail-header { border-bottom: 1px solid var(--border-default); padding-bottom: 10px; margin-bottom: 14px; }
+    .detail-header h2 { margin: 0 0 4px 0; font-size: clamp(16.5px, 2.1vw, 19px); font-weight: 700; color: var(--accent-green); }
+    .detail-submeta { font-size: 13px; color: var(--text-secondary); }
+    .alias-note { font-size: 12.5px; color: var(--accent-navy); margin-top: 4px; }
+
+    .strain-grid {
+      display: grid; grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+      gap: 16px; align-items: start;
+    }
+    .strain-col-left { min-width: 0; }
+    .strain-col-right { border-left: 1px solid var(--border-default); padding-left: 16px; min-width: 0; }
+    @media (max-width: 760px) {
+      .strain-grid { grid-template-columns: 1fr; }
+      .strain-col-right { border-left: none; padding-left: 0; border-top: 1px solid var(--border-default); padding-top: 14px; }
+    }
+
+    .section-header {
+      display: flex; justify-content: space-between; align-items: baseline;
+      flex-wrap: wrap; gap: 6px 12px; margin-bottom: 8px;
+    }
+    .section-title { margin: 0; font-size: 14.5px; font-weight: 700; color: var(--text-primary); }
+    .section-sub-bullet { margin: 0 0 10px 0; padding-left: 18px; font-size: 13px; color: var(--text-primary); line-height: 1.48; }
+    .count-pill {
+      background-color: var(--accent-navy); color: #ffffff; font-size: 11.5px;
+      font-weight: 700; padding: 2px 9px; border-radius: 999px; white-space: nowrap;
+    }
+
+    .role-card {
+      background-color: var(--bg-subtle); border: 1px solid var(--border-default);
+      border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 10px;
+    }
+    .role-card-label {
+      font-size: 12px; font-weight: 700; color: var(--accent-navy);
+      text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px;
+    }
+    .role-card p { margin: 0; font-size: 13px; color: var(--text-primary); line-height: 1.48; }
+
+    .checkpoint-box {
+      background-color: var(--bg-banner); border: 1px solid var(--border-banner);
+      border-radius: var(--radius-sm); padding: 10px 12px; font-size: 13px; color: var(--text-primary);
+    }
+    .checkpoint-box strong { color: var(--accent-green); }
+
+    .scope-caution-box {
+      background-color: var(--accent-amber-bg); border: 1px solid var(--accent-amber-border);
+      border-radius: var(--radius-sm); padding: 9px 11px; font-size: 12.5px;
+      color: var(--text-primary); line-height: 1.45; margin-bottom: 10px;
+    }
+    .scope-caution-box strong { color: var(--accent-amber); }
+
+    .rec-card {
+      border: 1px solid var(--border-default); border-radius: var(--radius-sm);
+      padding: 10px 12px; margin-bottom: 8px; background-color: #fcfdfd;
+    }
+    .rec-top-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 4px; }
+    .rec-title { font-size: 13.5px; font-weight: 700; color: var(--accent-navy); line-height: 1.4; }
+    .rec-title-link { color: var(--accent-navy); text-decoration: none; }
+    .rec-title-link:hover { text-decoration: underline; }
+    .scope-badge {
+      font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 4px;
+      background-color: var(--bg-banner); color: var(--accent-green);
+      border: 1px solid var(--border-banner); white-space: nowrap; flex-shrink: 0;
+    }
+    .rec-meta { font-size: 12.5px; color: var(--text-secondary); margin-bottom: 6px; }
+    .box-label { font-size: 12px; font-weight: 700; color: var(--text-primary); margin: 6px 0 3px 0; }
+    .abstract-box {
+      margin-top: 0; padding: 8px 10px; background-color: #ffffff;
+      border: 1px solid var(--border-default); border-radius: var(--radius-sm);
+      font-size: 12.5px; line-height: 1.5; color: var(--text-primary);
+      white-space: pre-line; max-height: 135px; overflow-y: auto;
+    }
+
+    .action-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .mini-btn {
+      min-height: 44px; padding: 8px 12px; font-family: inherit; font-size: 12.5px;
+      font-weight: 600; border-radius: 5px; border: 1px solid var(--accent-navy);
+      background-color: var(--accent-navy-bg); color: var(--accent-navy); cursor: pointer;
+    }
+    .mini-btn:hover { background-color: #dce9f2; }
+    .ext-link {
+      display: inline-flex; align-items: center; min-height: 44px; font-size: 13px;
+      font-weight: 600; color: var(--accent-green); text-decoration: none;
+    }
+    .ext-link:hover { color: var(--accent-green-hover); text-decoration: underline; }
+    .section-footer { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 4px; }
+    .note-box {
+      background-color: var(--accent-amber-bg); border: 1px solid var(--accent-amber-border);
+      color: var(--accent-amber); border-radius: var(--radius-sm); padding: 10px 12px;
+      font-size: 13px; margin-bottom: 10px; line-height: 1.45;
+    }
+    .status-text { font-size: 13px; color: var(--text-secondary); margin: 4px 0 8px 0; }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <main id="main-content" class="container">
+    <h1 class="sr-only">Introduction to Probiotics Project</h1>
+
+    <section id="empty-state-panel" class="empty-state-box" aria-live="polite">
+      <h2>Project Kickoff: Select Your Assigned Probiotic Sample &darr;</h2>
+      <p>
+        Choose your 4-letter probiotic sample code from the dropdown menu below to review its marketed health claims, the questions we can answer with direct DNA extraction &amp; 16S rRNA sequencing across replicates, and published literature on each strain.
+      </p>
+    </section>
+
+    <section class="top-bar needs-selection" id="top-bar" aria-label="Assigned Probiotic Selection">
+      <div class="field-group">
+        <label for="product-select">Select Your Assigned Probiotic Sample:</label>
+        <select id="product-select"></select>
+      </div>
+    </section>
+
+    <div id="url-warning-banner" class="note-box hidden" role="alert"></div>
+
+    <div class="explorer-stack hidden" id="explorer-layout">
+      <section class="panel" aria-labelledby="overview-heading">
+        <div class="overview-grid">
+          <div>
+            <div class="product-title-row">
+              <span class="code-badge" id="sample-code-badge">CODE</span>
+              <h2 class="product-name" id="overview-heading">Product Name</h2>
+            </div>
+            <div class="meta-pills" id="product-meta-pills"></div>
+
+            <div class="claims-box">
+              <h3 class="claims-box-title">Purported Health Benefits (Bottle &amp; Marketing Claims)</h3>
+              <ul class="claims-list" id="product-claims-list"></ul>
+            </div>
+            <p class="fda-note">
+              <strong>Regulatory Context:</strong> Dietary supplements are not FDA-approved to treat or prevent disease before sale.
+            </p>
+
+            <div class="critique-box" id="product-critique-box">
+              <h3 class="critique-box-title">Critical Thinking: What Should We Question About These Claims?</h3>
+              <div class="critique-box-body" id="product-critique-body"></div>
+            </div>
+
+            <div class="trial-check-box" id="product-trial-box" aria-live="polite">
+              <div class="trial-check-header">
+                <h3 class="trial-check-title">Whole-Product Clinical Trial Evidence</h3>
+                <span class="trial-status-pill" id="product-trial-pill">Status</span>
+              </div>
+              <div class="trial-check-body" id="product-trial-body"></div>
+            </div>
+          </div>
+
+          <div class="questions-box">
+            <h3 class="questions-box-title">What Questions Can Our 16S Sequencing Study Ask?</h3>
+            <p class="questions-intro">
+              In this project, we extract DNA directly from capsules and run <strong>16S rRNA amplicon sequencing across dozens of replicates</strong> (without culturing/plating):
+            </p>
+            <ol class="questions-list" id="project-questions-list"></ol>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="org-list-heading">
+        <div class="panel-header">
+          <h2 class="panel-title" id="org-list-heading">Listed Label Organisms — Click an Organism to Explore Its Biological Role &amp; Literature</h2>
+          <span class="org-count" id="org-count" aria-live="polite"></span>
+        </div>
+        <ul class="org-list" id="org-list"></ul>
+      </section>
+
+      <section class="panel" id="detail-panel" aria-labelledby="selected-org-heading" tabindex="-1">
+        <div class="detail-header">
+          <h2 id="selected-org-heading">Select an organism</h2>
+          <div class="detail-submeta" id="selected-org-submeta"></div>
+          <div class="alias-note hidden" id="selected-org-alias"></div>
+        </div>
+
+        <div class="strain-grid">
+          <div class="strain-col-left">
+            <div class="section-header">
+              <h3 class="section-title">1. Typical Functional Role in the Microbiome</h3>
+            </div>
+            <div class="role-card">
+              <div class="role-card-label" id="taxon-group-label">Taxonomic Group</div>
+              <p id="taxon-role-summary"></p>
+            </div>
+            <div class="checkpoint-box" id="strain-lab-checkpoint"></div>
+          </div>
+
+          <div class="strain-col-right">
+            <div class="section-header">
+              <h3 class="section-title">2. Ingredient-Level Literature on PubMed</h3>
+              <span class="count-pill" id="pill-pubmed">Loading…</span>
+            </div>
+            <div class="scope-caution-box">
+              <strong>Context vs. Product:</strong> Manufacturers commonly base product formulations on published studies of individual strains or species. However, a paper testing <strong>one isolated strain</strong> at a specific dose or in a clinical patient group does not guarantee that taking a multi-strain capsule produces the same health outcome.
+            </div>
+            <div id="content-pubmed" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    (function () {
+      "use strict";
+
+      function parseOrgs(list) {
+        return list.map(function (entry) {
+          var parts = entry.split("|");
+          var species = parts[0].trim();
+          var strain = parts[1] ? parts[1].trim() : "";
+          return {
+            label: strain ? (species + " " + strain) : species,
+            species: species,
+            strain: strain
+          };
+        });
+      }
+
+      const catalog = {
+        "JARR": {
+          fullTitle: "Jarrow Formulas Jarro-Dophilus EPS Advanced 55 Billion CFU",
+          bsl: "BSL 1 Bacteria",
+          dose: "55 Billion CFU",
+          formulation: "Enteric-coated vegetarian capsule (10 documented strains)",
+          targetFocus: "Broad-Spectrum Digestive & Immune Health",
+          hasProductTrial: true,
+          trialBadge: "Finished-Product RCT Found",
+          trialSummaryHtml:
+            '<strong>Published Clinical Trial on Jarro-Dophilus EPS:</strong> Tremblay et al. (2020) ran a randomized, double-blind, placebo-controlled trial testing the multi-strain <em>Jarro-Dophilus EPS</em> capsule (5B vs. 25B CFU for 28 days in 69 healthy adults; <code>NCT02693314</code>). While the supplement was safe and some strains were transiently detected in stool by qPCR, <strong>gastrointestinal symptoms and general wellbeing did not differ significantly from placebo</strong>. <a class="ext-link" style="min-height:auto; margin-left:4px;" href="https://pubmed.ncbi.nlm.nih.gov/31241387/" target="_blank" rel="noopener">View Trial on PubMed (PMID: 31241387) &#8599;</a>',
+          claims: [
+            "Supports intestinal tract health and balances gut microflora.",
+            "Enteric-coated capsule (EnteroGuard) claims to protect bacteria through stomach acid.",
+            "Lists specific commercial strain IDs (e.g., BB536, R0011, R0052) rather than anonymous house blends."
+          ],
+          critiqueHtml:
+            "<strong>Transient Colonization vs. Permanent Change:</strong> Even with enteric coating and well-documented strain IDs, clinical testing of this exact capsule (below) showed that probiotic bacteria only pass through the gut <em>transiently</em> while you take them and did not improve digestive symptoms in healthy adults.",
+          questions: [
+            "Which of the 10 listed bacterial species are detected in our 16S rRNA sequencing reads, and are any unlisted bacterial taxa present?",
+            "Across dozens of capsule replicates, how consistent is the recovered bacterial community profile and relative abundance?",
+            "Why can 16S rRNA sequencing confirm species presence (e.g., Lacticaseibacillus paracasei), yet cannot distinguish between two strains of the same species on this label (HA-196 vs. R0215) or tell live cells from dead DNA?"
+          ],
+          organisms: parseOrgs([
+            "Pediococcus acidilactici|R1001", "Lacticaseibacillus paracasei|HA-196",
+            "Lacticaseibacillus rhamnosus|R0011", "Lactobacillus helveticus|R0052",
+            "Bifidobacterium longum|BB536", "Lacticaseibacillus paracasei|R0215",
+            "Bifidobacterium breve|R0070", "Lactiplantibacillus plantarum|R1012",
+            "Lactococcus lactis|R1058", "Bifidobacterium longum|R0175"
+          ])
+        },
+        "REN+": {
+          fullTitle: "Renew Life Ultimate Flora Probiotic Daily Mood+ 65 Billion CFU",
+          bsl: "BSL 1 Bacteria",
+          dose: "65 Billion CFU",
+          formulation: "Delayed-release capsule (19 listed entries; proprietary UF strains + GG)",
+          targetFocus: "Gut-Brain Axis, Mood & Stress Support",
+          hasProductTrial: false,
+          trialBadge: "Ingredient-Level Basis Only",
+          trialSummaryHtml:
+            "<strong>No Published Clinical Trials on This Finished Product:</strong> We found no peer-reviewed trials testing <em>Renew Life Daily Mood+</em> itself. Its formulation is plausibly based on published research on individual strains or species (such as <em>L. rhamnosus</em> GG or gut-brain axis studies on <em>Lactobacillus</em>/<em>Bifidobacterium</em>). However, extrapolating from single-strain studies is limited because strains can interact differently in a 19-strain blend—a randomized clinical trial on the finished capsule would be needed to confirm mood benefits.",
+          claims: [
+            "Formulated to support a positive mood, emotional well-being, and healthy stress response via the gut-brain axis.",
+            "Promotes digestive balance and immune health with 65 billion CFU across 12 distinct species.",
+            "Uses proprietary UF- strain codes alongside the benchmark strain Lactobacillus rhamnosus GG."
+          ],
+          critiqueHtml:
+            "<strong>Big Leap From Gut to Mood + Proprietary Codes:</strong> While the gut-brain axis is an active research area, claiming a daily probiotic improves human mood is a huge clinical leap without trials on this product. Also notice the proprietary <code>UF-</code> strain labels—without public strain registries, outsiders cannot easily verify which exact strains are inside.",
+          questions: [
+            "How many of the 12 listed species appear in our 16S rRNA sequencing reads, and do 1-2 species dominate relative read abundance?",
+            "Across dozens of capsule replicates, how consistent is the bacterial DNA composition from capsule to capsule?",
+            "Why can 16S rRNA sequencing identify Bifidobacterium lactis at the species level, yet cannot verify the 5 separate UF- B. lactis strains listed or test mood claims?"
+          ],
+          organisms: parseOrgs([
+            "Bifidobacterium lactis|UF-12", "Bifidobacterium breve|UF-3", "Bifidobacterium longum|UF-536",
+            "Bifidobacterium bifidum|UF-910", "Lactobacillus plantarum|UF-217", "Lactobacillus plantarum|UF-937",
+            "Lactobacillus acidophilus|UF-01", "Lactobacillus acidophilus|UF-5", "Lactobacillus paracasei|UF-19",
+            "Lactobacillus rhamnosus|GG", "Streptococcus thermophilus|UF-336", "Lactobacillus salivarius|UF-862",
+            "Lactobacillus gasseri|UF-2055", "Lactobacillus brevis|UF-35", "Lactobacillus bulgaricus|UF-165",
+            "Bifidobacterium lactis|UF-IM04", "Bifidobacterium lactis|UF-019", "Bifidobacterium lactis|UF-07",
+            "Bifidobacterium lactis|UF-26"
+          ])
+        },
+        "REND": {
+          fullTitle: "Renew Life Ultimate Flora Probiotic Digestive Once Daily 65 Billion CFU",
+          bsl: "BSL 1 Bacteria",
+          dose: "65 Billion CFU",
+          formulation: "Delayed-release capsule (29 listed strain entries)",
+          targetFocus: "Daily Digestive Balance & Occasional Gas/Bloating Relief",
+          hasProductTrial: false,
+          trialBadge: "Ingredient-Level Basis Only",
+          trialSummaryHtml:
+            "<strong>No Published Clinical Trials on This Finished Product:</strong> No peer-reviewed clinical trials were found testing <em>Renew Life Digestive Once Daily 65B</em>. The formula draws on general research supporting individual digestive strains (like <em>L. rhamnosus</em> GG) and broad <em>Bifidobacterium</em>/<em>Lactobacillus</em> species. However, ingredient studies alone cannot account for dose ratios or competition across 29 combined entries—a clinical trial on the finished product is stronger evidence.",
+          claims: [
+            "Relieves occasional digestive discomfort, gas, and bloating while promoting regularity.",
+            "Delivers 65 billion CFU across a high-diversity blend of 29 listed strain entries.",
+            "Delayed-release capsule is designed to survive stomach acid."
+          ],
+          critiqueHtml:
+            "<strong>More Strains Isn't Automatically Better:</strong> Listing 29 strain entries (including 6 separate <code>UF-</code> codes for <em>Bifidobacterium lactis</em> alone) looks impressive on a label, but minor strains in a 29-member blend may be present at tiny fractions of the 65B CFU total—and proprietary <code>UF-</code> codes cannot be independently verified.",
+          questions: [
+            "Out of 29 listed strain entries (spanning ~15 species), which species actually appear in our 16S rRNA sequencing dataset?",
+            "Across dozens of replicates, how reproducible are the relative read abundances of Bifidobacterium vs. Lactobacillus taxa (accounting for DNA extraction bias)?",
+            "How do our 16S BLAST matches handle older genus names on this bottle (Lactobacillus plantarum) vs. updated taxonomy (Lactiplantibacillus plantarum)?"
+          ],
+          organisms: parseOrgs([
+            "Bifidobacterium lactis|UF-12", "Bifidobacterium lactis|UF-IM04", "Bifidobacterium lactis|UF-50",
+            "Bifidobacterium lactis|UF-DG19", "Bifidobacterium lactis|UF-07", "Bifidobacterium lactis|UF-26",
+            "Bifidobacterium longum|UF-536", "Bifidobacterium bifidum|UF-910", "Bifidobacterium breve|UF-3",
+            "Lactobacillus plantarum|UF-217", "Lactobacillus plantarum|UF-987", "Lactobacillus plantarum|UF-115",
+            "Lactococcus lactis|UF-23", "Lactobacillus fermentum|UF-120", "Lactobacillus fermentum|UF-226",
+            "Lactobacillus rhamnosus|GG", "Lactobacillus rhamnosus|UF-11", "Lactobacillus casei|UF-431",
+            "Lactobacillus casei|UF-121", "Lactobacillus gasseri|UF-2055", "Lactobacillus reuteri|UF-14",
+            "Lactobacillus paracasei|UF-19", "Lactobacillus brevis|UF-35", "Lactobacillus helveticus|UF-142",
+            "Lactobacillus salivarius|UF-862", "Streptococcus thermophilus|UF-336", "Lactobacillus bulgaricus|UF-563",
+            "Lactobacillus bulgaricus|UF-165", "Bifidobacterium infantis|UF-019"
+          ])
+        },
+        "PHYS": {
+          fullTitle: "Physician's Choice 60 Billion Probiotic",
+          bsl: "BSL 1 Bacteria",
+          dose: "60 Billion CFU",
+          formulation: "Acid-resistant capsule + organic prebiotic fiber blend (10 species, no strains listed)",
+          targetFocus: "Occasional Constipation, Diarrhea, Gas & Bloating",
+          hasProductTrial: false,
+          trialBadge: "Ingredient-Level Basis Only",
+          trialSummaryHtml:
+            "<strong>No Published Clinical Trials on This Finished Product:</strong> No peer-reviewed trials have tested <em>Physician's Choice 60 Billion Probiotic</em> itself (the brand notes on its site that cited trials did not test this product). Its formula is based on general literature for these 10 digestive species, which is limited because probiotic benefits are strain-specific—testing the finished product in a clinical trial provides much stronger proof.",
+          claims: [
+            "Supports digestive and gut health, helping relieve occasional constipation, diarrhea, gas, and bloating.",
+            "Includes an organic prebiotic fiber blend intended to nourish the 10 listed probiotic species.",
+            "Uses updated Lactobacillaceae taxonomy (Lacticaseibacillus, Ligilactobacillus, Lactiplantibacillus) on the label."
+          ],
+          critiqueHtml:
+            "<strong>No Strain IDs Listed:</strong> Probiotic traits (such as acid survival or immune signaling) vary dramatically between strains of the same species. Because this bottle lists only species names without strain IDs, we cannot tell if the bacteria inside are clinically studied strains or inexpensive generic starter cultures.",
+          questions: [
+            "Because the label lists only species (and zero strain IDs), our 16S rRNA sequencing matches the exact taxonomic level of the bottle—which of the 10 species are detected in our reads?",
+            "Across dozens of replicates, do all 10 species appear consistently, or do minor species drop below detection?",
+            "Why does confirming species identity via 16S DNA sequencing not tell us whether the cells were alive in the capsule or carry clinically studied traits?"
+          ],
+          organisms: parseOrgs([
+            "Lacticaseibacillus casei", "Lactobacillus acidophilus", "Lacticaseibacillus paracasei",
+            "Ligilactobacillus salivarius", "Lactiplantibacillus plantarum", "Bifidobacterium lactis",
+            "Bifidobacterium bifidum", "Bifidobacterium longum", "Bifidobacterium breve",
+            "Lactobacillus bulgaricus"
+          ])
+        },
+        "ASCU": {
+          fullTitle: "Ascuoli Pre+ProBiotic 300 Billion CFU",
+          bsl: "BSL 1 Bacteria",
+          dose: "300 Billion CFU",
+          formulation: "Delayed-release capsule + prebiotics (24 mixed strain/species entries)",
+          targetFocus: "Ultra-High-Potency Digestive & Immune Support",
+          hasProductTrial: false,
+          trialBadge: "Ingredient-Level Basis Only",
+          trialSummaryHtml:
+            "<strong>No Published Clinical Trials on This Finished Product:</strong> No peer-reviewed trials were found testing <em>Ascuoli 300 Billion CFU</em>. Its blend includes several individually studied strains (such as <em>L. plantarum</em> LPLDL and <em>B. longum</em> CECT7347), so the manufacturer likely drew on those ingredient studies. However, single-strain studies don't establish how a 24-entry, 300-billion-CFU blend behaves in humans—a whole-product clinical trial would be required.",
+          claims: [
+            "Claims an ultra-high potency of 300 Billion CFU per serving for maximum digestive and immune system reinforcement.",
+            "Combines 24 entries mixing named strains (e.g., CECT7347, LPLDL, M63, HRVD codes) with generic species-only entries.",
+            "Marketed for gut barrier support, regularity, and microbiome replenishment."
+          ],
+          critiqueHtml:
+            "<strong>Suspiciously High CFU &amp; Mixed Label Quality:</strong> 300 Billion CFU is 5–30&times; higher than most clinically studied probiotics—fitting physically into standard capsules is difficult unless measured at manufacture rather than expiration, and 16S sequencing cannot verify live cell counts. Notice also how the label mixes a few real strain IDs (<code>CECT7347</code>, <code>LPLDL</code>) with generic species entries and repeated <em>B. lactis</em> listings.",
+          questions: [
+            "Which bacterial species from this 24-entry blend are actually detected in our 16S rRNA sequencing reads?",
+            "Across dozens of capsule replicates, how consistent is the relative abundance of each taxon, and are any unexpected/contaminant bacteria present?",
+            "What are the limitations of 16S rRNA sequencing when evaluating a label that claims 300 Billion CFU and lists multiple strains of the same species (e.g., 4 entries of B. lactis)?"
+          ],
+          organisms: parseOrgs([
+            "Bifidobacterium longum", "Bifidobacterium longum|HRVD90b", "Bifidobacterium breve",
+            "Bifidobacterium breve|HRVD521", "Lactiplantibacillus plantarum|LP1", "Lacticaseibacillus rhamnosus|LR6",
+            "Lacticaseibacillus rhamnosus|HRVD113", "Lacticaseibacillus rhamnosus", "Bifidobacterium infantis|M63",
+            "Bifidobacterium lactis|BS5", "Bifidobacterium lactis|HRVD524", "Bifidobacterium lactis|SD150",
+            "Lactobacillus crispatus|LCR01", "Lacticaseibacillus casei|HRVD300", "Limosilactobacillus fermentum|LF8",
+            "Limosilactobacillus reuteri|RD830", "Lactobacillus acidophilus", "Ligilactobacillus salivarius|LS1",
+            "Bifidobacterium lactis", "Bifidobacterium longum|CECT7347", "Lacticaseibacillus casei|CECT9104",
+            "Bifidobacterium bifidum", "Lactiplantibacillus plantarum|LPLDL", "Bifidobacterium lactis|MB2409"
+          ])
+        },
+        "ZEBO": {
+          fullTitle: "Zebora 3-in-1 Probiotics 100 Billion Organisms",
+          bsl: "BSL 1 Bacteria",
+          dose: "100 Billion Organisms",
+          formulation: "3-in-1 Prebiotic + Probiotic + Postbiotic capsule (15 species, no strains listed)",
+          targetFocus: "Complete Gut Barrier, Digestive & Immune 3-in-1 Support",
+          hasProductTrial: false,
+          trialBadge: "Ingredient-Level Basis Only",
+          trialSummaryHtml:
+            "<strong>No Published Clinical Trials on This Finished Product:</strong> No peer-reviewed studies were found testing <em>Zebora 3-in-1 Probiotics</em>. Its formulation relies on general literature for these 15 bacterial species, which is limited because probiotic efficacy depends on specific strains and viable dosing—a controlled clinical trial on the finished capsule is needed to verify its health claims.",
+          claims: [
+            "Combines prebiotics, 100 billion probiotic organisms, and postbiotics (3-in-1) for digestive comfort and immune defense.",
+            "Includes spore-forming Bacillus coagulans alongside traditional lactic acid bacteria and Bifidobacteria.",
+            "States 100 Billion Organisms rather than CFU and misspells Streptococcus thermophiles."
+          ],
+          critiqueHtml:
+            "<strong>Watch the Fine Print (&ldquo;Organisms&rdquo; vs. CFU &amp; Typos):</strong> Unlike standard labels that guarantee live <em>Colony-Forming Units (CFU)</em>, this label says &ldquo;100 Billion Organisms&rdquo; (which can include dead cells) and misspells <em>Streptococcus thermophilus</em> as <em>thermophiles</em>—classic red flags for lax supplement quality control.",
+          questions: [
+            "Which of the 15 listed bacterial species are detected in our 16S rRNA sequencing reads, and how consistent are the profiles across dozens of replicates?",
+            "How might DNA extraction efficiency differ between tough Bacillus coagulans endospores and vegetative Lactobacillus/Bifidobacterium cells in our 16S read proportions?",
+            "Why does 16S DNA sequencing detect both live and dead bacteria (and what does the label term 100 Billion Organisms vs. CFU imply)?"
+          ],
+          organisms: parseOrgs([
+            "Lactiplantibacillus plantarum", "Lactobacillus acidophilus", "Bifidobacterium longum",
+            "Lacticaseibacillus rhamnosus", "Bifidobacterium lactis", "Limosilactobacillus reuteri",
+            "Lactobacillus gasseri", "Bifidobacterium breve", "Bifidobacterium bifidum",
+            "Lactobacillus casei", "Lactobacillus paracasei", "Streptococcus thermophiles",
+            "Bacillus coagulans", "Lactococcus lactis", "Lactobacillus helveticus"
+          ])
+        },
+        "UPNO": {
+          fullTitle: "Upnourish Probiotics 200 Billion CFU",
+          bsl: "BSL 1 Bacteria",
+          dose: "200 Billion CFU",
+          formulation: "Acid-resistant capsule + prebiotic & digestive enzyme blend (15 strains)",
+          targetFocus: "High-Potency Digestion, Nutrient Absorption & Microbiome Diversity",
+          hasProductTrial: false,
+          trialBadge: "Ingredient-Level Basis Only",
+          trialSummaryHtml:
+            "<strong>No Published Clinical Trials on This Finished Product:</strong> No peer-reviewed trials were found testing <em>Upnourish 200 Billion CFU</em>. Its blend includes research-collection strains (such as <em>CCFM</em> isolates), suggesting the formulation was inspired by individual strain studies. However, preclinical or single-strain findings do not automatically translate to a 15-strain supplement with added enzymes—a finished-product trial would be stronger evidence.",
+          claims: [
+            "Delivers 200 Billion CFU across 15 named strains (including CCFM research collection strains) plus digestive enzymes and prebiotics.",
+            "Claims to relieve occasional bloating, support bowel regularity, and enhance nutrient breakdown.",
+            "Marketed for both men and women as a high-potency daily microbiome booster."
+          ],
+          critiqueHtml:
+            "<strong>Inflated Potency &amp; Kitchen-Sink Formulation:</strong> Claiming 200 Billion CFU alongside 15 strains, prebiotics, and digestive enzymes in one capsule raises questions about how much of each strain is actually present—and if symptom relief occurs, you cannot tell whether it came from the enzymes or the probiotics.",
+          questions: [
+            "Which of the 15 listed species are detected in our 16S rRNA sequencing reads, and are any unexpected bacterial taxa present?",
+            "Across dozens of capsule replicates, do all 15 species show up reliably or do a few taxa make up the vast majority of 16S reads?",
+            "What can 16S rRNA sequencing confirm about this capsule, and why can't it verify viability (200 Billion CFU) or exact strain designations?"
+          ],
+          organisms: parseOrgs([
+            "Bifidobacterium longum|CCFM760", "Bifidobacterium animalis|BA051", "Lactobacillus rhamnosus|LR663",
+            "Lactobacillus acidophilus|L59", "Bifidobacterium lactis|BL03", "Lactobacillus plantarum|CCFM8727",
+            "Lactobacillus reuteri|HR7", "Lactobacillus fermentum|HLF67", "Lactobacillus paracasei|HPC69",
+            "Bifidobacterium breve|HBB37", "Lactobacillus casei|HC5", "Lactobacillus salivarius|HLS89",
+            "Lactobacillus bulgaricus|HB68", "Lactobacillus crispatus|HLC28", "Bifidobacterium bifidum|BB67"
+          ])
+        },
+        "BIOM": {
+          fullTitle: "Biomatrix Support Biotic 23 Billion CFU",
+          bsl: "BSL 1 Bacteria & Yeast",
+          dose: "23 Billion CFU",
+          formulation: "Practitioner-grade capsule combining 6 bacterial species + 1 beneficial yeast",
+          targetFocus: "Gastrointestinal Barrier Integrity & Antibiotic Recovery",
+          hasProductTrial: false,
+          trialBadge: "Ingredient-Level Basis Only",
+          trialSummaryHtml:
+            "<strong>No Published Clinical Trials on This Finished Product:</strong> No peer-reviewed studies were found testing <em>BioMatrix Support Biotic</em> itself. Its formulation draws on well-known research for <em>Saccharomyces boulardii</em> and core <em>Lactobacillus</em>/<em>Bifidobacterium</em> species in antibiotic-associated gut support. Still, species-level evidence is limited without strain IDs or a clinical trial testing the combined product.",
+          claims: [
+            "Practitioner-targeted formula pairing 6 core Lactobacillus/Bifidobacterium species with the probiotic yeast Saccharomyces boulardii.",
+            "Claims to support mucosal barrier integrity, healthy immune signaling, and gut recovery during or after antibiotic use.",
+            "Uses a moderate 23 Billion CFU dose rather than inflated triple-digit claims."
+          ],
+          critiqueHtml:
+            "<strong>Missing Strain IDs &amp; Method Blind Spot:</strong> While combining <em>Saccharomyces boulardii</em> (a yeast unaffected by antibacterial antibiotics) with lactic acid bacteria makes biological sense, listing zero strain IDs prevents verifying whether these are studied clinical strains—and our bacterial 16S primers won't detect the yeast at all.",
+          questions: [
+            "Which of the 6 bacterial species appear in our 16S rRNA sequencing reads across dozens of replicates?",
+            "Why will Saccharomyces boulardii (a eukaryotic yeast listed on the bottle) be completely invisible to our bacterial 16S rRNA amplicon sequencing?",
+            "How consistent are the relative abundances of the 6 bacterial species across capsule replicates?"
+          ],
+          organisms: parseOrgs([
+            "Lactobacillus paracasei", "Lactobacillus acidophilus", "Bifidobacterium bifidum",
+            "Bifidobacterium lactis", "Lactobacillus rhamnosus", "Lactobacillus plantarum",
+            "Saccharomyces boulardii"
+          ])
+        },
+        "NEXA": {
+          fullTitle: "DrFormulas Nexabiotic Advanced Gastrointestinal Support 17.25 Billion CFU",
+          bsl: "BSL 1 Bacteria & Yeast",
+          dose: "17.25 Billion CFU",
+          formulation: "Multi-domain blend (lactic acid bacteria + spore-forming Bacillus + yeast)",
+          targetFocus: "Comprehensive Upper & Lower GI Tract & Travel Support",
+          hasProductTrial: false,
+          trialBadge: "Ingredient-Level Basis Only",
+          trialSummaryHtml:
+            "<strong>No Published Clinical Trials on This Finished Product:</strong> No peer-reviewed clinical trials have tested <em>Nexabiotic</em> (it appears only in review tables listing commercial products containing <em>S. boulardii</em>). The formula combines researched ingredients like <em>Bacillus subtilis</em> DE111 and <em>S. boulardii</em> with generic entries, which is limited because multi-organism interactions and dosing differ from single-ingredient trials.",
+          claims: [
+            "Uniquely combines three distinct microbial groups: lactic acid bacteria, spore-forming Bacillus (DE111, B. clausii), and probiotic yeast (Saccharomyces boulardii).",
+            "Claims to survive stomach acid without refrigeration and support bowel regularity and traveler's gut resilience."
+          ],
+          critiqueHtml:
+            "<strong>23-Organism &ldquo;Everything Blend&rdquo; at Low Total Dose:</strong> Spreading 17.25 Billion CFU across 23 different bacteria and yeast entries means many individual strains may be present at tiny doses—well below the billions per strain typically used in clinical trials.",
+          questions: [
+            "In a multi-domain capsule (Bacillus spores + Lactobacillaceae + Bifidobacterium + Saccharomyces yeast), which bacterial taxa appear in our 16S rRNA reads?",
+            "Why does bacterial 16S rRNA sequencing miss Saccharomyces boulardii entirely, and how might spore-forming Bacillus DNA extraction affect relative read abundance?",
+            "Across dozens of replicates, how consistent is the recovered bacterial profile?"
+          ],
+          organisms: parseOrgs([
+            "Lactobacillus acidophilus", "Bacillus subtilis|DE111®", "Bacillus clausii",
+            "Saccharomyces boulardii", "Streptococcus thermophilus", "Lactobacillus rhamnosus|LB3",
+            "Bifidobacterium animalis|lactis", "Lactobacillus plantarum|A1", "Lactobacillus rhamnosus|A1",
+            "Lactobacillus casei", "Lactobacillus helveticus", "Lactobacillus salivarius",
+            "Lactococcus lactis", "Lactobacillus paracasei", "Lactobacillus brevis",
+            "Lactobacillus gasseri", "Bifidobacterium bifidum", "Bifidobacterium breve",
+            "Bifidobacterium animalis|lactis/infantis", "Bifidobacterium longum", "Lactobacillus reuteri",
+            "Lactobacillus plantarum|B2", "Lactobacillus rhamnosus|B2"
+          ])
+        },
+        "GARD": {
+          fullTitle: "Garden of Life Probiotics Sport+ 50 Billion Pre+Pro+Postbiotics",
+          bsl: "BSL 1 Bacteria",
+          dose: "50 Billion CFU",
+          formulation: "Shelf-stable capsule with 16 fully named commercial strains (IFF/Danisco + DE111 + GG)",
+          targetFocus: "Athletic Recovery, Immune Resilience & Gut Barrier Support",
+          hasProductTrial: false,
+          trialBadge: "Ingredient-Level Basis Only",
+          trialSummaryHtml:
+            "<strong>No Published Clinical Trials on This Finished Product:</strong> No peer-reviewed trials were found testing <em>Garden of Life Sport+ 50B</em> itself. To its credit, every organism on the bottle is a well-studied commercial strain (such as <em>B. lactis</em> Bl-04, <em>L. rhamnosus</em> GG, and <em>B. subtilis</em> DE111). Even so, individual strain trials are limited because they didn't test all 16 strains combined in athletes—a whole-product clinical trial is the gold standard.",
+          claims: [
+            "Formulated for athletes to support immune system function after intense exercise, nutrient absorption, and digestive comfort.",
+            "Every single one of the 16 organisms carries a specific commercial strain identifier (e.g., GG, HN001, DE111, La-14, Bl-04, SNZ 1969).",
+            "Combines prebiotic fibers, live probiotics, and fermented postbiotic metabolites."
+          ],
+          critiqueHtml:
+            "<strong>&ldquo;Sport+&rdquo; &amp; &ldquo;Postbiotics&rdquo; Marketing Framing:</strong> To its credit, every organism has a traceable commercial strain ID. However, branding a 16-strain gut blend specifically for athletic recovery and adding buzzwords like &ldquo;postbiotics&rdquo; goes beyond what has been tested in athletes with this finished product.",
+          questions: [
+            "Which of the 16 listed species are detected in our 16S rRNA sequencing reads across dozens of replicates?",
+            "Why is 16S rRNA sequencing unable to distinguish two strains of the same species on this label (such as L. rhamnosus GG vs. HN001, or B. lactis BL-04 vs. BL818)?",
+            "How consistent are the relative read abundances across capsule replicates?"
+          ],
+          organisms: parseOrgs([
+            "Bifidobacterium lactis|BL818", "Bifidobacterium lactis|BL-04", "Bifidobacterium bifidum|Bb-06",
+            "Bifidobacterium breve|Bb-18", "Bifidobacterium longum|Bl-05", "Lactobacillus acidophilus|La-14",
+            "Lactobacillus brevis|Lbr-35", "Lactobacillus casei|Lc-11", "Lactobacillus gasseri|Lg-36",
+            "Lactobacillus paracasei|Lpc-37", "Lactobacillus plantarum|Lp-115", "Lactobacillus rhamnosus|GG",
+            "Lactobacillus rhamnosus|HN001™", "Lactobacillus salivarius|Ls-33", "Bacillus subtilis|DE111®",
+            "Bacillus coagulans|SNZ 1969™"
+          ])
+        },
+        "LEAN": {
+          fullTitle: "Lean for Good LeanBiome 20 Billion CFU",
+          bsl: "BSL 1 Bacteria",
+          dose: "20 Billion CFU",
+          formulation: "Delayed-release capsule + green tea phytosome (9 species, no strains listed)",
+          targetFocus: "Metabolic Health, Appetite & Weight Management Support",
+          hasProductTrial: false,
+          trialBadge: "Ingredient-Level Basis Only",
+          trialSummaryHtml:
+            "<strong>No Peer-Reviewed Clinical Trials on This Finished Product:</strong> While marketing cites studies on green tea extract (Greenselect Phytosome) and single strains like <em>L. gasseri</em> SBT2055, we found no independent peer-reviewed RCTs testing the commercial <em>LeanBiome</em> probiotic blend alone. Extrapolating from single-strain studies is limited because weight-related outcomes depend on specific strains and doses—a dedicated trial on the finished product would be needed.",
+          claims: [
+            "Marketed to support healthy weight management, curb cravings, and promote a lean microbiome profile.",
+            "Highlights Lactobacillus gasseri, L. rhamnosus, and L. fermentum alongside Bifidobacteria and green tea extract.",
+            "Lists 9 species without specifying the individual strain designations."
+          ],
+          critiqueHtml:
+            "<strong>Weight-Loss Claims Without Strain IDs:</strong> Weight-management probiotic claims are among the most heavily scrutinized in supplement marketing. Even when single patented strains (like <em>L. gasseri</em> SBT2055) show modest effects in trials, this bottle lists <strong>no strain IDs</strong> and pairs the bacteria with green tea extract, making it impossible to credit weight effects to the microbes.",
+          questions: [
+            "Which of the 9 listed bacterial species are detected in our 16S rRNA sequencing reads across dozens of replicates?",
+            "Are there any unlisted bacterial taxa present, and how consistent is the relative abundance across capsule replicates?",
+            "Why can 16S rRNA sequencing confirm that Lactobacillus gasseri is present, yet tell us nothing about whether it carries metabolic traits studied in patented strains like SBT2055?"
+          ],
+          organisms: parseOrgs([
+            "Lactobacillus gasseri", "Lactobacillus rhamnosus", "Lactobacillus fermentum",
+            "Lactobacillus paracasei", "Lactobacillus plantarum", "Bifidobacterium bifidum",
+            "Bifidobacterium lactis", "Bifidobacterium longum", "Bifidobacterium breve"
+          ])
+        },
+        "WFMK": {
+          fullTitle: "356 Whole Foods Market Adult 50+ Probiotic 5 Billion CFU",
+          bsl: "BSL 1 Bacteria",
+          dose: "5 Billion CFU",
+          formulation: "Once-daily capsule with 10 documented commercial strains",
+          targetFocus: "Healthy Aging, Colon Regularity & Senior Immune Support",
+          hasProductTrial: false,
+          trialBadge: "Ingredient-Level Basis Only",
+          trialSummaryHtml:
+            "<strong>No Published Clinical Trials on This Finished Product:</strong> No peer-reviewed trials were found testing <em>365 Whole Foods Adult 50+ Probiotic</em> itself. However, every strain listed on the label is a well-characterized commercial strain (such as <em>B. lactis</em> Bl-04 and <em>L. acidophilus</em> La-14) with individual research behind it. Still, testing the finished 10-strain product in older adults would provide stronger clinical evidence.",
+          claims: [
+            "Tailored for adults 50+ to replenish declining Bifidobacterium populations and support colon regularity and immune health.",
+            "Uses a modest 5 Billion CFU potency, but every single organism is a traceable, well-known commercial strain (La-14, Lp-115, Bl-04, Bb-06, etc.)."
+          ],
+          critiqueHtml:
+            "<strong>Age-Targeted Marketing vs. Standard Strains:</strong> Unlike flashier products, this label is transparent—listing a realistic 5B CFU dose and 10 well-documented commercial strains. Still, &ldquo;Adult 50+&rdquo; is largely a marketing segmentation rather than a formula uniquely proven to reverse age-related microbiome shifts.",
+          questions: [
+            "Which of the 10 listed species are detected in our 16S rRNA sequencing reads across dozens of replicates?",
+            "How consistent are the relative read proportions of Bifidobacterium vs. Lactobacillus taxa from capsule to capsule?",
+            "What can 16S DNA sequencing verify about this bottle's taxonomic accuracy, and what can't it tell us about cell viability (5 Billion CFU) or clinical efficacy?"
+          ],
+          organisms: parseOrgs([
+            "Lactobacillus acidophilus|La-14", "Lactobacillus plantarum|Lp-115", "Bifidobacterium bifidum|Bb-06",
+            "Bifidobacterium longum|Bl-05", "Lactobacillus brevis|Lbr-35", "Bifidobacterium breve|Bb-03",
+            "Lactobacillus casei|Lc-11", "Lactobacillus paracasei|Lpc-37", "Streptococcus thermophilus|St-21",
+            "Bifidobacterium lactis|Bl-04"
+          ])
+        },
+        "BAKA": {
+          fullTitle: "Bakakoul Vaginal Probiotics 10 Billion CFU",
+          bsl: "BSL 1 Bacteria",
+          dose: "10 Billion CFU",
+          formulation: "Oral capsule with 4 Lactobacillus species (no strain IDs listed)",
+          targetFocus: "Vaginal Microbiome Balance, Healthy pH & Urinary Tract Support",
+          hasProductTrial: false,
+          trialBadge: "Ingredient-Level Basis Only",
+          trialSummaryHtml:
+            "<strong>No Published Clinical Trials on This Finished Product:</strong> No peer-reviewed studies were found testing <em>Bakakoul Vaginal Probiotics</em>. Its formula relies on broader research showing that oral <em>Lactobacillus</em> species can support vaginal flora. However, vaginal probiotic trials typically test specific patented strains (like <em>L. rhamnosus</em> GR-1 and <em>L. reuteri</em> RC-14), so species-only formulas are limited without a trial on the finished product.",
+          claims: [
+            "Marketed to restore healthy vaginal flora, maintain an acidic vaginal pH (~3.8-4.5), and support urinary tract health.",
+            "Focuses exclusively on 4 Lactobacillus/Limosilactobacillus species (L. acidophilus, L. rhamnosus, L. reuteri, L. fermentum)."
+          ],
+          critiqueHtml:
+            "<strong>How Does a Swallowed Capsule Reach the Vaginal Tract?</strong> Think about anatomy: an oral probiotic goes through the stomach and intestines, not directly into the vagina. While some specific strains (like <em>L. rhamnosus</em> GR-1 and <em>L. reuteri</em> RC-14) can migrate from the rectum to the perineum/vagina after oral dosing, this bottle lists <strong>no strain IDs</strong>—so we don't know if these strains can survive GI transit or colonize vaginal tissue.",
+          questions: [
+            "With only 4 species listed on the bottle, do all 4 appear in our 16S rRNA sequencing reads across dozens of replicates?",
+            "How consistent is the relative abundance of each of the 4 species from capsule to capsule, and are any unlisted bacteria detected?",
+            "Why can 16S rRNA sequencing confirm L. rhamnosus and L. reuteri at the species level, yet cannot tell whether this bottle contains clinically studied vaginal strains like GR-1 or RC-14?"
+          ],
+          organisms: parseOrgs([
+            "Lactobacillus acidophilus", "Lactobacillus rhamnosus",
+            "Lactobacillus reuteri", "Lactobacillus fermentum"
+          ])
+        },
+        "RENW": {
+          fullTitle: "Renew Life Ultimate Flora Probiotic Women's Once Daily 65 Billion CFU",
+          bsl: "BSL 1 Bacteria",
+          dose: "65 Billion CFU",
+          formulation: "Delayed-release capsule (26 listed entries including L. crispatus & L. jensenii)",
+          targetFocus: "Women's Vaginal, Urinary & Digestive Health",
+          hasProductTrial: false,
+          trialBadge: "Ingredient-Level Basis Only",
+          trialSummaryHtml:
+            "<strong>No Published Clinical Trials on This Finished Product:</strong> No peer-reviewed trials were found testing <em>Renew Life Women's Once Daily 65B</em>. Its formula is plausibly grounded in microbiome research on vaginal commensals like <em>L. crispatus</em> and <em>L. jensenii</em> alongside <em>L. rhamnosus</em> GG. However, ingredient studies alone don't verify how 26 combined entries perform orally—a clinical trial on the finished product would be better evidence.",
+          claims: [
+            "Supports vaginal pH balance, urinary tract health, and daily digestive/immune wellness.",
+            "Specifically includes Lactobacillus crispatus (UF-88) and Lactobacillus jensenii (UF-522)—two signature species of a healthy vaginal microbiome—alongside L. rhamnosus GG."
+          ],
+          critiqueHtml:
+            "<strong>Oral Delivery vs. Vaginal Colonization:</strong> Including vaginal commensals like <em>L. crispatus</em> and <em>L. jensenii</em> sounds biologically targeted, but this is a <strong>swallowed oral capsule</strong>. Think critically: can oral bacteria survive stomach acid, traverse the GI tract, and ascend to establish stable vaginal colonization—especially when 24 other gut strains make up the bulk of the 65B CFU capsule?",
+          questions: [
+            "Which species from this 26-entry blend—including signature vaginal species like L. crispatus and L. jensenii—are detected in our 16S rRNA sequencing reads?",
+            "Across dozens of capsule replicates, how reproducible are the community profiles and relative read abundances?",
+            "Why is 16S rRNA sequencing unable to distinguish the 5 separate Bifidobacterium lactis UF- strains listed on this label?"
+          ],
+          organisms: parseOrgs([
+            "Bifidobacterium lactis|UF-12", "Bifidobacterium lactis|UF-IM04", "Bifidobacterium lactis|UF-DG19",
+            "Bifidobacterium lactis|UF-07", "Bifidobacterium lactis|UF-26", "Bifidobacterium longum|UF-536",
+            "Bifidobacterium breve|UF-3", "Bifidobacterium bifidum|UF-910", "Lactobacillus plantarum|UF-217",
+            "Lactobacillus plantarum|UF-987", "Lactobacillus acidophilus|UF-BV14", "Lactobacillus acidophilus|UF-01",
+            "Lactobacillus acidophilus|UF-5", "Lactobacillus rhamnosus|UF-BV11", "Lactobacillus rhamnosus|GG",
+            "Lactobacillus reuteri|UF-14", "Lactobacillus fermentum|UF-120", "Lactobacillus jensenii|UF-522",
+            "Lactobacillus gasseri|UF-2055", "Lactobacillus paracasei|UF-19", "Lactobacillus casei|UF-431",
+            "Lactobacillus crispatus|UF-88", "Lactobacillus brevis|UF-35", "Lactobacillus salivarius|UF-862",
+            "Streptococcus thermophilus|UF-336", "Lactobacillus bulgaricus|UF-165"
+          ])
+        },
+        "RENM": {
+          fullTitle: "Renew Life Ultimate Flora Probiotic Mens's Once Daily 65 Billion CFU",
+          bsl: "BSL 1 Bacteria",
+          dose: "65 Billion CFU",
+          formulation: "Delayed-release capsule (31 listed strain entries)",
+          targetFocus: "Men's Digestive Regularity, Colon Health & Immune Support",
+          hasProductTrial: false,
+          trialBadge: "Ingredient-Level Basis Only",
+          trialSummaryHtml:
+            "<strong>No Published Clinical Trials on This Finished Product:</strong> No peer-reviewed trials were found testing <em>Renew Life Men's Once Daily 65B</em>. Its formula draws on general digestive research for individual species and strains like <em>L. rhamnosus</em> GG. However, single-strain studies don't establish sex-specific benefits or how 31 combined entries interact—a clinical trial on the finished product would be stronger evidence.",
+          claims: [
+            "Formulated for men's digestive balance, occasional gas/bloating relief, and immune resilience.",
+            "Contains 31 listed strain entries, emphasizing Lactiplantibacillus plantarum, Lactobacillus acidophilus, and Bifidobacterium lactis."
+          ],
+          critiqueHtml:
+            "<strong>&ldquo;Men's&rdquo; vs. &ldquo;Women's&rdquo; Marketing Segmentation:</strong> Compare this 31-entry ingredient list with Renew Life's Digestive (29 entries) and Women's (26 entries) formulas—they share almost the exact same core <code>UF-</code> strains. Sex-specific gut probiotic formulas are mostly consumer marketing rather than evidence that men's intestines require different bacterial strains.",
+          questions: [
+            "Out of 31 listed strain entries, how many distinct species are actually detected in our 16S rRNA sequencing reads?",
+            "Across dozens of capsule replicates, how consistent is the recovered community composition and relative read abundance?",
+            "What are the limits of 16S rRNA sequencing when evaluating a label with 31 proprietary UF- strain codes?"
+          ],
+          organisms: parseOrgs([
+            "Lactobacillus plantarum|UF-217", "Lactobacillus acidophilus|UF-01", "Lactobacillus plantarum|UF-987",
+            "Lactococcus lactis|UF-23", "Lactobacillus fermentum|UF-120", "Lactobacillus rhamnosus|GG",
+            "Lactobacillus fermentum|UF-226", "Lactobacillus rhamnosus|UF-11", "Lactobacillus acidophilus|UF-5",
+            "Lactobacillus casei|UF-431", "Lactobacillus gasseri|UF-2055", "Lactobacillus reuteri|UF-14",
+            "Lactobacillus plantarum|UF-115", "Lactobacillus casei|UF-121", "Lactobacillus brevis|UF-35",
+            "Lactobacillus helveticus|UF-142", "Lactobacillus salivarius|UF-862", "Streptococcus thermophilus|UF-336",
+            "Lactobacillus bulgaricus|UF-563", "Lactobacillus bulgaricus|UF-165", "Bifidobacterium lactis|UF-12",
+            "Bifidobacterium lactis|UF-IM04", "Bifidobacterium lactis|UF-DG19", "Bifidobacterium lactis|UF-07",
+            "Bifidobacterium lactis|UF-26", "Bifidobacterium bifidum|UF-910", "Bifidobacterium breve|UF-3",
+            "Bifidobacterium infantis|UF-019", "Bifidobacterium longum|UF-536", "Bifidobacterium lactis|UF-50",
+            "Lactobacillus paracasei|UF-19"
+          ])
+        },
+        "TODD": {
+          fullTitle: "Flora Toddler's Probiotic 3 Billion CFU",
+          bsl: "BSL 1 Bacteria",
+          dose: "3 Billion CFU",
+          formulation: "Unflavored powder blend with 6 documented pediatric strains (Rosell / HA series)",
+          targetFocus: "Early Childhood Gut Flora, Digestion & Developing Immune Support",
+          hasProductTrial: false,
+          trialBadge: "Ingredient-Level Basis Only",
+          trialSummaryHtml:
+            "<strong>No Published Clinical Trials on This Finished Product:</strong> No peer-reviewed trials were found testing <em>Flora Toddler's Probiotic</em> itself. However, all 6 strains are documented Lallemand/Rosell pediatric strains (e.g., HA-111, HA-116, Rosell-418) studied individually or in related infant/child blends. Even so, a clinical trial on the finished toddler powder is stronger evidence than extrapolating from individual strain studies.",
+          claims: [
+            "Formulated specifically for toddlers (ages 1-4) to support healthy intestinal flora development, gentle digestion, and immune defenses.",
+            "Uses a lower, age-appropriate 3 Billion CFU dose built around 6 documented Lallemand/Rosell strains (HA-116, HA-111, HA-108, Rosell-418, HA-132, HA-129).",
+            "Heavy in Bifidobacterium species (B. longum, B. bifidum, B. breve) that naturally dominate early-childhood gut microbiomes."
+          ],
+          critiqueHtml:
+            "<strong>Realistic Formulation, Still Needs Whole-Product Testing:</strong> Compared to many adult supplements, this formula uses documented pediatric strains and a biologically sensible <em>Bifidobacterium</em>-rich profile at 3B CFU. Still, healthy toddlers already acquire gut microbes from food and environment, so whether daily supplementation adds measurable benefit requires trials on this finished powder.",
+          questions: [
+            "Do all 6 listed species (3 Bifidobacterium + 3 Lactobacillaceae) appear in our 16S rRNA sequencing reads?",
+            "Across dozens of powder replicates, how consistent are the relative read abundances of Bifidobacterium vs. Lactobacillaceae taxa?",
+            "Why does 16S rRNA sequencing verify species identity in the powder, yet cannot measure cell viability (3 Billion CFU) or clinical outcomes in toddlers?"
+          ],
+          organisms: parseOrgs([
+            "Bifidobacterium longum|HA-116", "Lacticaseibacillus rhamnosus|HA-111", "Lacticaseibacillus paracasei|HA-108",
+            "Lactobacillus acidophilus|Rosell®-418", "Bifidobacterium bifidum|HA-132", "Bifidobacterium breve|HA-129"
+          ])
+        }
+      };
+
+      const taxonomicAliases = {
+        "Bifidobacterium lactis": ["Bifidobacterium lactis", "Bifidobacterium animalis subsp. lactis"],
+        "Bifidobacterium animalis": ["Bifidobacterium animalis", "Bifidobacterium animalis subsp. lactis"],
+        "Bifidobacterium infantis": ["Bifidobacterium infantis", "Bifidobacterium longum subsp. infantis"],
+        "Lactobacillus plantarum": ["Lactobacillus plantarum", "Lactiplantibacillus plantarum"],
+        "Lactiplantibacillus plantarum": ["Lactiplantibacillus plantarum", "Lactobacillus plantarum"],
+        "Lactobacillus rhamnosus": ["Lactobacillus rhamnosus", "Lacticaseibacillus rhamnosus"],
+        "Lacticaseibacillus rhamnosus": ["Lacticaseibacillus rhamnosus", "Lactobacillus rhamnosus"],
+        "Lactobacillus casei": ["Lactobacillus casei", "Lacticaseibacillus casei"],
+        "Lacticaseibacillus casei": ["Lacticaseibacillus casei", "Lactobacillus casei"],
+        "Lactobacillus paracasei": ["Lactobacillus paracasei", "Lacticaseibacillus paracasei"],
+        "Lacticaseibacillus paracasei": ["Lacticaseibacillus paracasei", "Lactobacillus paracasei"],
+        "Lactobacillus reuteri": ["Lactobacillus reuteri", "Limosilactobacillus reuteri"],
+        "Limosilactobacillus reuteri": ["Limosilactobacillus reuteri", "Lactobacillus reuteri"],
+        "Lactobacillus fermentum": ["Lactobacillus fermentum", "Limosilactobacillus fermentum"],
+        "Limosilactobacillus fermentum": ["Limosilactobacillus fermentum", "Lactobacillus fermentum"],
+        "Lactobacillus salivarius": ["Lactobacillus salivarius", "Ligilactobacillus salivarius"],
+        "Ligilactobacillus salivarius": ["Ligilactobacillus salivarius", "Lactobacillus salivarius"],
+        "Lactobacillus bulgaricus": ["Lactobacillus bulgaricus", "Lactobacillus delbrueckii subsp. bulgaricus"],
+        "Lactobacillus brevis": ["Lactobacillus brevis", "Levilactobacillus brevis"],
+        "Levilactobacillus brevis": ["Levilactobacillus brevis", "Lactobacillus brevis"],
+        "Streptococcus thermophiles": ["Streptococcus thermophiles", "Streptococcus thermophilus"],
+        "Bacillus coagulans": ["Bacillus coagulans", "Heyndrickxia coagulans", "Weizmannia coagulans"],
+        "Bacillus clausii": ["Bacillus clausii", "Alkalihalobacillus clausii", "Shouchella clausii"],
+        "Saccharomyces boulardii": ["Saccharomyces boulardii", "Saccharomyces cerevisiae var. boulardii"]
+      };
+
+      const strainAliases = {
+        "R1001": ["R1001", "MA18/5M", "EQ-01"],
+        "R0011": ["R0011", "Rosell-11", "CNCM I-1720"],
+        "R0052": ["R0052", "Rosell-52", "CNCM I-1722"],
+        "R0175": ["R0175", "Rosell-175", "CNCM I-3470"],
+        "R0070": ["R0070", "Rosell-70", "CNCM I-1723"],
+        "R0215": ["R0215", "Rosell-215", "CNCM I-1721"],
+        "R1012": ["R1012", "Rosell-1012", "CNCM I-3471"],
+        "R1058": ["R1058", "Rosell-1058", "CNCM I-3472"],
+        "HA-196": ["HA-196", "Rosell-196"],
+        "HA-116": ["HA-116", "Rosell-116"],
+        "HA-111": ["HA-111", "Rosell-111"],
+        "HA-108": ["HA-108", "Rosell-108"],
+        "HA-132": ["HA-132", "Rosell-132"],
+        "HA-129": ["HA-129", "Rosell-129"],
+        "Rosell-418": ["Rosell-418", "R0418"],
+        "GG": ["GG", "ATCC 53103"],
+        "BB536": ["BB536", "ATCC BAA-999"],
+        "BL-04": ["BL-04", "ATCC SD5219"],
+        "Bl-04": ["Bl-04", "BL-04", "ATCC SD5219"],
+        "Bb-06": ["Bb-06", "ATCC SD5215"],
+        "Bb-18": ["Bb-18", "ATCC SD5217"],
+        "Bb-03": ["Bb-03", "ATCC SD5206"],
+        "Bl-05": ["Bl-05", "ATCC SD5208"],
+        "La-14": ["La-14", "ATCC SD5212"],
+        "Lbr-35": ["Lbr-35", "ATCC SD5214"],
+        "Lc-11": ["Lc-11", "ATCC SD5213"],
+        "Lg-36": ["Lg-36", "ATCC SD5216"],
+        "Lpc-37": ["Lpc-37", "ATCC SD5275"],
+        "Lp-115": ["Lp-115", "ATCC SD5209"],
+        "Ls-33": ["Ls-33", "ATCC SD5211"],
+        "St-21": ["St-21", "ATCC SD5218"],
+        "HN001": ["HN001", "DR20"],
+        "DE111": ["DE111", "ATCC BAA-2878"],
+        "SNZ 1969": ["SNZ 1969", "MTCC 5724"],
+        "CECT7347": ["CECT7347", "ES1"],
+        "M63": ["M63", "LMG 23728"]
+      };
+
+      function getFunctionalProfile(species) {
+        if (/^Bifidobacterium/i.test(species)) {
+          return {
+            group: "Bifidobacterium (Gram-positive, Y-shaped anaerobic rods)",
+            summary: "Primarily colonizes the large intestine (colon), where it ferments complex dietary fibers and human milk oligosaccharides into acetate and lactate. These short-chain fatty acids lower colonic pH, inhibit opportunistic pathogens, and nourish colonocytes."
+          };
+        }
+        if (/crispatus|jensenii/i.test(species)) {
+          return {
+            group: "Vaginal-Adapted Lactobacillaceae (Gram-positive rods)",
+            summary: "Dominant commensal species of a healthy human vaginal microbiome. Produces high levels of D- and L-lactic acid (maintaining pH ~3.8-4.5) along with hydrogen peroxide and bacteriocins that protect against urogenital pathogens."
+          };
+        }
+        if (/^(Lactobacillus|Lacticaseibacillus|Lactiplantibacillus|Limosilactobacillus|Ligilactobacillus|Levilactobacillus)/i.test(species)) {
+          return {
+            group: "Lactobacillaceae Family (Gram-positive lactic acid bacteria)",
+            summary: "Colonizes the small intestine, colon, and mucosal surfaces. Converts carbohydrates into lactic acid, reinforces epithelial tight-junction proteins, competes with pathogens for mucosal binding sites, and modulates local mucosal immune signaling."
+          };
+        }
+        if (/^Bacillus/i.test(species)) {
+          return {
+            group: "Spore-Forming Bacillaceae (Gram-positive, endospore-forming rods)",
+            summary: "Forms dormant endospores capable of surviving extreme heat, shelf storage, and stomach acid before germinating in the small intestine, where vegetative cells secrete digestive enzymes and antimicrobial peptides."
+          };
+        }
+        if (/^Saccharomyces/i.test(species)) {
+          return {
+            group: "Beneficial Probiotic Yeast (Eukaryotic fungus)",
+            summary: "Naturally resistant to antibacterial antibiotics; secretes proteases that degrade bacterial toxins (such as Clostridioides difficile toxins), supports intestinal brush-border enzymes, and boosts secretory IgA."
+          };
+        }
+        if (/^(Pediococcus|Lactococcus|Streptococcus)/i.test(species)) {
+          return {
+            group: "Lactic Acid Cocci (Gram-positive spherical/ovoid bacteria)",
+            summary: "Rapidly produces lactic acid and antimicrobial bacteriocins (such as pediocin or nisin), aids lactose digestion via beta-galactosidase activity, and helps acidify the intestinal lumen."
+          };
+        }
+        return {
+          group: "Probiotic Microorganism",
+          summary: "Contributes to microbial community balance through organic acid production, competitive exclusion of pathogens, and interaction with host mucosal immunity."
+        };
+      }
+
+      const TARGET_COLLAPSED_ROWS = 3;
+      let currentCode = "";
+      let selectedIdx = 0;
+      let showAllOrgs = false;
+      let activeToken = 0;
+      let invalidParamCode = "";
+      let lastComputedCols = 0;
+      const pubmedCache = {};
+      const abstractCache = {};
+
+      const NCBI_PARAMS = "&tool=bios110_intro_claims_explorer&email=bios110@example.edu";
+      let ncbiQueue = Promise.resolve();
+      let lastCallTimestamp = 0;
+
+      function fetchNcbiResilient(url, retries) {
+        const maxRetries = retries || 2;
+        const fullUrl = url + NCBI_PARAMS;
+
+        const task = async () => {
+          for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            const now = Date.now();
+            const waitMs = Math.max(0, lastCallTimestamp + 360 - now);
+            if (waitMs > 0) {
+              await new Promise(resolve => setTimeout(resolve, waitMs));
+            }
+            lastCallTimestamp = Date.now();
+
+            try {
+              const resp = await fetch(fullUrl, { method: "GET", mode: "cors", credentials: "omit" });
+              if (resp.status === 429 && attempt < maxRetries) {
+                await new Promise(resolve => setTimeout(resolve, 750 * (attempt + 1)));
+                continue;
+              }
+              if (!resp.ok) throw new Error("HTTP " + resp.status);
+              return resp;
+            } catch (err) {
+              if (attempt === maxRetries) throw err;
+              await new Promise(resolve => setTimeout(resolve, 600 * (attempt + 1)));
+            }
+          }
+        };
+
+        const chained = ncbiQueue.then(task, task);
+        ncbiQueue = chained.catch(() => {});
+        return chained;
+      }
+
+      function cleanStrain(str) { return (str || "").replace(/[®™]/g, "").trim(); }
+
+      function escapeHtml(str) {
+        return String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function getAliases(species) { return taxonomicAliases[species] || [species]; }
+      function getStrainAliases(cleanStr) { return cleanStr ? (strainAliases[cleanStr] || [cleanStr]) : []; }
+
+      function buildStrainQuery(cleanStr) {
+        const aliases = getStrainAliases(cleanStr);
+        if (aliases.length === 0) return "";
+        if (aliases.length === 1) return '"' + aliases[0] + '"';
+        return "(" + aliases.map(a => '"' + a + '"').join(" OR ") + ")";
+      }
+
+      function buildOrganismQuery(species, fieldTag) {
+        const tag = fieldTag || "[Title/Abstract]";
+        const aliases = getAliases(species);
+        if (aliases.length === 1) return '"' + aliases[0] + '"' + tag;
+        return "(" + aliases.map(a => '"' + a + '"' + tag).join(" OR ") + ")";
+      }
+
+      function resolveInitialSampleFromUrl() {
+        try {
+          const rawSearch = window.location.search || "";
+          if (!rawSearch) return { code: "", invalid: "" };
+          const params = new URLSearchParams(rawSearch);
+          const rawVal = params.get("sample") || params.get("product");
+          if (!rawVal) return { code: "", invalid: "" };
+          const normalized = rawVal.trim().replace(/\s+/g, "+").toUpperCase();
+          if (catalog[normalized]) return { code: normalized, invalid: "" };
+          return { code: "", invalid: rawVal.trim() };
+        } catch (e) {
+          return { code: "", invalid: "" };
+        }
+      }
+
+      function syncUrlQueryParam(code) {
+        try {
+          if (!window.location || window.location.protocol === "about:" || window.location.origin === "null") return;
+          const url = new URL(window.location.href);
+          if (code) {
+            url.searchParams.set("sample", code);
+            url.searchParams.delete("product");
+          } else {
+            url.searchParams.delete("sample");
+            url.searchParams.delete("product");
+          }
+          window.history.replaceState({}, "", url.toString());
+        } catch (e) {}
+      }
+
+      function applyProductSelection(code) {
+        currentCode = code || "";
+        selectedIdx = 0;
+        showAllOrgs = false;
+        invalidParamCode = "";
+        const warnEl = document.getElementById("url-warning-banner");
+        if (warnEl) warnEl.classList.add("hidden");
+        const sel = document.getElementById("product-select");
+        if (sel) sel.value = currentCode;
+        syncUrlQueryParam(currentCode);
+        renderOverviewAndList();
+        if (currentCode && catalog[currentCode]) selectOrganism(0);
+      }
+
+      function initProductSelect() {
+        const sel = document.getElementById("product-select");
+        if (!sel) return;
+        sel.innerHTML = "";
+
+        const defaultOpt = document.createElement("option");
+        defaultOpt.value = "";
+        defaultOpt.textContent = "— Choose your assigned probiotic sample (see your lab datasheet) —";
+        if (!currentCode) defaultOpt.selected = true;
+        sel.appendChild(defaultOpt);
+
+        Object.keys(catalog).forEach(code => {
+          const opt = document.createElement("option");
+          opt.value = code;
+          opt.textContent = code + " — " + catalog[code].fullTitle;
+          if (code === currentCode) opt.selected = true;
+          sel.appendChild(opt);
+        });
+
+        sel.addEventListener("change", () => applyProductSelection(sel.value));
+
+        const orgListEl = document.getElementById("org-list");
+        orgListEl.addEventListener("click", (event) => {
+          const expandBtn = event.target.closest(".org-expand-btn");
+          if (expandBtn) {
+            showAllOrgs = !showAllOrgs;
+            renderOverviewAndList();
+            return;
+          }
+          const btn = event.target.closest(".org-btn");
+          if (!btn) return;
+          const idx = parseInt(btn.getAttribute("data-index"), 10);
+          if (!Number.isNaN(idx)) selectOrganism(idx);
+        });
+
+        if (typeof ResizeObserver !== "undefined") {
+          const ro = new ResizeObserver(() => {
+            if (!currentCode || !catalog[currentCode] || showAllOrgs) return;
+            const cols = getGridColumnCount(orgListEl);
+            if (cols !== lastComputedCols) renderOverviewAndList();
+          });
+          ro.observe(orgListEl);
+        }
+      }
+
+      function getGridColumnCount(listEl) {
+        if (!listEl || !listEl.clientWidth) return 3;
+        return Math.max(1, Math.floor((listEl.clientWidth + 6) / (225 + 6)));
+      }
+
+      function renderOverviewAndList() {
+        const topBarEl = document.getElementById("top-bar");
+        const emptyEl = document.getElementById("empty-state-panel");
+        const layoutEl = document.getElementById("explorer-layout");
+        const warnEl = document.getElementById("url-warning-banner");
+        const orgListEl = document.getElementById("org-list");
+
+        if (invalidParamCode) {
+          warnEl.innerHTML = "<strong>Sample code not recognized:</strong> The link code &ldquo;" + escapeHtml(invalidParamCode) + "&rdquo; did not match any probiotic sample in our catalog. Please choose your sample code from the dropdown above.";
+          warnEl.classList.remove("hidden");
+        }
+
+        if (!currentCode || !catalog[currentCode]) {
+          if (topBarEl) topBarEl.classList.add("needs-selection");
+          layoutEl.classList.add("hidden");
+          emptyEl.classList.remove("hidden");
+          return;
+        }
+
+        if (topBarEl) topBarEl.classList.remove("needs-selection");
+        emptyEl.classList.add("hidden");
+        layoutEl.classList.remove("hidden");
+
+        const item = catalog[currentCode];
+
+        document.getElementById("sample-code-badge").textContent = currentCode;
+        document.getElementById("overview-heading").textContent = item.fullTitle;
+
+        document.getElementById("product-meta-pills").innerHTML =
+          '<span class="meta-pill green"><strong>Advertised Potency:</strong> ' + escapeHtml(item.dose) + "</span>" +
+          '<span class="meta-pill"><strong>Target Focus:</strong> ' + escapeHtml(item.targetFocus) + "</span>" +
+          '<span class="meta-pill"><strong>Format:</strong> ' + escapeHtml(item.formulation) + "</span>" +
+          '<span class="meta-pill"><strong>Biosafety:</strong> ' + escapeHtml(item.bsl) + "</span>";
+
+        document.getElementById("product-claims-list").innerHTML = item.claims
+          .map(claim => "<li>" + escapeHtml(claim) + "</li>")
+          .join("");
+
+        document.getElementById("product-critique-body").innerHTML = item.critiqueHtml;
+
+        document.getElementById("project-questions-list").innerHTML = item.questions
+          .map(q => "<li>" + escapeHtml(q) + "</li>")
+          .join("");
+
+        const trialBoxEl = document.getElementById("product-trial-box");
+        const trialPillEl = document.getElementById("product-trial-pill");
+        const trialBodyEl = document.getElementById("product-trial-body");
+
+        if (item.hasProductTrial) {
+          trialBoxEl.classList.add("has-trial");
+          trialPillEl.classList.add("verified");
+        } else {
+          trialBoxEl.classList.remove("has-trial");
+          trialPillEl.classList.remove("verified");
+        }
+        trialPillEl.textContent = item.trialBadge;
+        trialBodyEl.innerHTML = item.trialSummaryHtml;
+
+        const orgs = item.organisms;
+        const cols = getGridColumnCount(orgListEl);
+        lastComputedCols = cols;
+        const maxCollapsedSlots = cols * TARGET_COLLAPSED_ROWS;
+
+        const hasOverflow = orgs.length > maxCollapsedSlots;
+        const visibleOrgs = (hasOverflow && !showAllOrgs) ? orgs.slice(0, Math.max(1, maxCollapsedSlots - 1)) : orgs;
+
+        document.getElementById("org-count").textContent = orgs.length + " listed " + (orgs.length === 1 ? "organism" : "organisms");
+
+        const orgItemsHtml = visibleOrgs.map((org, idx) => {
+          const isActive = idx === selectedIdx;
+          return (
+            "<li>" +
+              '<button type="button" class="org-btn ' + (isActive ? "active" : "") + '" data-index="' + idx + '" aria-pressed="' + isActive + '"' + (isActive ? ' aria-current="true"' : "") + ">" +
+                "<span>" + escapeHtml(org.label) + "</span>" +
+              "</button>" +
+            "</li>"
+          );
+        }).join("");
+
+        let toggleItemHtml = "";
+        if (hasOverflow) {
+          if (!showAllOrgs) {
+            const hiddenCount = orgs.length - visibleOrgs.length;
+            toggleItemHtml = '<li><button type="button" class="org-expand-btn" aria-expanded="false">Show all (' + hiddenCount + " more) &#8595;</button></li>";
+          } else {
+            toggleItemHtml = '<li><button type="button" class="org-expand-btn" aria-expanded="true">Show fewer &#8593;</button></li>';
+          }
+        }
+
+        orgListEl.innerHTML = orgItemsHtml + toggleItemHtml;
+      }
+
+      async function queryPubMedTop5(term) {
+        const searchUrl = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=" + encodeURIComponent(term) + "&retmode=json&retmax=5&sort=relevance";
+        const resp = await fetchNcbiResilient(searchUrl);
+        const json = await resp.json();
+
+        const totalCount = parseInt(json && json.esearchresult ? json.esearchresult.count : "0", 10) || 0;
+        const pmids = (json && json.esearchresult && json.esearchresult.idlist) || [];
+        if (pmids.length === 0) return { totalCount, articles: [] };
+
+        const sumUrl = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=" + pmids.join(",") + "&retmode=json";
+        const sumResp = await fetchNcbiResilient(sumUrl);
+        const sumJson = await sumResp.json();
+
+        const articles = pmids.map(id => {
+          const art = (sumJson.result && sumJson.result[id]) || {};
+          const firstAuthor = art.authors && art.authors.length > 0 ? (art.authors[0].name + " et al.") : "Author unlisted";
+          const year = art.pubdate ? art.pubdate.slice(0, 4) : "";
+          return {
+            pmid: id,
+            title: art.title || ("PubMed Study " + id),
+            firstAuthor,
+            journal: art.source || "Journal unlisted",
+            year
+          };
+        });
+
+        return { totalCount, articles };
+      }
+
+      async function autoLoadPubMedAbstracts(articles, token) {
+        if (!articles || articles.length === 0) return;
+
+        const missingPmids = [];
+        articles.forEach((art, aIdx) => {
+          const host = document.getElementById("abs-slot-" + token + "-" + aIdx);
+          if (!host) return;
+          if (abstractCache[art.pmid]) {
+            host.innerHTML = '<div class="abstract-box" tabindex="0" role="region" aria-label="Study abstract">' + escapeHtml(abstractCache[art.pmid]) + "</div>";
+          } else {
+            host.innerHTML = '<div class="abstract-box">Loading abstract…</div>';
+            missingPmids.push(art.pmid);
+          }
+        });
+
+        if (missingPmids.length === 0) return;
+
+        try {
+          const xmlUrl = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pubmed&id=" + encodeURIComponent(missingPmids.join(",")) + "&retmode=xml";
+          const resp = await fetchNcbiResilient(xmlUrl);
+          if (token !== activeToken) return;
+
+          const xmlString = await resp.text();
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(xmlString, "text/xml");
+          const articleNodes = Array.from(xmlDoc.querySelectorAll("PubmedArticle"));
+
+          articleNodes.forEach(articleNode => {
+            const pmidEl = articleNode.querySelector("MedlineCitation > PMID");
+            if (!pmidEl) return;
+            const pmid = pmidEl.textContent.trim();
+            const abstractNodes = Array.from(articleNode.querySelectorAll("AbstractText"));
+
+            let parsedText = "";
+            if (abstractNodes.length > 0) {
+              parsedText = abstractNodes.map(node => {
+                const label = node.getAttribute("Label");
+                const body = node.textContent.trim();
+                return label ? (label + ": " + body) : body;
+              }).join("\n\n");
+            } else {
+              parsedText = "No abstract text is indexed in PubMed for this article. Click the study title above to view details on PubMed.";
+            }
+            abstractCache[pmid] = parsedText;
+          });
+
+          articles.forEach((art, aIdx) => {
+            const host = document.getElementById("abs-slot-" + token + "-" + aIdx);
+            if (!host) return;
+            const text = abstractCache[art.pmid] || "No abstract text is indexed in PubMed for this article.";
+            host.innerHTML = '<div class="abstract-box" tabindex="0" role="region" aria-label="Study abstract">' + escapeHtml(text) + "</div>";
+          });
+        } catch (err) {
+          if (token !== activeToken) return;
+          articles.forEach((art, aIdx) => {
+            if (abstractCache[art.pmid]) return;
+            const host = document.getElementById("abs-slot-" + token + "-" + aIdx);
+            if (host) host.innerHTML = '<div class="abstract-box">Could not load abstract inline. Click the study title above to view on NIH PubMed.</div>';
+          });
+        }
+      }
+
+      async function loadPubMedFunctionSection(org, token) {
+        const contentEl = document.getElementById("content-pubmed");
+        const pillEl = document.getElementById("pill-pubmed");
+
+        pillEl.textContent = "Searching…";
+        contentEl.innerHTML = '<p class="status-text">Searching NIH PubMed for strain function, mechanisms, and health outcomes…</p>';
+
+        const cleanStr = cleanStrain(org.strain);
+        const strainQuery = buildStrainQuery(cleanStr);
+        const titleAbsQuery = buildOrganismQuery(org.species, "[Title/Abstract]");
+        const functionTerms = "(probiotic OR gut OR intestinal OR immune OR clinical OR health OR colonization OR antimicrobial)";
+        const cacheKey = org.species + "|" + cleanStr + "|PUBMED_FUNC_TOP5_V1";
+
+        try {
+          let data = pubmedCache[cacheKey];
+          if (!data) {
+            let res = null;
+            let scopeBadge = "";
+            let usedTerm = "";
+
+            if (strainQuery) {
+              const tier1Term = titleAbsQuery + " AND " + strainQuery + " AND " + functionTerms;
+              const t1 = await queryPubMedTop5(tier1Term);
+              if (t1.totalCount > 0) {
+                res = t1;
+                scopeBadge = "Strain Function";
+                usedTerm = tier1Term;
+              }
+            }
+
+            if (!res && strainQuery) {
+              const tier2Term = titleAbsQuery + " AND " + strainQuery;
+              const t2 = await queryPubMedTop5(tier2Term);
+              if (t2.totalCount > 0) {
+                res = t2;
+                scopeBadge = "Strain Study";
+                usedTerm = tier2Term;
+              }
+            }
+
+            if (!res) {
+              const tier3Term = titleAbsQuery + " AND " + functionTerms;
+              const t3 = await queryPubMedTop5(tier3Term);
+              if (t3.totalCount > 0) {
+                res = t3;
+                scopeBadge = "Species Function";
+                usedTerm = tier3Term;
+              } else {
+                res = await queryPubMedTop5(titleAbsQuery);
+                scopeBadge = "Species Literature";
+                usedTerm = titleAbsQuery;
+              }
+            }
+
+            data = { totalCount: res.totalCount, articles: res.articles, scopeBadge, usedTerm };
+            pubmedCache[cacheKey] = data;
+          }
+
+          if (token !== activeToken) return;
+
+          pillEl.textContent = data.totalCount.toLocaleString() + (data.totalCount === 1 ? " study" : " studies");
+          const pubmedSearchUrl = "https://pubmed.ncbi.nlm.nih.gov/?term=" + encodeURIComponent(data.usedTerm);
+
+          let scopeCalloutHtml = "";
+          if (data.totalCount > 0) {
+            let scopeText = "";
+            if (data.scopeBadge === "Strain Function") {
+              scopeText = "Showing published functional, probiotic, and clinical studies specifically testing strain <strong>" + escapeHtml(org.strain) + "</strong>.";
+            } else if (data.scopeBadge === "Strain Study") {
+              scopeText = "Showing general published studies specifically mentioning strain <strong>" + escapeHtml(org.strain) + "</strong>.";
+            } else if (data.scopeBadge === "Species Function") {
+              scopeText = cleanStr
+                ? ("No published studies on PubMed matched strain <strong>" + escapeHtml(org.strain) + "</strong>, so functional and probiotic studies for the species <em>" + escapeHtml(org.species) + "</em> are shown below.")
+                : ("No strain ID is listed on the bottle, so functional and probiotic studies for the species <em>" + escapeHtml(org.species) + "</em> are shown below.");
+            } else {
+              scopeText = cleanStr
+                ? ("No functional probiotic studies matched strain <strong>" + escapeHtml(org.strain) + "</strong> or <em>" + escapeHtml(org.species) + "</em>, so general scientific studies on this species are shown below.")
+                : ("No strain ID is listed on the bottle and no probiotic-specific studies were found, so general scientific studies on <em>" + escapeHtml(org.species) + "</em> are shown below.");
+            }
+            scopeCalloutHtml = '<ul class="section-sub-bullet"><li>' + scopeText + "</li></ul>";
+          }
+
+          const articlesHtml = data.articles.length === 0
+            ? '<p class="status-text">No exact PubMed matches found. Use the link below to search directly on NIH PubMed.</p>'
+            : data.articles.map((art, aIdx) => {
+                const slotId = "abs-slot-" + token + "-" + aIdx;
+                const articleUrl = "https://pubmed.ncbi.nlm.nih.gov/" + encodeURIComponent(art.pmid) + "/";
+                return (
+                  '<article class="rec-card">' +
+                    '<div class="rec-top-row">' +
+                      '<div class="rec-title">' +
+                        '<a class="rec-title-link" href="' + articleUrl + '" target="_blank" rel="noopener">' + escapeHtml(art.title) + " &#8599;</a>" +
+                      "</div>" +
+                      '<span class="scope-badge">' + escapeHtml(data.scopeBadge) + "</span>" +
+                    "</div>" +
+                    '<div class="rec-meta">' +
+                      escapeHtml(art.firstAuthor) + " &middot; <em>" + escapeHtml(art.journal) + "</em> " + (art.year ? ("(" + escapeHtml(art.year) + ")") : "") + " &middot; PMID: " + escapeHtml(art.pmid) +
+                    "</div>" +
+                    '<div class="box-label">Abstract:</div>' +
+                    '<div id="' + slotId + '"></div>' +
+                  "</article>"
+                );
+              }).join("");
+
+          contentEl.innerHTML =
+            scopeCalloutHtml +
+            articlesHtml +
+            '<div class="section-footer">' +
+              '<a class="ext-link" href="' + pubmedSearchUrl + '" target="_blank" rel="noopener">View all ' + data.totalCount.toLocaleString() + " studies on NIH PubMed &#8599;</a>" +
+            "</div>";
+
+          if (data.articles.length > 0) autoLoadPubMedAbstracts(data.articles, token);
+        } catch (err) {
+          if (token !== activeToken) return;
+          pillEl.textContent = "Unavailable";
+          const fallbackUrl = "https://pubmed.ncbi.nlm.nih.gov/?term=" + encodeURIComponent(titleAbsQuery + " AND " + functionTerms);
+          contentEl.innerHTML =
+            '<div class="note-box">Could not load NIH PubMed studies inside the frame.</div>' +
+            '<div class="action-row">' +
+              '<button type="button" class="mini-btn retry-pubmed-btn">Retry</button>' +
+              '<a class="ext-link" href="' + fallbackUrl + '" target="_blank" rel="noopener">View studies on NIH PubMed &#8599;</a>' +
+            "</div>";
+
+          const retryBtn = contentEl.querySelector(".retry-pubmed-btn");
+          if (retryBtn) retryBtn.addEventListener("click", () => selectOrganism(selectedIdx));
+        }
+      }
+
+      function selectOrganism(idx) {
+        selectedIdx = idx;
+        renderOverviewAndList();
+
+        const org = catalog[currentCode].organisms[idx];
+        if (!org) return;
+
+        const token = ++activeToken;
+        const hasStrain = Boolean(org.strain && org.strain.trim());
+        const aliases = getAliases(org.species);
+        const profile = getFunctionalProfile(org.species);
+
+        document.getElementById("selected-org-heading").textContent = org.label;
+        document.getElementById("selected-org-submeta").innerHTML =
+          "<strong>Species:</strong> <em>" + escapeHtml(org.species) + "</em> &middot; " +
+          "<strong>Strain on Bottle:</strong> " + (hasStrain ? escapeHtml(org.strain) : "No strain listed");
+
+        const aliasEl = document.getElementById("selected-org-alias");
+        if (aliases.length > 1) {
+          aliasEl.innerHTML = "<strong>Taxonomic synonym:</strong> <em>" + escapeHtml(aliases[1]) + "</em>";
+          aliasEl.classList.remove("hidden");
+        } else {
+          aliasEl.classList.add("hidden");
+        }
+
+        document.getElementById("taxon-group-label").textContent = profile.group;
+        document.getElementById("taxon-role-summary").textContent = profile.summary;
+
+        const checkpointEl = document.getElementById("strain-lab-checkpoint");
+        if (/^Saccharomyces/i.test(org.species)) {
+          checkpointEl.innerHTML = "<strong>16S Sequencing Note:</strong> Because <em>Saccharomyces boulardii</em> is a yeast (eukaryote), it has no bacterial 16S rRNA gene and will not amplify with our bacterial 16S primers.";
+        } else if (hasStrain) {
+          checkpointEl.innerHTML = "<strong>16S Sequencing Note:</strong> Our 16S rRNA amplicon sequencing can confirm whether <em>" + escapeHtml(org.species) + "</em> DNA is present across replicates, though 16S alone cannot distinguish strain <strong>" + escapeHtml(org.strain) + "</strong> from other strains of the same species.";
+        } else {
+          checkpointEl.innerHTML = "<strong>16S Sequencing Note:</strong> No strain ID is listed on the bottle for <em>" + escapeHtml(org.species) + "</em>. Our 16S rRNA sequencing operates at the exact same species resolution as the label.";
+        }
+
+        loadPubMedFunctionSection(org, token);
+      }
+
+      function initApp() {
+        const initialRoute = resolveInitialSampleFromUrl();
+        currentCode = initialRoute.code;
+        invalidParamCode = initialRoute.invalid;
+
+        initProductSelect();
+        renderOverviewAndList();
+        if (currentCode && catalog[currentCode]) selectOrganism(0);
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initApp);
+      } else {
+        initApp();
+      }
+    })();
+  </script>
+</body>
+</html>
