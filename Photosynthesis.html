@@ -1,0 +1,2225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BIOS 110: Interactive Photosynthesis Diagram Lab</title>
+  <!-- Load Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            forest: {
+              950: '#041f17',
+              900: '#063226',
+              800: '#0b4c3a',
+              700: '#10664e',
+              600: '#168566',
+              500: '#1ea881',
+              100: '#d6f5eb',
+              50: '#eefbf7',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body {
+      background-color: #f3f7f5;
+      color: #0f172a;
+    }
+
+    @keyframes flowDash {
+      to { stroke-dashoffset: -24; }
+    }
+    .electron-flow-active {
+      stroke-dasharray: 8 4;
+      animation: flowDash 0.75s linear infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { filter: drop-shadow(0 0 4px rgba(251, 191, 36, 0.7)); }
+      50% { filter: drop-shadow(0 0 12px rgba(251, 191, 36, 1)); }
+    }
+    .photon-pulse {
+      animation: pulseGlow 1.8s ease-in-out infinite;
+    }
+
+    @keyframes floatProton {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-4px); }
+    }
+    .proton-bob {
+      animation: floatProton 2.2s ease-in-out infinite;
+    }
+
+    /* Interactive SVG Node styling */
+    .protein-node {
+      cursor: pointer;
+      transition: filter 0.2s ease;
+    }
+    .protein-node:hover {
+      filter: brightness(1.1) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25));
+    }
+    .protein-selected {
+      stroke: #fbbf24 !important;
+      stroke-width: 4px !important;
+      filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.9));
+    }
+
+    /* Drag and Drop Chip & Slot Styles */
+    .drag-chip {
+      cursor: grab;
+      user-select: none;
+      touch-action: manipulation;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    }
+    .drag-chip:active {
+      cursor: grabbing;
+      transform: scale(0.97);
+    }
+    .drag-chip.selected-chip {
+      ring: 3px solid #f59e0b;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(245, 158, 11, 0.35);
+    }
+    .drop-slot {
+      transition: all 0.2s ease;
+    }
+    .drop-slot.drag-over {
+      border-color: #f59e0b !important;
+      background-color: #fef3c7 !important;
+      transform: scale(1.03);
+    }
+    .drop-slot.filled-correct {
+      border-color: #059669 !important;
+      background-color: #ecfdf5 !important;
+      border-style: solid !important;
+    }
+    @keyframes shakeError {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    .shake-wrong {
+      animation: shakeError 0.3s ease-in-out;
+      border-color: #e11d48 !important;
+      background-color: #ffe4e6 !important;
+    }
+
+    /* Tab transitions */
+    .tab-panel {
+      display: none;
+      animation: fadeIn 0.22s ease-out;
+    }
+    .tab-panel.active {
+      display: block;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans antialiased">
+
+  <!-- Top Header Banner -->
+  <header class="bg-gradient-to-r from-forest-950 via-forest-900 to-forest-800 text-white shadow-lg border-b border-forest-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider bg-forest-500/20 text-forest-100 border border-forest-500/40 rounded-full">
+              BIOS 110 • Interactive Diagram Studio
+            </span>
+            <span class="text-xs text-forest-100/80 hidden sm:inline">Drag-and-Drop &amp; Visual Pathway Simulations</span>
+          </div>
+          <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight mt-1">
+            Photosynthesis: Interactive Mechanisms &amp; Adaptations
+          </h1>
+        </div>
+
+        <!-- Interaction Tip Pill -->
+        <div class="bg-forest-950/70 px-3.5 py-2 rounded-xl border border-forest-700/60 text-xs text-forest-100 flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-ping"></span>
+          <span><strong>Tip:</strong> Drag chips onto diagram slots (or tap a chip, then tap a target slot).</span>
+        </div>
+      </div>
+
+      <!-- 5 Interactive Tab Navigation -->
+      <nav class="flex overflow-x-auto gap-2 mt-4 pb-1" aria-label="Module Sections">
+        <button onclick="switchTab('tab-photophos')" id="btn-tab-photophos"
+          class="nav-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all bg-white text-forest-900 shadow-md ring-2 ring-amber-400">
+          1. Cyclic vs. Noncyclic Photophosphorylation ★
+        </button>
+        <button onclick="switchTab('tab-disruptions')" id="btn-tab-disruptions"
+          class="nav-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all bg-forest-800/80 text-forest-100 hover:bg-forest-700">
+          2. Thylakoid Herbicide Sandbox
+        </button>
+        <button onclick="switchTab('tab-calvin')" id="btn-tab-calvin"
+          class="nav-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all bg-forest-800/80 text-forest-100 hover:bg-forest-700">
+          3. Calvin Cycle Builder
+        </button>
+        <button onclick="switchTab('tab-rubisco')" id="btn-tab-rubisco"
+          class="nav-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all bg-forest-800/80 text-forest-100 hover:bg-forest-700">
+          4. RuBisCO &amp; Photorespiration
+        </button>
+        <button onclick="switchTab('tab-c3c4cam')" id="btn-tab-c3c4cam"
+          class="nav-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all bg-forest-800/80 text-forest-100 hover:bg-forest-700">
+          5. C3/C4/CAM &amp; CO₂ Graph
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Workspace Container -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: CYCLIC VS. NONCYCLIC PHOTOPHOSPHORYLATION (PRIMARY FOCUS)    -->
+    <!-- =================================================================== -->
+    <section id="tab-photophos" class="tab-panel active space-y-6">
+
+      <!-- Mode Toggle & Playback Controls -->
+      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-forest-700">Select Electron Pathway Mode</span>
+            <div class="flex flex-wrap gap-2 mt-1.5">
+              <button onclick="setPathwayMode('noncyclic')" id="mode-btn-noncyclic"
+                class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-forest-800 text-white shadow ring-2 ring-forest-500">
+                Noncyclic Photophosphorylation (Linear)
+              </button>
+              <button onclick="setPathwayMode('cyclic')" id="mode-btn-cyclic"
+                class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-slate-100 text-slate-700 hover:bg-slate-200">
+                Cyclic Photophosphorylation (PSI Loop)
+              </button>
+            </div>
+          </div>
+
+          <!-- Step Trace Controls -->
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="prevStep()" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition">
+              ◀ Prev Step
+            </button>
+            <button onclick="nextStep()" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold shadow transition">
+              Next Step ▶
+            </button>
+            <button onclick="toggleAutoPlay()" id="btn-autoplay" class="px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 text-xs font-bold shadow transition">
+              ▶ Auto-Trace
+            </button>
+          </div>
+        </div>
+
+        <!-- Narration & Outputs Banner -->
+        <div class="mt-4 p-4 rounded-xl bg-gradient-to-r from-forest-950 to-forest-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-start gap-3">
+            <span id="step-badge" class="px-2.5 py-1 rounded-lg bg-amber-400 text-slate-950 font-mono text-xs font-extrabold shrink-0">
+              NONCYCLIC
+            </span>
+            <div>
+              <h2 id="step-title" class="font-bold text-sm sm:text-base text-amber-300">
+                Noncyclic Photophosphorylation: Linear Flow from H₂O to NADP⁺
+              </h2>
+              <p id="step-description" class="text-xs sm:text-sm text-forest-100 mt-0.5 leading-relaxed">
+                Uses BOTH PSII and PSI. Water is split (releasing O₂), protons pump into the lumen to generate ATP, and electrons reduce NADP⁺ into NADPH.
+              </p>
+            </div>
+          </div>
+          <div class="flex sm:flex-col lg:flex-row gap-2 shrink-0">
+            <span id="pill-atp" class="px-3 py-1 rounded-lg text-xs font-bold bg-amber-500/20 border border-amber-400 text-amber-200">
+              ATP: Produced ✓
+            </span>
+            <span id="pill-nadph" class="px-3 py-1 rounded-lg text-xs font-bold bg-purple-500/20 border border-purple-400 text-purple-200">
+              NADPH: Produced ✓
+            </span>
+            <span id="pill-o2" class="px-3 py-1 rounded-lg text-xs font-bold bg-sky-500/20 border border-sky-400 text-sky-200">
+              O₂: Released ✓
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Thylakoid Diagram (8 cols) + Z-Scheme & ATP/NADPH Ratio Slider (4 cols) -->
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+
+        <!-- Interactive Thylakoid Membrane SVG -->
+        <div class="xl:col-span-8 bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Interactive Thylakoid Membrane (Click Any Complex)</span>
+            <span id="pathway-status-tag" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+              Active: PSII + PSI Linear Chain
+            </span>
+          </div>
+
+          <div class="w-full overflow-hidden rounded-xl border border-slate-200 bg-sky-50/40">
+            <svg id="thylakoid-svg" viewBox="0 0 860 420" class="w-full h-auto select-none" role="img" aria-label="Interactive Thylakoid Membrane Simulation">
+              <defs>
+                <marker id="arrow-e" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#0284c7" />
+                </marker>
+                <marker id="arrow-cyclic" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#d97706" />
+                </marker>
+                <marker id="arrow-h" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#e11d48" />
+                </marker>
+              </defs>
+
+              <!-- Stroma -->
+              <rect x="0" y="0" width="860" height="140" fill="#f0f9ff" />
+              <text x="20" y="25" font-size="13" font-weight="800" fill="#0369a1">STROMA (Low [H⁺] • Site of Calvin Cycle)</text>
+
+              <!-- Thylakoid Lipid Bilayer -->
+              <rect x="0" y="140" width="860" height="110" fill="#fef3c7" stroke="#d97706" stroke-width="2" />
+              <line x1="0" y1="195" x2="860" y2="195" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 4" />
+              <text x="845" y="157" font-size="10" font-weight="700" fill="#92400e" text-anchor="end">Thylakoid Membrane</text>
+
+              <!-- Thylakoid Lumen -->
+              <rect x="0" y="250" width="860" height="170" fill="#ecfdf5" />
+              <text x="20" y="402" font-size="13" font-weight="800" fill="#065f46">THYLAKOID SPACE / LUMEN (High [H⁺] Reservoir)</text>
+
+              <!-- Lumen Protons -->
+              <g id="lumen-protons" fill="#e11d48" font-size="12" font-weight="800" class="proton-bob">
+                <text x="160" y="330">H⁺</text>
+                <text x="245" y="358">H⁺</text>
+                <text x="325" y="322">H⁺</text>
+                <text x="405" y="362">H⁺</text>
+                <text x="490" y="325">H⁺</text>
+                <text x="575" y="355">H⁺</text>
+              </g>
+
+              <!-- Photons -->
+              <g id="photon-psii" class="photon-pulse">
+                <path d="M 45 45 L 62 62 L 55 69 L 75 89 L 68 96 L 92 120" fill="none" stroke="#f59e0b" stroke-width="4" stroke-linecap="round" />
+                <polygon points="96,125 83,119 92,111" fill="#f59e0b" />
+                <circle cx="42" cy="42" r="16" fill="#fbbf24" />
+                <text x="42" y="46" font-size="10" font-weight="800" fill="#451a03" text-anchor="middle">Light</text>
+              </g>
+
+              <g id="photon-psi" class="photon-pulse">
+                <path d="M 435 45 L 452 62 L 445 69 L 465 89 L 458 96 L 482 120" fill="none" stroke="#f59e0b" stroke-width="4" stroke-linecap="round" />
+                <polygon points="486,125 473,119 482,111" fill="#f59e0b" />
+                <circle cx="432" cy="42" r="16" fill="#fbbf24" />
+                <text x="432" y="46" font-size="10" font-weight="800" fill="#451a03" text-anchor="middle">Light</text>
+              </g>
+
+              <!-- Water Splitting -->
+              <g id="water-split-group">
+                <circle cx="72" cy="302" r="18" fill="#bae6fd" stroke="#0284c7" stroke-width="2" />
+                <text x="72" y="306" font-size="11" font-weight="800" fill="#0369a1" text-anchor="middle">H₂O</text>
+                <path d="M 85 286 Q 100 272 112 260" fill="none" stroke="#0284c7" stroke-width="2.5" marker-end="url(#arrow-e)" />
+                <text x="82" y="268" font-size="10" font-weight="800" fill="#0284c7">2e⁻</text>
+                <path d="M 92 306 L 132 318" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow-h)" />
+                <circle cx="152" cy="296" r="14" fill="#fecdd3" stroke="#e11d48" stroke-width="2" />
+                <text x="152" y="300" font-size="10" font-weight="800" fill="#9f1239" text-anchor="middle">½ O₂</text>
+                <text x="195" y="300" font-size="12" font-weight="800" fill="#e11d48">+ 2 H⁺</text>
+              </g>
+
+              <!-- Protein Complexes -->
+              <g id="node-psii" onclick="inspectComponent('psii')" class="protein-node">
+                <rect x="88" y="128" width="76" height="134" rx="24" fill="#10b981" stroke="#064e3b" stroke-width="2.5" />
+                <rect x="112" y="144" width="28" height="102" rx="10" fill="#047857" />
+                <text x="126" y="191" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">PSII</text>
+                <text x="126" y="207" font-size="10" font-weight="700" fill="#d1fae5" text-anchor="middle">(P680)</text>
+              </g>
+
+              <g id="node-pq" onclick="inspectComponent('pq')" class="protein-node">
+                <circle cx="215" cy="178" r="22" fill="#0ea5e9" stroke="#0369a1" stroke-width="2.5" />
+                <text x="215" y="182" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">Pq</text>
+              </g>
+
+              <g id="node-cyt" onclick="inspectComponent('cyt')" class="protein-node">
+                <rect x="275" y="132" width="68" height="126" rx="18" fill="#8b5cf6" stroke="#4c1d95" stroke-width="2.5" />
+                <text x="309" y="191" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">Cyt</text>
+                <text x="309" y="206" font-size="9.5" font-weight="600" fill="#ede9fe" text-anchor="middle">Complex</text>
+              </g>
+
+              <g id="cyt-proton-pump">
+                <path d="M 245 106 Q 280 136 309 286" fill="none" stroke="#e11d48" stroke-width="3" stroke-dasharray="5 3" marker-end="url(#arrow-h)" />
+                <text x="236" y="98" font-size="12" font-weight="800" fill="#e11d48">4 H⁺ (Stroma)</text>
+                <text x="312" y="304" font-size="12" font-weight="800" fill="#e11d48" text-anchor="middle">4 H⁺ Pumped</text>
+              </g>
+
+              <g id="node-pc" onclick="inspectComponent('pc')" class="protein-node">
+                <circle cx="395" cy="226" r="21" fill="#6366f1" stroke="#312e81" stroke-width="2.5" />
+                <text x="395" y="230" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">Pc</text>
+              </g>
+
+              <g id="node-psi" onclick="inspectComponent('psi')" class="protein-node">
+                <rect x="462" y="128" width="76" height="134" rx="24" fill="#059669" stroke="#064e3b" stroke-width="2.5" />
+                <rect x="486" y="144" width="28" height="102" rx="10" fill="#065f46" />
+                <text x="500" y="191" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">PSI</text>
+                <text x="500" y="207" font-size="10" font-weight="700" fill="#d1fae5" text-anchor="middle">(P700)</text>
+              </g>
+
+              <g id="node-fd" onclick="inspectComponent('fd')" class="protein-node">
+                <circle cx="585" cy="144" r="22" fill="#ec4899" stroke="#831843" stroke-width="2.5" />
+                <text x="585" y="148" font-size="13" font-weight="800" fill="#ffffff" text-anchor="middle">Fd</text>
+              </g>
+
+              <g id="node-nadp" onclick="inspectComponent('nadp')" class="protein-node">
+                <rect x="645" y="132" width="76" height="94" rx="18" fill="#9333ea" stroke="#581c87" stroke-width="2.5" />
+                <text x="683" y="175" font-size="12" font-weight="800" fill="#ffffff" text-anchor="middle">NADP⁺</text>
+                <text x="683" y="190" font-size="10" font-weight="700" fill="#f3e8ff" text-anchor="middle">Reductase</text>
+              </g>
+
+              <g id="nadph-output-group">
+                <path d="M 672 90 L 672 125" fill="none" stroke="#475569" stroke-width="2" marker-end="url(#arrow-e)" />
+                <text x="672" y="82" font-size="11" font-weight="700" fill="#334155" text-anchor="middle">NADP⁺ + H⁺</text>
+                <path d="M 721 170 L 762 170" fill="none" stroke="#9333ea" stroke-width="3" marker-end="url(#arrow-e)" />
+                <rect x="766" y="155" width="74" height="28" rx="8" fill="#f3e8ff" stroke="#9333ea" stroke-width="2" />
+                <text x="803" y="173" font-size="12" font-weight="800" fill="#6b21a8" text-anchor="middle">NADPH</text>
+              </g>
+
+              <g id="node-atp" onclick="inspectComponent('atp')" class="protein-node">
+                <rect x="642" y="190" width="36" height="74" rx="8" fill="#0284c7" stroke="#0c4a6e" stroke-width="2.5" />
+                <ellipse cx="660" cy="278" rx="34" ry="22" fill="#0369a1" stroke="#0c4a6e" stroke-width="2.5" />
+                <text x="660" y="277" font-size="10.5" font-weight="800" fill="#ffffff" text-anchor="middle">ATP</text>
+                <text x="660" y="289" font-size="9.5" font-weight="700" fill="#e0f2fe" text-anchor="middle">Synthase</text>
+              </g>
+
+              <g id="atp-synthesis-group">
+                <path d="M 595 332 Q 655 332 660 304" fill="none" stroke="#e11d48" stroke-width="3" stroke-dasharray="5 3" marker-end="url(#arrow-h)" />
+                <path d="M 660 256 L 660 356" fill="none" stroke="#e11d48" stroke-width="2.5" stroke-dasharray="4 3" marker-end="url(#arrow-h)" />
+                <text x="635" y="372" font-size="11" font-weight="800" fill="#e11d48">H⁺ diffuses down gradient</text>
+                <text x="720" y="320" font-size="11" font-weight="700" fill="#334155">ADP + Pᵢ</text>
+                <path d="M 702 295 Q 735 308 765 298" fill="none" stroke="#d97706" stroke-width="2.5" marker-end="url(#arrow-cyclic)" />
+                <rect x="768" y="283" width="68" height="28" rx="8" fill="#fef3c7" stroke="#f59e0b" stroke-width="2.5" />
+                <text x="802" y="302" font-size="13" font-weight="800" fill="#92400e" text-anchor="middle">ATP</text>
+              </g>
+
+              <!-- Linear Electron Flow -->
+              <g id="linear-electron-paths" fill="none" stroke="#0284c7" stroke-width="4" stroke-linecap="round">
+                <path id="path-psii-pq" d="M 155 151 L 192 170" marker-end="url(#arrow-e)" class="electron-flow-active" />
+                <path id="path-pq-cyt" d="M 237 178 L 272 178" marker-end="url(#arrow-e)" class="electron-flow-active" />
+                <path id="path-cyt-pc" d="M 343 206 L 374 220" marker-end="url(#arrow-e)" class="electron-flow-active" />
+                <path id="path-pc-psi" d="M 416 226 L 458 226" marker-end="url(#arrow-e)" class="electron-flow-active" />
+                <path id="path-psi-fd" d="M 530 144 L 561 144" marker-end="url(#arrow-e)" class="electron-flow-active" />
+                <path id="path-fd-nadp" d="M 607 152 L 642 164" marker-end="url(#arrow-e)" class="electron-flow-active" />
+              </g>
+
+              <!-- Cyclic Return Path -->
+              <g id="cyclic-electron-path" class="hidden">
+                <path d="M 585 120 C 550 48, 245 48, 215 152" fill="none" stroke="#d97706" stroke-width="4.5" marker-end="url(#arrow-cyclic)" class="electron-flow-active" />
+                <rect x="335" y="38" width="160" height="24" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="2" />
+                <text x="415" y="54" font-size="11" font-weight="800" fill="#92400e" text-anchor="middle">Cyclic Return: Fd → Pq</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Component Inspector Strip -->
+          <div id="component-inspector" class="mt-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <span class="px-2 py-0.5 rounded bg-forest-100 text-forest-900 text-[11px] font-bold">Component Role</span>
+              <h4 id="comp-name" class="font-bold text-slate-900 text-sm inline ml-1.5">Click any protein complex above</h4>
+              <p id="comp-role" class="text-xs text-slate-600 mt-1">
+                Inspect how Photosystems, mobile electron carriers (Pq, Pc, Fd), Cytochrome, and ATP Synthase operate.
+              </p>
+            </div>
+            <div id="comp-io" class="text-xs font-mono bg-white px-3 py-2 rounded-lg border border-slate-200 text-slate-700 shrink-0">
+              In / Out Summary
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Z-Scheme + Metabolic Demand Slider -->
+        <div class="xl:col-span-4 space-y-5">
+          <!-- Z-Scheme Free Energy Diagram -->
+          <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200">
+            <h3 class="font-bold text-slate-900 text-sm flex items-center justify-between">
+              <span>Z-Scheme Electron Energy</span>
+              <span class="text-xs font-normal text-slate-500">Vertical = Potential Energy</span>
+            </h3>
+            <svg id="z-scheme-svg" viewBox="0 0 320 205" class="w-full h-auto bg-slate-50 rounded-xl border border-slate-200 mt-2">
+              <line x1="22" y1="185" x2="22" y2="18" stroke="#64748b" stroke-width="2.5" marker-end="url(#arrow-h)" />
+              <text x="14" y="102" font-size="10" font-weight="700" fill="#475569" transform="rotate(-90 14 102)" text-anchor="middle">Electron Energy</text>
+
+              <!-- Noncyclic Z-Scheme -->
+              <g id="z-noncyclic">
+                <rect x="45" y="38" width="34" height="135" rx="6" fill="#d1fae5" stroke="#059669" stroke-width="1.5" />
+                <text x="62" y="188" font-size="10" font-weight="800" fill="#065f46" text-anchor="middle">PSII</text>
+                <line x1="62" y1="160" x2="62" y2="52" stroke="#f59e0b" stroke-width="3" marker-end="url(#arrow-cyclic)" />
+                <circle cx="62" cy="48" r="8" fill="#0284c7" />
+                <text x="62" y="51" font-size="8" font-weight="800" fill="#fff" text-anchor="middle">e⁻</text>
+
+                <line x1="70" y1="52" x2="165" y2="135" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="4 2" />
+                <rect x="92" y="68" width="22" height="15" rx="4" fill="#0ea5e9" />
+                <text x="103" y="79" font-size="8" font-weight="800" fill="#fff" text-anchor="middle">Pq</text>
+                <rect x="116" y="90" width="24" height="15" rx="4" fill="#8b5cf6" />
+                <text x="128" y="101" font-size="8" font-weight="800" fill="#fff" text-anchor="middle">Cyt</text>
+                <rect x="140" y="112" width="22" height="15" rx="4" fill="#6366f1" />
+                <text x="151" y="123" font-size="8" font-weight="800" fill="#fff" text-anchor="middle">Pc</text>
+                <text x="108" y="142" font-size="9" font-weight="800" fill="#d97706" text-anchor="middle">→ ATP</text>
+
+                <rect x="172" y="25" width="34" height="130" rx="6" fill="#d1fae5" stroke="#059669" stroke-width="1.5" />
+                <text x="189" y="170" font-size="10" font-weight="800" fill="#065f46" text-anchor="middle">PSI</text>
+                <line x1="189" y1="138" x2="189" y2="36" stroke="#f59e0b" stroke-width="3" marker-end="url(#arrow-cyclic)" />
+                <circle cx="189" cy="32" r="8" fill="#0284c7" />
+                <text x="189" y="35" font-size="8" font-weight="800" fill="#fff" text-anchor="middle">e⁻</text>
+
+                <line x1="197" y1="34" x2="262" y2="75" stroke="#0284c7" stroke-width="2.5" />
+                <circle cx="228" cy="52" r="11" fill="#ec4899" />
+                <text x="228" y="55" font-size="8" font-weight="800" fill="#fff" text-anchor="middle">Fd</text>
+                <rect x="242" y="72" width="66" height="24" rx="6" fill="#f3e8ff" stroke="#9333ea" stroke-width="1.5" />
+                <text x="275" y="87" font-size="9" font-weight="800" fill="#6b21a8" text-anchor="middle">NADPH</text>
+              </g>
+
+              <!-- Cyclic Loop Z-Scheme -->
+              <g id="z-cyclic" class="hidden">
+                <rect x="65" y="25" width="40" height="140" rx="6" fill="#d1fae5" stroke="#059669" stroke-width="2" />
+                <text x="85" y="180" font-size="11" font-weight="800" fill="#065f46" text-anchor="middle">PSI</text>
+                <line x1="85" y1="148" x2="85" y2="40" stroke="#f59e0b" stroke-width="3.5" marker-end="url(#arrow-cyclic)" />
+                <circle cx="85" cy="35" r="9" fill="#d97706" />
+                <text x="85" y="38" font-size="8.5" font-weight="800" fill="#fff" text-anchor="middle">e⁻</text>
+
+                <path d="M 95 35 L 145 50 L 180 80 L 210 110 L 235 138 Q 160 168 95 152" fill="none" stroke="#d97706" stroke-width="3" marker-end="url(#arrow-cyclic)" />
+                <circle cx="145" cy="50" r="11" fill="#ec4899" />
+                <text x="145" y="53" font-size="8" font-weight="800" fill="#fff" text-anchor="middle">Fd</text>
+                <rect x="168" y="70" width="24" height="15" rx="4" fill="#0ea5e9" />
+                <text x="180" y="81" font-size="8" font-weight="800" fill="#fff" text-anchor="middle">Pq</text>
+                <rect x="198" y="100" width="24" height="15" rx="4" fill="#8b5cf6" />
+                <text x="210" y="111" font-size="8" font-weight="800" fill="#fff" text-anchor="middle">Cyt</text>
+                <rect x="225" y="128" width="24" height="15" rx="4" fill="#6366f1" />
+                <text x="237" y="139" font-size="8" font-weight="800" fill="#fff" text-anchor="middle">Pc</text>
+
+                <rect x="135" y="115" width="54" height="22" rx="6" fill="#fef3c7" stroke="#f59e0b" stroke-width="1.5" />
+                <text x="162" y="129" font-size="9.5" font-weight="800" fill="#92400e" text-anchor="middle">ATP Only!</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- ATP/NADPH Metabolic Demand Slider -->
+          <div class="bg-gradient-to-br from-forest-950 to-forest-900 text-white rounded-2xl p-4 shadow-sm">
+            <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/40">
+              Why Both Pathways?
+            </span>
+            <h3 class="text-sm font-bold mt-1.5">Stroma [NADP⁺] / [ATP] Balance Slider</h3>
+            <p class="text-xs text-forest-100 mt-1">
+              The Calvin Cycle uses <strong>9 ATP vs. 6 NADPH</strong>. Slide to see how chloroplasts shift pathways when NADP⁺ runs low:
+            </p>
+            <div class="mt-3 bg-forest-950/70 p-3 rounded-xl border border-forest-700">
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span>Stroma NADP⁺ Level:</span>
+                <span id="nadp-level-label" class="text-amber-300">Balanced (50%)</span>
+              </div>
+              <input type="range" id="nadp-slider" min="0" max="100" value="50" oninput="updateMetabolicBalance(this.value)"
+                class="w-full accent-amber-400 cursor-pointer" />
+              <div id="metabolic-advice" class="mt-2 p-2.5 rounded-lg bg-forest-800/80 text-xs text-forest-50 leading-relaxed">
+                <strong>Balanced Mix:</strong> Noncyclic supplies ATP &amp; NADPH, while Cyclic tops up extra ATP for the Calvin Cycle.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DRAG-AND-DROP ELECTRON CHAIN BUILDER WORKBENCH -->
+      <div class="bg-white rounded-2xl p-5 shadow-sm border-2 border-forest-200">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-forest-100 text-forest-900">
+              Hands-On Drag &amp; Drop Workbench
+            </span>
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 mt-1">
+              Assemble the <span id="builder-mode-title" class="text-forest-700">Noncyclic</span> Electron Sequence
+            </h3>
+            <p id="builder-mnemonic-hint" class="text-xs text-slate-600 mt-0.5">
+              Mnemonic Guide: <em>"Pretty Plants Can Always Patiently Produce Fresh Nutrients"</em>
+            </p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="builder-progress" class="text-xs font-bold px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700">
+              0 / 8 Placed
+            </span>
+            <button onclick="initChainBuilder()" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition">
+              Reset Slots
+            </button>
+          </div>
+        </div>
+
+        <!-- Draggable Component Bank -->
+        <div class="mt-4">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+            Component Bank (Drag into numbered slots below, or click chip then click slot):
+          </div>
+          <div id="chain-bank" class="flex flex-wrap gap-2 min-h-[44px] p-2.5 rounded-xl bg-slate-50 border border-slate-200">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Sequential Drop Slots -->
+        <div id="chain-slots" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 mt-4">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Completion Celebration Banner -->
+        <div id="builder-complete-banner" class="hidden mt-4 p-3.5 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-950 text-xs sm:text-sm font-semibold flex items-center justify-between">
+          <span id="builder-complete-msg">Sequence Complete! Electron flow is active.</span>
+          <button onclick="switchBuilderModePrompt()" class="px-3 py-1.5 rounded-lg bg-emerald-700 text-white text-xs font-bold hover:bg-emerald-800 transition shrink-0 ml-2">
+            Build Other Pathway →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: THYLAKOID HERBICIDE & DISRUPTION SANDBOX (DRAG & DROP)       -->
+    <!-- =================================================================== -->
+    <section id="tab-disruptions" class="tab-panel space-y-6">
+      <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <span class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-800 text-xs font-bold">
+              Interactive Inhibitor Sandbox
+            </span>
+            <h2 class="text-xl font-bold text-slate-900 mt-1.5">Drag Inhibitors onto the Thylakoid Membrane</h2>
+            <p class="text-sm text-slate-600 mt-0.5">
+              Drag any chemical inhibitor or membrane disruptor below onto the <strong>Thylakoid Drop Zone</strong> (or click to apply) and observe the downstream effects on ATP, NADPH, O₂, and Cyclic flow.
+            </p>
+          </div>
+          <button onclick="applyDisruption('normal')" class="px-4 py-2 rounded-xl bg-forest-700 hover:bg-forest-800 text-white text-xs font-bold shadow transition self-start">
+            Clear Inhibitors (Reset Control)
+          </button>
+        </div>
+
+        <!-- Draggable Inhibitor Chips -->
+        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 mt-5">
+          <div draggable="true" ondragstart="handleDragStart(event, 'inhibitor', 'puncture')" onclick="applyDisruption('puncture')"
+            id="dis-btn-puncture"
+            class="drag-chip dis-btn p-3 rounded-xl border-2 border-rose-300 bg-rose-50/60 hover:border-rose-500 text-left">
+            <div class="text-[11px] font-extrabold text-rose-700 uppercase">Membrane Pores</div>
+            <div class="font-bold text-sm text-slate-900 mt-0.5">Perforins / Holes</div>
+            <div class="text-[11px] text-slate-600 mt-0.5">Punctures lipid bilayer</div>
+          </div>
+
+          <div draggable="true" ondragstart="handleDragStart(event, 'inhibitor', 'dcmu')" onclick="applyDisruption('dcmu')"
+            id="dis-btn-dcmu"
+            class="drag-chip dis-btn p-3 rounded-xl border-2 border-amber-300 bg-amber-50/60 hover:border-amber-500 text-left">
+            <div class="text-[11px] font-extrabold text-amber-700 uppercase">PSII Blocker</div>
+            <div class="font-bold text-sm text-slate-900 mt-0.5">DCMU</div>
+            <div class="text-[11px] text-slate-600 mt-0.5">Blocks PSII → Pq</div>
+          </div>
+
+          <div draggable="true" ondragstart="handleDragStart(event, 'inhibitor', 'triazines')" onclick="applyDisruption('triazines')"
+            id="dis-btn-triazines"
+            class="drag-chip dis-btn p-3 rounded-xl border-2 border-orange-300 bg-orange-50/60 hover:border-orange-500 text-left">
+            <div class="text-[11px] font-extrabold text-orange-700 uppercase">PSII Herbicide</div>
+            <div class="font-bold text-sm text-slate-900 mt-0.5">Triazines</div>
+            <div class="text-[11px] text-slate-600 mt-0.5">Displaces Pq at PSII</div>
+          </div>
+
+          <div draggable="true" ondragstart="handleDragStart(event, 'inhibitor', 'paraquat')" onclick="applyDisruption('paraquat')"
+            id="dis-btn-paraquat"
+            class="drag-chip dis-btn p-3 rounded-xl border-2 border-purple-300 bg-purple-50/60 hover:border-purple-500 text-left">
+            <div class="text-[11px] font-extrabold text-purple-700 uppercase">PSI Blocker</div>
+            <div class="font-bold text-sm text-slate-900 mt-0.5">Paraquat</div>
+            <div class="text-[11px] text-slate-600 mt-0.5">Blocks PSI → Fd</div>
+          </div>
+
+          <div draggable="true" ondragstart="handleDragStart(event, 'inhibitor', 'heparin')" onclick="applyDisruption('heparin')"
+            id="dis-btn-heparin"
+            class="drag-chip dis-btn p-3 rounded-xl border-2 border-sky-300 bg-sky-50/60 hover:border-sky-500 text-left">
+            <div class="text-[11px] font-extrabold text-sky-700 uppercase">Enzyme Inhibitor</div>
+            <div class="font-bold text-sm text-slate-900 mt-0.5">Heparin</div>
+            <div class="text-[11px] text-slate-600 mt-0.5">Blocks NADP⁺ Reductase</div>
+          </div>
+        </div>
+
+        <!-- Drop Zone + Live Readouts -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6 items-center">
+          <!-- Interactive Thylakoid Drop Target (7 cols) -->
+          <div id="inhibitor-dropzone"
+            ondragover="event.preventDefault(); this.classList.add('ring-4', 'ring-amber-400')"
+            ondragleave="this.classList.remove('ring-4', 'ring-amber-400')"
+            ondrop="handleInhibitorDrop(event)"
+            class="lg:col-span-7 bg-slate-900 text-white rounded-2xl p-5 border-2 border-dashed border-slate-600 transition-all">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs font-bold uppercase tracking-wider text-amber-300">
+                ▼ Drop Inhibitor Here to Apply to Thylakoid ▼
+              </span>
+              <span id="dis-site-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300">
+                Control: All Complexes Functional
+              </span>
+            </div>
+
+            <!-- Chain Visual Blocks -->
+            <div class="grid grid-cols-4 sm:grid-cols-7 gap-2 text-center text-xs font-bold items-center my-4">
+              <div id="box-h2o" class="p-2.5 rounded-xl bg-sky-900/60 border border-sky-500 text-sky-200 transition-all">H₂O → O₂</div>
+              <div id="box-psii" class="p-2.5 rounded-xl bg-emerald-900/60 border border-emerald-500 text-emerald-200 transition-all">PSII</div>
+              <div id="box-pq" class="p-2.5 rounded-xl bg-sky-900/60 border border-sky-500 text-sky-200 transition-all">Pq</div>
+              <div id="box-cyt" class="p-2.5 rounded-xl bg-violet-900/60 border border-violet-500 text-violet-200 transition-all">Cyt (H⁺)</div>
+              <div id="box-pc" class="p-2.5 rounded-xl bg-indigo-900/60 border border-indigo-500 text-indigo-200 transition-all">Pc</div>
+              <div id="box-psi" class="p-2.5 rounded-xl bg-emerald-900/60 border border-emerald-500 text-emerald-200 transition-all">PSI → Fd</div>
+              <div id="box-nadp" class="p-2.5 rounded-xl bg-purple-900/60 border border-purple-500 text-purple-200 transition-all">NADP⁺ Red.</div>
+            </div>
+
+            <!-- Membrane & ATP Synthase Bar -->
+            <div id="box-membrane" class="mt-3 p-3 rounded-xl bg-amber-500/20 border border-amber-400 flex items-center justify-between text-xs transition-all">
+              <span id="membrane-status-text" class="font-bold text-amber-200">Thylakoid Membrane Intact: High Lumen H⁺ Gradient</span>
+              <span id="atp-synthase-status" class="px-2.5 py-1 rounded bg-amber-400 text-slate-950 font-extrabold">ATP Synthase: ON</span>
+            </div>
+
+            <div class="mt-4 p-4 rounded-xl bg-slate-800/90 border border-slate-700">
+              <h4 id="dis-explain-title" class="font-bold text-sm text-amber-300">Normal Intact Chloroplast</h4>
+              <p id="dis-explain-body" class="text-xs sm:text-sm text-slate-200 mt-1 leading-relaxed">
+                Electrons flow smoothly from H₂O through PSII, Pq, Cyt, Pc, PSI, and Fd to NADP⁺ Reductase. The H⁺ gradient across the intact membrane powers ATP Synthase.
+              </p>
+            </div>
+          </div>
+
+          <!-- Output Gauges (5 cols) -->
+          <div class="lg:col-span-5 space-y-3">
+            <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">Resulting Light Reaction Outputs</h3>
+
+            <div id="gauge-atp" class="p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900 text-sm">ATP Synthesis</div>
+                <div id="gauge-atp-sub" class="text-xs text-slate-600">Powered by H⁺ electrochemical gradient</div>
+              </div>
+              <span id="gauge-atp-val" class="px-3 py-1 rounded-lg bg-emerald-600 text-white font-extrabold text-xs">PRODUCED ✓</span>
+            </div>
+
+            <div id="gauge-nadph" class="p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900 text-sm">NADPH Production</div>
+                <div id="gauge-nadph-sub" class="text-xs text-slate-600">Linear electron flow to NADP⁺ Reductase</div>
+              </div>
+              <span id="gauge-nadph-val" class="px-3 py-1 rounded-lg bg-emerald-600 text-white font-extrabold text-xs">PRODUCED ✓</span>
+            </div>
+
+            <div id="gauge-o2" class="p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900 text-sm">Oxygen (O₂) Evolution</div>
+                <div id="gauge-o2-sub" class="text-xs text-slate-600">Water splitting at functional PSII</div>
+              </div>
+              <span id="gauge-o2-val" class="px-3 py-1 rounded-lg bg-emerald-600 text-white font-extrabold text-xs">PRODUCED ✓</span>
+            </div>
+
+            <div id="gauge-cyclic" class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 flex items-center justify-between">
+              <div>
+                <div class="font-bold text-slate-900 text-xs">Cyclic Photophosphorylation Status</div>
+                <div id="gauge-cyclic-sub" class="text-xs text-slate-600">PSI → Fd → Pq → Cyt → Pc → PSI</div>
+              </div>
+              <span id="gauge-cyclic-val" class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-xs">ACTIVE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 3: CALVIN CYCLE INTERACTIVE DIAGRAM & DRAG-AND-DROP BUILDER     -->
+    <!-- =================================================================== -->
+    <section id="tab-calvin" class="tab-panel space-y-6">
+      <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div>
+            <span class="px-2.5 py-1 rounded-lg bg-teal-100 text-teal-900 text-xs font-bold">
+              Stroma • Light-Independent Reactions
+            </span>
+            <h2 class="text-xl font-bold text-slate-900 mt-1">Interactive Calvin Cycle: Drag Inputs &amp; Outputs onto the Cycle</h2>
+            <p class="text-sm text-slate-600">
+              Drag the 5 molecule/energy tokens onto their matching stages around the Calvin Cycle diagram to unlock carbon-tracking animation!
+            </p>
+          </div>
+          <button onclick="resetCalvinBuilder()" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition self-start">
+            Reset Calvin Diagram
+          </button>
+        </div>
+
+        <!-- Draggable Calvin Tokens -->
+        <div id="calvin-bank" class="flex flex-wrap gap-2.5 mt-4 p-3 rounded-xl bg-slate-50 border border-slate-200">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- Interactive SVG Diagram + Stage Drop Zones -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-5 items-center">
+          <!-- Left: SVG Cycle Diagram (7 cols) -->
+          <div class="lg:col-span-7 bg-teal-50/40 rounded-2xl p-4 border border-teal-200">
+            <svg viewBox="0 0 540 420" class="w-full h-auto select-none" role="img" aria-label="Calvin Cycle 3-stage diagram">
+              <defs>
+                <marker id="arrow-calvin" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#0d9488" />
+                </marker>
+              </defs>
+
+              <!-- Cycle Ring -->
+              <circle cx="270" cy="215" r="125" fill="none" stroke="#99f6e4" stroke-width="18" />
+              <circle id="calvin-flow-ring" cx="270" cy="215" r="125" fill="none" stroke="#0d9488" stroke-width="4" />
+
+              <!-- Center Label -->
+              <circle cx="270" cy="215" r="64" fill="#ffffff" stroke="#0f766e" stroke-width="2.5" />
+              <text x="270" y="206" font-size="14" font-weight="800" fill="#0f766e" text-anchor="middle">CALVIN</text>
+              <text x="270" y="223" font-size="14" font-weight="800" fill="#0f766e" text-anchor="middle">CYCLE</text>
+              <text x="270" y="239" font-size="10" font-weight="600" fill="#475569" text-anchor="middle">(Chloroplast Stroma)</text>
+
+              <!-- Stage 1 Top: Carbon Fixation -->
+              <rect x="175" y="18" width="190" height="58" rx="12" fill="#ecfdf5" stroke="#059669" stroke-width="2.5" />
+              <text x="270" y="38" font-size="12" font-weight="800" fill="#065f46" text-anchor="middle">1. Carbon Fixation</text>
+              <text x="270" y="54" font-size="10.5" font-weight="700" fill="#047857" text-anchor="middle">6 CO₂ + 6 RuBP (5C) → 12 3-PGA (3C)</text>
+              <text id="calvin-svg-fix" x="270" y="69" font-size="10" font-weight="800" fill="#d97706" text-anchor="middle">[Drop CO₂ &amp; RuBisCO in Slot 1]</text>
+
+              <!-- Stage 2 Right/Bottom: Reduction -->
+              <rect x="330" y="280" width="195" height="66" rx="12" fill="#fffbeb" stroke="#d97706" stroke-width="2.5" />
+              <text x="427" y="300" font-size="12" font-weight="800" fill="#92400e" text-anchor="middle">2. Reduction</text>
+              <text x="427" y="316" font-size="10.5" font-weight="700" fill="#b45309" text-anchor="middle">12 3-PGA → 12 G3P (3C)</text>
+              <text id="calvin-svg-red" x="427" y="333" font-size="10" font-weight="800" fill="#0284c7" text-anchor="middle">[Drop ATP/NADPH &amp; G3P in Slot 2]</text>
+
+              <!-- Sugar Output Callout -->
+              <path d="M 345 346 L 345 385" stroke="#059669" stroke-width="3" marker-end="url(#arrow-calvin)" />
+              <rect x="265" y="386" width="160" height="26" rx="8" fill="#d1fae5" stroke="#059669" stroke-width="2" />
+              <text x="345" y="403" font-size="11" font-weight="800" fill="#065f46" text-anchor="middle">2 G3P Out → 1 Glucose (6C)</text>
+
+              <!-- Stage 3 Left: Regeneration of RuBP -->
+              <rect x="15" y="220" width="185" height="66" rx="12" fill="#f0f9ff" stroke="#0284c7" stroke-width="2.5" />
+              <text x="107" y="240" font-size="12" font-weight="800" fill="#0369a1" text-anchor="middle">3. Regeneration of RuBP</text>
+              <text x="107" y="256" font-size="10.5" font-weight="700" fill="#0284c7" text-anchor="middle">10 G3P (30C) → 6 RuBP (30C)</text>
+              <text id="calvin-svg-reg" x="107" y="273" font-size="10" font-weight="800" fill="#d97706" text-anchor="middle">[Drop Regeneration ATP in Slot 3]</text>
+            </svg>
+          </div>
+
+          <!-- Right: Interactive Drop Slots for the 3 Stages (5 cols) -->
+          <div class="lg:col-span-5 space-y-3">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500">Drop Targets by Calvin Cycle Stage</h3>
+
+            <!-- Stage 1 Slots -->
+            <div class="p-3.5 rounded-xl bg-emerald-50/70 border border-emerald-200 space-y-2">
+              <div class="font-bold text-xs text-emerald-950">Stage 1: Carbon Fixation Inputs</div>
+              <div class="grid grid-cols-2 gap-2">
+                <div id="calvin-slot-co2" data-target="co2"
+                  ondragover="event.preventDefault(); this.classList.add('drag-over')"
+                  ondragleave="this.classList.remove('drag-over')"
+                  ondrop="handleCalvinDrop(event, 'co2')"
+                  onclick="handleCalvinSlotClick('co2')"
+                  class="drop-slot p-2.5 rounded-lg border-2 border-dashed border-emerald-400 bg-white text-center text-xs font-semibold text-slate-500 cursor-pointer">
+                  Inorganic Gas Input
+                </div>
+                <div id="calvin-slot-rubisco" data-target="rubisco"
+                  ondragover="event.preventDefault(); this.classList.add('drag-over')"
+                  ondragleave="this.classList.remove('drag-over')"
+                  ondrop="handleCalvinDrop(event, 'rubisco')"
+                  onclick="handleCalvinSlotClick('rubisco')"
+                  class="drop-slot p-2.5 rounded-lg border-2 border-dashed border-emerald-400 bg-white text-center text-xs font-semibold text-slate-500 cursor-pointer">
+                  Fixation Enzyme
+                </div>
+              </div>
+            </div>
+
+            <!-- Stage 2 Slots -->
+            <div class="p-3.5 rounded-xl bg-amber-50/70 border border-amber-200 space-y-2">
+              <div class="font-bold text-xs text-amber-950">Stage 2: Reduction Energy &amp; Sugar Output</div>
+              <div class="grid grid-cols-2 gap-2">
+                <div id="calvin-slot-energy" data-target="energy"
+                  ondragover="event.preventDefault(); this.classList.add('drag-over')"
+                  ondragleave="this.classList.remove('drag-over')"
+                  ondrop="handleCalvinDrop(event, 'energy')"
+                  onclick="handleCalvinSlotClick('energy')"
+                  class="drop-slot p-2.5 rounded-lg border-2 border-dashed border-amber-400 bg-white text-center text-xs font-semibold text-slate-500 cursor-pointer">
+                  Light Reaction Carriers
+                </div>
+                <div id="calvin-slot-g3p" data-target="g3p"
+                  ondragover="event.preventDefault(); this.classList.add('drag-over')"
+                  ondragleave="this.classList.remove('drag-over')"
+                  ondrop="handleCalvinDrop(event, 'g3p')"
+                  onclick="handleCalvinSlotClick('g3p')"
+                  class="drop-slot p-2.5 rounded-lg border-2 border-dashed border-amber-400 bg-white text-center text-xs font-semibold text-slate-500 cursor-pointer">
+                  3-Carbon Sugar Output
+                </div>
+              </div>
+            </div>
+
+            <!-- Stage 3 Slot -->
+            <div class="p-3.5 rounded-xl bg-sky-50/70 border border-sky-200 space-y-2">
+              <div class="font-bold text-xs text-sky-950">Stage 3: Regeneration Requirement</div>
+              <div id="calvin-slot-regen" data-target="regen"
+                ondragover="event.preventDefault(); this.classList.add('drag-over')"
+                ondragleave="this.classList.remove('drag-over')"
+                ondrop="handleCalvinDrop(event, 'regen')"
+                onclick="handleCalvinSlotClick('regen')"
+                class="drop-slot p-2.5 rounded-lg border-2 border-dashed border-sky-400 bg-white text-center text-xs font-semibold text-slate-500 cursor-pointer">
+                Energy Needed to Reform 6 RuBP
+              </div>
+            </div>
+
+            <!-- Summary Note -->
+            <div id="calvin-feedback" class="p-3 rounded-xl bg-slate-100 text-xs text-slate-700 leading-relaxed">
+              <strong>Stoichiometry Tip:</strong> Notice why Cyclic Photophosphorylation is needed! To fix 6 CO₂ into 1 Glucose, the Calvin Cycle spends <strong>18 ATP</strong> (12 in Reduction + 6 in Regeneration) vs. <strong>12 NADPH</strong>.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 4: RUBISCO ACTIVE SITE COMPETITION & PHOTORESPIRATION           -->
+    <!-- =================================================================== -->
+    <section id="tab-rubisco" class="tab-panel space-y-6">
+      <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <span class="px-2.5 py-1 rounded-lg bg-rose-100 text-rose-900 text-xs font-bold">
+              Enzyme Specificity &amp; Salvage Pathway
+            </span>
+            <h2 class="text-xl font-bold text-slate-900 mt-1">RuBisCO Active Site Competition &amp; Photorespiration</h2>
+            <p class="text-sm text-slate-600">
+              Adjust the <strong>CO₂</strong> and <strong>O₂</strong> sliders (or test preset conditions) to see how gas ratios determine whether RuBisCO drives the productive <strong>Calvin Cycle</strong> or wasteful <strong>Photorespiration</strong>.
+            </p>
+          </div>
+
+          <!-- Quick Exam Presets -->
+          <div class="flex flex-wrap gap-2">
+            <button onclick="setRubiscoPreset(400, 21)" class="px-3 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-xs font-bold transition">
+              Normal Air (400 ppm CO₂ / 21% O₂)
+            </button>
+            <button onclick="setRubiscoPreset(180, 32)" class="px-3 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-900 text-xs font-bold transition">
+              Hot/Dry Closed Stomata (180 ppm / 32% O₂)
+            </button>
+            <button onclick="setRubiscoPreset(800, 15)" class="px-3 py-1.5 rounded-lg bg-sky-100 hover:bg-sky-200 text-sky-900 text-xs font-bold transition">
+              C₄ Bundle Sheath / High CO₂ (800 ppm / 15% O₂)
+            </button>
+          </div>
+        </div>
+
+        <!-- Sliders & Live Outcome Metrics -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-5">
+          <!-- Sliders (4 cols) -->
+          <div class="lg:col-span-4 space-y-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-sky-800">CO₂ Concentration:</span>
+                <span id="rubisco-co2-val" class="font-mono text-sky-700">400 ppm</span>
+              </div>
+              <input type="range" id="rubisco-co2-slider" min="100" max="900" step="20" value="400" oninput="updateRubiscoSim()"
+                class="w-full accent-sky-600 cursor-pointer" />
+            </div>
+
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-rose-800">O₂ Concentration:</span>
+                <span id="rubisco-o2-val" class="font-mono text-rose-700">21%</span>
+              </div>
+              <input type="range" id="rubisco-o2-slider" min="5" max="45" step="1" value="21" oninput="updateRubiscoSim()"
+                class="w-full accent-rose-600 cursor-pointer" />
+            </div>
+
+            <!-- Binding Probability Bar -->
+            <div class="pt-2 border-t border-slate-200">
+              <div class="flex justify-between text-xs font-bold mb-1.5">
+                <span class="text-sky-700" id="carboxylase-pct">Carboxylation (CO₂): 75%</span>
+                <span class="text-rose-700" id="oxygenase-pct">Oxygenation (O₂): 25%</span>
+              </div>
+              <div class="w-full h-4 rounded-full bg-rose-500 overflow-hidden flex">
+                <div id="rubisco-ratio-bar" class="bg-sky-500 h-full transition-all duration-300" style="width: 75%;"></div>
+              </div>
+            </div>
+
+            <div id="rubisco-status-card" class="p-3 rounded-xl bg-white border border-slate-200 text-xs text-slate-700 leading-relaxed">
+              <strong>Moderate Carboxylation:</strong> RuBisCO binds CO₂ ~75% of the time, but ~25% of reactions bind O₂, costing extra ATP and releasing fixed CO₂.
+            </div>
+          </div>
+
+          <!-- Dual-Pathway SVG Diagram: Calvin Cycle vs Photorespiration Salvage (8 cols) -->
+          <div class="lg:col-span-8 bg-slate-50 rounded-2xl p-4 border border-slate-200">
+            <svg viewBox="0 0 680 340" class="w-full h-auto select-none" role="img" aria-label="RuBisCO Carboxylation vs Oxygenation Photorespiration Diagram">
+              <defs>
+                <marker id="arrow-blue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#0284c7" />
+                </marker>
+                <marker id="arrow-red" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#e11d48" />
+                </marker>
+              </defs>
+
+              <!-- RuBisCO Central Enzyme -->
+              <rect x="240" y="18" width="200" height="58" rx="16" fill="#065f46" stroke="#047857" stroke-width="3" />
+              <text x="340" y="43" font-size="15" font-weight="800" fill="#ffffff" text-anchor="middle">RuBisCO + RuBP (5C)</text>
+              <text x="340" y="61" font-size="10.5" font-weight="600" fill="#a7f3d0" text-anchor="middle">Active Site Competes for CO₂ vs. O₂</text>
+
+              <!-- Gas Molecules floating near Active Site -->
+              <g id="gas-cloud">
+                <circle cx="195" cy="36" r="13" fill="#0ea5e9" />
+                <text x="195" y="40" font-size="9" font-weight="800" fill="#fff" text-anchor="middle">CO₂</text>
+                <circle cx="485" cy="36" r="13" fill="#f43f5e" />
+                <text x="485" y="40" font-size="9" font-weight="800" fill="#fff" text-anchor="middle">O₂</text>
+              </g>
+
+              <!-- LEFT PATH: PRODUCTIVE CALVIN CYCLE (BLUE) -->
+              <g id="path-carboxylation">
+                <path d="M 275 76 L 155 128" fill="none" stroke="#0284c7" stroke-width="4" marker-end="url(#arrow-blue)" />
+                <text x="175" y="96" font-size="11" font-weight="800" fill="#0369a1">+ CO₂ (Carboxylase)</text>
+
+                <rect x="35" y="135" width="225" height="185" rx="16" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5" />
+                <text x="147" y="160" font-size="13" font-weight="800" fill="#0369a1" text-anchor="middle">Productive Calvin Cycle</text>
+                <text x="147" y="184" font-size="11" font-weight="700" fill="#0f172a" text-anchor="middle">Produces 2 × 3-PGA (3-Carbon)</text>
+                <text x="147" y="208" font-size="11" fill="#334155" text-anchor="middle">• Reduced by ATP &amp; NADPH → G3P</text>
+                <text x="147" y="228" font-size="11" fill="#334155" text-anchor="middle">• Net Carbon Gain (+Sugar)</text>
+                <rect x="65" y="255" width="165" height="38" rx="10" fill="#0284c7" />
+                <text x="147" y="278" font-size="12" font-weight="800" fill="#ffffff" text-anchor="middle">Result: Glucose Built ✓</text>
+              </g>
+
+              <!-- RIGHT PATH: WASTEFUL PHOTORESPIRATION (RED) -->
+              <g id="path-oxygenation">
+                <path d="M 405 76 L 515 128" fill="none" stroke="#e11d48" stroke-width="4" marker-end="url(#arrow-red)" />
+                <text x="500" y="96" font-size="11" font-weight="800" fill="#be123c">+ O₂ (Oxygenase)</text>
+
+                <rect x="395" y="135" width="255" height="185" rx="16" fill="#ffe4e6" stroke="#e11d48" stroke-width="2.5" />
+                <text x="522" y="158" font-size="13" font-weight="800" fill="#9f1239" text-anchor="middle">Photorespiration Salvage</text>
+                <text x="522" y="177" font-size="10.5" font-weight="700" fill="#881337" text-anchor="middle">1 × 3-PGA + 1 × 2-Phosphoglycolate (2PG)</text>
+
+                <!-- 3-Organelle Salvage Chain -->
+                <rect x="412" y="188" width="220" height="24" rx="6" fill="#ffffff" stroke="#fda4af" />
+                <text x="522" y="204" font-size="10" font-weight="700" fill="#9f1239" text-anchor="middle">1. Chloroplast: 2PG → Glycolate</text>
+
+                <rect x="412" y="217" width="220" height="24" rx="6" fill="#ffffff" stroke="#fda4af" />
+                <text x="522" y="233" font-size="10" font-weight="700" fill="#9f1239" text-anchor="middle">2. Peroxisome: Glycolate → Glycine</text>
+
+                <rect x="412" y="246" width="220" height="24" rx="6" fill="#ffffff" stroke="#fda4af" />
+                <text x="522" y="262" font-size="10" font-weight="700" fill="#9f1239" text-anchor="middle">3. Mitochondrion: Loses CO₂ &amp; NH₃!</text>
+
+                <rect x="422" y="278" width="200" height="32" rx="8" fill="#e11d48" />
+                <text x="522" y="298" font-size="11" font-weight="800" fill="#ffffff" text-anchor="middle">Wastes ATP/NADPH • Loses CO₂ ✕</text>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 5: C3, C4, CAM DIAGRAMS + CO2 CLIMATE COMPETITION GRAPH         -->
+    <!-- =================================================================== -->
+    <section id="tab-c3c4cam" class="tab-panel space-y-6">
+
+      <!-- Part A: Interactive C3, C4 & CAM Anatomy + Day/Night Toggle + Drag-and-Drop Matcher -->
+      <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200 space-y-5">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div>
+            <span class="px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-900 text-xs font-bold">
+              Spatial vs. Temporal Carbon Concentration
+            </span>
+            <h2 class="text-xl font-bold text-slate-900 mt-1">C₃, C₄ &amp; CAM Leaf Anatomy &amp; Adaptation Matcher</h2>
+            <p class="text-sm text-slate-600">
+              Toggle <strong>Day vs. Night</strong> for CAM plants, and drag the adaptation trait cards onto the matching plant pathway diagram!
+            </p>
+          </div>
+
+          <!-- CAM Day/Night Toggle -->
+          <div class="flex items-center gap-2 bg-purple-50 p-2 rounded-xl border border-purple-200 self-start">
+            <span class="text-xs font-bold text-purple-950 pl-1">CAM Time Toggle:</span>
+            <button onclick="setCamTime('night')" id="cam-btn-night" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-800 text-white shadow">
+              🌙 Night (Stomata Open)
+            </button>
+            <button onclick="setCamTime('day')" id="cam-btn-day" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-purple-900 border border-purple-200">
+              ☀️ Day (Stomata Closed)
+            </button>
+          </div>
+        </div>
+
+        <!-- 3 Side-by-Side Interactive Diagrams -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <!-- C3 Card -->
+          <div class="rounded-2xl border-2 border-sky-200 bg-sky-50/30 p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="font-extrabold text-base text-sky-950">C₃ Pathway</h3>
+                <span class="px-2 py-0.5 text-[11px] font-bold rounded bg-sky-100 text-sky-800">No Separation</span>
+              </div>
+              <svg viewBox="0 0 280 165" class="w-full h-auto bg-white rounded-xl border border-sky-200">
+                <rect x="20" y="15" width="240" height="135" rx="16" fill="#e0f2fe" stroke="#0284c7" stroke-width="2" />
+                <text x="140" y="36" font-size="11" font-weight="800" fill="#0369a1" text-anchor="middle">Mesophyll Cell (Daytime)</text>
+                <text x="140" y="56" font-size="10.5" font-weight="700" fill="#0f172a" text-anchor="middle">CO₂ enters Stomata directly</text>
+                <path d="M 140 62 L 140 82" stroke="#0284c7" stroke-width="2.5" marker-end="url(#arrow-blue)" />
+                <rect x="55" y="86" width="170" height="48" rx="10" fill="#ffffff" stroke="#0284c7" stroke-width="1.5" />
+                <text x="140" y="106" font-size="11" font-weight="800" fill="#0369a1" text-anchor="middle">RuBisCO → Calvin Cycle</text>
+                <text x="140" y="122" font-size="9.5" font-weight="600" fill="#e11d48" text-anchor="middle">Exposed to O₂ when stomata close!</text>
+              </svg>
+            </div>
+            <!-- Drop Zone C3 -->
+            <div id="adapt-slot-c3" data-target="c3"
+              ondragover="event.preventDefault(); this.classList.add('drag-over')"
+              ondragleave="this.classList.remove('drag-over')"
+              ondrop="handleAdaptDrop(event, 'c3')"
+              onclick="handleAdaptSlotClick('c3')"
+              class="drop-slot mt-3 p-3 rounded-xl border-2 border-dashed border-sky-400 bg-white min-h-[76px] space-y-1.5 cursor-pointer">
+              <div class="text-[11px] font-bold text-sky-800 uppercase">Drop C₃ Traits Here (0/2):</div>
+            </div>
+          </div>
+
+          <!-- C4 Card -->
+          <div class="rounded-2xl border-2 border-emerald-200 bg-emerald-50/30 p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="font-extrabold text-base text-emerald-950">C₄ Pathway</h3>
+                <span class="px-2 py-0.5 text-[11px] font-bold rounded bg-emerald-100 text-emerald-800">Spatial Separation</span>
+              </div>
+              <svg viewBox="0 0 280 165" class="w-full h-auto bg-white rounded-xl border border-emerald-200">
+                <!-- Left: Mesophyll -->
+                <rect x="10" y="15" width="122" height="135" rx="14" fill="#d1fae5" stroke="#059669" stroke-width="2" />
+                <text x="71" y="34" font-size="10" font-weight="800" fill="#065f46" text-anchor="middle">Mesophyll Cell</text>
+                <text x="71" y="56" font-size="9.5" font-weight="700" fill="#0f172a" text-anchor="middle">PEP Carboxylase</text>
+                <text x="71" y="70" font-size="9" fill="#047857" text-anchor="middle">(Zero O₂ affinity)</text>
+                <rect x="22" y="84" width="98" height="32" rx="8" fill="#ffffff" stroke="#059669" />
+                <text x="71" y="104" font-size="10" font-weight="800" fill="#065f46" text-anchor="middle">4-C Acid (Malate)</text>
+
+                <!-- Arrow across Plasmodesmata -->
+                <path d="M 122 100 L 154 100" stroke="#059669" stroke-width="3" marker-end="url(#arrow-calvin)" />
+
+                <!-- Right: Bundle Sheath -->
+                <rect x="148" y="15" width="122" height="135" rx="14" fill="#ecfdf5" stroke="#047857" stroke-width="2.5" />
+                <text x="209" y="34" font-size="10" font-weight="800" fill="#065f46" text-anchor="middle">Bundle Sheath Cell</text>
+                <text x="209" y="56" font-size="9.5" font-weight="700" fill="#0f172a" text-anchor="middle">Releases high [CO₂]</text>
+                <rect x="158" y="76" width="102" height="54" rx="8" fill="#ffffff" stroke="#047857" />
+                <text x="209" y="98" font-size="10" font-weight="800" fill="#065f46" text-anchor="middle">RuBisCO +</text>
+                <text x="209" y="113" font-size="10" font-weight="800" fill="#065f46" text-anchor="middle">Calvin Cycle</text>
+              </svg>
+            </div>
+            <!-- Drop Zone C4 -->
+            <div id="adapt-slot-c4" data-target="c4"
+              ondragover="event.preventDefault(); this.classList.add('drag-over')"
+              ondragleave="this.classList.remove('drag-over')"
+              ondrop="handleAdaptDrop(event, 'c4')"
+              onclick="handleAdaptSlotClick('c4')"
+              class="drop-slot mt-3 p-3 rounded-xl border-2 border-dashed border-emerald-400 bg-white min-h-[76px] space-y-1.5 cursor-pointer">
+              <div class="text-[11px] font-bold text-emerald-800 uppercase">Drop C₄ Traits Here (0/2):</div>
+            </div>
+          </div>
+
+          <!-- CAM Card -->
+          <div class="rounded-2xl border-2 border-purple-200 bg-purple-50/30 p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="font-extrabold text-base text-purple-950">CAM Pathway</h3>
+                <span class="px-2 py-0.5 text-[11px] font-bold rounded bg-purple-100 text-purple-800">Temporal Separation</span>
+              </div>
+              <svg viewBox="0 0 280 165" class="w-full h-auto bg-white rounded-xl border border-purple-200">
+                <rect id="cam-cell-bg" x="20" y="15" width="240" height="135" rx="16" fill="#3b0764" stroke="#7e22ce" stroke-width="2" />
+                <text id="cam-svg-header" x="140" y="36" font-size="11" font-weight="800" fill="#f3e8ff" text-anchor="middle">🌙 NIGHT: Stomata OPEN</text>
+                <text id="cam-svg-sub" x="140" y="55" font-size="10" font-weight="600" fill="#e9d5ff" text-anchor="middle">PEP Carboxylase fixes CO₂ into Malic Acid</text>
+                <rect id="cam-vacuole-box" x="45" y="70" width="190" height="64" rx="12" fill="#581c87" stroke="#c084fc" stroke-width="2" />
+                <text id="cam-vacuole-title" x="140" y="96" font-size="11" font-weight="800" fill="#ffffff" text-anchor="middle">Central Vacuole Storage</text>
+                <text id="cam-vacuole-desc" x="140" y="114" font-size="9.5" font-weight="600" fill="#e9d5ff" text-anchor="middle">Stores Malic Acid until sunrise</text>
+              </svg>
+            </div>
+            <!-- Drop Zone CAM -->
+            <div id="adapt-slot-cam" data-target="cam"
+              ondragover="event.preventDefault(); this.classList.add('drag-over')"
+              ondragleave="this.classList.remove('drag-over')"
+              ondrop="handleAdaptDrop(event, 'cam')"
+              onclick="handleAdaptSlotClick('cam')"
+              class="drop-slot mt-3 p-3 rounded-xl border-2 border-dashed border-purple-400 bg-white min-h-[76px] space-y-1.5 cursor-pointer">
+              <div class="text-[11px] font-bold text-purple-800 uppercase">Drop CAM Traits Here (0/2):</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Draggable Adaptation Trait Bank -->
+        <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              Drag Traits onto C₃, C₄, or CAM Boxes Above:
+            </span>
+            <button onclick="initAdaptMatcher()" class="text-xs font-bold text-forest-700 hover:underline">Reset Traits</button>
+          </div>
+          <div id="adapt-bank" class="flex flex-wrap gap-2">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Part B: Interactive CO2 Level vs. Photosynthesis Competitive Advantage Graph -->
+      <div class="bg-white rounded-2xl p-5 sm:p-6 shadow-sm border border-slate-200">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <span class="px-2.5 py-1 rounded-lg bg-amber-100 text-amber-900 text-xs font-bold">
+              Climate &amp; Ecophysiology Simulator
+            </span>
+            <h2 class="text-xl font-bold text-slate-900 mt-1">Atmospheric CO₂ vs. Photosynthesis Rate (C₃ vs. C₄ Competition)</h2>
+            <p class="text-sm text-slate-600">
+              Drag the <strong>Atmospheric CO₂ Slider</strong> across Pre-Industrial, Modern, and Year 2100 projections to see where C₃ and C₄ plants cross over and who holds the competitive advantage.
+            </p>
+          </div>
+
+          <!-- Era Quick Buttons -->
+          <div class="flex flex-wrap gap-2">
+            <button onclick="setCo2Slider(280)" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition">
+              Pre-Industrial (280 ppm)
+            </button>
+            <button onclick="setCo2Slider(420)" class="px-3 py-1.5 rounded-lg bg-emerald-100 hover:bg-emerald-200 text-emerald-900 text-xs font-bold transition">
+              Current (~420 ppm)
+            </button>
+            <button onclick="setCo2Slider(800)" class="px-3 py-1.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold transition">
+              Year 2100 Doubled (800 ppm)
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-5 items-center">
+          <!-- Interactive SVG Graph (7 cols) -->
+          <div class="lg:col-span-7 bg-slate-50 rounded-2xl p-4 border border-slate-200">
+            <svg id="co2-graph-svg" viewBox="0 0 560 320" class="w-full h-auto select-none" role="img" aria-label="CO2 Concentration vs Photosynthesis Rate Graph for C3 and C4 Plants">
+              <!-- Grid Lines -->
+              <g stroke="#e2e8f0" stroke-width="1">
+                <line x1="65" y1="40" x2="525" y2="40" />
+                <line x1="65" y1="95" x2="525" y2="95" />
+                <line x1="65" y1="150" x2="525" y2="150" />
+                <line x1="65" y1="205" x2="525" y2="205" />
+                <line x1="65" y1="260" x2="525" y2="260" />
+              </g>
+
+              <!-- Axes -->
+              <line x1="65" y1="260" x2="525" y2="260" stroke="#334155" stroke-width="2.5" />
+              <line x1="65" y1="25" x2="65" y2="260" stroke="#334155" stroke-width="2.5" />
+
+              <!-- Axis Labels -->
+              <text x="295" y="305" font-size="12" font-weight="800" fill="#1e293b" text-anchor="middle">Atmospheric CO₂ Concentration (ppm)</text>
+              <text x="20" y="145" font-size="11" font-weight="800" fill="#1e293b" transform="rotate(-90 20 145)" text-anchor="middle">Photosynthesis Rate (µmol m⁻² s⁻¹)</text>
+
+              <!-- X-Axis Ticks (0 to 1000 ppm -> x = 65 to 525, scale = 0.46 px/ppm) -->
+              <g font-size="10" font-weight="700" fill="#475569" text-anchor="middle">
+                <text x="65" y="276">0</text>
+                <text x="157" y="276">200</text>
+                <text x="249" y="276">400</text>
+                <text x="341" y="276">600</text>
+                <text x="433" y="276">800</text>
+                <text x="525" y="276">1000</text>
+              </g>
+
+              <!-- Y-Axis Ticks (0 to 50 -> y = 260 to 40, scale = 4.4 px/unit) -->
+              <g font-size="10" font-weight="700" fill="#475569" text-anchor="end">
+                <text x="58" y="264">0</text>
+                <text x="58" y="209">12.5</text>
+                <text x="58" y="154">25</text>
+                <text x="58" y="99">37.5</text>
+                <text x="58" y="44">50</text>
+              </g>
+
+              <!-- Historical / Future Reference Markers -->
+              <line x1="193.8" y1="30" x2="193.8" y2="260" stroke="#94a3b8" stroke-width="1" stroke-dasharray="3 3" />
+              <text x="193.8" y="24" font-size="8.5" font-weight="700" fill="#64748b" text-anchor="middle">1850 (280)</text>
+
+              <line x1="258.2" y1="30" x2="258.2" y2="260" stroke="#10b981" stroke-width="1" stroke-dasharray="3 3" />
+              <text x="258.2" y="24" font-size="8.5" font-weight="700" fill="#059669" text-anchor="middle">Now (420)</text>
+
+              <line x1="433" y1="30" x2="433" y2="260" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3 3" />
+              <text x="433" y="24" font-size="8.5" font-weight="700" fill="#d97706" text-anchor="middle">2100 (800)</text>
+
+              <!-- C4 Curve (Saturates early around 350 ppm at ~34 rate) -->
+              <path id="curve-c4" fill="none" stroke="#059669" stroke-width="3.5" />
+              <text x="485" y="98" font-size="11" font-weight="800" fill="#059669">C₄ Plants</text>
+
+              <!-- C3 Curve (Starts near 50 ppm compensation point, crosses C4 around 520 ppm, climbs to ~46) -->
+              <path id="curve-c3" fill="none" stroke="#0284c7" stroke-width="3.5" />
+              <text x="485" y="54" font-size="11" font-weight="800" fill="#0284c7">C₃ Plants</text>
+
+              <!-- Crossover Annotation -->
+              <circle cx="304" cy="112" r="4" fill="#64748b" />
+              <text x="304" y="132" font-size="9" font-weight="700" fill="#475569" text-anchor="middle">Crossover (~520 ppm)</text>
+
+              <!-- Interactive Vertical Cursor Line & Live Dots -->
+              <line id="co2-cursor-line" x1="258" y1="30" x2="258" y2="260" stroke="#f59e0b" stroke-width="2.5" />
+              <circle id="dot-c4" cx="258" cy="115" r="6" fill="#059669" stroke="#ffffff" stroke-width="2" />
+              <circle id="dot-c3" cx="258" cy="135" r="6" fill="#0284c7" stroke="#ffffff" stroke-width="2" />
+            </svg>
+          </div>
+
+          <!-- Right: Live Slider & Competitive Advantage Dashboard (5 cols) -->
+          <div class="lg:col-span-5 space-y-4">
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
+              <div class="flex justify-between items-center mb-1.5">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-600">Drag CO₂ Level:</span>
+                <span id="co2-slider-readout" class="text-base font-extrabold font-mono text-forest-800">420 ppm</span>
+              </div>
+              <input type="range" id="co2-climate-slider" min="80" max="950" step="10" value="420" oninput="updateCo2Graph(this.value)"
+                class="w-full accent-forest-700 cursor-pointer" />
+              <div class="flex justify-between text-[11px] text-slate-500 mt-1">
+                <span>80 ppm (Starvation)</span>
+                <span>500 ppm</span>
+                <span>950 ppm (High CO₂)</span>
+              </div>
+            </div>
+
+            <!-- Live Rate Comparison Cards -->
+            <div class="grid grid-cols-2 gap-3">
+              <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200">
+                <div class="text-xs font-bold text-emerald-900">C₄ Photosynthesis Rate</div>
+                <div id="rate-c4-display" class="text-xl font-extrabold font-mono text-emerald-700 mt-0.5">33.1</div>
+                <div class="text-[11px] text-emerald-800">µmol CO₂ m⁻² s⁻¹</div>
+              </div>
+              <div class="p-3.5 rounded-xl bg-sky-50 border border-sky-200">
+                <div class="text-xs font-bold text-sky-900">C₃ Photosynthesis Rate</div>
+                <div id="rate-c3-display" class="text-xl font-extrabold font-mono text-sky-700 mt-0.5">28.6</div>
+                <div class="text-[11px] text-sky-800">µmol CO₂ m⁻² s⁻¹</div>
+              </div>
+            </div>
+
+            <!-- Competitive Winner Box -->
+            <div id="co2-winner-box" class="p-4 rounded-2xl bg-emerald-900 text-white space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-300">Competitive Advantage</span>
+                <span id="co2-winner-badge" class="px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-400 text-emerald-950">
+                  C₄ Advantage
+                </span>
+              </div>
+              <p id="co2-winner-explanation" class="text-xs sm:text-sm text-emerald-50 leading-relaxed">
+                At 420 ppm (warm conditions), C₄ plants outcompete C₃ plants because PEP Carboxylase concentrates CO₂ around RuBisCO, avoiding photorespiration losses.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-4 mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+      <span>BIOS 110 Interactive Photosynthesis Lab • Hands-On Pathway &amp; Ecophysiology Models</span>
+      <span>Supports Mouse Drag-and-Drop and Touch/Click-to-Place</span>
+    </div>
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- JAVASCRIPT APPLICATION LOGIC                                          -->
+  <!-- ===================================================================== -->
+  <script>
+    // -----------------------------------------------------------------------
+    // GLOBAL TOUCH / CLICK-TO-PLACE DRAG HELPER
+    // -----------------------------------------------------------------------
+    let activeDragPayload = null; // { group: 'chain'|'inhibitor'|'calvin'|'adapt', id: string }
+
+    function handleDragStart(event, group, id) {
+      activeDragPayload = { group, id };
+      if (event && event.dataTransfer) {
+        event.dataTransfer.setData('text/plain', JSON.stringify(activeDragPayload));
+      }
+    }
+
+    function selectChipForClick(group, id, el) {
+      document.querySelectorAll('.drag-chip').forEach(c => c.classList.remove('selected-chip'));
+      if (activeDragPayload && activeDragPayload.group === group && activeDragPayload.id === id) {
+        activeDragPayload = null;
+        return;
+      }
+      activeDragPayload = { group, id };
+      if (el) el.classList.add('selected-chip');
+    }
+
+    function clearSelectedChips() {
+      activeDragPayload = null;
+      document.querySelectorAll('.drag-chip').forEach(c => c.classList.remove('selected-chip'));
+    }
+
+    // -----------------------------------------------------------------------
+    // 1. TAB NAVIGATION
+    // -----------------------------------------------------------------------
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        btn.className = 'nav-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all bg-forest-800/80 text-forest-100 hover:bg-forest-700';
+      });
+      const activeBtn = document.getElementById('btn-' + tabId);
+      if (activeBtn) {
+        activeBtn.className = 'nav-tab px-4 py-2 rounded-xl text-xs sm:text-sm font-bold whitespace-nowrap transition-all bg-white text-forest-900 shadow-md ring-2 ring-amber-400';
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // 2. TAB 1: PHOTOPHOSPHORYLATION SIMULATOR & DRAG-AND-DROP BUILDER
+    // -----------------------------------------------------------------------
+    let currentMode = 'noncyclic';
+    let currentStepIndex = -1;
+    let autoPlayTimer = null;
+
+    const componentDetails = {
+      psii: {
+        name: 'Photosystem II (PSII • P680)',
+        role: 'Absorbs light to excite P680 electrons and splits water (photolysis) to replace lost electrons, releasing O₂ and H⁺ into the lumen. Used ONLY in Noncyclic flow.',
+        io: 'In: Light, H₂O | Out: e⁻ to Pq, ½ O₂, 2 H⁺'
+      },
+      pq: {
+        name: 'Plastoquinone (Pq)',
+        role: 'Mobile hydrophobic carrier in the thylakoid membrane. Delivers electrons from PSII (Noncyclic) or Ferredoxin (Cyclic) to the Cytochrome Complex.',
+        io: 'In: 2e⁻ | Out: 2e⁻ to Cytochrome Complex'
+      },
+      cyt: {
+        name: 'Cytochrome Complex (Cyt b₆f)',
+        role: 'Uses electron energy to pump protons (H⁺) from the stroma into the thylakoid lumen, establishing the proton-motive force.',
+        io: 'In: e⁻ from Pq, Stroma H⁺ | Out: e⁻ to Pc, Lumen H⁺'
+      },
+      pc: {
+        name: 'Plastocyanin (Pc)',
+        role: 'Small mobile copper protein that carries low-energy electrons from Cytochrome Complex to Photosystem I (P700).',
+        io: 'In: e⁻ from Cyt | Out: e⁻ to PSI (P700)'
+      },
+      psi: {
+        name: 'Photosystem I (PSI • P700)',
+        role: 'Absorbs a photon to boost electrons to peak energy, passing them to Ferredoxin (Fd). Active in BOTH Noncyclic and Cyclic pathways.',
+        io: 'In: Light, e⁻ from Pc | Out: Excited e⁻ to Fd'
+      },
+      fd: {
+        name: 'Ferredoxin (Fd)',
+        role: 'Passes excited electrons to NADP⁺ Reductase in Noncyclic flow, OR loops them back to Plastoquinone (Pq) in Cyclic flow.',
+        io: 'Noncyclic: Fd → NADP⁺ Red. | Cyclic: Fd → Pq'
+      },
+      nadp: {
+        name: 'NADP⁺ Reductase',
+        role: 'Terminal enzyme of Noncyclic flow; reduces NADP⁺ + H⁺ + 2e⁻ into NADPH for the Calvin Cycle. Bypassed in Cyclic flow.',
+        io: 'In: 2e⁻ (Fd), NADP⁺, H⁺ | Out: NADPH'
+      },
+      atp: {
+        name: 'ATP Synthase',
+        role: 'Allows H⁺ ions to diffuse down their gradient from the lumen to the stroma, phosphorylating ADP + Pᵢ into ATP.',
+        io: 'In: Lumen H⁺ gradient, ADP + Pᵢ | Out: ATP'
+      }
+    };
+
+    const pathwaySteps = {
+      noncyclic: [
+        { badge: 'STEP 1 of 6', title: 'Photon Excitation & Water Splitting at PSII', desc: 'Light excites electrons in PSII (P680). Water is split to replace lost electrons, releasing ½ O₂ and 2 H⁺ into the lumen.', node: 'psii' },
+        { badge: 'STEP 2 of 6', title: 'Plastoquinone (Pq) Shuttles Electrons to Cytochrome', desc: 'High-energy electrons move from PSII to mobile carrier Plastoquinone (Pq), heading toward the Cytochrome Complex.', node: 'pq' },
+        { badge: 'STEP 3 of 6', title: 'Cytochrome Complex Pumps H⁺ into the Lumen', desc: 'As electrons pass through Cytochrome, released energy pumps H⁺ ions from the stroma into the thylakoid space.', node: 'cyt' },
+        { badge: 'STEP 4 of 6', title: 'Plastocyanin (Pc) Delivers Electrons to PSI', desc: 'Mobile protein Plastocyanin (Pc) transfers electrons from Cytochrome to replace electrons lost by Photosystem I (P700).', node: 'pc' },
+        { badge: 'STEP 5 of 6', title: 'PSI Re-Excitation & NADP⁺ Reduction to NADPH', desc: 'Light re-energizes electrons at PSI; Ferredoxin (Fd) passes them to NADP⁺ Reductase to form NADPH.', node: 'nadp' },
+        { badge: 'STEP 6 of 6', title: 'Chemiosmosis: ATP Synthase Generates ATP', desc: 'H⁺ diffuses back into the stroma through ATP Synthase, driving ATP production alongside NADPH.', node: 'atp' }
+      ],
+      cyclic: [
+        { badge: 'STEP 1 of 4', title: 'Light Excites Photosystem I (PSI Only)', desc: 'Photons excite P700 electrons in PSI. PSII is bypassed—no water is split and no O₂ is released.', node: 'psi' },
+        { badge: 'STEP 2 of 4', title: 'Ferredoxin (Fd) Recycles Electrons Back to Pq', desc: 'Instead of reducing NADP⁺, Ferredoxin redirects electrons back to Plastoquinone (Pq) in the membrane.', node: 'fd' },
+        { badge: 'STEP 3 of 4', title: 'Cytochrome Pumps H⁺ & Pc Returns e⁻ to PSI', desc: 'Electrons flow Pq → Cytochrome (pumping H⁺) → Plastocyanin (Pc) → back to PSI, completing the closed loop.', node: 'cyt' },
+        { badge: 'STEP 4 of 4', title: 'ATP Synthase Makes ATP Only (No NADPH)', desc: 'The proton gradient powers ATP Synthase to generate extra ATP for the Calvin Cycle without producing NADPH.', node: 'atp' }
+      ]
+    };
+
+    function setPathwayMode(mode) {
+      stopAutoPlay();
+      currentMode = mode;
+      currentStepIndex = -1;
+      clearNodeHighlights();
+
+      const btnNon = document.getElementById('mode-btn-noncyclic');
+      const btnCyc = document.getElementById('mode-btn-cyclic');
+
+      if (mode === 'noncyclic') {
+        btnNon.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-forest-800 text-white shadow ring-2 ring-forest-500';
+        btnCyc.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-slate-100 text-slate-700 hover:bg-slate-200';
+
+        document.getElementById('photon-psii').style.opacity = '1';
+        document.getElementById('water-split-group').style.opacity = '1';
+        document.getElementById('node-psii').style.opacity = '1';
+        document.getElementById('path-psii-pq').style.opacity = '1';
+        document.getElementById('path-fd-nadp').style.opacity = '1';
+        document.getElementById('nadph-output-group').style.opacity = '1';
+        document.getElementById('cyclic-electron-path').classList.add('hidden');
+
+        document.getElementById('z-noncyclic').classList.remove('hidden');
+        document.getElementById('z-cyclic').classList.add('hidden');
+
+        document.getElementById('pathway-status-tag').textContent = 'Active: PSII + PSI Linear Chain';
+        document.getElementById('pathway-status-tag').className = 'text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800';
+
+        document.getElementById('step-badge').textContent = 'NONCYCLIC';
+        document.getElementById('step-title').textContent = 'Noncyclic Photophosphorylation: Linear Flow from H₂O to NADP⁺';
+        document.getElementById('step-description').textContent = 'Uses BOTH PSII and PSI. Water is split (releasing O₂), protons pump into the lumen to generate ATP, and electrons reduce NADP⁺ into NADPH.';
+
+        document.getElementById('pill-atp').textContent = 'ATP: Produced ✓';
+        document.getElementById('pill-nadph').textContent = 'NADPH: Produced ✓';
+        document.getElementById('pill-nadph').className = 'px-3 py-1 rounded-lg text-xs font-bold bg-purple-500/20 border border-purple-400 text-purple-200';
+        document.getElementById('pill-o2').textContent = 'O₂: Released ✓';
+        document.getElementById('pill-o2').className = 'px-3 py-1 rounded-lg text-xs font-bold bg-sky-500/20 border border-sky-400 text-sky-200';
+      } else {
+        btnCyc.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-amber-600 text-white shadow ring-2 ring-amber-400';
+        btnNon.className = 'px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all bg-slate-100 text-slate-700 hover:bg-slate-200';
+
+        document.getElementById('photon-psii').style.opacity = '0.2';
+        document.getElementById('water-split-group').style.opacity = '0.18';
+        document.getElementById('node-psii').style.opacity = '0.28';
+        document.getElementById('path-psii-pq').style.opacity = '0.15';
+        document.getElementById('path-fd-nadp').style.opacity = '0.15';
+        document.getElementById('nadph-output-group').style.opacity = '0.2';
+        document.getElementById('cyclic-electron-path').classList.remove('hidden');
+
+        document.getElementById('z-noncyclic').classList.add('hidden');
+        document.getElementById('z-cyclic').classList.remove('hidden');
+
+        document.getElementById('pathway-status-tag').textContent = 'Active: PSI → Fd → Pq → Cyt → Pc Loop';
+        document.getElementById('pathway-status-tag').className = 'text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900';
+
+        document.getElementById('step-badge').textContent = 'CYCLIC';
+        document.getElementById('step-title').textContent = 'Cyclic Photophosphorylation: Electrons Recycle Back to PSI';
+        document.getElementById('step-description').textContent = 'Uses PSI ONLY. Ferredoxin redirects electrons back to Pq → Cyt → Pc → PSI. Generates ATP ONLY—no water split, no O₂, and no NADPH!';
+
+        document.getElementById('pill-atp').textContent = 'ATP: Produced ✓';
+        document.getElementById('pill-nadph').textContent = 'NADPH: None ✕';
+        document.getElementById('pill-nadph').className = 'px-3 py-1 rounded-lg text-xs font-bold bg-slate-700/60 border border-slate-500 text-slate-300';
+        document.getElementById('pill-o2').textContent = 'O₂: None ✕';
+        document.getElementById('pill-o2').className = 'px-3 py-1 rounded-lg text-xs font-bold bg-slate-700/60 border border-slate-500 text-slate-300';
+      }
+
+      initChainBuilder();
+    }
+
+    function clearNodeHighlights() {
+      document.querySelectorAll('.protein-node rect, .protein-node circle, .protein-node ellipse').forEach(el => {
+        el.classList.remove('protein-selected');
+      });
+    }
+
+    function highlightNode(nodeKey) {
+      clearNodeHighlights();
+      const group = document.getElementById('node-' + nodeKey);
+      if (group) {
+        const shape = group.querySelector('rect, circle, ellipse');
+        if (shape) shape.classList.add('protein-selected');
+      }
+      inspectComponent(nodeKey, false);
+    }
+
+    function inspectComponent(nodeKey, highlight = true) {
+      if (highlight) highlightNode(nodeKey);
+      const info = componentDetails[nodeKey];
+      if (!info) return;
+      document.getElementById('comp-name').textContent = info.name;
+      document.getElementById('comp-role').textContent = info.role;
+      document.getElementById('comp-io').textContent = info.io;
+    }
+
+    function applyStep(idx) {
+      const steps = pathwaySteps[currentMode];
+      if (idx < 0 || idx >= steps.length) return;
+      currentStepIndex = idx;
+      const step = steps[idx];
+      document.getElementById('step-badge').textContent = step.badge;
+      document.getElementById('step-title').textContent = step.title;
+      document.getElementById('step-description').textContent = step.desc;
+      highlightNode(step.node);
+    }
+
+    function nextStep() {
+      const steps = pathwaySteps[currentMode];
+      applyStep((currentStepIndex + 1) % steps.length);
+    }
+
+    function prevStep() {
+      const steps = pathwaySteps[currentMode];
+      applyStep(currentStepIndex <= 0 ? steps.length - 1 : currentStepIndex - 1);
+    }
+
+    function toggleAutoPlay() {
+      const btn = document.getElementById('btn-autoplay');
+      if (autoPlayTimer) {
+        stopAutoPlay();
+      } else {
+        btn.textContent = '⏸ Pause';
+        btn.className = 'px-4 py-2 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold shadow transition';
+        if (currentStepIndex === -1) nextStep();
+        autoPlayTimer = setInterval(() => nextStep(), 2500);
+      }
+    }
+
+    function stopAutoPlay() {
+      if (autoPlayTimer) {
+        clearInterval(autoPlayTimer);
+        autoPlayTimer = null;
+      }
+      const btn = document.getElementById('btn-autoplay');
+      if (btn) {
+        btn.textContent = '▶ Auto-Trace';
+        btn.className = 'px-4 py-2 rounded-xl bg-amber-400 hover:bg-amber-500 text-slate-950 text-xs font-bold shadow transition';
+      }
+    }
+
+    function updateMetabolicBalance(val) {
+      const v = parseInt(val, 10);
+      const label = document.getElementById('nadp-level-label');
+      const advice = document.getElementById('metabolic-advice');
+      if (v < 30) {
+        label.textContent = `Low NADP⁺ (${v}%)`;
+        advice.innerHTML = '<strong>Cyclic Mode Favored!</strong> Oxidized NADP⁺ is scarce, so Ferredoxin redirects electrons back to Pq. Cyclic flow generates extra <strong>ATP</strong> to satisfy the Calvin Cycle.';
+      } else if (v > 70) {
+        label.textContent = `High NADP⁺ (${v}%)`;
+        advice.innerHTML = '<strong>Noncyclic Mode Dominates!</strong> Abundant NADP⁺ readily accepts electrons from Ferredoxin via NADP⁺ Reductase, producing <strong>ATP, NADPH, and O₂</strong>.';
+      } else {
+        label.textContent = `Balanced (${v}%)`;
+        advice.innerHTML = '<strong>Balanced Mix:</strong> Noncyclic supplies ATP &amp; NADPH, while Cyclic tops up extra ATP for the Calvin Cycle.';
+      }
+    }
+
+    // --- Drag-and-Drop Electron Chain Builder Logic ---
+    const chainSequences = {
+      noncyclic: [
+        { id: 'psii', label: 'PSII (P680)', cue: 'Pretty' },
+        { id: 'pq', label: 'Plastoquinone (Pq)', cue: 'Plants' },
+        { id: 'cyt', label: 'Cytochrome (Cyt)', cue: 'Can' },
+        { id: 'atp', label: 'ATP Synthase', cue: 'Always' },
+        { id: 'pc', label: 'Plastocyanin (Pc)', cue: 'Patiently' },
+        { id: 'psi', label: 'PSI (P700)', cue: 'Produce' },
+        { id: 'fd', label: 'Ferredoxin (Fd)', cue: 'Fresh' },
+        { id: 'nadp', label: 'NADP⁺ Reductase', cue: 'Nutrients' }
+      ],
+      cyclic: [
+        { id: 'psi', label: 'PSI (P700)', cue: 'Photon' },
+        { id: 'fd', label: 'Ferredoxin (Fd)', cue: 'Fires' },
+        { id: 'pq', label: 'Plastoquinone (Pq)', cue: 'Past' },
+        { id: 'cyt', label: 'Cytochrome (Cyt)', cue: 'Cycling' },
+        { id: 'pc', label: 'Plastocyanin (Pc)', cue: 'Plants' },
+        { id: 'psi2', label: 'Back to PSI (Loop)', cue: 'Constantly' }
+      ]
+    };
+
+    let placedChainSlots = [];
+
+    function initChainBuilder() {
+      const seq = chainSequences[currentMode];
+      placedChainSlots = new Array(seq.length).fill(null);
+
+      document.getElementById('builder-mode-title').textContent = currentMode === 'noncyclic' ? 'Noncyclic' : 'Cyclic';
+      document.getElementById('builder-mnemonic-hint').innerHTML = currentMode === 'noncyclic'
+        ? 'Mnemonic Guide: <em>"Pretty Plants Can Always Patiently Produce Fresh Nutrients"</em>'
+        : 'Mnemonic Guide: <em>"Photon Fires Past Cycling Plants Constantly"</em>';
+      document.getElementById('builder-complete-banner').classList.add('hidden');
+
+      renderChainBuilder();
+    }
+
+    function renderChainBuilder() {
+      const seq = chainSequences[currentMode];
+      const placedCount = placedChainSlots.filter(x => x !== null).length;
+      document.getElementById('builder-progress').textContent = `${placedCount} / ${seq.length} Placed`;
+
+      // Render shuffled unplaced chips in bank
+      const unplaced = seq.filter((item, idx) => !placedChainSlots.includes(idx));
+      // Deterministic pseudo-shuffle so order isn't trivial
+      const shuffled = [...unplaced].sort((a, b) => a.label.localeCompare(b.label));
+
+      const bankEl = document.getElementById('chain-bank');
+      bankEl.innerHTML = shuffled.length
+        ? shuffled.map(item => `
+            <div draggable="true"
+              ondragstart="handleDragStart(event, 'chain', '${item.id}')"
+              onclick="selectChipForClick('chain', '${item.id}', this)"
+              class="drag-chip px-3 py-1.5 rounded-lg bg-white border-2 border-forest-600 text-forest-950 font-bold text-xs shadow-sm hover:bg-forest-50">
+              ${item.label}
+            </div>
+          `).join('')
+        : '<span class="text-xs text-emerald-700 font-bold">All components placed!</span>';
+
+      // Render slots
+      const slotsEl = document.getElementById('chain-slots');
+      slotsEl.className = currentMode === 'noncyclic'
+        ? 'grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 mt-4'
+        : 'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 mt-4';
+
+      slotsEl.innerHTML = seq.map((item, idx) => {
+        const isFilled = placedChainSlots[idx] !== null;
+        return `
+          <div id="chain-slot-${idx}"
+            ondragover="event.preventDefault(); this.classList.add('drag-over')"
+            ondragleave="this.classList.remove('drag-over')"
+            ondrop="handleChainDrop(event, ${idx})"
+            onclick="handleChainSlotClick(${idx})"
+            class="drop-slot p-2.5 rounded-xl border-2 ${isFilled ? 'filled-correct' : 'border-dashed border-slate-300 bg-slate-50'} text-center min-h-[72px] flex flex-col justify-center items-center cursor-pointer">
+            <span class="text-[10px] font-extrabold uppercase tracking-wider ${isFilled ? 'text-emerald-700' : 'text-slate-400'}">
+              ${idx + 1}. "${item.cue}"
+            </span>
+            ${isFilled
+              ? `<span class="text-xs font-extrabold text-emerald-950 mt-1">${item.label} ✓</span>`
+              : `<span class="text-[11px] text-slate-400 mt-1">Drop Here</span>`
+            }
+          </div>
+        `;
+      }).join('');
+
+      if (placedCount === seq.length) {
+        document.getElementById('builder-complete-banner').classList.remove('hidden');
+        document.getElementById('builder-complete-msg').textContent = currentMode === 'noncyclic'
+          ? 'Noncyclic Chain Complete! Electrons flow linearly from PSII to NADP⁺ Reductase, making ATP, NADPH, and O₂.'
+          : 'Cyclic Loop Complete! Ferredoxin recycles electrons back to Plastoquinone and PSI, generating ATP only.';
+      }
+    }
+
+    function attemptPlaceChain(slotIdx, droppedId) {
+      const seq = chainSequences[currentMode];
+      const expected = seq[slotIdx];
+      if (!expected) return;
+
+      if (expected.id === droppedId) {
+        placedChainSlots[slotIdx] = slotIdx;
+        clearSelectedChips();
+        renderChainBuilder();
+        const cleanNode = droppedId === 'psi2' ? 'psi' : droppedId;
+        highlightNode(cleanNode);
+      } else {
+        const slotEl = document.getElementById('chain-slot-' + slotIdx);
+        if (slotEl) {
+          slotEl.classList.add('shake-wrong');
+          setTimeout(() => slotEl.classList.remove('shake-wrong'), 350);
+        }
+      }
+    }
+
+    function handleChainDrop(event, slotIdx) {
+      event.preventDefault();
+      event.currentTarget.classList.remove('drag-over');
+      let payload = activeDragPayload;
+      try {
+        const raw = event.dataTransfer.getData('text/plain');
+        if (raw) payload = JSON.parse(raw);
+      } catch (e) {}
+      if (payload && payload.group === 'chain') {
+        attemptPlaceChain(slotIdx, payload.id);
+      }
+    }
+
+    function handleChainSlotClick(slotIdx) {
+      if (activeDragPayload && activeDragPayload.group === 'chain') {
+        attemptPlaceChain(slotIdx, activeDragPayload.id);
+      }
+    }
+
+    function switchBuilderModePrompt() {
+      setPathwayMode(currentMode === 'noncyclic' ? 'cyclic' : 'noncyclic');
+    }
+
+    // -----------------------------------------------------------------------
+    // 3. TAB 2: THYLAKOID HERBICIDE & DISRUPTION SANDBOX
+    // -----------------------------------------------------------------------
+    const disruptions = {
+      normal: {
+        badge: 'Control: All Complexes Functional',
+        badgeClass: 'bg-emerald-500/20 text-emerald-300',
+        blockedBoxes: [],
+        membraneBroken: false,
+        title: 'Normal Intact Chloroplast',
+        body: 'Electrons flow smoothly from H₂O through PSII, Pq, Cyt, Pc, PSI, and Fd to NADP⁺ Reductase. The H⁺ gradient across the intact membrane powers ATP Synthase.',
+        atp: { ok: true, text: 'PRODUCED ✓', sub: 'Powered by H⁺ electrochemical gradient' },
+        nadph: { ok: true, text: 'PRODUCED ✓', sub: 'Linear electron flow to NADP⁺ Reductase' },
+        o2: { ok: true, text: 'PRODUCED ✓', sub: 'Water splitting at functional PSII' },
+        cyclic: { ok: true, text: 'ACTIVE', sub: 'PSI → Fd → Pq → Cyt → Pc → PSI' }
+      },
+      puncture: {
+        badge: 'Membrane Punctured (H⁺ Gradient Collapsed)',
+        badgeClass: 'bg-rose-500/30 text-rose-200',
+        blockedBoxes: [],
+        membraneBroken: true,
+        title: 'Perforins / Thylakoid Membrane Puncture',
+        body: 'Holes in the thylakoid membrane allow H⁺ ions to leak freely between the lumen and stroma, collapsing the proton gradient. Membrane proteins still work—water splits (O₂ made) and NADPH is produced—but ATP Synthase loses its proton gradient!',
+        atp: { ok: false, text: 'STOPPED ✕', sub: 'No H⁺ gradient to drive ATP Synthase' },
+        nadph: { ok: true, text: 'PRODUCED ✓', sub: 'Electron transport chain proteins still function' },
+        o2: { ok: true, text: 'PRODUCED ✓', sub: 'PSII still splits water normally' },
+        cyclic: { ok: false, text: 'NO ATP', sub: 'Electrons cycle, but H⁺ leaks prevent ATP' }
+      },
+      dcmu: {
+        badge: 'DCMU Applied: Blocks PSII → Pq',
+        badgeClass: 'bg-amber-500/30 text-amber-200',
+        blockedBoxes: ['box-h2o', 'box-psii'],
+        membraneBroken: false,
+        title: 'DCMU (Blocks Electron Transfer from PSII to Plastoquinone)',
+        body: 'DCMU blocks PSII from passing electrons to Plastoquinone (Pq). Noncyclic flow stops—halting O₂ evolution and linear NADPH synthesis. However, PSI is downstream, so Cyclic Photophosphorylation can still pump H⁺ and generate ATP!',
+        atp: { ok: true, text: 'REDUCED (Cyclic)', sub: 'Cyclic PSI loop still pumps H⁺ for ATP' },
+        nadph: { ok: false, text: 'STOPPED ✕', sub: 'No electrons from PSII reach NADP⁺' },
+        o2: { ok: false, text: 'STOPPED ✕', sub: 'PSII electron backup halts water splitting' },
+        cyclic: { ok: true, text: 'ACTIVE (PSI Intact)', sub: 'PSI → Fd → Pq → Cyt → Pc bypasses PSII' }
+      },
+      triazines: {
+        badge: 'Triazines Applied: Displaces Pq at PSII',
+        badgeClass: 'bg-orange-500/30 text-orange-200',
+        blockedBoxes: ['box-h2o', 'box-psii'],
+        membraneBroken: false,
+        title: 'Triazine Herbicides (Block PSII → Plastoquinone Binding)',
+        body: 'Like DCMU, Triazines bind to the Q_B site on PSII, preventing Plastoquinone (Pq) from accepting electrons. Water splitting (O₂) and NADPH production stop, while Cyclic Photophosphorylation around PSI remains functional.',
+        atp: { ok: true, text: 'REDUCED (Cyclic)', sub: 'Cyclic PSI loop still pumps H⁺ for ATP' },
+        nadph: { ok: false, text: 'STOPPED ✕', sub: 'Linear electron flow from PSII is blocked' },
+        o2: { ok: false, text: 'STOPPED ✕', sub: 'PSII cannot oxidize water' },
+        cyclic: { ok: true, text: 'ACTIVE (PSI Intact)', sub: 'PSI → Fd → Pq → Cyt → Pc bypasses PSII' }
+      },
+      paraquat: {
+        badge: 'Paraquat Applied: Blocks PSI → Fd',
+        badgeClass: 'bg-purple-500/30 text-purple-200',
+        blockedBoxes: ['box-psi', 'box-nadp'],
+        membraneBroken: false,
+        title: 'Paraquat (Blocks Electron Donation from PSI to Ferredoxin)',
+        body: 'Paraquat intercepts electrons at Photosystem I (P700), preventing donation to Ferredoxin (Fd). Because Ferredoxin is essential for BOTH Noncyclic (Fd → NADP⁺) and Cyclic (Fd → Pq) pathways, Paraquat shuts down BOTH pathways!',
+        atp: { ok: false, text: 'STOPPED ✕', sub: 'Both cyclic and noncyclic ETC back up' },
+        nadph: { ok: false, text: 'STOPPED ✕', sub: 'Electrons never reach Ferredoxin or NADP⁺' },
+        o2: { ok: false, text: 'STOPPED ✕', sub: 'Chain backlog halts PSII water splitting' },
+        cyclic: { ok: false, text: 'BLOCKED ✕', sub: 'Cyclic requires PSI → Fd electron transfer' }
+      },
+      heparin: {
+        badge: 'Heparin Applied: Inhibits NADP⁺ Reductase',
+        badgeClass: 'bg-sky-500/30 text-sky-200',
+        blockedBoxes: ['box-nadp'],
+        membraneBroken: false,
+        title: 'Heparin (Inhibits NADP⁺ Reductase)',
+        body: 'Heparin blocks NADP⁺ Reductase, halting NADPH synthesis. Because Ferredoxin (Fd) is still functional, it redirects electrons to Plastoquinone (Pq)—allowing Cyclic Photophosphorylation to pump H⁺ and generate ATP!',
+        atp: { ok: true, text: 'PRODUCED ✓', sub: 'Fd redirects e⁻ to Pq (Cyclic flow continues)' },
+        nadph: { ok: false, text: 'STOPPED ✕', sub: 'NADP⁺ Reductase is inhibited' },
+        o2: { ok: true, text: 'INITIAL O₂ ✓', sub: 'PSII remains uninhibited until NADP⁺ depletes' },
+        cyclic: { ok: true, text: 'ACTIVE (Favored)', sub: 'Fd → Pq → Cyt → Pc loop operates freely' }
+      }
+    };
+
+    function handleInhibitorDrop(event) {
+      event.preventDefault();
+      event.currentTarget.classList.remove('ring-4', 'ring-amber-400');
+      let payload = activeDragPayload;
+      try {
+        const raw = event.dataTransfer.getData('text/plain');
+        if (raw) payload = JSON.parse(raw);
+      } catch (e) {}
+      if (payload && payload.group === 'inhibitor') {
+        applyDisruption(payload.id);
+      }
+    }
+
+    function applyDisruption(key) {
+      const d = disruptions[key];
+      if (!d) return;
+
+      document.querySelectorAll('.dis-btn').forEach(btn => btn.classList.remove('ring-4', 'ring-amber-400'));
+      const activeBtn = document.getElementById('dis-btn-' + key);
+      if (activeBtn) activeBtn.classList.add('ring-4', 'ring-amber-400');
+
+      const allBoxes = ['box-h2o', 'box-psii', 'box-pq', 'box-cyt', 'box-pc', 'box-psi', 'box-nadp'];
+      allBoxes.forEach(id => {
+        const el = document.getElementById(id);
+        el.style.opacity = '1';
+        el.style.textDecoration = 'none';
+        el.classList.remove('ring-2', 'ring-rose-500');
+      });
+
+      d.blockedBoxes.forEach(id => {
+        const el = document.getElementById(id);
+        el.style.opacity = '0.4';
+        el.style.textDecoration = 'line-through';
+        el.classList.add('ring-2', 'ring-rose-500');
+      });
+
+      const memBox = document.getElementById('box-membrane');
+      const memText = document.getElementById('membrane-status-text');
+      const atpSyn = document.getElementById('atp-synthase-status');
+      if (d.membraneBroken) {
+        memBox.className = 'mt-3 p-3 rounded-xl bg-rose-500/25 border border-rose-500 flex items-center justify-between text-xs transition-all';
+        memText.textContent = 'MEMBRANE PUNCTURED: H⁺ Leaks Out (No Gradient!)';
+        memText.className = 'font-bold text-rose-200';
+        atpSyn.textContent = 'ATP Synthase: NO GRADIENT';
+        atpSyn.className = 'px-2.5 py-1 rounded bg-rose-600 text-white font-extrabold';
+      } else {
+        memBox.className = 'mt-3 p-3 rounded-xl bg-amber-500/20 border border-amber-400 flex items-center justify-between text-xs transition-all';
+        memText.textContent = 'Thylakoid Membrane Intact: H⁺ Gradient Maintained';
+        memText.className = 'font-bold text-amber-200';
+        atpSyn.textContent = d.atp.ok ? 'ATP Synthase: ON' : 'ATP Synthase: IDLE';
+        atpSyn.className = d.atp.ok
+          ? 'px-2.5 py-1 rounded bg-amber-400 text-slate-950 font-extrabold'
+          : 'px-2.5 py-1 rounded bg-slate-600 text-white font-extrabold';
+      }
+
+      const badge = document.getElementById('dis-site-badge');
+      badge.textContent = d.badge;
+      badge.className = `px-2.5 py-0.5 rounded-full text-xs font-bold ${d.badgeClass}`;
+      document.getElementById('dis-explain-title').textContent = d.title;
+      document.getElementById('dis-explain-body').textContent = d.body;
+
+      updateGauge('atp', d.atp);
+      updateGauge('nadph', d.nadph);
+      updateGauge('o2', d.o2);
+
+      const cycVal = document.getElementById('gauge-cyclic-val');
+      document.getElementById('gauge-cyclic-sub').textContent = d.cyclic.sub;
+      cycVal.textContent = d.cyclic.text;
+      cycVal.className = d.cyclic.ok
+        ? 'px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 font-bold text-xs'
+        : 'px-2.5 py-1 rounded-lg bg-rose-100 text-rose-800 font-bold text-xs';
+    }
+
+    function updateGauge(type, state) {
+      const card = document.getElementById('gauge-' + type);
+      const val = document.getElementById('gauge-' + type + '-val');
+      const sub = document.getElementById('gauge-' + type + '-sub');
+      sub.textContent = state.sub;
+      val.textContent = state.text;
+      if (state.ok) {
+        card.className = 'p-3.5 rounded-xl border-2 border-emerald-500 bg-emerald-50 flex items-center justify-between';
+        val.className = 'px-3 py-1 rounded-lg bg-emerald-600 text-white font-extrabold text-xs';
+      } else {
+        card.className = 'p-3.5 rounded-xl border-2 border-rose-400 bg-rose-50 flex items-center justify-between';
+        val.className = 'px-3 py-1 rounded-lg bg-rose-600 text-white font-extrabold text-xs';
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // 4. TAB 3: CALVIN CYCLE DRAG-AND-DROP BUILDER
+    // -----------------------------------------------------------------------
+    const calvinItems = [
+      { id: 'co2', label: '6 CO₂ (Inorganic Carbon)', defaultText: 'Inorganic Gas Input' },
+      { id: 'rubisco', label: 'RuBisCO Enzyme', defaultText: 'Fixation Enzyme' },
+      { id: 'energy', label: '12 ATP & 12 NADPH', defaultText: 'Light Reaction Carriers' },
+      { id: 'g3p', label: 'G3P Sugar Output', defaultText: '3-Carbon Sugar Output' },
+      { id: 'regen', label: '6 ATP (Regeneration)', defaultText: 'Energy Needed to Reform 6 RuBP' }
+    ];
+
+    let placedCalvin = {};
+
+    function resetCalvinBuilder() {
+      placedCalvin = {};
+      document.getElementById('calvin-flow-ring').classList.remove('electron-flow-active');
+      document.getElementById('calvin-svg-fix').textContent = '[Drop CO₂ & RuBisCO in Slot 1]';
+      document.getElementById('calvin-svg-red').textContent = '[Drop ATP/NADPH & G3P in Slot 2]';
+      document.getElementById('calvin-svg-reg').textContent = '[Drop Regeneration ATP in Slot 3]';
+
+      calvinItems.forEach(item => {
+        const slot = document.getElementById('calvin-slot-' + item.id);
+        if (slot) {
+          slot.classList.remove('filled-correct');
+          slot.textContent = item.defaultText;
+        }
+      });
+      renderCalvinBank();
+    }
+
+    function renderCalvinBank() {
+      const bank = document.getElementById('calvin-bank');
+      const remaining = calvinItems.filter(i => !placedCalvin[i.id]);
+      bank.innerHTML = remaining.length
+        ? remaining.map(item => `
+            <div draggable="true"
+              ondragstart="handleDragStart(event, 'calvin', '${item.id}')"
+              onclick="selectChipForClick('calvin', '${item.id}', this)"
+              class="drag-chip px-3.5 py-2 rounded-xl bg-white border-2 border-teal-600 text-teal-950 font-bold text-xs shadow-sm hover:bg-teal-50">
+              ${item.label}
+            </div>
+          `).join('')
+        : '<span class="text-xs font-bold text-teal-800">All Calvin Cycle Inputs &amp; Outputs Placed! Cycle Flow Unlocked ✓</span>';
+    }
+
+    function attemptPlaceCalvin(targetId, droppedId) {
+      const slot = document.getElementById('calvin-slot-' + targetId);
+      if (targetId === droppedId) {
+        placedCalvin[targetId] = true;
+        const item = calvinItems.find(i => i.id === targetId);
+        slot.classList.add('filled-correct');
+        slot.textContent = item.label + ' ✓';
+        clearSelectedChips();
+        renderCalvinBank();
+
+        // Update SVG text dynamically
+        if (placedCalvin.co2 && placedCalvin.rubisco) {
+          document.getElementById('calvin-svg-fix').textContent = 'Catalyzed by RuBisCO (6 CO₂ fixed) ✓';
+        }
+        if (placedCalvin.energy && placedCalvin.g3p) {
+          document.getElementById('calvin-svg-red').textContent = '12 ATP + 12 NADPH → 12 G3P ✓';
+        }
+        if (placedCalvin.regen) {
+          document.getElementById('calvin-svg-reg').textContent = '6 ATP used to regenerate 6 RuBP ✓';
+        }
+        if (Object.keys(placedCalvin).length === calvinItems.length) {
+          document.getElementById('calvin-flow-ring').classList.add('electron-flow-active');
+        }
+      } else {
+        slot.classList.add('shake-wrong');
+        setTimeout(() => slot.classList.remove('shake-wrong'), 350);
+      }
+    }
+
+    function handleCalvinDrop(event, targetId) {
+      event.preventDefault();
+      event.currentTarget.classList.remove('drag-over');
+      let payload = activeDragPayload;
+      try {
+        const raw = event.dataTransfer.getData('text/plain');
+        if (raw) payload = JSON.parse(raw);
+      } catch (e) {}
+      if (payload && payload.group === 'calvin') {
+        attemptPlaceCalvin(targetId, payload.id);
+      }
+    }
+
+    function handleCalvinSlotClick(targetId) {
+      if (activeDragPayload && activeDragPayload.group === 'calvin') {
+        attemptPlaceCalvin(targetId, activeDragPayload.id);
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // 5. TAB 4: RUBISCO ACTIVE SITE COMPETITION & PHOTORESPIRATION
+    // -----------------------------------------------------------------------
+    function setRubiscoPreset(co2, o2) {
+      document.getElementById('rubisco-co2-slider').value = co2;
+      document.getElementById('rubisco-o2-slider').value = o2;
+      updateRubiscoSim();
+    }
+
+    function updateRubiscoSim() {
+      const co2 = parseInt(document.getElementById('rubisco-co2-slider').value, 10);
+      const o2 = parseInt(document.getElementById('rubisco-o2-slider').value, 10);
+
+      document.getElementById('rubisco-co2-val').textContent = `${co2} ppm`;
+      document.getElementById('rubisco-o2-val').textContent = `${o2}%`;
+
+      // Specificity factor model: RuBisCO favors CO2 ~60x per unit partial pressure
+      // At 400 ppm CO2 (0.04%) and 21% O2 -> ~75% carboxylation, 25% oxygenation
+      const co2Eff = (co2 / 10000) * 65;
+      const o2Eff = o2 * 0.041;
+      const carbPct = Math.round((co2Eff / (co2Eff + o2Eff)) * 100);
+      const oxyPct = 100 - carbPct;
+
+      document.getElementById('carboxylase-pct').textContent = `Carboxylation (CO₂): ${carbPct}%`;
+      document.getElementById('oxygenase-pct').textContent = `Oxygenation (O₂): ${oxyPct}%`;
+      document.getElementById('rubisco-ratio-bar').style.width = `${carbPct}%`;
+
+      // Adjust visual prominence of Left vs Right SVG paths
+      const leftPath = document.getElementById('path-carboxylation');
+      const rightPath = document.getElementById('path-oxygenation');
+      leftPath.style.opacity = Math.max(0.35, carbPct / 100);
+      rightPath.style.opacity = Math.max(0.35, oxyPct / 100);
+
+      const statusCard = document.getElementById('rubisco-status-card');
+      if (oxyPct >= 40) {
+        statusCard.className = 'p-3 rounded-xl bg-rose-50 border border-rose-300 text-xs text-rose-950 leading-relaxed';
+        statusCard.innerHTML = `<strong>High Photorespiration (${oxyPct}% O₂ binding)!</strong> RuBisCO frequently binds O₂, generating toxic 2-phosphoglycolate (2PG). The 3-organelle salvage pathway burns ATP/NADPH and loses fixed CO₂ &amp; NH₃.`;
+      } else if (carbPct >= 85) {
+        statusCard.className = 'p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-xs text-emerald-950 leading-relaxed';
+        statusCard.innerHTML = `<strong>High Carboxylation Efficiency (${carbPct}% CO₂ binding)!</strong> Elevated CO₂ outcompetes O₂ at RuBisCO's active site, maximizing Calvin Cycle sugar output and minimizing photorespiration.`;
+      } else {
+        statusCard.className = 'p-3 rounded-xl bg-white border border-slate-200 text-xs text-slate-700 leading-relaxed';
+        statusCard.innerHTML = `<strong>Moderate Photorespiration (${oxyPct}% O₂ binding):</strong> Typical for C₃ plants on a warm day. ~1 in 4 RuBisCO reactions binds O₂ instead of CO₂.`;
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // 6. TAB 5: C3/C4/CAM ADAPTATION MATCHER & CO2 CLIMATE GRAPH
+    // -----------------------------------------------------------------------
+    function setCamTime(time) {
+      const btnNight = document.getElementById('cam-btn-night');
+      const btnDay = document.getElementById('cam-btn-day');
+      const bg = document.getElementById('cam-cell-bg');
+      const header = document.getElementById('cam-svg-header');
+      const sub = document.getElementById('cam-svg-sub');
+      const vacBox = document.getElementById('cam-vacuole-box');
+      const vacTitle = document.getElementById('cam-vacuole-title');
+      const vacDesc = document.getElementById('cam-vacuole-desc');
+
+      if (time === 'night') {
+        btnNight.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-purple-800 text-white shadow';
+        btnDay.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-purple-900 border border-purple-200';
+        bg.setAttribute('fill', '#3b0764');
+        header.setAttribute('fill', '#f3e8ff');
+        header.textContent = '🌙 NIGHT: Stomata OPEN';
+        sub.setAttribute('fill', '#e9d5ff');
+        sub.textContent = 'PEP Carboxylase fixes CO₂ into Malic Acid';
+        vacBox.setAttribute('fill', '#581c87');
+        vacTitle.setAttribute('fill', '#ffffff');
+        vacTitle.textContent = 'Central Vacuole Storage';
+        vacDesc.setAttribute('fill', '#e9d5ff');
+        vacDesc.textContent = 'Stores Malic Acid until sunrise';
+      } else {
+        btnDay.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-500 text-slate-950 shadow';
+        btnNight.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-purple-900 border border-purple-200';
+        bg.setAttribute('fill', '#fef3c7');
+        header.setAttribute('fill', '#78350f');
+        header.textContent = '☀️ DAY: Stomata CLOSED (Saves Water)';
+        sub.setAttribute('fill', '#92400e');
+        sub.textContent = 'Malic acid releases CO₂ internally to RuBisCO';
+        vacBox.setAttribute('fill', '#ffffff');
+        vacTitle.setAttribute('fill', '#6b21a8');
+        vacTitle.textContent = 'Calvin Cycle Runs in Light';
+        vacDesc.setAttribute('fill', '#475569');
+        vacDesc.textContent = 'Uses ATP & NADPH from light reactions';
+      }
+    }
+
+    const adaptationTraits = [
+      { id: 'c3-1', target: 'c3', text: 'Cool, Moist Climates (Wheat, Rice, Oak)' },
+      { id: 'c3-2', target: 'c3', text: 'Most Sensitive to Elevated Atmospheric CO₂' },
+      { id: 'c4-1', target: 'c4', text: 'Spatial Separation: Mesophyll → Bundle Sheath' },
+      { id: 'c4-2', target: 'c4', text: 'Hot, Sunny Grasslands (Corn, Sugarcane)' },
+      { id: 'cam-1', target: 'cam', text: 'Temporal Separation: Night Stomata Opening' },
+      { id: 'cam-2', target: 'cam', text: 'Extreme Arid Deserts (Cacti, Pineapple)' }
+    ];
+
+    let placedTraits = { c3: [], c4: [], cam: [] };
+
+    function initAdaptMatcher() {
+      placedTraits = { c3: [], c4: [], cam: [] };
+      renderAdaptMatcher();
+    }
+
+    function renderAdaptMatcher() {
+      const placedIds = [...placedTraits.c3, ...placedTraits.c4, ...placedTraits.cam].map(t => t.id);
+      const remaining = adaptationTraits.filter(t => !placedIds.includes(t.id));
+
+      const bank = document.getElementById('adapt-bank');
+      bank.innerHTML = remaining.length
+        ? remaining.map(t => `
+            <div draggable="true"
+              ondragstart="handleDragStart(event, 'adapt', '${t.id}')"
+              onclick="selectChipForClick('adapt', '${t.id}', this)"
+              class="drag-chip px-3 py-1.5 rounded-lg bg-white border-2 border-slate-400 text-slate-800 font-bold text-xs shadow-sm hover:border-forest-600">
+              ${t.text}
+            </div>
+          `).join('')
+        : '<span class="text-xs font-bold text-emerald-700">All Plant Adaptations Matched Correctly! ✓</span>';
+
+      ['c3', 'c4', 'cam'].forEach(cat => {
+        const slot = document.getElementById('adapt-slot-' + cat);
+        const list = placedTraits[cat];
+        const label = cat.toUpperCase();
+        slot.classList.toggle('filled-correct', list.length === 2);
+        slot.innerHTML = `
+          <div class="text-[11px] font-bold uppercase ${list.length === 2 ? 'text-emerald-700' : 'text-slate-600'}">
+            ${label} Traits (${list.length}/2):
+          </div>
+          ${list.map(item => `
+            <div class="px-2.5 py-1 rounded bg-white border border-emerald-400 text-[11px] font-bold text-emerald-950">
+              ✓ ${item.text}
+            </div>
+          `).join('')}
+        `;
+      });
+    }
+
+    function attemptPlaceAdapt(targetCat, traitId) {
+      const trait = adaptationTraits.find(t => t.id === traitId);
+      if (!trait) return;
+      if (trait.target === targetCat) {
+        if (!placedTraits[targetCat].some(t => t.id === traitId)) {
+          placedTraits[targetCat].push(trait);
+        }
+        clearSelectedChips();
+        renderAdaptMatcher();
+      } else {
+        const slot = document.getElementById('adapt-slot-' + targetCat);
+        if (slot) {
+          slot.classList.add('shake-wrong');
+          setTimeout(() => slot.classList.remove('shake-wrong'), 350);
+        }
+      }
+    }
+
+    function handleAdaptDrop(event, targetCat) {
+      event.preventDefault();
+      event.currentTarget.classList.remove('drag-over');
+      let payload = activeDragPayload;
+      try {
+        const raw = event.dataTransfer.getData('text/plain');
+        if (raw) payload = JSON.parse(raw);
+      } catch (e) {}
+      if (payload && payload.group === 'adapt') {
+        attemptPlaceAdapt(targetCat, payload.id);
+      }
+    }
+
+    function handleAdaptSlotClick(targetCat) {
+      if (activeDragPayload && activeDragPayload.group === 'adapt') {
+        attemptPlaceAdapt(targetCat, activeDragPayload.id);
+      }
+    }
+
+    // --- Interactive CO2 vs Photosynthesis Rate Graph ---
+    // Physiological response curves (warm sunny conditions):
+    // C4: CO2 compensation point ~10 ppm, saturates steeply around 350 ppm at ~34 umol m-2 s-1
+    function calcC4Rate(ppm) {
+      if (ppm <= 10) return 0;
+      const eff = ppm - 10;
+      return 34.5 * (1 - Math.exp(-eff / 115));
+    }
+
+    // C3: CO2 compensation point ~55 ppm (due to photorespiration), rises steadily past C4 around 520 ppm up to ~48
+    function calcC3Rate(ppm) {
+      if (ppm <= 55) return 0;
+      const eff = ppm - 55;
+      return 52 * (eff / (eff + 310));
+    }
+
+    function buildCo2Curves() {
+      let dC4 = '';
+      let dC3 = '';
+      for (let ppm = 0; ppm <= 1000; ppm += 20) {
+        const x = 65 + ppm * 0.46;
+        const yC4 = 260 - calcC4Rate(ppm) * 4.4;
+        const yC3 = 260 - calcC3Rate(ppm) * 4.4;
+        dC4 += (ppm === 0 ? `M ${x} ${yC4}` : ` L ${x} ${yC4}`);
+        dC3 += (ppm === 0 ? `M ${x} ${yC3}` : ` L ${x} ${yC3}`);
+      }
+      document.getElementById('curve-c4').setAttribute('d', dC4);
+      document.getElementById('curve-c3').setAttribute('d', dC3);
+    }
+
+    function setCo2Slider(val) {
+      document.getElementById('co2-climate-slider').value = val;
+      updateCo2Graph(val);
+    }
+
+    function updateCo2Graph(val) {
+      const ppm = parseInt(val, 10);
+      document.getElementById('co2-slider-readout').textContent = `${ppm} ppm`;
+
+      const rC4 = calcC4Rate(ppm);
+      const rC3 = calcC3Rate(ppm);
+
+      document.getElementById('rate-c4-display').textContent = rC4.toFixed(1);
+      document.getElementById('rate-c3-display').textContent = rC3.toFixed(1);
+
+      const x = 65 + ppm * 0.46;
+      const yC4 = 260 - rC4 * 4.4;
+      const yC3 = 260 - rC3 * 4.4;
+
+      document.getElementById('co2-cursor-line').setAttribute('x1', x);
+      document.getElementById('co2-cursor-line').setAttribute('x2', x);
+      document.getElementById('dot-c4').setAttribute('cx', x);
+      document.getElementById('dot-c4').setAttribute('cy', yC4);
+      document.getElementById('dot-c3').setAttribute('cx', x);
+      document.getElementById('dot-c3').setAttribute('cy', yC3);
+
+      const box = document.getElementById('co2-winner-box');
+      const badge = document.getElementById('co2-winner-badge');
+      const exp = document.getElementById('co2-winner-explanation');
+
+      if (ppm < 500) {
+        box.className = 'p-4 rounded-2xl bg-emerald-900 text-white space-y-1.5 transition-colors';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-emerald-400 text-emerald-950';
+        badge.textContent = 'C₄ Plants Outcompete';
+        exp.textContent = `At ${ppm} ppm (under warm conditions), C₄ plants achieve a higher photosynthetic rate (${rC4.toFixed(1)} vs ${rC3.toFixed(1)}) because PEP Carboxylase concentrates CO₂ around RuBisCO, preventing photorespiration.`;
+      } else if (ppm <= 550) {
+        box.className = 'p-4 rounded-2xl bg-slate-800 text-white space-y-1.5 transition-colors';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-amber-300 text-slate-950';
+        badge.textContent = 'Crossover Zone (~520 ppm)';
+        exp.textContent = `Near ${ppm} ppm, C₃ and C₄ photosynthesis rates converge! Ambient CO₂ is now high enough to substantially suppress C₃ photorespiration.`;
+      } else {
+        box.className = 'p-4 rounded-2xl bg-sky-900 text-white space-y-1.5 transition-colors';
+        badge.className = 'px-2.5 py-0.5 rounded-full text-xs font-extrabold bg-sky-300 text-sky-950';
+        badge.textContent = 'C₃ Plants Outcompete';
+        exp.textContent = `At ${ppm} ppm (e.g., Year 2100 doubled CO₂), C₃ plants overtake C₄ plants (${rC3.toFixed(1)} vs ${rC4.toFixed(1)})! High CO₂ directly suppresses C₃ photorespiration without paying the extra ATP cost of C₄ carbon pumping.`;
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // INITIALIZE ALL INTERACTIVE MODULES ON LOAD
+    // -----------------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      setPathwayMode('noncyclic');
+      applyDisruption('normal');
+      resetCalvinBuilder();
+      updateRubiscoSim();
+      initAdaptMatcher();
+      buildCo2Curves();
+      updateCo2Graph(420);
+    });
+  </script>
+</body>
+</html>
