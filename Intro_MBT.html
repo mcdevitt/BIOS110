@@ -1,0 +1,2302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIOS 110 Molecular Techniques Lab Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* =====================================================================
+           DESIGN TOKENS & WCAG 2.1 AA HIGH-CONTRAST SYSTEM
+           ===================================================================== */
+        :root {
+            --bg-page: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-subtle: #f8fafc;
+            --bg-hover: #e2e8f0;
+            --slate-950: #020617;
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+            --slate-700: #334155;
+            --border-subtle: #cbd5e1;
+            --border-strong: #475569;
+            --blue-primary: #1d4ed8;
+            --blue-dark: #1e3a8a;
+            --teal-primary: #0f766e;
+            --teal-dark: #115e59;
+            --teal-soft: #f0fdfa;
+            --focus-ring: #2563eb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--slate-900);
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Visible keyboard focus outlines for WCAG 2.1 AA */
+        :focus-visible {
+            outline: 3px solid var(--focus-ring);
+            outline-offset: 2px;
+        }
+
+        header :focus-visible {
+            outline: 3px solid #38bdf8;
+            outline-offset: 2px;
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        /* Accessible >=44px touch targets */
+        .touch-target {
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        .ctrl-btn {
+            min-height: 44px;
+            min-width: 44px;
+            padding: 0.45rem 0.7rem;
+            border-radius: 0.6rem;
+            border: 1.5px solid var(--border-strong);
+            background-color: #ffffff;
+            color: var(--slate-900);
+            font-size: 0.8rem;
+            font-weight: 700;
+            line-height: 1.2;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            transition: background-color 0.12s ease, border-color 0.12s ease, transform 0.06s ease;
+            user-select: none;
+        }
+
+        .ctrl-btn:hover {
+            background-color: var(--bg-hover);
+            border-color: var(--slate-950);
+        }
+
+        .ctrl-btn:active {
+            transform: translateY(1px);
+        }
+
+        .ctrl-btn[aria-pressed="true"] {
+            background-color: var(--slate-900);
+            color: #ffffff;
+            border-color: var(--slate-900);
+        }
+
+        .ctrl-btn.btn-primary {
+            background-color: var(--blue-primary);
+            color: #ffffff;
+            border-color: var(--blue-dark);
+        }
+
+        .ctrl-btn.btn-primary:hover {
+            background-color: var(--blue-dark);
+        }
+
+        .ctrl-btn.btn-danger {
+            background-color: #b91c1c;
+            color: #ffffff;
+            border-color: #7f1d1d;
+        }
+
+        .ctrl-btn.btn-danger:hover {
+            background-color: #991b1b;
+        }
+
+        .ctrl-btn.btn-teal {
+            background-color: var(--teal-primary);
+            color: #ffffff;
+            border-color: var(--teal-dark);
+        }
+
+        .ctrl-btn.btn-teal:hover {
+            background-color: var(--teal-dark);
+        }
+
+        /* Crisp responsive canvas wrapper */
+        .canvas-shell {
+            width: 100%;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 2px solid var(--slate-900);
+            background-color: #0b1120;
+            position: relative;
+        }
+
+        #simCanvas {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 10;
+            display: block;
+            touch-action: manipulation;
+            cursor: pointer;
+        }
+
+        /* Range input styling for >=44px touch height */
+        input[type="range"] {
+            min-height: 44px;
+            accent-color: var(--blue-primary);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="flex flex-col">
+    <!-- Skip link for keyboard navigation -->
+    <a href="#main-workspace" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:text-slate-950 focus:font-extrabold focus:px-4 focus:py-3 focus:rounded-xl focus:border-2 focus:border-blue-700 focus:shadow-lg">
+        Skip to BIOS 110 Lab Simulator
+    </a>
+
+    <!-- Polite ARIA live region for screen readers -->
+    <div id="ariaLive" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- =====================================================================
+         COMPACT STICKY HEADER (<select> + Prev/Next Buttons, >=360px Safe)
+         ===================================================================== -->
+    <header class="sticky top-0 z-40 bg-slate-900 text-white border-b border-slate-800 shadow-md">
+        <div class="max-w-7xl mx-auto px-2.5 py-2 sm:px-4 flex flex-wrap items-center justify-between gap-2">
+            <!-- Brand Title -->
+            <div class="flex items-center gap-2 min-w-0">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-sky-600 via-blue-700 to-teal-700 flex items-center justify-center shrink-0 shadow-inner" aria-hidden="true">
+                    <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 3h6"/>
+                        <path d="M10 9h4"/>
+                        <path d="M10 3v6l-4 11a1 1 0 0 0 .95 1.32h10.1A1 1 0 0 0 18 20L14 9V3"/>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-sm sm:text-base font-extrabold tracking-tight leading-tight truncate">
+                        BIOS 110 Lab Simulator
+                    </div>
+                    <div class="hidden md:block text-xs text-slate-300 leading-tight">
+                        Introduction to Molecular Biology Techniques
+                    </div>
+                </div>
+            </div>
+
+            <!-- Station Navigation Controls -->
+            <nav class="flex items-center gap-1.5 flex-1 sm:flex-initial min-w-0 max-w-full sm:w-[460px]" aria-label="Bench Station Selector">
+                <button id="prevStationBtn" type="button" class="touch-target px-3 rounded-xl border border-slate-400 bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-base shrink-0" aria-label="Previous bench station">
+                    &larr;
+                </button>
+
+                <div class="relative flex-1 min-w-0">
+                    <label for="stationSelect" class="sr-only">Choose BIOS 110 Bench Station</label>
+                    <select id="stationSelect" class="touch-target w-full pl-2.5 pr-8 py-2 rounded-xl border border-slate-400 bg-white text-slate-950 font-bold text-xs sm:text-sm truncate cursor-pointer appearance-none">
+                        <option value="station1">1. Bio-Rad 16K Microcentrifuge &amp; Rotor (Act. A)</option>
+                        <option value="station2">2. miniPCR P1000 Micropipette &amp; Tips (Act. C)</option>
+                        <option value="station3">3. Vortex Mixer &amp; Spin Column (Act. B &amp; C)</option>
+                        <option value="station4">4. Green P10 Pipette Art — Honeycomb (Act. D)</option>
+                    </select>
+                    <svg class="w-4 h-4 text-slate-900 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+
+                <button id="nextStationBtn" type="button" class="touch-target px-3 rounded-xl border border-slate-400 bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-base shrink-0" aria-label="Next bench station">
+                    &rarr;
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- =====================================================================
+         MAIN WORKSPACE: INTERACTIVE SIMULATOR + LAB MANUAL PROTOCOL CARD
+         ===================================================================== -->
+    <main id="main-workspace" tabindex="-1" class="flex-1 w-full max-w-7xl mx-auto p-2.5 sm:p-4">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-start">
+
+            <!-- Left 7 Cols: Crisp Interactive Equipment Canvas + Tactile Controls -->
+            <section class="lg:col-span-7 bg-white border border-slate-300 rounded-2xl shadow-md p-2.5 sm:p-3.5 min-w-0" aria-label="Interactive Lab Equipment Viewport and Controls">
+                <div class="canvas-shell">
+                    <canvas id="simCanvas" role="img" aria-label="BIOS 110 Interactive Equipment Visualization"></canvas>
+                </div>
+
+                <!-- Dynamic Station Controls Fieldset -->
+                <fieldset class="mt-2.5 bg-slate-50 border border-slate-300 rounded-xl p-2.5 sm:p-3 flex flex-col gap-2.5 min-w-0">
+                    <legend id="controlsLegend" class="text-xs font-extrabold uppercase tracking-wider text-slate-800 px-1.5">
+                        Station Controls
+                    </legend>
+
+                    <div id="dynamicControls" class="flex flex-col gap-2"></div>
+
+                    <!-- Live Status & Safety Alert Banner (Replaces alert()) -->
+                    <div id="statusBox" role="status" class="text-xs sm:text-sm font-bold px-3 py-2 rounded-lg border border-blue-300 bg-blue-50 text-blue-950">
+                        Ready.
+                    </div>
+                </fieldset>
+            </section>
+
+            <!-- Right 5 Cols: BIOS 110 Student Lab Manual Reference & Rules -->
+            <aside class="lg:col-span-5 bg-white border border-slate-300 border-t-4 border-t-blue-700 rounded-2xl shadow-md p-3.5 sm:p-4 flex flex-col gap-3 min-w-0" aria-labelledby="stationHeading">
+                <div>
+                    <div id="stationTag" class="text-xs font-extrabold uppercase tracking-wider text-blue-800">
+                        Activity A &middot; Station 1 of 4
+                    </div>
+                    <h1 id="stationHeading" class="text-lg sm:text-xl font-extrabold text-slate-950 leading-snug mt-0.5">
+                        Bio-Rad Model 16K Microcentrifuge &amp; Rotor Balancer
+                    </h1>
+                    <p id="stationSubtitle" class="text-xs sm:text-sm font-bold text-teal-800 mt-0.5">
+                        18-Slot Rotor &middot; Snap-On Safety Cover &middot; Green Lid Lock Light
+                    </p>
+                </div>
+
+                <!-- Quick Spec Chips -->
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-2">
+                        <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-600">Equipment</div>
+                        <div id="chipEquip" class="text-xs sm:text-sm font-extrabold text-slate-950 mt-0.5 truncate">Bio-Rad 16K</div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-2">
+                        <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-600">Target Setting</div>
+                        <div id="chipTarget" class="text-xs sm:text-sm font-extrabold text-slate-950 mt-0.5 truncate">10k–12k RPM</div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-2">
+                        <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-600">Safety Rule</div>
+                        <div id="chipSafety" class="text-xs sm:text-sm font-extrabold text-slate-950 mt-0.5 truncate">2+ Balanced</div>
+                    </div>
+                </div>
+
+                <!-- Station Overview -->
+                <p id="stationDescription" class="text-sm text-slate-800 leading-relaxed"></p>
+
+                <!-- BIOS 110 Manual Checklist -->
+                <div id="stationChecklist" class="bg-teal-50 border-l-4 border-teal-700 rounded-r-xl p-3 text-xs sm:text-sm text-slate-950"></div>
+            </aside>
+
+        </div>
+    </main>
+
+    <script>
+        /**
+         * =====================================================================
+         * BIOS 110 Molecular Techniques Lab Simulator
+         * Tailored to the BIOS 110 Student Lab Manual:
+         * Introduction to Molecular Biology Techniques
+         * =====================================================================
+         */
+        (() => {
+            // Logical drawing coordinate space (16:10 aspect ratio)
+            const LOGICAL_W = 760;
+            const LOGICAL_H = 475;
+
+            const canvas = document.getElementById('simCanvas');
+            const ctx = canvas.getContext('2d');
+            const stationSelect = document.getElementById('stationSelect');
+            const prevStationBtn = document.getElementById('prevStationBtn');
+            const nextStationBtn = document.getElementById('nextStationBtn');
+            const dynamicControls = document.getElementById('dynamicControls');
+            const statusBox = document.getElementById('statusBox');
+            const ariaLive = document.getElementById('ariaLive');
+
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            // Announce messages politely to screen readers
+            function announce(msg) {
+                ariaLive.textContent = '';
+                window.setTimeout(() => {
+                    ariaLive.textContent = msg;
+                }, 25);
+            }
+
+            // Update visual status box (never uses alert() or confirm())
+            function setStatus(msg, tone = 'info') {
+                statusBox.textContent = msg;
+                if (tone === 'ok') {
+                    statusBox.className = 'text-xs sm:text-sm font-bold px-3 py-2 rounded-lg border border-emerald-400 bg-emerald-50 text-emerald-950';
+                } else if (tone === 'warn') {
+                    statusBox.className = 'text-xs sm:text-sm font-bold px-3 py-2 rounded-lg border border-red-400 bg-red-50 text-red-950';
+                } else {
+                    statusBox.className = 'text-xs sm:text-sm font-bold px-3 py-2 rounded-lg border border-blue-300 bg-blue-50 text-blue-950';
+                }
+            }
+
+            // Ensure crisp Retina / HiDPI canvas resolution on load & resize
+            function syncCanvasResolution() {
+                const rect = canvas.getBoundingClientRect();
+                const dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+                const targetW = Math.max(360, Math.round((rect.width || LOGICAL_W) * dpr));
+                const targetH = Math.round(targetW * (LOGICAL_H / LOGICAL_W));
+                if (canvas.width !== targetW || canvas.height !== targetH) {
+                    canvas.width = targetW;
+                    canvas.height = targetH;
+                }
+                render();
+            }
+
+            // =================================================================
+            // STATION METADATA (FROM BIOS 110 LAB MANUAL)
+            // =================================================================
+            const STATIONS = [
+                {
+                    id: 'station1',
+                    tag: 'Activity A · Station 1 of 4',
+                    title: 'Bio-Rad Model 16K Microcentrifuge & Rotor Balancer',
+                    subtitle: '18-Slot Rotor (1–18) · Snap-On Safety Cover · Green Lid Lock Light',
+                    equip: 'Bio-Rad 16K',
+                    target: '10k–12k RPM',
+                    safety: '2+ Balanced',
+                    description: 'The Bio-Rad Model 16K Microcentrifuge spins up to 16,000 RPM to pellet charcoal or pull liquid through silica spin columns. Before starting, tubes must be symmetrically balanced across the 18-slot rotor, the inner Safety Cover must be snapped onto the rotor, and the outer Lid must be closed and latched.',
+                    checklist: `
+                        <strong class="font-extrabold">BIOS 110 Centrifuge Safety &amp; Protocol:</strong>
+                        <ul class="list-disc pl-5 mt-1.5 space-y-1">
+                            <li><strong>Symmetrical Balancing:</strong> Never spin 1 tube alone. Use opposite pairs like <code>1 &amp; 10</code> (2 tubes), triangles like <code>1, 7, 13</code> (3 tubes), or <code>3, 8, 12, 17</code> (4 tubes).</li>
+                            <li><strong>Dual Closure:</strong> Snap the translucent inner <strong>Safety Cover</strong> onto the rotor before closing the outer <strong>Lid</strong>.</li>
+                            <li><strong>Speed Presets:</strong> <code>10,000 RPM</code> (Activity A), <code>11,000 RPM</code> (Spin Column), <code>12,000 RPM</code> (Activity B).</li>
+                            <li><strong>Safe Unloading:</strong> Wait until the rotor stops and the green <strong>Lid Lock</strong> light turns off before pressing <strong>Lid</strong>.</li>
+                        </ul>
+                    `
+                },
+                {
+                    id: 'station2',
+                    tag: 'Activity C · Station 2 of 4',
+                    title: 'miniPCR Blue P1000 Micropipette & Tip Trainer',
+                    subtitle: '100–1000 µL Range · 3-Digit Vertical Indicator · 1st vs. 2nd Stop',
+                    equip: 'miniPCR P1000',
+                    target: '0|1|7 = 170 µL',
+                    safety: '100–1000 µL Only',
+                    description: 'The blue miniPCR P1000 measures 100 µL to 1000 µL via a 3-digit vertical window: top blue digit = thousands place, middle = hundreds place, bottom = tens place (e.g., 0|1|7 = 170 µL / 0.170 mL; 0|2|0 = 200 µL / 0.200 mL). Always match Blue P1000 tips to the P1000 and hold it upright.',
+                    checklist: `
+                        <strong class="font-extrabold">BIOS 110 Pipetting Rules:</strong>
+                        <ul class="list-disc pl-5 mt-1.5 space-y-1">
+                            <li><strong>Protect Internal Gears:</strong> Never dial the P1000 below <code>100 µL [0|1|0]</code> or above <code>1000 µL [1|0|0]</code>.</li>
+                            <li><strong>Tip Box Matching:</strong> Blue <code>P1000</code> tips fit the blue P1000; yellow <code>P200</code> tips belong to P4 (red), P10 (green), and P20 (black).</li>
+                            <li><strong>Plunger Technique:</strong> Depress to <strong>First Stop</strong> before entering liquid, release slowly to aspirate, and press to <strong>Second Stop</strong> to dispense and blow out.</li>
+                        </ul>
+                    `
+                },
+                {
+                    id: 'station3',
+                    tag: 'Activities B & C · Station 3 of 4',
+                    title: 'Vortex Mixer & Spin-Column Extraction',
+                    subtitle: 'Vortexer (Power Switch Mode) · Silica Spin Column + Collection Tube',
+                    equip: 'Vortex + Column',
+                    target: '200 µL [0|2|0]',
+                    safety: 'Avoid Touch Mode',
+                    description: 'In DNA extraction, the Vortex Mixer resuspends settled charcoal pellets before centrifugation, while the silica spin column binds or passes 200 µL [0|2|0] of solution into the collection tube during an 11,000 RPM spin.',
+                    checklist: `
+                        <strong class="font-extrabold">BIOS 110 Bench Handling Rules:</strong>
+                        <ul class="list-disc pl-5 mt-1.5 space-y-1">
+                            <li><strong>Vortexer Switch:</strong> Always use the <strong>Power ON</strong> switch at medium speed—<strong>avoid "Touch" mode</strong>, which is broken/unsafe on lab vortexers.</li>
+                            <li><strong>Never Set Column Down:</strong> Hold the open spin column upright in your hand while pipetting <code>200 µL [0|2|0]</code> onto the silica membrane.</li>
+                            <li><strong>Air-Gap Inspection:</strong> After spinning at <code>11,000 RPM</code> for 2 min, confirm liquid sits cleanly at the bottom without touching the column tip.</li>
+                        </ul>
+                    `
+                },
+                {
+                    id: 'station4',
+                    tag: 'Activity D · Station 4 of 4',
+                    title: 'Green P10 Pipette Art — Honeycomb Petri Dish',
+                    subtitle: 'Green P10 (10 µL) · P200 Tips · Top/Bottom Arrow Petri Alignment',
+                    equip: 'Green P10 (10 µL)',
+                    target: '10 µL Drops',
+                    safety: 'Rinse Between Dyes',
+                    description: 'Practice accurate 10 µL pipetting with the green P10 micropipette (using P200 tips—never force the blue P1000 down to 10 µL!) inside a Petri dish aligned via top and bottom arrows over a hexagonal honeycomb card.',
+                    checklist: `
+                        <strong class="font-extrabold">Activity D Technique &amp; Color Mixing:</strong>
+                        <ul class="list-disc pl-5 mt-1.5 space-y-1">
+                            <li><strong>Color Blending:</strong> Dispense 10 µL drops onto existing drops to blend secondary colors: <code>Yellow + Red = Orange</code>, <code>Red + Blue = Purple</code>, <code>Yellow + Blue = Green</code>.</li>
+                            <li><strong>Prevent Contamination:</strong> Rinse your tip in <strong>Clear Water</strong> before switching to a different dye tube.</li>
+                            <li><strong>White Paper Contrast:</strong> Toggle the white paper background underneath the Petri dish to inspect color accuracy clearly.</li>
+                        </ul>
+                    `
+                }
+            ];
+
+            // =================================================================
+            // CENTRALIZED SIMULATION STATE
+            // =================================================================
+            const state = {
+                stationId: 'station1',
+
+                // Station 1: Bio-Rad Model 16K Microcentrifuge
+                rotorSlots: [1, 10],     // Active 1-indexed slots (1..18)
+                safetyCoverOn: true,
+                outerLidClosed: true,
+                speedRpmK: 10,           // 1..14 (x1,000 RPM)
+                timeMinutes: 2,          // 0..30 (or 'Hold')
+                timeRemainingSec: 120,
+                isSpinning: false,
+                quickPulse: false,
+                rotorAngle: 0,
+                samplesPelleted: false,
+                unbalancedFault: false,
+                coverFault: false,
+                slotHitCircles: [],      // Logical { slot, x, y, r } for click/tap
+
+                // Station 2: miniPCR Blue P1000 Micropipette
+                volumeUl: 170,           // 100..1000 (or 1010 for over-rotation demo)
+                overRotated: false,
+                selectedTip: 'p1000',    // 'p1000' | 'p200_wrong' | 'none'
+                plungerPos: 'rest',      // 'rest' | 'stop1' | 'stop2'
+                tipLiquidUl: 0,
+                ejectedInBin: false,
+
+                // Station 3: Vortex Mixer & Spin-Column Extraction
+                vortexSwitchMode: 'power_on', // 'power_on' | 'touch_broken'
+                vortexSpeed: 5,               // 1..10
+                holdingTubeOnPad: false,
+                charcoalSuspension: 0.0,      // 0 = settled black pellet, 1 = uniform suspension
+                columnStep: 1,                // 1..4
+                clingingDroplet: false,
+
+                // Station 4: Green P10 Pipette Art — Honeycomb Petri Dish
+                activeDye: 'yellow',     // 'yellow' | 'red' | 'blue'
+                tipResidualDye: null,    // tracks last un-rinsed dye color on tip
+                contaminatedStock: null, // dye name if cross-contaminated
+                patternMode: 'flower',   // 'crab' | 'flower' | 'blank'
+                whitePaperBg: true,
+                cells: {},               // "q,r" -> { y, r, b }
+                hexHitTargets: []        // Logical { key, q, r, x, y, r }
+            };
+
+            let animTime = 0;
+            let lastFrameTs = 0;
+
+            // =================================================================
+            // STATION SWITCHING & UI BUILDER
+            // =================================================================
+            function loadStation(id, shouldAnnounce = true) {
+                state.stationId = id;
+                if (stationSelect.value !== id) {
+                    stationSelect.value = id;
+                }
+
+                const info = STATIONS.find(s => s.id === id) || STATIONS[0];
+                document.getElementById('stationTag').textContent = info.tag;
+                document.getElementById('stationHeading').textContent = info.title;
+                document.getElementById('stationSubtitle').textContent = info.subtitle;
+                document.getElementById('chipEquip').textContent = info.equip;
+                document.getElementById('chipTarget').textContent = info.target;
+                document.getElementById('chipSafety').textContent = info.safety;
+                document.getElementById('stationDescription').textContent = info.description;
+                document.getElementById('stationChecklist').innerHTML = info.checklist;
+                document.getElementById('controlsLegend').textContent = `${info.title} — Controls`;
+
+                canvas.setAttribute('aria-label', `${info.title} interactive simulation`);
+
+                buildStationControls(id);
+                render();
+
+                if (shouldAnnounce) {
+                    announce(`Switched to ${info.title}`);
+                }
+            }
+
+            // Mathematical center-of-mass balance check for 18-slot rotor
+            function checkRotorBalance(slots) {
+                if (!slots || slots.length < 2) return false;
+                let cx = 0;
+                let cy = 0;
+                for (const s of slots) {
+                    const angle = ((s - 1) / 18) * Math.PI * 2 - Math.PI / 2;
+                    cx += Math.cos(angle);
+                    cy += Math.sin(angle);
+                }
+                return Math.hypot(cx, cy) < 0.05;
+            }
+
+            // Build station-specific accessible controls
+            function buildStationControls(id) {
+                dynamicControls.innerHTML = '';
+
+                if (id === 'station1') {
+                    buildStation1Controls();
+                } else if (id === 'station2') {
+                    buildStation2Controls();
+                } else if (id === 'station3') {
+                    buildStation3Controls();
+                } else if (id === 'station4') {
+                    buildStation4Controls();
+                }
+            }
+
+            // -----------------------------------------------------------------
+            // STATION 1 CONTROLS: Bio-Rad Model 16K Microcentrifuge
+            // -----------------------------------------------------------------
+            function buildStation1Controls() {
+                dynamicControls.innerHTML = `
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="Rotor Tube Balancing Presets">
+                        <button id="s1Preset1" type="button" class="ctrl-btn flex-1">1 Tube (Slot 1 - Unbalanced)</button>
+                        <button id="s1Preset2" type="button" class="ctrl-btn flex-1">2 Tubes (1 &amp; 10)</button>
+                        <button id="s1Preset3" type="button" class="ctrl-btn flex-1">3 Tubes (1, 7, 13)</button>
+                        <button id="s1Preset4" type="button" class="ctrl-btn flex-1">4 Tubes (3, 8, 12, 17)</button>
+                        <button id="s1Preset6" type="button" class="ctrl-btn flex-1">6 Tubes (1,4,7,10,13,16)</button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="Safety Cover and Outer Lid Controls">
+                        <button id="s1CoverBtn" type="button" class="ctrl-btn flex-1" aria-pressed="${state.safetyCoverOn}">
+                            Safety Cover: ${state.safetyCoverOn ? 'Snapped ON' : 'OFF (Removed)'}
+                        </button>
+                        <button id="s1LidBtn" type="button" class="ctrl-btn flex-1" aria-pressed="${state.outerLidClosed}">
+                            Outer Lid: ${state.outerLidClosed ? 'Closed &amp; Latched' : 'Open'}
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="Protocol Speed Presets">
+                        <button id="s1Rpm10" type="button" class="ctrl-btn flex-1" aria-pressed="${state.speedRpmK === 10}">10,000 RPM (Act. A)</button>
+                        <button id="s1Rpm11" type="button" class="ctrl-btn flex-1" aria-pressed="${state.speedRpmK === 11}">11,000 RPM (Column)</button>
+                        <button id="s1Rpm12" type="button" class="ctrl-btn flex-1" aria-pressed="${state.speedRpmK === 12}">12,000 RPM (Act. B)</button>
+                    </div>
+
+                    <label for="s1SpeedSlider" class="flex flex-wrap items-center gap-2 text-xs sm:text-sm font-bold text-slate-900">
+                        <span>Speed Dial (1–14):</span>
+                        <input id="s1SpeedSlider" type="range" min="1" max="14" value="${state.speedRpmK}" class="flex-1 min-w-[120px]">
+                        <span id="s1SpeedReadout" class="font-mono text-xs font-extrabold bg-white border border-slate-400 px-2.5 py-1 rounded-md min-w-[88px] text-center">
+                            ${state.speedRpmK},000 RPM
+                        </span>
+                    </label>
+
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="Centrifuge Run and Stop Controls">
+                        <button id="s1StartBtn" type="button" class="ctrl-btn btn-primary flex-1">
+                            Start Spin (2 min)
+                        </button>
+                        <button id="s1QuickBtn" type="button" class="ctrl-btn flex-1">
+                            Quick Spin (Pulse)
+                        </button>
+                        <button id="s1StopZeroBtn" type="button" class="ctrl-btn btn-danger flex-1">
+                            Turn Time to 0 (Stop)
+                        </button>
+                    </div>
+                `;
+
+                const presetMap = {
+                    s1Preset1: [1],
+                    s1Preset2: [1, 10],
+                    s1Preset3: [1, 7, 13],
+                    s1Preset4: [3, 8, 12, 17],
+                    s1Preset6: [1, 4, 7, 10, 13, 16]
+                };
+
+                Object.entries(presetMap).forEach(([btnId, slots]) => {
+                    document.getElementById(btnId).addEventListener('click', () => {
+                        if (state.isSpinning) {
+                            setStatus('Stop the centrifuge and open the lid before changing tubes in the rotor!', 'warn');
+                            return;
+                        }
+                        state.rotorSlots = [...slots];
+                        state.samplesPelleted = false;
+                        state.unbalancedFault = false;
+                        const bal = checkRotorBalance(state.rotorSlots);
+                        setStatus(
+                            bal
+                                ? `Loaded ${slots.length} tubes symmetrically (${slots.join(', ')}). Center of mass = 0 (Balanced).`
+                                : `Loaded 1 tube in Slot 1. Unbalanced! Center of mass != 0 — add an opposite tube before spinning.`,
+                            bal ? 'ok' : 'warn'
+                        );
+                        render();
+                    });
+                });
+
+                const coverBtn = document.getElementById('s1CoverBtn');
+                const lidBtn = document.getElementById('s1LidBtn');
+
+                coverBtn.addEventListener('click', () => {
+                    if (state.isSpinning) {
+                        setStatus('Never remove the inner Safety Cover while the rotor is spinning!', 'warn');
+                        return;
+                    }
+                    if (state.outerLidClosed) {
+                        state.outerLidClosed = false;
+                        lidBtn.setAttribute('aria-pressed', 'false');
+                        lidBtn.textContent = 'Outer Lid: Open';
+                    }
+                    state.safetyCoverOn = !state.safetyCoverOn;
+                    state.coverFault = false;
+                    coverBtn.setAttribute('aria-pressed', String(state.safetyCoverOn));
+                    coverBtn.textContent = `Safety Cover: ${state.safetyCoverOn ? 'Snapped ON' : 'OFF (Removed)'}`;
+                    setStatus(
+                        state.safetyCoverOn
+                            ? 'Inner Safety Cover snapped firmly onto the rotor.'
+                            : 'Warning: Inner Safety Cover removed. Snap it back onto the rotor before closing the outer Lid.',
+                        state.safetyCoverOn ? 'ok' : 'warn'
+                    );
+                    render();
+                });
+
+                lidBtn.addEventListener('click', () => {
+                    if (state.isSpinning) {
+                        setStatus('Lid Lock is engaged (green light ON)! Turn Time to 0 and wait for full stop before pressing Lid.', 'warn');
+                        return;
+                    }
+                    if (!state.outerLidClosed && !state.safetyCoverOn) {
+                        setStatus('Safety Rule: Snap the inner Safety Cover onto the rotor before closing the outer Lid!', 'warn');
+                        announce('Safety rule: snap inner safety cover on before closing outer lid.');
+                        return;
+                    }
+                    state.outerLidClosed = !state.outerLidClosed;
+                    lidBtn.setAttribute('aria-pressed', String(state.outerLidClosed));
+                    lidBtn.innerHTML = `Outer Lid: ${state.outerLidClosed ? 'Closed &amp; Latched' : 'Open'}`;
+                    setStatus(
+                        state.outerLidClosed
+                            ? 'Outer Lid closed and latched. Ready to set Speed and Time.'
+                            : 'Outer Lid opened. Tap any rotor slot (1–18) on the canvas to add or remove tubes.',
+                        'info'
+                    );
+                    render();
+                });
+
+                const speedSlider = document.getElementById('s1SpeedSlider');
+                const speedReadout = document.getElementById('s1SpeedReadout');
+
+                function setSpeedK(k) {
+                    state.speedRpmK = k;
+                    speedSlider.value = String(k);
+                    speedReadout.textContent = `${k},000 RPM`;
+                    [10, 11, 12].forEach(p => {
+                        const el = document.getElementById(`s1Rpm${p}`);
+                        if (el) el.setAttribute('aria-pressed', String(k === p));
+                    });
+                    render();
+                }
+
+                speedSlider.addEventListener('input', () => setSpeedK(Number(speedSlider.value)));
+                document.getElementById('s1Rpm10').addEventListener('click', () => setSpeedK(10));
+                document.getElementById('s1Rpm11').addEventListener('click', () => setSpeedK(11));
+                document.getElementById('s1Rpm12').addEventListener('click', () => setSpeedK(12));
+
+                function initiateSpin(isQuick = false) {
+                    if (!state.outerLidClosed) {
+                        setStatus('Cannot spin: Close and latch the outer Lid first so the green Lid Lock light turns on.', 'warn');
+                        return;
+                    }
+                    state.isSpinning = true;
+                    state.quickPulse = isQuick;
+                    state.timeRemainingSec = isQuick ? 5 : 120;
+                    state.unbalancedFault = false;
+                    state.coverFault = false;
+
+                    const balanced = checkRotorBalance(state.rotorSlots);
+
+                    if (!state.safetyCoverOn) {
+                        state.coverFault = true;
+                        setStatus('SAFETY COVER WARNING! Inner Safety Cover is missing—centrifuge halted! Snap on Safety Cover.', 'warn');
+                        announce('Safety cover warning! Centrifuge halted.');
+                        window.setTimeout(() => {
+                            state.isSpinning = false;
+                            render();
+                        }, 1100);
+                        render();
+                        return;
+                    }
+
+                    if (!balanced) {
+                        state.unbalancedFault = true;
+                        setStatus(`UNBALANCED ROTOR (${state.rotorSlots.length} tube${state.rotorSlots.length === 1 ? '' : 's'})! Violent shaking detected—halting automatically for safety!`, 'warn');
+                        announce('Unbalanced rotor warning! Violent shaking detected, halting centrifuge.');
+                        window.setTimeout(() => {
+                            state.isSpinning = false;
+                            render();
+                        }, 1600);
+                        render();
+                        return;
+                    }
+
+                    setStatus(
+                        isQuick
+                            ? `Quick Spin active at ${state.speedRpmK},000 RPM (Lid Lock GREEN)...`
+                            : `Lid Lock GREEN — Spinning ${state.rotorSlots.length} balanced tubes smoothly at ${state.speedRpmK},000 RPM...`,
+                        'ok'
+                    );
+                    render();
+                }
+
+                document.getElementById('s1StartBtn').addEventListener('click', () => initiateSpin(false));
+                document.getElementById('s1QuickBtn').addEventListener('click', () => initiateSpin(true));
+
+                document.getElementById('s1StopZeroBtn').addEventListener('click', () => {
+                    if (!state.isSpinning) {
+                        setStatus('Timer is at 0 and rotor is stopped. Green Lid Lock light is OFF—safe to press Lid.', 'info');
+                        return;
+                    }
+                    state.isSpinning = false;
+                    state.quickPulse = false;
+                    state.timeRemainingSec = 0;
+                    if (!state.unbalancedFault && !state.coverFault) {
+                        state.samplesPelleted = true;
+                        setStatus('Turned Time counterclockwise to 0 — Rotor stopped, Lid Lock light OFF. Samples pelleted!', 'ok');
+                    } else {
+                        setStatus('Centrifuge stopped. Resolve the rotor balance or Safety Cover issue before restarting.', 'warn');
+                    }
+                    render();
+                });
+
+                setStatus('Tap rotor slots (1–18) or pick a preset, verify Safety Cover & Lid, then start spin.', 'info');
+            }
+
+            // -----------------------------------------------------------------
+            // STATION 2 CONTROLS: miniPCR Blue P1000 Micropipette & Tip Trainer
+            // -----------------------------------------------------------------
+            function buildStation2Controls() {
+                dynamicControls.innerHTML = `
+                    <div class="flex flex-wrap items-center gap-1.5">
+                        <button id="s2MinusBtn" type="button" class="ctrl-btn" aria-label="Decrease volume by 10 microliters">-10 &mu;L</button>
+                        <input id="s2VolSlider" type="range" min="100" max="1000" step="10" value="${Math.min(1000, state.volumeUl)}" aria-label="P1000 Volume Dial" class="flex-1 min-w-[110px]">
+                        <button id="s2PlusBtn" type="button" class="ctrl-btn" aria-label="Increase volume by 10 microliters">+10 &mu;L</button>
+                        <span id="s2VolBadge" class="font-mono text-xs font-extrabold bg-white border border-slate-400 px-2.5 py-2 rounded-lg min-w-[92px] text-center">
+                            ${state.volumeUl} &mu;L
+                        </span>
+                    </div>
+
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="Volume Presets and Over-Rotation Demo">
+                        <button id="s2Preset170" type="button" class="ctrl-btn flex-1">170 &mu;L [0|1|7]</button>
+                        <button id="s2Preset200" type="button" class="ctrl-btn flex-1">200 &mu;L [0|2|0]</button>
+                        <button id="s2Preset750" type="button" class="ctrl-btn flex-1">750 &mu;L [0|7|5]</button>
+                        <button id="s2OverRotBtn" type="button" class="ctrl-btn btn-danger flex-1">Test Over-Rotation (1010 &mu;L)</button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="Pipette Tip Box Matching">
+                        <button id="s2TipBlue" type="button" class="ctrl-btn flex-1" aria-pressed="${state.selectedTip === 'p1000'}">
+                            Blue P1000 Tip (Correct)
+                        </button>
+                        <button id="s2TipYellow" type="button" class="ctrl-btn flex-1" aria-pressed="${state.selectedTip === 'p200_wrong'}">
+                            Yellow P200 Tip (P4/P10/P20)
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="Plunger Stop and Tip Ejector Controls">
+                        <button id="s2RestBtn" type="button" class="ctrl-btn flex-1" aria-pressed="${state.plungerPos === 'rest'}">Rest</button>
+                        <button id="s2Stop1Btn" type="button" class="ctrl-btn flex-1" aria-pressed="${state.plungerPos === 'stop1'}">First Stop</button>
+                        <button id="s2AspirateBtn" type="button" class="ctrl-btn btn-primary flex-1">Release &rarr; Aspirate</button>
+                        <button id="s2Stop2Btn" type="button" class="ctrl-btn btn-teal flex-1" aria-pressed="${state.plungerPos === 'stop2'}">Second Stop (Dispense)</button>
+                        <button id="s2EjectBtn" type="button" class="ctrl-btn flex-1">Tip Ejector</button>
+                    </div>
+                `;
+
+                const slider = document.getElementById('s2VolSlider');
+                const badge = document.getElementById('s2VolBadge');
+
+                function setP1000Volume(vol, isOver = false) {
+                    state.volumeUl = vol;
+                    state.overRotated = isOver;
+                    if (!isOver) {
+                        slider.value = String(vol);
+                    }
+                    badge.textContent = `${vol} \u00B5L`;
+                    const d1 = Math.floor(vol / 1000);
+                    const d2 = Math.floor((vol % 1000) / 100);
+                    const d3 = Math.floor((vol % 100) / 10);
+
+                    if (isOver) {
+                        setStatus('GEAR DAMAGE WARNING! Dial forced to 1010 \u00B5L [1|0|1] — exceeding 100–1000 \u00B5L strips internal P1000 gears! Click a preset to reset.', 'warn');
+                        announce('Gear damage warning: volume dial over-rotated past 1000 microliters.');
+                    } else {
+                        setStatus(`Dial reads [${d1}|${d2}|${d3}] = ${vol} \u00B5L (${(vol / 1000).toFixed(3)} mL).`, 'info');
+                    }
+                    render();
+                }
+
+                slider.addEventListener('input', () => setP1000Volume(Number(slider.value), false));
+                document.getElementById('s2MinusBtn').addEventListener('click', () => {
+                    const next = Math.max(100, (state.overRotated ? 1000 : state.volumeUl) - 10);
+                    setP1000Volume(next, false);
+                });
+                document.getElementById('s2PlusBtn').addEventListener('click', () => {
+                    const next = Math.min(1000, (state.overRotated ? 1000 : state.volumeUl) + 10);
+                    setP1000Volume(next, false);
+                });
+
+                document.getElementById('s2Preset170').addEventListener('click', () => setP1000Volume(170, false));
+                document.getElementById('s2Preset200').addEventListener('click', () => setP1000Volume(200, false));
+                document.getElementById('s2Preset750').addEventListener('click', () => setP1000Volume(750, false));
+                document.getElementById('s2OverRotBtn').addEventListener('click', () => setP1000Volume(1010, true));
+
+                const tipBlueBtn = document.getElementById('s2TipBlue');
+                const tipYellowBtn = document.getElementById('s2TipYellow');
+
+                tipBlueBtn.addEventListener('click', () => {
+                    state.selectedTip = 'p1000';
+                    state.tipLiquidUl = 0;
+                    state.ejectedInBin = false;
+                    tipBlueBtn.setAttribute('aria-pressed', 'true');
+                    tipYellowBtn.setAttribute('aria-pressed', 'false');
+                    setStatus('Blue P1000 tip seated firmly on the P1000 shaft — airtight seal ready!', 'ok');
+                    render();
+                });
+
+                tipYellowBtn.addEventListener('click', () => {
+                    state.selectedTip = 'p200_wrong';
+                    state.tipLiquidUl = 0;
+                    state.ejectedInBin = false;
+                    tipBlueBtn.setAttribute('aria-pressed', 'false');
+                    tipYellowBtn.setAttribute('aria-pressed', 'true');
+                    setStatus('LOOSE FIT / WOBBLE ERROR! Yellow P200 tips are for P4 (red), P10 (green), and P20 (black) pipettes—they will not seal on the blue P1000!', 'warn');
+                    render();
+                });
+
+                function updatePlungerPressed() {
+                    ['Rest', 'Stop1', 'Stop2'].forEach(k => {
+                        document.getElementById(`s2${k}Btn`).setAttribute('aria-pressed', String(state.plungerPos === k.toLowerCase()));
+                    });
+                }
+
+                document.getElementById('s2RestBtn').addEventListener('click', () => {
+                    state.plungerPos = 'rest';
+                    updatePlungerPressed();
+                    setStatus('Plunger at Rest (top position).', 'info');
+                    render();
+                });
+
+                document.getElementById('s2Stop1Btn').addEventListener('click', () => {
+                    state.plungerPos = 'stop1';
+                    updatePlungerPressed();
+                    setStatus('Depressed to First Stop (resistance point) — submerge tip in reagent and click Release \u2192 Aspirate.', 'info');
+                    render();
+                });
+
+                document.getElementById('s2AspirateBtn').addEventListener('click', () => {
+                    if (state.overRotated) {
+                        setStatus('Reset volume dial within 100–1000 \u00B5L before aspirating!', 'warn');
+                        return;
+                    }
+                    if (state.selectedTip !== 'p1000') {
+                        setStatus('Cannot aspirate: attach a snug Blue P1000 tip first (Yellow P200 tips leak air!).', 'warn');
+                        return;
+                    }
+                    state.plungerPos = 'rest';
+                    state.tipLiquidUl = state.volumeUl;
+                    updatePlungerPressed();
+                    setStatus(`Released plunger smoothly — aspirated ${state.volumeUl} \u00B5L into the Blue P1000 tip!`, 'ok');
+                    render();
+                });
+
+                document.getElementById('s2Stop2Btn').addEventListener('click', () => {
+                    if (state.selectedTip !== 'p1000') {
+                        setStatus('Attach a Blue P1000 tip before dispensing.', 'warn');
+                        return;
+                    }
+                    state.plungerPos = 'stop2';
+                    updatePlungerPressed();
+                    const amt = state.tipLiquidUl;
+                    state.tipLiquidUl = 0;
+                    setStatus(
+                        amt > 0
+                            ? `Pressed through First Stop to Second Stop (blow-out) — dispensed all ${amt} \u00B5L cleanly!`
+                            : 'Pressed to Second Stop (blow-out position).',
+                        'ok'
+                    );
+                    render();
+                });
+
+                document.getElementById('s2EjectBtn').addEventListener('click', () => {
+                    state.selectedTip = 'none';
+                    state.tipLiquidUl = 0;
+                    state.plungerPos = 'rest';
+                    state.ejectedInBin = true;
+                    tipBlueBtn.setAttribute('aria-pressed', 'false');
+                    tipYellowBtn.setAttribute('aria-pressed', 'false');
+                    updatePlungerPressed();
+                    setStatus('Tip Ejector pressed — used tip discarded directly into the red biohazard bin!', 'info');
+                    render();
+                });
+
+                setStatus('Dial set to [0|1|7] = 170 \u00B5L (0.170 mL). Press First Stop, then Release \u2192 Aspirate.', 'info');
+            }
+
+            // -----------------------------------------------------------------
+            // STATION 3 CONTROLS: Vortex Mixer & Spin-Column Extraction
+            // -----------------------------------------------------------------
+            function buildStation3Controls() {
+                dynamicControls.innerHTML = `
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="Vortex Mixer Switch and Tube Controls">
+                        <button id="s3VortexOnBtn" type="button" class="ctrl-btn flex-1" aria-pressed="${state.vortexSwitchMode === 'power_on'}">
+                            Power ON (Med Speed)
+                        </button>
+                        <button id="s3VortexTouchBtn" type="button" class="ctrl-btn flex-1" aria-pressed="${state.vortexSwitchMode === 'touch_broken'}">
+                            Touch Mode (Broken/Avoid)
+                        </button>
+                        <button id="s3HoldTubeBtn" type="button" class="ctrl-btn btn-primary flex-1">
+                            ${state.holdingTubeOnPad ? 'Lift Tube Off Pad' : 'Hold Capped Tube on Pad'}
+                        </button>
+                        <button id="s3SettleBtn" type="button" class="ctrl-btn">
+                            Reset Pellet
+                        </button>
+                    </div>
+
+                    <label for="s3VortexSpeed" class="flex flex-wrap items-center gap-2 text-xs sm:text-sm font-bold text-slate-900">
+                        <span>Vortex Speed:</span>
+                        <input id="s3VortexSpeed" type="range" min="1" max="10" value="${state.vortexSpeed}" class="flex-1 min-w-[110px]">
+                        <span id="s3VortexSpeedVal" class="font-mono text-xs font-extrabold bg-white border border-slate-400 px-2.5 py-1 rounded-md min-w-[76px] text-center">
+                            Level ${state.vortexSpeed}/10
+                        </span>
+                    </label>
+
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="Silica Spin Column Workflow Steps">
+                        <button id="s3Col1" type="button" class="ctrl-btn flex-1" aria-pressed="${state.columnStep === 1}">1. Hold Upright</button>
+                        <button id="s3Col2" type="button" class="ctrl-btn flex-1" aria-pressed="${state.columnStep === 2}">2. Add 200 &mu;L [0|2|0]</button>
+                        <button id="s3Col3" type="button" class="ctrl-btn flex-1" aria-pressed="${state.columnStep === 3}">3. Spin 11k RPM (2m)</button>
+                        <button id="s3Col4" type="button" class="ctrl-btn flex-1" aria-pressed="${state.columnStep === 4}">4. Inspect Air Gap</button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="Clinging Droplet Knock-Down Practice">
+                        <button id="s3ClingBtn" type="button" class="ctrl-btn flex-1" aria-pressed="${state.clingingDroplet}">
+                            Simulate Clinging Droplet
+                        </button>
+                        <button id="s3KnockDownBtn" type="button" class="ctrl-btn btn-teal flex-1">
+                            Quick Spin Knock-Down
+                        </button>
+                    </div>
+                `;
+
+                const vOnBtn = document.getElementById('s3VortexOnBtn');
+                const vTouchBtn = document.getElementById('s3VortexTouchBtn');
+                const holdBtn = document.getElementById('s3HoldTubeBtn');
+
+                vOnBtn.addEventListener('click', () => {
+                    state.vortexSwitchMode = 'power_on';
+                    vOnBtn.setAttribute('aria-pressed', 'true');
+                    vTouchBtn.setAttribute('aria-pressed', 'false');
+                    setStatus('Vortexer power switch set to ON at Medium Speed (safe BIOS 110 setting).', 'ok');
+                    render();
+                });
+
+                vTouchBtn.addEventListener('click', () => {
+                    state.vortexSwitchMode = 'touch_broken';
+                    state.holdingTubeOnPad = false;
+                    holdBtn.textContent = 'Hold Capped Tube on Pad';
+                    vOnBtn.setAttribute('aria-pressed', 'false');
+                    vTouchBtn.setAttribute('aria-pressed', 'true');
+                    setStatus('COURSE SAFETY RULE: Avoid "Touch" mode — it is broken on lab vortexers and causes erratic tube ejection!', 'warn');
+                    render();
+                });
+
+                holdBtn.addEventListener('click', () => {
+                    if (state.vortexSwitchMode === 'touch_broken') {
+                        setStatus('Switch Vortexer to Power ON (Med Speed) first — do not use Touch mode!', 'warn');
+                        return;
+                    }
+                    state.holdingTubeOnPad = !state.holdingTubeOnPad;
+                    holdBtn.textContent = state.holdingTubeOnPad ? 'Lift Tube Off Pad' : 'Hold Capped Tube on Pad';
+                    if (state.holdingTubeOnPad) {
+                        setStatus('Holding capped Charcoal Practice Tube (C) firmly on rubber cup pad — swirling into uniform suspension!', 'ok');
+                    } else {
+                        setStatus('Lifted tube off vortex pad.', 'info');
+                    }
+                    render();
+                });
+
+                document.getElementById('s3SettleBtn').addEventListener('click', () => {
+                    state.holdingTubeOnPad = false;
+                    state.charcoalSuspension = 0;
+                    holdBtn.textContent = 'Hold Capped Tube on Pad';
+                    setStatus('Charcoal Practice Tube (C) reset with settled black pellet at the bottom.', 'info');
+                    render();
+                });
+
+                const vSpeed = document.getElementById('s3VortexSpeed');
+                const vSpeedVal = document.getElementById('s3VortexSpeedVal');
+                vSpeed.addEventListener('input', () => {
+                    state.vortexSpeed = Number(vSpeed.value);
+                    vSpeedVal.textContent = `Level ${state.vortexSpeed}/10`;
+                    render();
+                });
+
+                const stepDescriptions = {
+                    1: 'Step 1: Open cap and hold the silica spin column upright in your hand — NEVER set an open spin column down on the lab bench!',
+                    2: 'Step 2: Aspirate 200 \u00B5L [0|2|0] yellow practice dye (1st stop) and dispense onto the silica membrane (2nd stop).',
+                    3: 'Step 3: Place balanced spin column in Bio-Rad 16K and centrifuge at 11,000 RPM for 2 minutes.',
+                    4: 'Step 4: Inspect collection tube — all 200 \u00B5L sits cleanly at the bottom with a clear air gap below the spin column tip!'
+                };
+
+                [1, 2, 3, 4].forEach(st => {
+                    document.getElementById(`s3Col${st}`).addEventListener('click', () => {
+                        state.columnStep = st;
+                        if (st !== 4) state.clingingDroplet = false;
+                        document.getElementById('s3ClingBtn').setAttribute('aria-pressed', String(state.clingingDroplet));
+                        [1, 2, 3, 4].forEach(other => {
+                            document.getElementById(`s3Col${other}`).setAttribute('aria-pressed', String(other === st));
+                        });
+                        setStatus(stepDescriptions[st], st === 4 ? 'ok' : 'info');
+                        render();
+                    });
+                });
+
+                document.getElementById('s3ClingBtn').addEventListener('click', () => {
+                    state.columnStep = 4;
+                    state.clingingDroplet = true;
+                    [1, 2, 3, 4].forEach(other => {
+                        document.getElementById(`s3Col${other}`).setAttribute('aria-pressed', String(other === 4));
+                    });
+                    document.getElementById('s3ClingBtn').setAttribute('aria-pressed', 'true');
+                    setStatus('Droplet clinging to spin column tip! Use "Quick Spin Knock-Down" to pull it cleanly into the bottom of the collection tube.', 'warn');
+                    render();
+                });
+
+                document.getElementById('s3KnockDownBtn').addEventListener('click', () => {
+                    state.columnStep = 4;
+                    state.clingingDroplet = false;
+                    [1, 2, 3, 4].forEach(other => {
+                        document.getElementById(`s3Col${other}`).setAttribute('aria-pressed', String(other === 4));
+                    });
+                    document.getElementById('s3ClingBtn').setAttribute('aria-pressed', 'false');
+                    setStatus('Quick Spin Knock-Down complete! Hanging droplet pulled to the bottom — clean air gap restored.', 'ok');
+                    render();
+                });
+
+                setStatus('Top: Vortex the settled Charcoal Tube (C). Bottom: Step through the 200 \u00B5L [0|2|0] Spin-Column workflow.', 'info');
+            }
+
+            // -----------------------------------------------------------------
+            // STATION 4 CONTROLS: Green P10 Pipette Art — Honeycomb Petri Dish
+            // -----------------------------------------------------------------
+            function buildStation4Controls() {
+                dynamicControls.innerHTML = `
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="Green P10 Dye Tubes and Water Rinse">
+                        <button id="s4DyeYellow" type="button" class="ctrl-btn flex-1" aria-pressed="${state.activeDye === 'yellow'}">Yellow Tube (10 &mu;L)</button>
+                        <button id="s4DyeRed" type="button" class="ctrl-btn flex-1" aria-pressed="${state.activeDye === 'red'}">Red Tube (10 &mu;L)</button>
+                        <button id="s4DyeBlue" type="button" class="ctrl-btn flex-1" aria-pressed="${state.activeDye === 'blue'}">Blue Tube (10 &mu;L)</button>
+                        <button id="s4RinseTipBtn" type="button" class="ctrl-btn btn-primary flex-1">Rinse Tip in Clear Water</button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="Honeycomb Pattern Overlays">
+                        <button id="s4PatCrab" type="button" class="ctrl-btn flex-1" aria-pressed="${state.patternMode === 'crab'}">Option 1: Crab Pette-by-Number</button>
+                        <button id="s4PatFlower" type="button" class="ctrl-btn flex-1" aria-pressed="${state.patternMode === 'flower'}">Option 2: Mimic Mine Flower</button>
+                        <button id="s4PatBlank" type="button" class="ctrl-btn flex-1" aria-pressed="${state.patternMode === 'blank'}">Option 3: Blank Freehand</button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="Background Contrast and Dish Reset">
+                        <button id="s4PaperBtn" type="button" class="ctrl-btn flex-1" aria-pressed="${state.whitePaperBg}">
+                            White Paper Background: ${state.whitePaperBg ? 'ON' : 'OFF'}
+                        </button>
+                        <button id="s4ClearDishBtn" type="button" class="ctrl-btn flex-1">
+                            Rinse &amp; Clear Dish
+                        </button>
+                    </div>
+                `;
+
+                function selectDye(colorName) {
+                    const prev = state.tipResidualDye;
+                    state.activeDye = colorName;
+                    ['Yellow', 'Red', 'Blue'].forEach(c => {
+                        document.getElementById(`s4Dye${c}`).setAttribute('aria-pressed', String(c.toLowerCase() === colorName));
+                    });
+
+                    if (prev && prev !== colorName) {
+                        state.contaminatedStock = colorName;
+                        setStatus(`CROSS-CONTAMINATION WARNING! You entered the ${colorName.toUpperCase()} tube without rinsing ${prev.toUpperCase()} off your P200 tip! Click "Rinse Tip in Clear Water" between colors.`, 'warn');
+                        announce(`Cross-contamination warning: tip was not rinsed between ${prev} and ${colorName}.`);
+                    } else {
+                        setStatus(`Green P10 loaded with 10 \u00B5L ${colorName.toUpperCase()} dye (using P200 tip). Tap any hexagon in the Petri dish!`, 'info');
+                    }
+                    render();
+                }
+
+                document.getElementById('s4DyeYellow').addEventListener('click', () => selectDye('yellow'));
+                document.getElementById('s4DyeRed').addEventListener('click', () => selectDye('red'));
+                document.getElementById('s4DyeBlue').addEventListener('click', () => selectDye('blue'));
+
+                document.getElementById('s4RinseTipBtn').addEventListener('click', () => {
+                    state.tipResidualDye = null;
+                    state.contaminatedStock = null;
+                    setStatus(`Tip rinsed clean in Clear Water tube and reloaded with pure ${state.activeDye.toUpperCase()} dye!`, 'ok');
+                    render();
+                });
+
+                function applyPattern(mode) {
+                    state.patternMode = mode;
+                    document.getElementById('s4PatCrab').setAttribute('aria-pressed', String(mode === 'crab'));
+                    document.getElementById('s4PatFlower').setAttribute('aria-pressed', String(mode === 'flower'));
+                    document.getElementById('s4PatBlank').setAttribute('aria-pressed', String(mode === 'blank'));
+
+                    if (mode === 'flower') {
+                        seedMimicMineFlower();
+                        setStatus('Loaded Option 2: "Mimic Mine Flower" (Yellow center, Orange ring, Purple outer petals). Tap cells to add drops!', 'ok');
+                    } else if (mode === 'crab') {
+                        state.cells = {};
+                        setStatus('Loaded Option 1: "Crab Pette-by-Number" guide (Y = Yellow, R = Red, O = Yellow+Red, B = Blue). Tap hexagons to paint!', 'info');
+                    } else {
+                        state.cells = {};
+                        setStatus('Loaded Option 3: Blank Freehand Honeycomb Grid. Tap any cell to dispense 10 \u00B5L drops!', 'info');
+                    }
+                    render();
+                }
+
+                document.getElementById('s4PatCrab').addEventListener('click', () => applyPattern('crab'));
+                document.getElementById('s4PatFlower').addEventListener('click', () => applyPattern('flower'));
+                document.getElementById('s4PatBlank').addEventListener('click', () => applyPattern('blank'));
+
+                const paperBtn = document.getElementById('s4PaperBtn');
+                paperBtn.addEventListener('click', () => {
+                    state.whitePaperBg = !state.whitePaperBg;
+                    paperBtn.setAttribute('aria-pressed', String(state.whitePaperBg));
+                    paperBtn.textContent = `White Paper Background: ${state.whitePaperBg ? 'ON' : 'OFF'}`;
+                    setStatus(
+                        state.whitePaperBg
+                            ? 'White paper placed beneath the Petri dish for crisp translucent color inspection.'
+                            : 'White paper removed (dark lab bench surface underneath).',
+                        'info'
+                    );
+                    render();
+                });
+
+                document.getElementById('s4ClearDishBtn').addEventListener('click', () => {
+                    state.cells = {};
+                    state.tipResidualDye = null;
+                    state.contaminatedStock = null;
+                    setStatus('Petri dish rinsed clean and dried! Tap any hexagon cell to pipette 10 \u00B5L drops.', 'info');
+                    render();
+                });
+
+                setStatus('Tap any honeycomb cell inside the aligned Petri dish to dispense 10 \u00B5L with the Green P10 pipette.', 'info');
+            }
+
+            // Seed Option 2: Mimic Mine Flower pattern
+            function seedMimicMineFlower() {
+                state.cells = {};
+                state.cells['0,0'] = { y: 1, r: 0, b: 0 };
+                [[1, 0], [1, -1], [0, -1], [-1, 0], [-1, 1], [0, 1]].forEach(([q, r]) => {
+                    state.cells[`${q},${r}`] = { y: 1, r: 0, b: 0 };
+                });
+                [[2, 0], [2, -1], [2, -2], [1, -2], [0, -2], [-1, -1], [-2, 0], [-2, 1], [-2, 2], [-1, 2], [0, 2], [1, 1]].forEach(([q, r]) => {
+                    state.cells[`${q},${r}`] = { y: 1, r: 1, b: 0 };
+                });
+                [[3, 0], [0, -3], [-3, 3], [-3, 0], [0, 3], [3, -3]].forEach(([q, r]) => {
+                    state.cells[`${q},${r}`] = { y: 0, r: 1, b: 1 };
+                });
+            }
+
+            // Option 1: Crab Pette-by-Number cell letter lookup
+            const CRAB_GUIDE = {
+                '0,0': 'R', '1,0': 'R', '-1,0': 'R', '0,-1': 'R', '1,-1': 'R', '-1,1': 'R', '0,1': 'R',
+                '2,-1': 'O', '-2,1': 'O', '2,-2': 'R', '-2,0': 'R',
+                '-1,-2': 'B', '1,-3': 'B',
+                '2,0': 'O', '3,0': 'O', '-2,2': 'O', '-3,3': 'O',
+                '1,1': 'O', '2,1': 'O', '-1,2': 'O', '-2,3': 'O',
+                '0,2': 'Y', '-1,3': 'Y', '1,2': 'Y'
+            };
+
+            // =================================================================
+            // CANVAS CLICK / TAP INTERACTION (ROTOR SLOTS & HONEYCOMB CELLS)
+            // =================================================================
+            canvas.addEventListener('click', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const lx = ((e.clientX - rect.left) / rect.width) * LOGICAL_W;
+                const ly = ((e.clientY - rect.top) / rect.height) * LOGICAL_H;
+
+                if (state.stationId === 'station1') {
+                    if (state.isSpinning) {
+                        setStatus('Stop the centrifuge before touching or reloading the rotor!', 'warn');
+                        return;
+                    }
+                    for (const slotObj of state.slotHitCircles) {
+                        if (Math.hypot(lx - slotObj.x, ly - slotObj.y) <= slotObj.r + 5) {
+                            const idx = state.rotorSlots.indexOf(slotObj.slot);
+                            if (idx >= 0) {
+                                state.rotorSlots.splice(idx, 1);
+                            } else {
+                                state.rotorSlots.push(slotObj.slot);
+                                state.rotorSlots.sort((a, b) => a - b);
+                            }
+                            state.samplesPelleted = false;
+                            state.unbalancedFault = false;
+                            const bal = checkRotorBalance(state.rotorSlots);
+                            setStatus(
+                                state.rotorSlots.length === 0
+                                    ? 'Rotor is empty. Tap slots or choose a preset to load 2+ symmetrical tubes.'
+                                    : (bal
+                                        ? `Balanced load: ${state.rotorSlots.length} tubes in slots (${state.rotorSlots.join(', ')}).`
+                                        : `Unbalanced load (${state.rotorSlots.length} tube${state.rotorSlots.length === 1 ? '' : 's'} in slots ${state.rotorSlots.join(', ')}). Place tubes symmetrically opposite each other!`),
+                                bal ? 'ok' : 'warn'
+                            );
+                            render();
+                            return;
+                        }
+                    }
+                } else if (state.stationId === 'station4') {
+                    for (const cell of state.hexHitTargets) {
+                        if (Math.hypot(lx - cell.x, ly - cell.y) <= cell.r) {
+                            if (!state.cells[cell.key]) {
+                                state.cells[cell.key] = { y: 0, r: 0, b: 0 };
+                            }
+                            const c = state.cells[cell.key];
+                            if (state.activeDye === 'yellow') c.y++;
+                            if (state.activeDye === 'red') c.r++;
+                            if (state.activeDye === 'blue') c.b++;
+                            state.tipResidualDye = state.activeDye;
+
+                            const vol = (c.y + c.r + c.b) * 10;
+                            let blendLabel = state.activeDye.toUpperCase();
+                            if (c.y > 0 && c.r > 0 && c.b === 0) blendLabel = 'ORANGE (Yellow + Red)';
+                            else if (c.r > 0 && c.b > 0 && c.y === 0) blendLabel = 'PURPLE (Red + Blue)';
+                            else if (c.y > 0 && c.b > 0 && c.r === 0) blendLabel = 'GREEN (Yellow + Blue)';
+                            else if (c.y > 0 && c.r > 0 && c.b > 0) blendLabel = 'UMBER (3-Dye Blend)';
+
+                            setStatus(`Dispensed 10 \u00B5L ${state.activeDye.toUpperCase()} into cell (${cell.q},${cell.r}) \u2192 ${blendLabel} (${vol} \u00B5L total).`, 'ok');
+                            render();
+                            return;
+                        }
+                    }
+                }
+            });
+
+            // =================================================================
+            // MASTER RENDERER (SCALED TO DPR, DRAWN IN 760x475 LOGICAL SPACE)
+            // =================================================================
+            function render() {
+                const scale = canvas.width / LOGICAL_W;
+                ctx.save();
+                ctx.setTransform(scale, 0, 0, scale, 0, 0);
+                ctx.clearRect(0, 0, LOGICAL_W, LOGICAL_H);
+
+                if (state.stationId === 'station1') drawStation1Centrifuge();
+                else if (state.stationId === 'station2') drawStation2Pipette();
+                else if (state.stationId === 'station3') drawStation3VortexAndColumn();
+                else if (state.stationId === 'station4') drawStation4PipetteArt();
+
+                ctx.restore();
+            }
+
+            // =================================================================
+            // STATION 1 DRAWING: Bio-Rad Model 16K + 18-Slot Rotor Balancer
+            // =================================================================
+            function drawStation1Centrifuge() {
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+
+                const balanced = checkRotorBalance(state.rotorSlots);
+                const shaking = state.isSpinning && (state.unbalancedFault || state.coverFault) && !prefersReducedMotion;
+                const sx = shaking ? Math.sin(animTime * 68) * 8 : 0;
+                const sy = shaking ? Math.cos(animTime * 74) * 5 : 0;
+
+                // --- LEFT SIDE: Bio-Rad Model 16K Front Console ---
+                ctx.save();
+                ctx.translate(sx, sy);
+
+                // White rounded housing
+                ctx.fillStyle = '#f8fafc';
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.roundRect(24, 134, 326, 308, 24);
+                ctx.fill();
+                ctx.stroke();
+
+                // Outer Lid (Open above vs Closed/Latched)
+                if (state.outerLidClosed) {
+                    ctx.fillStyle = '#e2e8f0';
+                    ctx.strokeStyle = '#475569';
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.roundRect(34, 108, 306, 36, 16);
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.fillStyle = '#0f172a';
+                    ctx.font = '700 11px Inter, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('OUTER LID LATCHED', 187, 130);
+                } else {
+                    ctx.fillStyle = '#e2e8f0';
+                    ctx.strokeStyle = '#64748b';
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.ellipse(187, 74, 126, 54, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.fillStyle = '#cbd5e1';
+                    ctx.beginPath();
+                    ctx.arc(187, 74, 36, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#0f172a';
+                    ctx.font = '700 11px Inter, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('OUTER LID OPEN', 187, 78);
+                }
+
+                // Bio-Rad Lime-Green Control Faceplate
+                ctx.fillStyle = '#bef264';
+                ctx.strokeStyle = '#65a30d';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(92, 160, 190, 256, 14);
+                ctx.fill();
+                ctx.stroke();
+
+                // BIO-RAD Logo & Model 16K Title
+                ctx.fillStyle = '#15803d';
+                ctx.fillRect(108, 174, 84, 24);
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '800 13px Inter, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText('BIO-RAD', 117, 191);
+
+                ctx.fillStyle = '#0f172a';
+                ctx.font = '800 14px Inter, sans-serif';
+                ctx.fillText('Model 16K', 108, 214);
+                ctx.font = '600 11px Inter, sans-serif';
+                ctx.fillText('Microcentrifuge', 108, 229);
+
+                // Green Lid Lock Indicator Light
+                const lidLockActive = state.isSpinning && state.outerLidClosed;
+                ctx.fillStyle = lidLockActive ? '#22c55e' : '#334155';
+                if (lidLockActive) {
+                    ctx.shadowColor = '#22c55e';
+                    ctx.shadowBlur = 16;
+                }
+                ctx.beginPath();
+                ctx.arc(132, 268, 11, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                ctx.fillStyle = '#0f172a';
+                ctx.font = '800 10px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Lid Lock', 132, 250);
+                ctx.fillText(lidLockActive ? 'ON' : 'OFF', 132, 291);
+
+                // Time Dial (0-30 min + Hold)
+                ctx.fillStyle = '#64748b';
+                ctx.beginPath();
+                ctx.arc(226, 282, 34, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#1e293b';
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(226, 282);
+                const tAng = state.isSpinning ? (state.timeRemainingSec / 120) * 1.8 : 0;
+                ctx.rotate(tAng);
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(-4, -28, 8, 56);
+                ctx.restore();
+
+                ctx.fillStyle = '#0f172a';
+                ctx.font = '700 11px Inter, sans-serif';
+                ctx.fillText(state.isSpinning ? `Time: ${Math.ceil(state.timeRemainingSec)}s` : 'Time (0–30m)', 226, 240);
+
+                // Speed Dial (1–14 x1,000 RPM)
+                ctx.fillStyle = '#64748b';
+                ctx.beginPath();
+                ctx.arc(136, 362, 24, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(136, 362);
+                const kAng = -2.25 + ((state.speedRpmK - 1) / 13) * 4.5;
+                ctx.rotate(kAng);
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(-3.5, -21, 7, 42);
+                ctx.restore();
+
+                ctx.fillText(`Speed: ${state.speedRpmK}k`, 136, 331);
+
+                // Quick & Lid Buttons on Housing Sides
+                ctx.fillStyle = '#cbd5e1';
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(44, 348, 36, 52, 8);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.beginPath();
+                ctx.roundRect(294, 348, 36, 52, 8);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#0f172a';
+                ctx.font = '800 11px Inter, sans-serif';
+                ctx.fillText('Quick', 62, 415);
+                ctx.fillText('Lid', 312, 415);
+
+                ctx.restore();
+
+                // --- RIGHT SIDE: Interactive 18-Slot Numbered Rotor (1–18) ---
+                const rCx = 558;
+                const rCy = 248;
+                const chamberR = 176;
+                const slotRingR = 130;
+
+                ctx.save();
+                ctx.translate(rCx + sx * 0.7, rCy + sy * 0.7);
+
+                // Unbalanced vibration rings when fault occurs
+                if (shaking) {
+                    ctx.strokeStyle = 'rgba(239, 68, 68, 0.75)';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, chamberR + 10, 0, Math.PI * 2);
+                    ctx.stroke();
+                }
+
+                // Rotor Chamber Outer Ring
+                ctx.fillStyle = '#1e293b';
+                ctx.strokeStyle = shaking ? '#ef4444' : '#64748b';
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(0, 0, chamberR, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.rotate(state.rotorAngle);
+
+                // Inner Rotor Metal Body
+                ctx.fillStyle = '#0f172a';
+                ctx.beginPath();
+                ctx.arc(0, 0, 96, 0, Math.PI * 2);
+                ctx.fill();
+
+                state.slotHitCircles = [];
+
+                for (let s = 1; s <= 18; s++) {
+                    const theta = ((s - 1) / 18) * Math.PI * 2 - Math.PI / 2;
+                    const px = Math.cos(theta) * slotRingR;
+                    const py = Math.sin(theta) * slotRingR;
+
+                    state.slotHitCircles.push({ slot: s, x: rCx + px, y: rCy + py, r: 14 });
+
+                    const loaded = state.rotorSlots.includes(s);
+
+                    // Tube Slot Circle
+                    ctx.fillStyle = loaded ? '#0284c7' : '#334155';
+                    ctx.strokeStyle = loaded ? '#7dd3fc' : '#94a3b8';
+                    ctx.lineWidth = 2.2;
+                    ctx.beginPath();
+                    ctx.arc(px, py, 13.5, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    if (loaded) {
+                        // Sample cap / pelleted dot
+                        ctx.fillStyle = state.samplesPelleted ? '#020617' : '#facc15';
+                        ctx.beginPath();
+                        ctx.arc(px, py, 6.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+
+                    // Slot Number (1–18)
+                    const lx = Math.cos(theta) * (slotRingR + 28);
+                    const ly = Math.sin(theta) * (slotRingR + 28);
+                    ctx.fillStyle = loaded ? '#7dd3fc' : '#e2e8f0';
+                    ctx.font = '700 11.5px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(String(s), lx, ly);
+                }
+
+                // Translucent Snap-On Inner Safety Cover
+                if (state.safetyCoverOn) {
+                    ctx.fillStyle = 'rgba(186, 230, 253, 0.2)';
+                    ctx.strokeStyle = 'rgba(56, 189, 248, 0.85)';
+                    ctx.lineWidth = 2.5;
+                    ctx.beginPath();
+                    ctx.arc(0, 0, 146, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                }
+
+                // Center Rotor Spindle Nut
+                ctx.fillStyle = '#cbd5e1';
+                ctx.beginPath();
+                ctx.arc(0, 0, 20, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#0f172a';
+                ctx.beginPath();
+                ctx.arc(0, 0, 6, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+
+                // Top Status Pill over Rotor
+                ctx.fillStyle = 'rgba(2, 6, 23, 0.9)';
+                ctx.beginPath();
+                ctx.roundRect(380, 14, 356, 34, 10);
+                ctx.fill();
+                ctx.fillStyle = balanced ? '#4ade80' : '#fca5a5';
+                ctx.font = '800 13px monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(
+                    `Rotor: ${state.rotorSlots.length} Tube${state.rotorSlots.length === 1 ? '' : 's'} · ${balanced ? 'BALANCED (COM=0)' : 'UNBALANCED!'}`,
+                    558,
+                    36
+                );
+            }
+
+            // =================================================================
+            // STATION 2 DRAWING: miniPCR Blue P1000 Micropipette & Tip Trainer
+            // =================================================================
+            function drawStation2Pipette() {
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+
+                const d1 = Math.floor(state.volumeUl / 1000);
+                const d2 = Math.floor((state.volumeUl % 1000) / 100);
+                const d3 = Math.floor((state.volumeUl % 100) / 10);
+
+                // --- LEFT: Zoomed-In 3-Digit Vertical Volume Indicator ---
+                ctx.fillStyle = '#1e3a8a';
+                ctx.strokeStyle = state.overRotated ? '#ef4444' : '#60a5fa';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.roundRect(36, 36, 212, 396, 24);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '800 19px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('miniPCR P-1000', 142, 74);
+
+                ctx.fillStyle = '#bfdbfe';
+                ctx.font = '700 12px Inter, sans-serif';
+                ctx.fillText('Range: 100 – 1000 \u00B5L', 142, 95);
+
+                // Digital Volume Display Window
+                ctx.fillStyle = state.overRotated ? '#fee2e2' : '#ffffff';
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.roundRect(84, 114, 116, 212, 12);
+                ctx.fill();
+                ctx.stroke();
+
+                const digitRows = [
+                    { val: d1, col: '#0284c7', unit: '1000s' },
+                    { val: d2, col: '#0f172a', unit: '100s' },
+                    { val: d3, col: '#0f172a', unit: '10s' }
+                ];
+
+                digitRows.forEach((row, i) => {
+                    const dy = 166 + i * 62;
+                    ctx.fillStyle = row.col;
+                    ctx.font = '800 44px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(String(row.val), 142, dy);
+
+                    ctx.fillStyle = '#93c5fd';
+                    ctx.font = '700 11px Inter, sans-serif';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(row.unit, 208, dy - 12);
+                });
+
+                // Fine Graduation Ticks
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 2;
+                for (let tx = 100; tx <= 184; tx += 14) {
+                    ctx.beginPath();
+                    ctx.moveTo(tx, 324);
+                    ctx.lineTo(tx, tx === 142 ? 306 : 314);
+                    ctx.stroke();
+                }
+
+                // Readout in uL and mL
+                ctx.fillStyle = state.overRotated ? '#fca5a5' : '#ffffff';
+                ctx.font = '800 16px monospace';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${state.volumeUl} \u00B5L`, 142, 362);
+                ctx.font = '700 13px monospace';
+                ctx.fillStyle = '#bae6fd';
+                ctx.fillText(`(${(state.volumeUl / 1000).toFixed(3)} mL)`, 142, 384);
+
+                if (state.overRotated) {
+                    ctx.fillStyle = '#fca5a5';
+                    ctx.font = '800 11px Inter, sans-serif';
+                    ctx.fillText('GEAR OVER-ROTATION!', 142, 412);
+                }
+
+                // --- CENTER: Blue miniPCR P1000 Micropipette & Plunger Stops ---
+                const pX = 392;
+                const drop = state.plungerPos === 'stop1' ? 24 : (state.plungerPos === 'stop2' ? 42 : 0);
+
+                // Plunger Shaft & Top Thumb Button
+                ctx.fillStyle = '#cbd5e1';
+                ctx.fillRect(pX - 7, 46 + drop, 14, 58 - drop);
+
+                ctx.fillStyle = '#2563eb';
+                ctx.strokeStyle = '#93c5fd';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(pX - 26, 32 + drop, 52, 18, 8);
+                ctx.fill();
+                ctx.stroke();
+
+                // First Stop & Second Stop Reference Lines
+                ctx.strokeStyle = '#facc15';
+                ctx.setLineDash([4, 3]);
+                ctx.beginPath();
+                ctx.moveTo(pX - 58, 66); ctx.lineTo(pX - 18, 66);
+                ctx.moveTo(pX - 58, 84); ctx.lineTo(pX - 18, 84);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                ctx.fillStyle = '#facc15';
+                ctx.font = '700 11px Inter, sans-serif';
+                ctx.textAlign = 'right';
+                ctx.fillText('1st Stop', pX - 62, 70);
+                ctx.fillText('2nd Stop', pX - 62, 88);
+
+                // Blue Ergonomic Handle
+                ctx.fillStyle = '#1d4ed8';
+                ctx.strokeStyle = '#60a5fa';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.roundRect(pX - 28, 102, 56, 134, 15);
+                ctx.fill();
+                ctx.stroke();
+
+                // Finger Hook
+                ctx.beginPath();
+                ctx.arc(pX + 28, 118, 20, -Math.PI / 2, Math.PI / 2);
+                ctx.stroke();
+
+                // Tip Ejector Button & Sleeve
+                const ejDrop = state.selectedTip === 'none' && state.ejectedInBin ? 14 : 0;
+                ctx.fillStyle = '#e2e8f0';
+                ctx.fillRect(pX + 30, 88 + ejDrop, 15, 20);
+                ctx.fillRect(pX + 15, 236 + ejDrop, 9, 76);
+
+                // White Lower Tip Cone
+                ctx.fillStyle = '#f8fafc';
+                ctx.beginPath();
+                ctx.moveTo(pX - 15, 236);
+                ctx.lineTo(pX + 15, 236);
+                ctx.lineTo(pX + 9, 326);
+                ctx.lineTo(pX - 9, 326);
+                ctx.closePath();
+                ctx.fill();
+
+                // Attached Tip Visual
+                if (state.selectedTip === 'p1000') {
+                    ctx.fillStyle = 'rgba(147, 197, 253, 0.35)';
+                    ctx.strokeStyle = '#60a5fa';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(pX - 11, 314);
+                    ctx.lineTo(pX + 11, 314);
+                    ctx.lineTo(pX + 3.5, 434);
+                    ctx.lineTo(pX - 3.5, 434);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Liquid inside tip scaled to tipLiquidUl
+                    if (state.tipLiquidUl > 0) {
+                        const frac = Math.min(1, state.tipLiquidUl / 1000);
+                        const topY = 434 - frac * 106;
+                        const halfW = 3.5 + frac * 7;
+                        ctx.fillStyle = '#0284c7';
+                        ctx.beginPath();
+                        ctx.moveTo(pX - halfW, topY);
+                        ctx.lineTo(pX + halfW, topY);
+                        ctx.lineTo(pX + 3.5, 434);
+                        ctx.lineTo(pX - 3.5, 434);
+                        ctx.closePath();
+                        ctx.fill();
+                    }
+                } else if (state.selectedTip === 'p200_wrong') {
+                    // Loose/wobbling Yellow P200 Tip
+                    const wobble = prefersReducedMotion ? 0.25 : 0.22 + Math.sin(animTime * 18) * 0.08;
+                    ctx.save();
+                    ctx.translate(pX + 6, 326);
+                    ctx.rotate(wobble);
+                    ctx.fillStyle = 'rgba(253, 224, 71, 0.5)';
+                    ctx.strokeStyle = '#facc15';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(-7, 0);
+                    ctx.lineTo(7, 0);
+                    ctx.lineTo(2, 78);
+                    ctx.lineTo(-2, 78);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                // --- RIGHT: Tip Boxes & Red Biohazard Waste Bin ---
+                // Blue P1000 Tip Box
+                ctx.fillStyle = '#1e293b';
+                ctx.strokeStyle = '#3b82f6';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(512, 36, 214, 128, 14);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#60a5fa';
+                ctx.font = '800 13.5px Inter, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText('Blue P1000 Tip Box', 528, 62);
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '600 11.5px Inter, sans-serif';
+                ctx.fillText('Fits Blue P1000 (100–1000 \u00B5L)', 528, 82);
+
+                for (let r = 0; r < 2; r++) {
+                    for (let c = 0; c < 6; c++) {
+                        ctx.fillStyle = '#38bdf8';
+                        ctx.beginPath();
+                        ctx.arc(542 + c * 30, 108 + r * 26, 7.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                // Yellow P200 Tip Box
+                ctx.fillStyle = '#1e293b';
+                ctx.strokeStyle = '#eab308';
+                ctx.beginPath();
+                ctx.roundRect(512, 180, 214, 134, 14);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#facc15';
+                ctx.font = '800 13.5px Inter, sans-serif';
+                ctx.fillText('Yellow P200 Tip Box', 528, 206);
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '600 11.5px Inter, sans-serif';
+                ctx.fillText('Fits P4 (Red), P10 (Green),', 528, 226);
+                ctx.fillText('and P20 (Black) Pipettes', 528, 243);
+
+                for (let r = 0; r < 2; r++) {
+                    for (let c = 0; c < 6; c++) {
+                        ctx.fillStyle = '#fde047';
+                        ctx.beginPath();
+                        ctx.arc(542 + c * 30, 268 + r * 24, 6, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                // Red Biohazard Tip Waste Bin
+                ctx.fillStyle = '#991b1b';
+                ctx.strokeStyle = '#fca5a5';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(512, 330, 214, 102, 14);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '800 13px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('BIOHAZARD TIP BIN', 619, 360);
+                ctx.font = '600 11.5px Inter, sans-serif';
+                ctx.fillStyle = '#fecaca';
+                ctx.fillText(state.ejectedInBin ? 'Used Tip Ejected Inside!' : 'Press Tip Ejector to Discard', 619, 384);
+            }
+
+            // =================================================================
+            // STATION 3 DRAWING: Vortex Mixer & Spin-Column Extraction
+            // =================================================================
+            function drawStation3VortexAndColumn() {
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+
+                // --- LEFT HALF: Blue & Black Vortex Mixer + Charcoal Tube (C) ---
+                const vShake = (state.holdingTubeOnPad && !prefersReducedMotion)
+                    ? Math.sin(animTime * (45 + state.vortexSpeed * 4)) * (2.5 + state.vortexSpeed * 0.35)
+                    : 0;
+
+                // Blue Trapezoid Base
+                ctx.fillStyle = '#2563eb';
+                ctx.strokeStyle = '#60a5fa';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.moveTo(88, 250);
+                ctx.lineTo(276, 250);
+                ctx.lineTo(304, 434);
+                ctx.lineTo(60, 434);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // Center Black Faceplate
+                ctx.fillStyle = '#0f172a';
+                ctx.beginPath();
+                ctx.moveTo(138, 250);
+                ctx.lineTo(226, 250);
+                ctx.lineTo(238, 434);
+                ctx.lineTo(126, 434);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '800 15px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('vortexer', 182, 278);
+
+                // Power Switch (Green = Power ON Med Speed, Red = Touch Broken)
+                ctx.fillStyle = state.vortexSwitchMode === 'power_on' ? '#22c55e' : '#ef4444';
+                ctx.beginPath();
+                ctx.roundRect(172, 294, 20, 34, 4);
+                ctx.fill();
+
+                ctx.fillStyle = state.vortexSwitchMode === 'power_on' ? '#86efac' : '#fca5a5';
+                ctx.font = '700 11.5px Inter, sans-serif';
+                ctx.fillText(
+                    state.vortexSwitchMode === 'power_on' ? 'Power ON (Med)' : 'Touch (BROKEN)',
+                    182,
+                    346
+                );
+
+                // Speed Dial Knob
+                ctx.fillStyle = '#475569';
+                ctx.beginPath();
+                ctx.arc(182, 390, 24, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#94a3b8';
+                ctx.stroke();
+
+                // Rubber Cup Pad
+                ctx.fillStyle = '#1e293b';
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.roundRect(122 + vShake, 222, 120, 28, 9);
+                ctx.fill();
+                ctx.stroke();
+
+                // Capped Charcoal Practice Tube (C)
+                const tubeTopY = state.holdingTubeOnPad ? 104 : 58;
+                ctx.save();
+                ctx.translate(182 + vShake, tubeTopY);
+
+                // Orange Snap Cap
+                ctx.fillStyle = '#f97316';
+                ctx.beginPath();
+                ctx.roundRect(-22, -16, 44, 16, 4);
+                ctx.fill();
+
+                // Conical Microtube Body
+                ctx.fillStyle = 'rgba(248, 250, 252, 0.16)';
+                ctx.strokeStyle = '#cbd5e1';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.moveTo(-19, 0);
+                ctx.lineTo(19, 0);
+                ctx.lineTo(19, 88);
+                ctx.lineTo(0, 118);
+                ctx.lineTo(-19, 88);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // Liquid Color Interpolated by Charcoal Suspension
+                const mix = state.charcoalSuspension;
+                const lr = Math.round(250 * (1 - mix) + 30 * mix);
+                const lg = Math.round(204 * (1 - mix) + 41 * mix);
+                const lb = Math.round(21 * (1 - mix) + 59 * mix);
+                ctx.fillStyle = `rgba(${lr}, ${lg}, ${lb}, 0.85)`;
+                ctx.beginPath();
+                ctx.moveTo(-17, 36);
+                ctx.lineTo(17, 36);
+                ctx.lineTo(17, 87);
+                ctx.lineTo(0, 115);
+                ctx.lineTo(-17, 87);
+                ctx.closePath();
+                ctx.fill();
+
+                // Settled Black Charcoal Pellet at Cone Tip when unmixed
+                if (mix < 0.85) {
+                    ctx.fillStyle = `rgba(2, 6, 23, ${1 - mix})`;
+                    ctx.beginPath();
+                    ctx.moveTo(-11, 96);
+                    ctx.lineTo(11, 96);
+                    ctx.lineTo(0, 115);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                // Tube Label "C"
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '800 13px monospace';
+                ctx.fillText('Tube C', 0, 24);
+                ctx.restore();
+
+                // --- RIGHT HALF: 4-Step Silica Spin Column + Collection Tube ---
+                const cx = 556;
+                ctx.fillStyle = '#1e293b';
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(380, 28, 352, 412, 20);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#f8fafc';
+                ctx.font = '800 15.5px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Spin Column Extraction — Step ${state.columnStep} of 4`, cx, 60);
+
+                // Outer Collection Tube
+                ctx.fillStyle = 'rgba(248, 250, 252, 0.14)';
+                ctx.strokeStyle = '#cbd5e1';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(cx - 46, 172);
+                ctx.lineTo(cx + 46, 172);
+                ctx.lineTo(cx + 46, 354);
+                ctx.quadraticCurveTo(cx + 46, 398, cx, 398);
+                ctx.quadraticCurveTo(cx - 46, 398, cx - 46, 354);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // Inner Silica Spin Column (Held higher in Step 1 & Step 2)
+                const colTopY = (state.columnStep === 1 || state.columnStep === 2) ? 106 : 172;
+
+                // Open Cap Hinged on Left
+                ctx.fillStyle = 'rgba(248, 250, 252, 0.25)';
+                ctx.strokeStyle = '#f8fafc';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(cx - 72, colTopY - 6, 36, 10, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                // Spin Column Cylinder
+                ctx.beginPath();
+                ctx.roundRect(cx - 32, colTopY, 64, 126, 6);
+                ctx.fill();
+                ctx.stroke();
+
+                // Green Retaining Ring & White Silica Membrane
+                ctx.fillStyle = '#22c55e';
+                ctx.fillRect(cx - 30, colTopY + 92, 60, 13);
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(cx - 30, colTopY + 105, 60, 11);
+
+                // 200 uL Yellow Practice Dye State per Step
+                ctx.fillStyle = '#facc15';
+                if (state.columnStep === 1) {
+                    // Hand grip callout (Never set on bench!)
+                    ctx.fillStyle = '#4ade80';
+                    ctx.font = '800 12.5px Inter, sans-serif';
+                    ctx.fillText('HELD UPRIGHT IN HAND (Off Bench)', cx, 86);
+                } else if (state.columnStep === 2) {
+                    // 200 uL [0|2|0] loaded onto top of silica membrane
+                    ctx.fillStyle = '#facc15';
+                    ctx.fillRect(cx - 28, colTopY + 46, 56, 46);
+                    ctx.fillStyle = '#fde047';
+                    ctx.font = '800 12px monospace';
+                    ctx.fillText('200 \u00B5L [0|2|0] on Silica', cx, 86);
+                } else if (state.columnStep === 3) {
+                    // Spinning at 11,000 RPM for 2 min
+                    ctx.fillStyle = '#facc15';
+                    ctx.fillRect(cx - 28, colTopY + 72, 56, 20);
+                    ctx.fillRect(cx - 6, colTopY + 126, 12, 68);
+                    ctx.beginPath();
+                    ctx.moveTo(cx - 38, 364);
+                    ctx.lineTo(cx + 38, 364);
+                    ctx.quadraticCurveTo(cx + 38, 394, cx, 394);
+                    ctx.quadraticCurveTo(cx - 38, 394, cx - 38, 364);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    ctx.fillStyle = '#38bdf8';
+                    ctx.font = '800 12.5px monospace';
+                    ctx.fillText('SPINNING: 11,000 RPM · 2 MIN', cx, 86);
+                } else if (state.columnStep === 4) {
+                    // Eluate at bottom of collection tube
+                    ctx.fillStyle = '#facc15';
+                    ctx.beginPath();
+                    ctx.moveTo(cx - 42, 350);
+                    ctx.lineTo(cx + 42, 350);
+                    ctx.quadraticCurveTo(cx + 42, 394, cx, 394);
+                    ctx.quadraticCurveTo(cx - 42, 394, cx - 42, 350);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    if (state.clingingDroplet) {
+                        // Clinging droplet hanging from column tip
+                        ctx.beginPath();
+                        ctx.arc(cx, colTopY + 135, 9, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        ctx.fillStyle = '#fca5a5';
+                        ctx.font = '800 12.5px Inter, sans-serif';
+                        ctx.fillText('DROPLET CLINGING TO TIP!', cx, 336);
+                    } else {
+                        ctx.fillStyle = '#4ade80';
+                        ctx.font = '800 12.5px Inter, sans-serif';
+                        ctx.fillText('CLEAN AIR GAP (No Contact)', cx, 336);
+                    }
+                }
+            }
+
+            // =================================================================
+            // STATION 4 DRAWING: Green P10 Pipette Art — Honeycomb Petri Dish
+            // =================================================================
+            function drawStation4PipetteArt() {
+                // Lab Bench vs White Paper Background Toggle
+                ctx.fillStyle = state.whitePaperBg ? '#e2e8f0' : '#1e293b';
+                ctx.fillRect(0, 0, LOGICAL_W, LOGICAL_H);
+
+                // Laminated Honeycomb Card
+                const cardW = 412;
+                const cardH = 440;
+                const cardX = (LOGICAL_W - cardW) / 2;
+                const cardY = 18;
+
+                ctx.fillStyle = state.whitePaperBg ? '#ffffff' : '#334155';
+                ctx.strokeStyle = '#64748b';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.roundRect(cardX, cardY, cardW, cardH, 20);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = state.whitePaperBg ? '#0f172a' : '#f8fafc';
+                ctx.font = '800 15.5px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Activity D: Honeycomb Dish (Green P10)', LOGICAL_W / 2, 44);
+
+                // Circular Petri Dish + Top & Bottom Alignment Arrows
+                const dishCx = LOGICAL_W / 2;
+                const dishCy = 248;
+                const dishR = 174;
+
+                ctx.strokeStyle = state.whitePaperBg ? '#0f172a' : '#e2e8f0';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.arc(dishCx, dishCy, dishR, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Top & Bottom Alignment Arrows
+                ctx.beginPath();
+                ctx.moveTo(dishCx, dishCy - dishR);
+                ctx.lineTo(dishCx, dishCy - dishR + 22);
+                ctx.moveTo(dishCx - 6, dishCy - dishR + 14);
+                ctx.lineTo(dishCx, dishCy - dishR + 22);
+                ctx.lineTo(dishCx + 6, dishCy - dishR + 14);
+
+                ctx.moveTo(dishCx, dishCy + dishR);
+                ctx.lineTo(dishCx, dishCy + dishR - 22);
+                ctx.moveTo(dishCx - 6, dishCy + dishR - 14);
+                ctx.lineTo(dishCx, dishCy + dishR - 22);
+                ctx.lineTo(dishCx + 6, dishCy + dishR - 14);
+                ctx.stroke();
+
+                // Hexagonal Honeycomb Grid
+                const hexR = 18.5;
+                const dx = hexR * Math.sqrt(3);
+                const dy = hexR * 1.5;
+
+                state.hexHitTargets = [];
+
+                for (let r = -4; r <= 4; r++) {
+                    for (let q = -4; q <= 4; q++) {
+                        if (Math.abs(q + r) > 4) continue;
+                        const hx = dishCx + dx * (q + r / 2);
+                        const hy = dishCy + dy * r;
+                        if (Math.hypot(hx - dishCx, hy - dishCy) > dishR - 22) continue;
+
+                        const key = `${q},${r}`;
+                        state.hexHitTargets.push({ key, q, r, x: hx, y: hy, r: hexR * 0.86 });
+
+                        // Draw Hexagon Cell
+                        ctx.strokeStyle = state.whitePaperBg ? '#94a3b8' : '#64748b';
+                        ctx.lineWidth = 1.25;
+                        ctx.beginPath();
+                        for (let i = 0; i < 6; i++) {
+                            const ang = (Math.PI / 3) * i + Math.PI / 6;
+                            const vx = hx + hexR * Math.cos(ang);
+                            const vy = hy + hexR * Math.sin(ang);
+                            if (i === 0) ctx.moveTo(vx, vy);
+                            else ctx.lineTo(vx, vy);
+                        }
+                        ctx.closePath();
+                        ctx.stroke();
+
+                        // Option 1: Crab Pette-by-Number Letter Hint
+                        if (state.patternMode === 'crab' && CRAB_GUIDE[key]) {
+                            ctx.fillStyle = state.whitePaperBg ? '#64748b' : '#cbd5e1';
+                            ctx.font = '700 10.5px monospace';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText(CRAB_GUIDE[key], hx, hy);
+                        }
+
+                        // Blended 10 uL Droplet Rendering
+                        const drop = state.cells[key];
+                        if (drop && (drop.y + drop.r + drop.b) > 0) {
+                            const total = drop.y + drop.r + drop.b;
+                            const rad = Math.min(15.5, 10 + (total - 1) * 2.3);
+
+                            // Realistic subtractive dye color blending
+                            const cr = Math.round((drop.y * 250 + drop.r * 225 + drop.b * 35) / total);
+                            const cg = Math.round((drop.y * 204 + drop.r * 29  + drop.b * 105) / total);
+                            const cb = Math.round((drop.y * 21  + drop.r * 72  + drop.b * 235) / total);
+
+                            ctx.fillStyle = `rgb(${cr}, ${cg}, ${cb})`;
+                            ctx.beginPath();
+                            ctx.arc(hx, hy, rad, 0, Math.PI * 2);
+                            ctx.fill();
+
+                            // Specular glossy droplet reflection
+                            ctx.fillStyle = 'rgba(255, 255, 255, 0.65)';
+                            ctx.beginPath();
+                            ctx.arc(hx - rad * 0.3, hy - rad * 0.3, rad * 0.28, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
+                }
+
+                // --- LEFT PANEL: Green P10 Pipette & Dye/Water Reagent Rack ---
+                ctx.fillStyle = '#0f172a';
+                ctx.beginPath();
+                ctx.roundRect(16, 44, 142, 386, 16);
+                ctx.fill();
+
+                ctx.fillStyle = '#22c55e';
+                ctx.font = '800 14.5px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Green P10', 87, 74);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '700 12px monospace';
+                ctx.fillText('10 \u00B5L [1|0|0]', 87, 94);
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '600 11px Inter, sans-serif';
+                ctx.fillText('Uses P200 Tip', 87, 112);
+
+                // 4 Reagent Tubes (Yellow, Red, Blue, Clear Water)
+                const tubes = [
+                    { id: 'yellow', label: 'Yellow', col: '#facc15', y: 146 },
+                    { id: 'red',    label: 'Red',    col: '#ef4444', y: 208 },
+                    { id: 'blue',   label: 'Blue',   col: '#3b82f6', y: 270 },
+                    { id: 'water',  label: 'Water',  col: '#bae6fd', y: 336 }
+                ];
+
+                tubes.forEach(t => {
+                    const isSelected = state.activeDye === t.id;
+                    const isContam = state.contaminatedStock === t.id;
+
+                    ctx.fillStyle = t.col;
+                    ctx.beginPath();
+                    ctx.arc(54, t.y, 15, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    if (isSelected) {
+                        ctx.strokeStyle = '#ffffff';
+                        ctx.lineWidth = 3;
+                        ctx.stroke();
+                    }
+
+                    ctx.fillStyle = isContam ? '#fca5a5' : '#f8fafc';
+                    ctx.font = '700 12px Inter, sans-serif';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(isContam ? `${t.label} (!)` : t.label, 78, t.y + 4);
+                });
+
+                // --- RIGHT PANEL: Color Mixing Legend & Rule Reminder ---
+                ctx.fillStyle = '#0f172a';
+                ctx.beginPath();
+                ctx.roundRect(LOGICAL_W - 158, 44, 142, 386, 16);
+                ctx.fill();
+
+                ctx.fillStyle = '#f8fafc';
+                ctx.font = '800 13.5px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Color Blends', LOGICAL_W - 87, 74);
+
+                const blends = [
+                    { name: 'Y + R = Orange', col: '#f97316', y: 120 },
+                    { name: 'R + B = Purple', col: '#9333ea', y: 186 },
+                    { name: 'Y + B = Green',  col: '#16a34a', y: 252 }
+                ];
+
+                blends.forEach(b => {
+                    ctx.fillStyle = b.col;
+                    ctx.beginPath();
+                    ctx.arc(LOGICAL_W - 87, b.y, 15, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.fillStyle = '#e2e8f0';
+                    ctx.font = '700 11.5px Inter, sans-serif';
+                    ctx.fillText(b.name, LOGICAL_W - 87, b.y + 30);
+                });
+
+                ctx.fillStyle = '#fde047';
+                ctx.font = '700 10.5px Inter, sans-serif';
+                ctx.fillText('Never use Blue', LOGICAL_W - 87, 336);
+                ctx.fillText('P1000 for 10 \u00B5L!', LOGICAL_W - 87, 352);
+            }
+
+            // =================================================================
+            // NAVIGATION EVENTS & SMOOTH ANIMATION LOOP
+            // =================================================================
+            stationSelect.addEventListener('change', (e) => {
+                loadStation(e.target.value, true);
+            });
+
+            prevStationBtn.addEventListener('click', () => {
+                const idx = (STATIONS.findIndex(s => s.id === state.stationId) - 1 + STATIONS.length) % STATIONS.length;
+                loadStation(STATIONS[idx].id, true);
+            });
+
+            nextStationBtn.addEventListener('click', () => {
+                const idx = (STATIONS.findIndex(s => s.id === state.stationId) + 1) % STATIONS.length;
+                loadStation(STATIONS[idx].id, true);
+            });
+
+            function animationLoop(ts) {
+                if (!lastFrameTs) lastFrameTs = ts;
+                const dt = Math.min((ts - lastFrameTs) / 1000, 0.1);
+                lastFrameTs = ts;
+                animTime += dt;
+
+                let dirty = false;
+
+                if (state.stationId === 'station1' && state.isSpinning) {
+                    state.rotorAngle += dt * (state.speedRpmK * 1.45);
+                    state.timeRemainingSec = Math.max(0, state.timeRemainingSec - dt * 12);
+                    if (state.timeRemainingSec <= 0 && !state.unbalancedFault && !state.coverFault) {
+                        state.isSpinning = false;
+                        state.samplesPelleted = true;
+                        setStatus('Spin complete! Green Lid Lock light is OFF — safe to press Lid and unload pelleted tubes.', 'ok');
+                    }
+                    dirty = true;
+                } else if (state.stationId === 'station2' && state.selectedTip === 'p200_wrong' && !prefersReducedMotion) {
+                    dirty = true;
+                } else if (state.stationId === 'station3' && state.holdingTubeOnPad) {
+                    state.charcoalSuspension = Math.min(1, state.charcoalSuspension + dt * 0.65);
+                    dirty = true;
+                }
+
+                if (dirty) {
+                    render();
+                }
+
+                window.requestAnimationFrame(animationLoop);
+            }
+
+            // Responsive ResizeObserver for crisp canvas rendering on all viewports
+            if ('ResizeObserver' in window) {
+                const ro = new ResizeObserver(() => syncCanvasResolution());
+                ro.observe(canvas);
+            } else {
+                window.addEventListener('resize', syncCanvasResolution);
+            }
+
+            // Initialize default state & render immediately
+            seedMimicMineFlower();
+            loadStation('station1', false);
+            syncCanvasResolution();
+            window.requestAnimationFrame(animationLoop);
+        })();
+    </script>
+</body>
+</html>
