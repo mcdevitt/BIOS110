@@ -1,0 +1,2112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MicroScope Lab: 8-Instrument Explorer</title>
+    <style>
+        /* =====================================================================
+           DESIGN TOKENS & WCAG 2.1 AA HIGH-CONTRAST SYSTEM
+           ===================================================================== */
+        :root {
+            --bg-page: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-subtle: #f8fafc;
+            --bg-hover: #e2e8f0;
+
+            --slate-950: #020617;
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+            --slate-700: #334155;
+            --border-subtle: #cbd5e1;
+            --border-strong: #475569;
+
+            /* >= 4.5:1 Contrast Ratios on White */
+            --blue-primary: #1d4ed8;
+            --blue-dark: #1e3a8a;
+            --teal-primary: #0f766e;
+            --teal-dark: #115e59;
+            --teal-soft: #f0fdfa;
+            --focus-ring: #2563eb;
+
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+            --shadow-md: 0 4px 14px -2px rgba(15, 23, 42, 0.1), 0 2px 6px -1px rgba(15, 23, 42, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        body {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--slate-900);
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        :focus-visible {
+            outline: 3px solid var(--focus-ring);
+            outline-offset: 2px;
+        }
+
+        header :focus-visible {
+            outline: 3px solid #38bdf8;
+            outline-offset: 2px;
+        }
+
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 0.75rem;
+            z-index: 100;
+            background: #ffffff;
+            color: var(--slate-950);
+            font-weight: 800;
+            font-size: 0.9rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0 0 10px 10px;
+            border: 2px solid var(--blue-primary);
+            text-decoration: none;
+            box-shadow: var(--shadow-md);
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* =====================================================================
+           COMPACT STICKY HEADER & INSTRUMENT SELECTOR (>= 44px Touch Targets)
+           ===================================================================== */
+        header {
+            background-color: var(--slate-900);
+            color: #ffffff;
+            border-bottom: 1px solid var(--slate-800);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0.45rem 0.65rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.45rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 0;
+        }
+
+        .brand-badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #0284c7 0%, #1d4ed8 60%, #0f766e 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            flex-shrink: 0;
+        }
+
+        .brand-title {
+            font-size: 0.98rem;
+            font-weight: 800;
+            letter-spacing: -0.015em;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .brand-sub {
+            font-size: 0.72rem;
+            color: #cbd5e1;
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .header-inner {
+                padding: 0.6rem 1.2rem;
+                gap: 0.85rem;
+            }
+            .brand-title {
+                font-size: 1.08rem;
+            }
+            .brand-sub {
+                display: block;
+            }
+        }
+
+        .scope-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+            flex: 1 1 250px;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .scope-nav {
+                flex: 0 1 460px;
+            }
+        }
+
+        .nav-arrow-btn {
+            appearance: none;
+            min-width: 44px;
+            min-height: 44px;
+            padding: 0 0.65rem;
+            border-radius: 10px;
+            border: 1.5px solid #94a3b8;
+            background-color: var(--slate-800);
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .nav-arrow-btn:hover {
+            background-color: #334155;
+            border-color: #ffffff;
+        }
+
+        .select-wrapper {
+            position: relative;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .scope-select {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 100%;
+            min-height: 44px;
+            padding: 0.45rem 2.1rem 0.45rem 0.7rem;
+            border-radius: 10px;
+            border: 1.5px solid #94a3b8;
+            background-color: #ffffff;
+            color: var(--slate-950);
+            font-family: inherit;
+            font-size: 0.84rem;
+            font-weight: 700;
+            line-height: 1.25;
+            cursor: pointer;
+            text-overflow: ellipsis;
+        }
+
+        .select-chevron {
+            position: absolute;
+            right: 0.65rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--slate-900);
+        }
+
+        /* =====================================================================
+           MAIN WORKSPACE (SIMULTANEOUS VIEWPORT + CONTROLS ON MOBILE)
+           ===================================================================== */
+        main {
+            flex: 1;
+            width: 100%;
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0.6rem;
+        }
+
+        @media (min-width: 768px) {
+            main {
+                padding: 1.15rem;
+            }
+        }
+
+        .workspace-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.8rem;
+            align-items: start;
+        }
+
+        @media (min-width: 960px) {
+            .workspace-grid {
+                grid-template-columns: 1.4fr 1fr;
+                gap: 1.15rem;
+            }
+        }
+
+        .panel-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            box-shadow: var(--shadow-md);
+            padding: 0.55rem;
+            min-width: 0;
+        }
+
+        @media (min-width: 640px) {
+            .panel-card {
+                padding: 0.9rem;
+                border-radius: 16px;
+            }
+        }
+
+        /* Clean, Unobstructed 16:10 Specimen Canvas */
+        .canvas-frame {
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid var(--slate-900);
+            background-color: #090d16;
+        }
+
+        #scopeCanvas {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 10;
+            display: block;
+            touch-action: manipulation;
+        }
+
+        /* Controls Container Directly Beneath Canvas */
+        fieldset.controls-panel {
+            margin-top: 0.55rem;
+            background-color: var(--bg-subtle);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 0.6rem 0.65rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+            min-width: 0;
+        }
+
+        fieldset.controls-panel legend {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--slate-800);
+            padding: 0 0.35rem;
+        }
+
+        .controls-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .motion-btn {
+            appearance: none;
+            min-height: 44px;
+            min-width: 44px;
+            padding: 0.35rem 0.65rem;
+            border-radius: 8px;
+            border: 1.5px solid var(--border-strong);
+            background-color: #ffffff;
+            color: var(--slate-900);
+            font-family: inherit;
+            font-size: 0.76rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            flex-shrink: 0;
+        }
+
+        .motion-btn:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            width: 100%;
+        }
+
+        .ctrl-btn {
+            appearance: none;
+            min-height: 44px;
+            min-width: 44px;
+            padding: 0.45rem 0.7rem;
+            border-radius: 9px;
+            border: 1.5px solid var(--border-strong);
+            background-color: #ffffff;
+            color: var(--slate-900);
+            font-family: inherit;
+            font-size: 0.81rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex: 1 1 auto;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .ctrl-btn:hover {
+            background-color: var(--bg-hover);
+            border-color: var(--slate-950);
+        }
+
+        .ctrl-btn[aria-pressed="true"] {
+            background-color: var(--slate-900);
+            color: #ffffff;
+            border-color: var(--slate-900);
+        }
+
+        .slider-field {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.45rem;
+            width: 100%;
+            min-height: 44px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--slate-900);
+        }
+
+        .slider-field input[type="range"] {
+            flex: 1 1 130px;
+            min-height: 44px;
+            accent-color: var(--blue-primary);
+            cursor: pointer;
+        }
+
+        .value-pill {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 0.78rem;
+            font-weight: 800;
+            background-color: #ffffff;
+            border: 1.5px solid var(--border-strong);
+            color: var(--slate-950);
+            padding: 0.25rem 0.55rem;
+            border-radius: 6px;
+            min-width: 72px;
+            text-align: center;
+        }
+
+        /* =====================================================================
+           EDUCATIONAL SUMMARY CARD & 3 SPEC CHIPS
+           ===================================================================== */
+        .summary-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            border-top: 4px solid var(--blue-primary);
+            border-radius: 14px;
+            box-shadow: var(--shadow-md);
+            padding: 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            min-width: 0;
+        }
+
+        @media (min-width: 640px) {
+            .summary-card {
+                padding: 1.1rem;
+                border-radius: 16px;
+            }
+        }
+
+        .scope-index {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--blue-dark);
+        }
+
+        .scope-heading {
+            font-size: 1.18rem;
+            font-weight: 800;
+            color: var(--slate-950);
+            line-height: 1.25;
+            margin-top: 0.15rem;
+        }
+
+        .specimen-label {
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: var(--teal-dark);
+            margin-top: 0.15rem;
+        }
+
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.45rem;
+        }
+
+        @media (max-width: 400px) {
+            .spec-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .spec-chip {
+            background-color: var(--bg-subtle);
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            padding: 0.5rem 0.6rem;
+        }
+
+        .spec-chip-title {
+            font-size: 0.67rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--slate-700);
+        }
+
+        .spec-chip-value {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--slate-950);
+            margin-top: 0.1rem;
+        }
+
+        .summary-copy {
+            font-size: 0.9rem;
+            color: var(--slate-800);
+            line-height: 1.55;
+        }
+
+        .activity-tip {
+            background-color: var(--teal-soft);
+            border-left: 4px solid var(--teal-primary);
+            border-radius: 0 10px 10px 0;
+            padding: 0.65rem 0.8rem;
+            font-size: 0.84rem;
+            color: var(--slate-950);
+        }
+    </style>
+</head>
+<body>
+    <a href="#main-explorer" class="skip-link">Skip to MicroScope Lab explorer</a>
+    <div id="liveAnnouncer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Compact Sticky Header -->
+    <header>
+        <div class="header-inner">
+            <div class="brand">
+                <div class="brand-badge" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 18h8"/>
+                        <path d="M3 22h18"/>
+                        <path d="M14 22a7 7 0 1 0 0-14h-1"/>
+                        <path d="M9 14h2"/>
+                        <path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/>
+                        <path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="brand-title">MicroScope Lab</div>
+                    <div class="brand-sub">BIOS 110 &middot; 8-Instrument Explorer</div>
+                </div>
+            </div>
+
+            <nav class="scope-nav" aria-label="Microscope Instrument Selector">
+                <button id="prevBtn" class="nav-arrow-btn" type="button" aria-label="Previous microscope">&larr;</button>
+
+                <div class="select-wrapper">
+                    <label for="scopeSelect" class="sr-only">Select one of the 8 microscopes</label>
+                    <select id="scopeSelect" class="scope-select">
+                        <option value="light">1. Compound Light Microscope</option>
+                        <option value="stereo">2. Stereo / Dissecting Microscope</option>
+                        <option value="fluorescence">3. Fluorescence Microscope</option>
+                        <option value="electron">4. Electron Microscope (SEM)</option>
+                        <option value="confocal">5. Confocal Laser Microscope</option>
+                        <option value="afm">6. Atomic Force Microscope (AFM)</option>
+                        <option value="inverted">7. Inverted Microscope</option>
+                        <option value="retinal">8. Retinal Imaging Microscope</option>
+                    </select>
+                    <svg class="select-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+
+                <button id="nextBtn" class="nav-arrow-btn" type="button" aria-label="Next microscope">&rarr;</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Interactive Explorer -->
+    <main id="main-explorer" tabindex="-1">
+        <div class="workspace-grid">
+            <!-- Left Column: Unobstructed 720x450 Canvas + Direct Controls -->
+            <section class="panel-card" aria-label="Interactive Microscope Viewport and Controls">
+                <div class="canvas-frame">
+                    <canvas id="scopeCanvas" width="720" height="450" role="img" aria-label="Interactive microscope specimen view"></canvas>
+                </div>
+
+                <fieldset class="controls-panel">
+                    <legend id="controlsLegend">Microscope Controls</legend>
+                    <div class="controls-header-row">
+                        <span id="controlHintText" style="font-size:0.78rem; font-weight:700; color:#334155;">Adjust settings below:</span>
+                        <button id="motionToggleBtn" class="motion-btn" type="button" aria-pressed="false">Pause Motion</button>
+                    </div>
+                    <div id="controlsContainer" style="display:flex; flex-direction:column; gap:0.55rem;"></div>
+                </fieldset>
+            </section>
+
+            <!-- Right Column: Concise 2-Sentence Summary & 3 Spec Chips -->
+            <aside class="summary-card" aria-labelledby="scopeHeading">
+                <div>
+                    <div id="scopeIndexLabel" class="scope-index">Instrument 1 of 8</div>
+                    <h1 id="scopeHeading" class="scope-heading">Compound Light Microscope</h1>
+                    <div id="specimenLabel" class="specimen-label">Specimen: Living Pond Water (Tardigrade, Paramecium &amp; Diatom)</div>
+                </div>
+
+                <div class="spec-grid">
+                    <div class="spec-chip">
+                        <div class="spec-chip-title">Illumination / Probe</div>
+                        <div id="chipProbe" class="spec-chip-value">Transmitted Light</div>
+                    </div>
+                    <div class="spec-chip">
+                        <div class="spec-chip-title">Scale</div>
+                        <div id="chipScale" class="spec-chip-value">40x–1,000x</div>
+                    </div>
+                    <div class="spec-chip">
+                        <div class="spec-chip-title">Live vs. Fixed</div>
+                        <div id="chipLive" class="spec-chip-value">Live &amp; Wet</div>
+                    </div>
+                </div>
+
+                <p id="summaryCopy" class="summary-copy"></p>
+
+                <div id="activityTip" class="activity-tip"></div>
+            </aside>
+        </div>
+    </main>
+
+    <script>
+        /**
+         * MicroScope Lab: 8-Instrument Explorer
+         * Based on Part 12 of the BIOS 110 Lab Manual ("Comparing common types of microscopes")
+         * Explicit 720x450 Canvas Buffer + Synchronous Redraws on Every Event
+         */
+        (() => {
+            const canvas = document.getElementById('scopeCanvas');
+            const ctx = canvas.getContext('2d');
+            const scopeSelect = document.getElementById('scopeSelect');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const motionToggleBtn = document.getElementById('motionToggleBtn');
+            const controlsContainer = document.getElementById('controlsContainer');
+            const liveAnnouncer = document.getElementById('liveAnnouncer');
+
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            function announce(msg) {
+                liveAnnouncer.textContent = '';
+                window.setTimeout(() => {
+                    liveAnnouncer.textContent = msg;
+                }, 25);
+            }
+
+            // =================================================================
+            // 8 MICROSCOPE DEFINITIONS (PART 12 OF BIOS 110 LAB MANUAL)
+            // =================================================================
+            const SCOPES = [
+                {
+                    id: 'light',
+                    num: 1,
+                    title: 'Compound Light Microscope',
+                    specimen: 'Specimen: Living Pond Drop (Tardigrade, Paramecium & Diatom)',
+                    probe: 'Transmitted Light',
+                    scale: '40x–1,000x',
+                    live: 'Live & Wet',
+                    summary: 'Shines visible light up through thin, transparent specimens and two glass lens stages to observe living organisms in natural color and real-time motion. Switching to higher-power objective lenses increases magnification while shrinking the field of view and narrowing depth of focus.',
+                    tip: '<strong>Explore:</strong> Switch between <em>4x (40x total)</em>, <em>10x (100x total)</em>, and <em>40x (400x total)</em> objectives to see your field of view shrink from 4.3 mm to 0.4 mm, then sharpen the image with <em>Fine Focus</em>.'
+                },
+                {
+                    id: 'stereo',
+                    num: 2,
+                    title: 'Stereo / Dissecting Microscope',
+                    specimen: 'Specimen: Iridescent Peacock Jumping Spider (Maratus)',
+                    probe: 'Reflected Light',
+                    scale: '10x–60x',
+                    live: 'Live 3D Surface',
+                    summary: 'Uses two separate optical paths (one per eye) and top-down reflected light to produce true 3D depth perception of solid, opaque objects at low magnification. Because light bounces off the top surface rather than passing through the sample, you can inspect thick objects or dissect with forceps.',
+                    tip: '<strong>Explore:</strong> Adjust <em>3D Zoom</em> and sweep <em>Top-Light Angle</em> from -90° to +90° to shift 3D shadows and specular catchlights across the spider’s glossy eyes and metallic abdominal scales.'
+                },
+                {
+                    id: 'fluorescence',
+                    num: 3,
+                    title: 'Fluorescence Microscope',
+                    specimen: 'Specimen: Dividing Cells in Mitosis (Metaphase & Anaphase)',
+                    probe: 'Excitation + Dyes',
+                    scale: '400x–1,500x',
+                    live: 'Live Fluor-Tagged',
+                    summary: 'Uses high-intensity excitation light to make fluorescent dyes and proteins (such as GFP) emit bright visible colors against a pitch-black background. Because each chemical fluorophore binds to one specific molecule, scientists can isolate DNA, spindle fibers, or mitochondria selectively.',
+                    tip: '<strong>Explore:</strong> Toggle <em>All Channels</em>, <em>DAPI (DNA/Nucleus)</em>, <em>GFP (Spindle Fibers)</em>, and <em>RFP (Mitochondria)</em> to isolate individual structures inside dividing cells.'
+                },
+                {
+                    id: 'electron',
+                    num: 4,
+                    title: 'Electron Microscope (SEM)',
+                    specimen: 'Specimen: Spiked Pollen, E. coli & T4 Bacteriophage Viruses',
+                    probe: 'Electron Beam',
+                    scale: '5,000x–250,000x',
+                    live: 'Fixed in Vacuum',
+                    summary: 'Fires focused beams of electrons instead of light waves to resolve nanometer structures—from pollen grains down to individual viruses—in crisp monochrome surface relief. Because air molecules scatter electrons, specimens must be dead, dehydrated, and coated inside a vacuum chamber.',
+                    tip: '<strong>Explore:</strong> Slide <em>Beam Magnification</em> from 5,000x up to 250,000x to zoom past spiked ragweed pollen and an <em>E. coli</em> bacterium straight onto docking T4 bacteriophage viruses.'
+                },
+                {
+                    id: 'confocal',
+                    num: 5,
+                    title: 'Confocal Laser Microscope',
+                    specimen: 'Specimen: Transgenic Zebrafish Larva Brain & Cranial Nerves',
+                    probe: 'Laser + Pinhole',
+                    scale: '3D Z-Stack Slices',
+                    live: 'Thick Live Tissue',
+                    summary: 'Scans thick biological tissues point-by-point with a laser and uses a tiny pinhole aperture to physically block out-of-focus light from above and below the focal plane. Stepping through Z-depth captures razor-sharp optical slices without physically cutting the living specimen.',
+                    tip: '<strong>Explore:</strong> Toggle <em>Confocal Pinhole OFF</em> to see foggy widefield blur, then turn it <em>ON</em> and drag <em>Z-Slice Depth</em> from surface scales (15 µm) to brain lobes (55 µm) and deep blood vessels (100 µm).'
+                },
+                {
+                    id: 'afm',
+                    num: 6,
+                    title: 'Atomic Force Microscope (AFM)',
+                    specimen: 'Specimen: DNA Double Helix & Membrane Protein in Liquid',
+                    probe: 'Tactile Cantilever',
+                    scale: 'Atomic (<1 nm)',
+                    live: 'Live in Liquid',
+                    summary: 'Uses neither light nor electrons—instead, a sharp cantilever tip physically scans across a surface like reading molecular Braille. Working directly in liquid buffer on living molecules, it feels 3D atomic bumps and plots exact nanometer height profiles.',
+                    tip: '<strong>Explore:</strong> Drag <em>Probe Tip Scan Position</em> from 0% to 100% across the DNA double helix and membrane receptor to watch the live nanometer height profile trace below.'
+                },
+                {
+                    id: 'inverted',
+                    num: 7,
+                    title: 'Inverted Microscope',
+                    specimen: 'Specimen: Beating Cardiomyocytes on Culture Dish Bottom',
+                    probe: 'Bottom Objective',
+                    scale: '40x–400x',
+                    live: 'Live Culture Dish',
+                    summary: 'Places the light source above and objective lenses underneath the stage so lenses look upward through the thin glass bottom of a culture dish. This design lets researchers watch living cells attached to the dish floor without flipping the dish or spilling liquid growth media.',
+                    tip: '<strong>Explore:</strong> Slide <em>Focal Plane Position</em> from <em>0% (Dish Bottom Floor)</em> up to <em>100% (Upper Liquid Media)</em> to see how bottom-mounted lenses isolate living heart cells on the dish floor.'
+                },
+                {
+                    id: 'retinal',
+                    num: 8,
+                    title: 'Retinal Imaging Microscope',
+                    specimen: 'Specimen: Living Human Retina (Fundus + OCT Cross-Section)',
+                    probe: 'Ophthalmic / OCT',
+                    scale: 'Retinal Cell Layers',
+                    live: 'Intact Living Eye',
+                    summary: 'Looks non-invasively through the pupil into a living patient’s eye to image the retinal surface and capture cross-sectional optical coherence tomography (OCT) slices. Clinicians inspect the optic disc blind spot, retinal blood vessels, and foveal pit to detect eye disease early.',
+                    tip: '<strong>Explore:</strong> Sweep <em>OCT Laser Scan Line</em> across the <em>Optic Disc</em> and <em>Fovea</em> to watch the live cross-section slice below dip into the foveal pit.'
+                }
+            ];
+
+            // =================================================================
+            // APPLICATION STATE
+            // =================================================================
+            const state = {
+                scopeId: 'light',
+                paused: prefersReducedMotion,
+
+                // 1. Compound Light
+                lightObjective: 10, // 4, 10, 40
+                lightFocus: 92,     // 0..100
+
+                // 2. Stereo
+                stereoZoom: 28,     // 10..60
+                stereoAngle: 35,    // -90..90
+
+                // 3. Fluorescence
+                flChannel: 'all',   // 'all' | 'dapi' | 'gfp' | 'rfp'
+
+                // 4. Electron (SEM)
+                emZoom: 35,         // 5..250 (x1,000x)
+
+                // 5. Confocal
+                confocalZ: 55,      // 0..120 um
+                confocalPinhole: true,
+
+                // 6. AFM
+                afmTipPos: 45,      // 0..100%
+
+                // 7. Inverted
+                invPlanePct: 0,     // 0% Dish Floor .. 100% Upper Media
+
+                // 8. Retinal
+                retinalScanPct: 50  // 0..100%
+            };
+
+            let elapsed = 0;
+            let lastTimestamp = 0;
+
+            // =================================================================
+            // UI & CONTROL BINDING (GUARANTEED SYNCHRONOUS RENDER ON CHANGE)
+            // =================================================================
+            function updateMotionButton() {
+                motionToggleBtn.setAttribute('aria-pressed', state.paused ? 'true' : 'false');
+                motionToggleBtn.textContent = state.paused ? 'Resume Motion' : 'Pause Motion';
+            }
+
+            motionToggleBtn.addEventListener('click', () => {
+                state.paused = !state.paused;
+                updateMotionButton();
+                renderScene();
+                announce(state.paused ? 'Specimen animation paused' : 'Specimen animation resumed');
+            });
+
+            function selectInstrument(scopeId, shouldAnnounce = true) {
+                state.scopeId = scopeId;
+                if (scopeSelect.value !== scopeId) {
+                    scopeSelect.value = scopeId;
+                }
+
+                const sc = SCOPES.find(s => s.id === scopeId) || SCOPES[0];
+
+                document.getElementById('scopeIndexLabel').textContent = `Instrument ${sc.num} of 8`;
+                document.getElementById('scopeHeading').textContent = sc.title;
+                document.getElementById('specimenLabel').textContent = sc.specimen;
+                document.getElementById('chipProbe').textContent = sc.probe;
+                document.getElementById('chipScale').textContent = sc.scale;
+                document.getElementById('chipLive').textContent = sc.live;
+                document.getElementById('summaryCopy').textContent = sc.summary;
+                document.getElementById('activityTip').innerHTML = sc.tip;
+
+                canvas.setAttribute('aria-label', `${sc.title} viewing ${sc.specimen}`);
+
+                buildControls(sc);
+                renderScene();
+
+                if (shouldAnnounce) {
+                    announce(`Selected ${sc.title}. ${sc.specimen}`);
+                }
+            }
+
+            function buildControls(sc) {
+                document.getElementById('controlsLegend').textContent = `${sc.title} Controls`;
+                controlsContainer.innerHTML = '';
+
+                if (sc.id === 'light') {
+                    controlsContainer.innerHTML = `
+                        <div class="btn-group" role="group" aria-label="Objective Lens Selector">
+                            <button id="objBtn4" class="ctrl-btn" type="button" aria-pressed="${state.lightObjective === 4}">4x (40x total)</button>
+                            <button id="objBtn10" class="ctrl-btn" type="button" aria-pressed="${state.lightObjective === 10}">10x (100x total)</button>
+                            <button id="objBtn40" class="ctrl-btn" type="button" aria-pressed="${state.lightObjective === 40}">40x (400x total)</button>
+                        </div>
+                        <label class="slider-field" for="lightFocusSlider">
+                            <span>Fine Focus:</span>
+                            <input id="lightFocusSlider" type="range" min="0" max="100" value="${state.lightFocus}">
+                            <span id="lightFocusVal" class="value-pill">${state.lightFocus}%</span>
+                        </label>
+                    `;
+
+                    [4, 10, 40].forEach(obj => {
+                        document.getElementById(`objBtn${obj}`).addEventListener('click', () => {
+                            state.lightObjective = obj;
+                            // Parfocal slight adjustment when switching to 40x
+                            state.lightFocus = obj === 40 ? 82 : 94;
+                            const sl = document.getElementById('lightFocusSlider');
+                            const rd = document.getElementById('lightFocusVal');
+                            if (sl) sl.value = state.lightFocus;
+                            if (rd) rd.textContent = `${state.lightFocus}%`;
+
+                            [4, 10, 40].forEach(o => {
+                                document.getElementById(`objBtn${o}`).setAttribute('aria-pressed', o === obj ? 'true' : 'false');
+                            });
+                            const fovs = { 4: '4.3 mm', 10: '1.7 mm', 40: '0.4 mm' };
+                            renderScene();
+                            announce(`Objective set to ${obj}x (${obj * 10}x total magnification, field of view ${fovs[obj]})`);
+                        });
+                    });
+
+                    const focusSlider = document.getElementById('lightFocusSlider');
+                    const focusVal = document.getElementById('lightFocusVal');
+                    focusSlider.addEventListener('input', () => {
+                        state.lightFocus = Number(focusSlider.value);
+                        focusVal.textContent = `${state.lightFocus}%`;
+                        renderScene();
+                    });
+
+                } else if (sc.id === 'stereo') {
+                    controlsContainer.innerHTML = `
+                        <label class="slider-field" for="stereoZoomSlider">
+                            <span>3D Zoom:</span>
+                            <input id="stereoZoomSlider" type="range" min="10" max="60" value="${state.stereoZoom}">
+                            <span id="stereoZoomVal" class="value-pill">${state.stereoZoom}x</span>
+                        </label>
+                        <label class="slider-field" for="stereoAngleSlider">
+                            <span>Top-Light Angle:</span>
+                            <input id="stereoAngleSlider" type="range" min="-90" max="90" value="${state.stereoAngle}">
+                            <span id="stereoAngleVal" class="value-pill">${state.stereoAngle}&deg;</span>
+                        </label>
+                    `;
+
+                    const zSl = document.getElementById('stereoZoomSlider');
+                    const zRd = document.getElementById('stereoZoomVal');
+                    zSl.addEventListener('input', () => {
+                        state.stereoZoom = Number(zSl.value);
+                        zRd.textContent = `${state.stereoZoom}x`;
+                        renderScene();
+                    });
+
+                    const aSl = document.getElementById('stereoAngleSlider');
+                    const aRd = document.getElementById('stereoAngleVal');
+                    aSl.addEventListener('input', () => {
+                        state.stereoAngle = Number(aSl.value);
+                        aRd.textContent = `${state.stereoAngle}\u00B0`;
+                        renderScene();
+                    });
+
+                } else if (sc.id === 'fluorescence') {
+                    const items = [
+                        { id: 'all',  text: 'All Channels' },
+                        { id: 'dapi', text: 'DAPI (DNA/Nucleus)' },
+                        { id: 'gfp',  text: 'GFP (Spindle Fibers)' },
+                        { id: 'rfp',  text: 'RFP (Mitochondria)' }
+                    ];
+                    controlsContainer.innerHTML = `
+                        <div class="btn-group" role="group" aria-label="Fluorescence Filter Channels">
+                            ${items.map(it => `<button id="flBtn_${it.id}" class="ctrl-btn" type="button" aria-pressed="${state.flChannel === it.id}">${it.text}</button>`).join('')}
+                        </div>
+                    `;
+                    items.forEach(it => {
+                        document.getElementById(`flBtn_${it.id}`).addEventListener('click', () => {
+                            state.flChannel = it.id;
+                            items.forEach(other => {
+                                document.getElementById(`flBtn_${other.id}`).setAttribute('aria-pressed', other.id === it.id ? 'true' : 'false');
+                            });
+                            renderScene();
+                            announce(`Fluorescence channel: ${it.text}`);
+                        });
+                    });
+
+                } else if (sc.id === 'electron') {
+                    controlsContainer.innerHTML = `
+                        <label class="slider-field" for="emZoomSlider">
+                            <span>Beam Magnification:</span>
+                            <input id="emZoomSlider" type="range" min="5" max="250" value="${state.emZoom}">
+                            <span id="emZoomVal" class="value-pill">${state.emZoom.toLocaleString()},000x</span>
+                        </label>
+                    `;
+                    const emSl = document.getElementById('emZoomSlider');
+                    const emRd = document.getElementById('emZoomVal');
+                    emSl.addEventListener('input', () => {
+                        state.emZoom = Number(emSl.value);
+                        emRd.textContent = `${state.emZoom.toLocaleString()},000x`;
+                        renderScene();
+                    });
+
+                } else if (sc.id === 'confocal') {
+                    controlsContainer.innerHTML = `
+                        <label class="slider-field" for="confocalZSlider">
+                            <span>Z-Slice Depth:</span>
+                            <input id="confocalZSlider" type="range" min="0" max="120" value="${state.confocalZ}">
+                            <span id="confocalZVal" class="value-pill">${state.confocalZ} &mu;m</span>
+                        </label>
+                        <div class="btn-group">
+                            <button id="pinholeToggleBtn" class="ctrl-btn" type="button" aria-pressed="${state.confocalPinhole}">
+                                ${state.confocalPinhole ? 'Pinhole ON: Crisp Laser Slice' : 'Pinhole OFF: Foggy Widefield Blur'}
+                            </button>
+                        </div>
+                    `;
+                    const czSl = document.getElementById('confocalZSlider');
+                    const czRd = document.getElementById('confocalZVal');
+                    czSl.addEventListener('input', () => {
+                        state.confocalZ = Number(czSl.value);
+                        czRd.textContent = `${state.confocalZ} \u00B5m`;
+                        renderScene();
+                    });
+
+                    const pinBtn = document.getElementById('pinholeToggleBtn');
+                    pinBtn.addEventListener('click', () => {
+                        state.confocalPinhole = !state.confocalPinhole;
+                        pinBtn.setAttribute('aria-pressed', state.confocalPinhole ? 'true' : 'false');
+                        pinBtn.textContent = state.confocalPinhole
+                            ? 'Pinhole ON: Crisp Laser Slice'
+                            : 'Pinhole OFF: Foggy Widefield Blur';
+                        renderScene();
+                        announce(state.confocalPinhole ? 'Confocal pinhole ON' : 'Confocal pinhole OFF');
+                    });
+
+                } else if (sc.id === 'afm') {
+                    controlsContainer.innerHTML = `
+                        <label class="slider-field" for="afmPosSlider">
+                            <span>Probe Tip Scan Position:</span>
+                            <input id="afmPosSlider" type="range" min="0" max="100" value="${state.afmTipPos}">
+                            <span id="afmPosVal" class="value-pill">${state.afmTipPos}%</span>
+                        </label>
+                    `;
+                    const afmSl = document.getElementById('afmPosSlider');
+                    const afmRd = document.getElementById('afmPosVal');
+                    afmSl.addEventListener('input', () => {
+                        state.afmTipPos = Number(afmSl.value);
+                        afmRd.textContent = `${state.afmTipPos}%`;
+                        renderScene();
+                    });
+
+                } else if (sc.id === 'inverted') {
+                    controlsContainer.innerHTML = `
+                        <label class="slider-field" for="invPlaneSlider">
+                            <span>Focal Plane Position:</span>
+                            <input id="invPlaneSlider" type="range" min="0" max="100" value="${state.invPlanePct}">
+                            <span id="invPlaneVal" class="value-pill">${state.invPlanePct === 0 ? '0% Floor' : state.invPlanePct + '% Media'}</span>
+                        </label>
+                    `;
+                    const invSl = document.getElementById('invPlaneSlider');
+                    const invRd = document.getElementById('invPlaneVal');
+                    invSl.addEventListener('input', () => {
+                        state.invPlanePct = Number(invSl.value);
+                        invRd.textContent = state.invPlanePct === 0 ? '0% Floor' : `${state.invPlanePct}% Media`;
+                        renderScene();
+                    });
+
+                } else if (sc.id === 'retinal') {
+                    controlsContainer.innerHTML = `
+                        <label class="slider-field" for="retinalScanSlider">
+                            <span>OCT Laser Scan Line:</span>
+                            <input id="retinalScanSlider" type="range" min="0" max="100" value="${state.retinalScanPct}">
+                            <span id="retinalScanVal" class="value-pill">${state.retinalScanPct}%</span>
+                        </label>
+                    `;
+                    const retSl = document.getElementById('retinalScanSlider');
+                    const retRd = document.getElementById('retinalScanVal');
+                    retSl.addEventListener('input', () => {
+                        state.retinalScanPct = Number(retSl.value);
+                        retRd.textContent = `${state.retinalScanPct}%`;
+                        renderScene();
+                    });
+                }
+            }
+
+            // =================================================================
+            // MASTER 720x450 SCENE DISPATCHER
+            // =================================================================
+            function renderScene() {
+                const W = 720;
+                const H = 450;
+
+                ctx.save();
+                ctx.setTransform(1, 0, 0, 1, 0, 0);
+                ctx.clearRect(0, 0, W, H);
+
+                switch (state.scopeId) {
+                    case 'light':        drawCompoundLight(W, H, elapsed); break;
+                    case 'stereo':       drawStereoSpider(W, H, elapsed); break;
+                    case 'fluorescence': drawFluorescenceMitosis(W, H, elapsed); break;
+                    case 'electron':     drawElectronSem(W, H, elapsed); break;
+                    case 'confocal':     drawConfocalZebrafish(W, H, elapsed); break;
+                    case 'afm':          drawAfmProbe(W, H, elapsed); break;
+                    case 'inverted':     drawInvertedDish(W, H, elapsed); break;
+                    case 'retinal':      drawRetinalFundusOct(W, H, elapsed); break;
+                }
+
+                ctx.restore();
+            }
+
+            // -----------------------------------------------------------------
+            // 1. COMPOUND LIGHT MICROSCOPE (4x / 10x / 40x Objectives + Focus)
+            // -----------------------------------------------------------------
+            function drawCompoundLight(W, H, t) {
+                const cx = W / 2;
+                const cy = H / 2;
+
+                ctx.fillStyle = '#090d16';
+                ctx.fillRect(0, 0, W, H);
+
+                const zoomMap = { 4: 0.54, 10: 1.0, 40: 2.15 };
+                const fovLabels = {
+                    4:  '4x Obj (40x Total)  |  FOV: 4.3 mm',
+                    10: '10x Obj (100x Total) |  FOV: 1.7 mm',
+                    40: '40x Obj (400x Total) |  FOV: 0.4 mm'
+                };
+                const zoom = zoomMap[state.lightObjective] || 1.0;
+
+                // Higher magnification = thinner depth of focus
+                const dofFactor = state.lightObjective === 40 ? 1.55 : (state.lightObjective === 10 ? 1.0 : 0.6);
+                const focusError = Math.abs(100 - state.lightFocus) / 100;
+                const blurPx = focusError * 11 * dofFactor;
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(cx, cy, 206, 0, Math.PI * 2);
+                ctx.clip();
+
+                // Brightfield transmitted light gradient
+                const bg = ctx.createRadialGradient(cx, cy, 40, cx, cy, 210);
+                bg.addColorStop(0, '#ffffff');
+                bg.addColorStop(0.8, '#e2e8f0');
+                bg.addColorStop(1, '#94a3b8');
+                ctx.fillStyle = bg;
+                ctx.fillRect(0, 0, W, H);
+
+                if (blurPx > 0.25) {
+                    ctx.filter = `blur(${blurPx.toFixed(1)}px)`;
+                }
+
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.scale(zoom, zoom);
+                ctx.translate(-cx, -cy);
+
+                // Floating green microalgae
+                const algaeCoords = [
+                    [195, 130, 9], [520, 315, 10], [235, 345, 8], [490, 165, 7],
+                    [310, 95, 8], [440, 365, 9], [145, 225, 10], [575, 240, 9],
+                    [275, 380, 7], [425, 85, 8]
+                ];
+                algaeCoords.forEach(([ax, ay, ar], i) => {
+                    const dx = ax + Math.sin(t * 0.7 + i) * 7;
+                    const dy = ay + Math.cos(t * 0.6 + i) * 6;
+                    ctx.fillStyle = 'rgba(34, 197, 94, 0.75)';
+                    ctx.strokeStyle = 'rgba(21, 128, 61, 0.9)';
+                    ctx.lineWidth = 1.8;
+                    ctx.beginPath();
+                    ctx.arc(dx, dy, ar, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                });
+
+                // Silica Diatom
+                ctx.save();
+                ctx.translate(185 + Math.sin(t * 0.5) * 6, 310 + Math.cos(t * 0.4) * 5);
+                ctx.rotate(-0.42);
+                ctx.fillStyle = 'rgba(186, 230, 253, 0.7)';
+                ctx.strokeStyle = 'rgba(3, 105, 161, 0.9)';
+                ctx.lineWidth = 2.6;
+                ctx.beginPath();
+                ctx.moveTo(-54, 0);
+                ctx.quadraticCurveTo(0, -24, 54, 0);
+                ctx.quadraticCurveTo(0, 24, -54, 0);
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = 'rgba(202, 138, 4, 0.8)';
+                ctx.fillRect(-30, -6, 22, 12);
+                ctx.fillRect(8, -6, 22, 12);
+                ctx.restore();
+
+                // Swimming Ciliated Paramecium
+                const px = 515 + Math.sin(t * 1.1) * 26;
+                const py = 140 + Math.cos(t * 0.85) * 18;
+                ctx.save();
+                ctx.translate(px, py);
+                ctx.rotate(0.35 + Math.sin(t * 0.85) * 0.12);
+                ctx.strokeStyle = 'rgba(51, 65, 85, 0.8)';
+                ctx.lineWidth = 1.5;
+                for (let a = 0; a < Math.PI * 2; a += 0.22) {
+                    const wave = Math.sin(t * 14 + a * 5) * 2.8;
+                    const bx = Math.cos(a) * 52;
+                    const by = Math.sin(a) * 21;
+                    ctx.beginPath();
+                    ctx.moveTo(bx, by);
+                    ctx.lineTo(bx + Math.cos(a) * 8 + wave, by + Math.sin(a) * 8);
+                    ctx.stroke();
+                }
+                ctx.fillStyle = 'rgba(226, 232, 240, 0.85)';
+                ctx.strokeStyle = 'rgba(30, 41, 59, 0.9)';
+                ctx.lineWidth = 2.4;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 52, 21, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = 'rgba(71, 85, 105, 0.6)';
+                ctx.beginPath();
+                ctx.ellipse(-8, 0, 14, 7, 0.2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+
+                // Translucent Grazing Tardigrade ("Water Bear")
+                const tx = 355 + Math.sin(t * 0.65) * 9;
+                const ty = 225 + Math.cos(t * 0.55) * 7;
+                ctx.save();
+                ctx.translate(tx, ty);
+                ctx.rotate(-0.12 + Math.sin(t * 0.55) * 0.04);
+
+                [-54, -18, 18, 54].forEach((lx, idx) => {
+                    const stride = Math.sin(t * 3.2 + idx * 1.4) * 6;
+                    ctx.fillStyle = 'rgba(214, 211, 209, 0.88)';
+                    ctx.strokeStyle = 'rgba(41, 37, 36, 0.9)';
+                    ctx.lineWidth = 2.2;
+                    ctx.beginPath();
+                    ctx.roundRect(lx - 11 + stride, 28, 22, 25, 8);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Tiny claws
+                    ctx.beginPath();
+                    ctx.moveTo(lx - 5 + stride, 53); ctx.lineTo(lx - 9 + stride, 60);
+                    ctx.moveTo(lx + 5 + stride, 53); ctx.lineTo(lx + 9 + stride, 60);
+                    ctx.stroke();
+                });
+
+                const bodyGrad = ctx.createLinearGradient(0, -42, 0, 42);
+                bodyGrad.addColorStop(0, 'rgba(245, 245, 244, 0.94)');
+                bodyGrad.addColorStop(0.5, 'rgba(214, 211, 209, 0.84)');
+                bodyGrad.addColorStop(1, 'rgba(168, 162, 158, 0.92)');
+                ctx.fillStyle = bodyGrad;
+                ctx.strokeStyle = 'rgba(28, 25, 23, 0.92)';
+                ctx.lineWidth = 2.8;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 94, 42, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                // Cuticle segments
+                ctx.strokeStyle = 'rgba(68, 64, 60, 0.5)';
+                ctx.lineWidth = 2;
+                [-36, 0, 36].forEach(sx => {
+                    ctx.beginPath();
+                    ctx.arc(sx, 0, 39, -1.1, 1.1);
+                    ctx.stroke();
+                });
+
+                // Green ingested algae in gut
+                ctx.fillStyle = 'rgba(22, 163, 74, 0.82)';
+                ctx.beginPath();
+                ctx.ellipse(8, 2, 44, 16, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Muscular pharynx & feeding stylets
+                ctx.fillStyle = 'rgba(244, 114, 182, 0.7)';
+                ctx.strokeStyle = 'rgba(131, 24, 67, 0.85)';
+                ctx.beginPath();
+                ctx.ellipse(-60, 0, 15, 11, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 2.5;
+                ctx.beginPath();
+                ctx.moveTo(-94, 0); ctx.lineTo(-75, 0);
+                ctx.moveTo(-89, -6); ctx.lineTo(-75, -2);
+                ctx.moveTo(-89, 6); ctx.lineTo(-75, 2);
+                ctx.stroke();
+
+                // Eyespot
+                ctx.fillStyle = '#090d16';
+                ctx.beginPath();
+                ctx.arc(-76, -13, 3.2, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.restore();
+                ctx.restore();
+                ctx.restore();
+
+                // Top-left optical status pill
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+                ctx.fillRect(14, 14, 285, 28);
+                ctx.fillStyle = '#7dd3fc';
+                ctx.font = '700 13px monospace';
+                ctx.textAlign = 'left';
+                ctx.fillText(fovLabels[state.lightObjective], 24, 33);
+            }
+
+            // -----------------------------------------------------------------
+            // 2. STEREO / DISSECTING MICROSCOPE (Peacock Jumping Spider)
+            // -----------------------------------------------------------------
+            function drawStereoSpider(W, H, t) {
+                const cx = W / 2;
+                const cy = H / 2 + 12;
+                const z = state.stereoZoom / 28;
+                const rad = (state.stereoAngle * Math.PI) / 180;
+                const lightX = Math.sin(rad) * 140;
+                const lightY = -Math.cos(rad) * 95;
+
+                // Dark textured dissecting stage with directional top-light reflection
+                const stageGrad = ctx.createRadialGradient(cx + lightX * 0.45, cy + lightY * 0.45, 35, cx, cy, 430);
+                stageGrad.addColorStop(0, '#334155');
+                stageGrad.addColorStop(1, '#090d16');
+                ctx.fillStyle = stageGrad;
+                ctx.fillRect(0, 0, W, H);
+
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.scale(z, z);
+
+                // Directional 3D Drop Shadow
+                ctx.fillStyle = 'rgba(2, 6, 23, 0.68)';
+                ctx.beginPath();
+                ctx.ellipse(-lightX * 0.28, 28 - lightY * 0.16, 150, 105, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Eight Jointed 3D Bristly Spider Legs
+                const legs = [
+                    [-1, -60, -155, -95], [1, -60, 155, -95],
+                    [-1, -22, -178, -15], [1, -22, 178, -15],
+                    [-1, 20,  -168, 62],  [1, 20,  168, 62],
+                    [-1, 56,  -132, 118], [1, 56,  132, 118]
+                ];
+                legs.forEach(([dir, sy, ex, ey], idx) => {
+                    const twitch = Math.sin(t * 2.4 + idx) * 2.5;
+                    ctx.strokeStyle = '#1c1917';
+                    ctx.lineWidth = 12;
+                    ctx.lineCap = 'round';
+                    ctx.beginPath();
+                    ctx.moveTo(dir * 48, sy);
+                    ctx.quadraticCurveTo(dir * 118, sy - 32 + twitch, ex, ey + twitch);
+                    ctx.stroke();
+
+                    // Specular highlight along leg ridge
+                    ctx.strokeStyle = '#a8a29e';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(dir * 50, sy - 2);
+                    ctx.quadraticCurveTo(dir * 118, sy - 34 + twitch, ex, ey - 2 + twitch);
+                    ctx.stroke();
+                });
+
+                // Iridescent Metallic Peacock Abdomen Fan
+                const hueShift = state.stereoAngle * 0.55;
+                const abdGrad = ctx.createRadialGradient(lightX * 0.28, 72 + lightY * 0.16, 12, 0, 76, 88);
+                abdGrad.addColorStop(0, `hsl(${185 + hueShift}, 95%, 62%)`);
+                abdGrad.addColorStop(0.55, `hsl(${210 + hueShift}, 88%, 42%)`);
+                abdGrad.addColorStop(1, '#0f172a');
+                ctx.fillStyle = abdGrad;
+                ctx.beginPath();
+                ctx.ellipse(0, 76, 78, 62, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Ornate peacock fan markings
+                ctx.fillStyle = '#e11d48';
+                ctx.beginPath();
+                ctx.ellipse(0, 74, 46, 30, 0, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#facc15';
+                ctx.beginPath();
+                ctx.arc(-21, 72, 8.5, 0, Math.PI * 2);
+                ctx.arc(21, 72, 8.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 3D Shaded Cephalothorax Head
+                const headGrad = ctx.createRadialGradient(lightX * 0.28, -50 + lightY * 0.22, 14, 0, -38, 90);
+                headGrad.addColorStop(0, '#78716c');
+                headGrad.addColorStop(0.6, '#292524');
+                headGrad.addColorStop(1, '#0c0a09');
+                ctx.fillStyle = headGrad;
+                ctx.beginPath();
+                ctx.ellipse(0, -36, 74, 60, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Iridescent cyan brow band
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 4.5;
+                ctx.beginPath();
+                ctx.moveTo(-52, -40);
+                ctx.lineTo(52, -40);
+                ctx.stroke();
+
+                // Fuzzy white pedipalps
+                const palpWave = Math.sin(t * 3.2) * 4;
+                [-30, 30].forEach((px, i) => {
+                    ctx.fillStyle = '#f8fafc';
+                    ctx.beginPath();
+                    ctx.ellipse(px, -9 + (i === 0 ? palpWave : -palpWave), 14, 21, px > 0 ? -0.25 : 0.25, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // Four Glossy Forward-Facing Eyes with Live Specular Catchlights
+                const eyes = [
+                    { x: -21, y: -62, r: 20 },
+                    { x: 21,  y: -62, r: 20 },
+                    { x: -48, y: -55, r: 12 },
+                    { x: 48,  y: -55, r: 12 }
+                ];
+                eyes.forEach(eye => {
+                    const eGrad = ctx.createRadialGradient(eye.x - 4, eye.y - 4, 2, eye.x, eye.y, eye.r);
+                    eGrad.addColorStop(0, '#047857');
+                    eGrad.addColorStop(0.55, '#022c22');
+                    eGrad.addColorStop(1, '#000000');
+                    ctx.fillStyle = eGrad;
+                    ctx.beginPath();
+                    ctx.arc(eye.x, eye.y, eye.r, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.strokeStyle = '#fb923c';
+                    ctx.lineWidth = 2.4;
+                    ctx.stroke();
+
+                    // Moving specular reflection driven by Top-Light Angle
+                    const cxOff = (lightX / 140) * (eye.r * 0.44);
+                    const cyOff = (lightY / 95) * (eye.r * 0.36);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+                    ctx.beginPath();
+                    ctx.arc(eye.x + cxOff, eye.y + cyOff, eye.r * 0.28, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                ctx.restore();
+
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+                ctx.fillRect(14, 14, 285, 28);
+                ctx.fillStyle = '#5eead4';
+                ctx.font = '700 13px monospace';
+                ctx.textAlign = 'left';
+                ctx.fillText(`3D Zoom: ${state.stereoZoom}x  |  Light: ${state.stereoAngle}\u00B0`, 24, 33);
+            }
+
+            // -----------------------------------------------------------------
+            // 3. FLUORESCENCE MICROSCOPE (DAPI / GFP / RFP Channels)
+            // -----------------------------------------------------------------
+            function drawFluorescenceMitosis(W, H, t) {
+                ctx.fillStyle = '#02040a';
+                ctx.fillRect(0, 0, W, H);
+
+                drawMitoticCell(245, 225, 1.12, t, false);
+                drawMitoticCell(515, 245, 0.94, t + 1.3, true);
+
+                const labels = {
+                    all:  'Filter: All Channels (DAPI + GFP + RFP)',
+                    dapi: 'Filter: DAPI Blue (Condensed Chromosomes)',
+                    gfp:  'Filter: GFP Green (Mitotic Spindle Fibers)',
+                    rfp:  'Filter: RFP Red (Mitochondrial Network)'
+                };
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+                ctx.fillRect(14, 14, 345, 28);
+                ctx.fillStyle = '#93c5fd';
+                ctx.font = '700 13px monospace';
+                ctx.textAlign = 'left';
+                ctx.fillText(labels[state.flChannel], 24, 33);
+            }
+
+            function drawMitoticCell(cx, cy, scale, t, isAnaphase) {
+                const showDapi = state.flChannel === 'all' || state.flChannel === 'dapi';
+                const showGfp  = state.flChannel === 'all' || state.flChannel === 'gfp';
+                const showRfp  = state.flChannel === 'all' || state.flChannel === 'rfp';
+
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.scale(scale, scale);
+
+                // Faint cell boundary
+                ctx.strokeStyle = 'rgba(51, 65, 85, 0.45)';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.ellipse(0, 0, 140, 102, 0, 0, Math.PI * 2);
+                ctx.stroke();
+
+                // RFP Mitochondria (Crimson Red)
+                if (showRfp) {
+                    ctx.fillStyle = 'rgba(244, 63, 94, 0.95)';
+                    ctx.shadowColor = '#e11d48';
+                    ctx.shadowBlur = 14;
+                    for (let i = 0; i < 26; i++) {
+                        const a = (i / 26) * Math.PI * 2 + t * 0.25;
+                        const rx = Math.cos(a) * (96 + (i % 3) * 11);
+                        const ry = Math.sin(a) * (68 + (i % 2) * 11);
+                        ctx.beginPath();
+                        ctx.ellipse(rx, ry, 7.5, 3.5, a + 0.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                    ctx.shadowBlur = 0;
+                }
+
+                // GFP Mitotic Spindle Fibers (Bright Green)
+                if (showGfp) {
+                    const poleY = isAnaphase ? 82 : 76;
+                    ctx.strokeStyle = 'rgba(34, 197, 94, 0.92)';
+                    ctx.shadowColor = '#22c55e';
+                    ctx.shadowBlur = 15;
+                    ctx.lineWidth = 2.4;
+
+                    [-poleY, poleY].forEach(py => {
+                        ctx.fillStyle = '#86efac';
+                        ctx.beginPath();
+                        ctx.arc(0, py, 5.5, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        for (let x = -60; x <= 60; x += 12) {
+                            ctx.beginPath();
+                            ctx.moveTo(0, py);
+                            ctx.quadraticCurveTo(x * 0.78, py * 0.45, x, isAnaphase ? (py > 0 ? 22 : -22) : 0);
+                            ctx.stroke();
+                        }
+                    });
+                    ctx.shadowBlur = 0;
+                }
+
+                // DAPI Condensed Chromosomes (Electric Blue)
+                if (showDapi) {
+                    ctx.strokeStyle = '#60a5fa';
+                    ctx.shadowColor = '#3b82f6';
+                    ctx.shadowBlur = 18;
+                    ctx.lineWidth = 6;
+                    ctx.lineCap = 'round';
+
+                    const sep = isAnaphase ? 22 + Math.sin(t * 2) * 3.5 : 0;
+
+                    for (let i = -4; i <= 4; i++) {
+                        const x = i * 12;
+                        const wobble = Math.sin(t * 2.5 + i) * 2;
+                        if (!isAnaphase) {
+                            ctx.beginPath();
+                            ctx.moveTo(x - 4.5, -15 + wobble); ctx.lineTo(x + 4.5, 15 + wobble);
+                            ctx.moveTo(x + 4.5, -15 + wobble); ctx.lineTo(x - 4.5, 15 + wobble);
+                            ctx.stroke();
+                        } else {
+                            ctx.beginPath();
+                            ctx.moveTo(x - 4.5, -sep - 9); ctx.lineTo(x, -sep); ctx.lineTo(x + 4.5, -sep - 9);
+                            ctx.moveTo(x - 4.5, sep + 9); ctx.lineTo(x, sep); ctx.lineTo(x + 4.5, sep + 9);
+                            ctx.stroke();
+                        }
+                    }
+                    ctx.shadowBlur = 0;
+                }
+
+                ctx.restore();
+            }
+
+            // -----------------------------------------------------------------
+            // 4. ELECTRON MICROSCOPE (SEM: Pollen, E. coli & T4 Bacteriophages)
+            // -----------------------------------------------------------------
+            function drawElectronSem(W, H, t) {
+                const zoomScale = 0.42 + (state.emZoom / 250) * 1.65;
+
+                ctx.fillStyle = '#090d14';
+                ctx.fillRect(0, 0, W, H);
+
+                ctx.save();
+                ctx.translate(W / 2, H / 2 + 15);
+                ctx.scale(zoomScale, zoomScale);
+
+                // Spiked Ragweed Pollen Grain (Upper Right)
+                const pGrad = ctx.createRadialGradient(185, -105, 12, 215, -80, 108);
+                pGrad.addColorStop(0, '#f8fafc');
+                pGrad.addColorStop(0.6, '#737982');
+                pGrad.addColorStop(1, '#111827');
+                ctx.fillStyle = pGrad;
+                ctx.beginPath();
+                ctx.arc(215, -80, 96, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#e2e8f0';
+                for (let a = 0; a < Math.PI * 2; a += 0.3) {
+                    const sx = 215 + Math.cos(a) * 94;
+                    const sy = -80 + Math.sin(a) * 94;
+                    const tx = 215 + Math.cos(a) * 112;
+                    const ty = -80 + Math.sin(a) * 112;
+                    ctx.beginPath();
+                    ctx.moveTo(sx - Math.sin(a) * 4.5, sy + Math.cos(a) * 4.5);
+                    ctx.lineTo(tx, ty);
+                    ctx.lineTo(sx + Math.sin(a) * 4.5, sy - Math.cos(a) * 4.5);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                // E. coli Bacterial Cell Wall (Bottom)
+                const bacGrad = ctx.createLinearGradient(0, 50, 0, 220);
+                bacGrad.addColorStop(0, '#e2e8f0');
+                bacGrad.addColorStop(0.45, '#64748b');
+                bacGrad.addColorStop(1, '#090d14');
+                ctx.fillStyle = bacGrad;
+                ctx.beginPath();
+                ctx.roundRect(-270, 62, 540, 175, 85);
+                ctx.fill();
+
+                // Surface membrane texture
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
+                for (let bx = -220; bx <= 220; bx += 28) {
+                    for (let by = 88; by <= 175; by += 24) {
+                        ctx.beginPath();
+                        ctx.ellipse(bx, by, 10, 4.5, 0.1, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                // Three T4 Bacteriophage Viruses Docking onto E. coli
+                const phages = [
+                    { x: -130, y: 65, rot: -0.18, s: 0.9 },
+                    { x: 0,    y: 58, rot: 0,     s: 1.25 },
+                    { x: 130,  y: 67, rot: 0.2,   s: 0.88 }
+                ];
+
+                phages.forEach((ph, idx) => {
+                    const hover = Math.sin(t * 2.1 + idx) * 2.2;
+                    ctx.save();
+                    ctx.translate(ph.x, ph.y + hover);
+                    ctx.rotate(ph.rot);
+                    ctx.scale(ph.s, ph.s);
+
+                    // 6 Spider-like Tail Fibers
+                    ctx.strokeStyle = '#f1f5f9';
+                    ctx.lineWidth = 3.2;
+                    [-1, 1].forEach(dir => {
+                        [14, 27, 40].forEach((spread, fIdx) => {
+                            ctx.beginPath();
+                            ctx.moveTo(0, -15);
+                            ctx.lineTo(dir * spread, -29 - fIdx * 3.5);
+                            ctx.lineTo(dir * (spread + 16), 2);
+                            ctx.stroke();
+                        });
+                    });
+
+                    // Contractile Tail Sheath
+                    ctx.fillStyle = '#cbd5e1';
+                    ctx.fillRect(-8, -64, 16, 49);
+                    ctx.strokeStyle = '#0f172a';
+                    ctx.lineWidth = 1.8;
+                    for (let sy = -60; sy <= -20; sy += 6.5) {
+                        ctx.beginPath();
+                        ctx.moveTo(-8, sy);
+                        ctx.lineTo(8, sy);
+                        ctx.stroke();
+                    }
+
+                    // Icosahedral Capsid Head
+                    const headGrad = ctx.createLinearGradient(-29, -132, 29, -64);
+                    headGrad.addColorStop(0, '#ffffff');
+                    headGrad.addColorStop(0.5, '#94a3b8');
+                    headGrad.addColorStop(1, '#1e293b');
+                    ctx.fillStyle = headGrad;
+                    ctx.beginPath();
+                    ctx.moveTo(0, -136);
+                    ctx.lineTo(29, -116);
+                    ctx.lineTo(29, -82);
+                    ctx.lineTo(0, -64);
+                    ctx.lineTo(-29, -82);
+                    ctx.lineTo(-29, -116);
+                    ctx.closePath();
+                    ctx.fill();
+
+                    ctx.restore();
+                });
+
+                ctx.restore();
+
+                // Nanometer Scale Bar & Vacuum Status
+                const nmScale = Math.max(20, Math.round(5000 / state.emZoom));
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+                ctx.fillRect(14, 14, 310, 28);
+                ctx.fillStyle = '#e2e8f0';
+                ctx.font = '700 13px monospace';
+                ctx.textAlign = 'left';
+                ctx.fillText(`SEM Vacuum: ${state.emZoom.toLocaleString()},000x  |  Scale: ${nmScale} nm`, 24, 33);
+
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(W - 150, H - 28, 120, 4);
+                ctx.textAlign = 'right';
+                ctx.fillText(`${nmScale} nm`, W - 30, H - 36);
+            }
+
+            // -----------------------------------------------------------------
+            // 5. CONFOCAL LASER MICROSCOPE (Zebrafish Z-Stack + Pinhole)
+            // -----------------------------------------------------------------
+            function drawConfocalZebrafish(W, H, t) {
+                ctx.fillStyle = '#02040a';
+                ctx.fillRect(0, 0, W, H);
+
+                const z = state.confocalZ; // 0..120 um
+                const pinOn = state.confocalPinhole;
+
+                // Translucent zebrafish head/trunk silhouette
+                ctx.strokeStyle = 'rgba(71, 85, 105, 0.65)';
+                ctx.lineWidth = 2.8;
+                ctx.beginPath();
+                ctx.moveTo(95, 240);
+                ctx.quadraticCurveTo(125, 115, 290, 120);
+                ctx.lineTo(645, 155);
+                ctx.moveTo(95, 240);
+                ctx.quadraticCurveTo(125, 365, 290, 360);
+                ctx.lineTo(645, 325);
+                ctx.stroke();
+
+                // Layer 1 (0-35 um): Surface Epidermal Scales & Neuromasts (Orange)
+                renderConfocalSlice(z, 18, pinOn, () => {
+                    ctx.strokeStyle = '#fb923c';
+                    ctx.lineWidth = 2.2;
+                    for (let sx = 395; sx <= 595; sx += 32) {
+                        for (let sy = 175; sy <= 295; sy += 30) {
+                            ctx.beginPath();
+                            ctx.arc(sx, sy, 16, -1.1, 1.1);
+                            ctx.stroke();
+                        }
+                    }
+                    ctx.fillStyle = '#f97316';
+                    [410, 475, 540, 605].forEach((nx, i) => {
+                        const pulse = Math.sin(t * 3 + i) * 1.8;
+                        ctx.beginPath(); ctx.arc(nx, 152, 7 + pulse, 0, Math.PI * 2); ctx.fill();
+                        ctx.beginPath(); ctx.arc(nx, 328, 7 + pulse, 0, Math.PI * 2); ctx.fill();
+                    });
+                });
+
+                // Layer 2 (40-80 um): Optic Tectum Brain Lobes & Cranial Nerves (Cyan)
+                renderConfocalSlice(z, 60, pinOn, () => {
+                    ctx.strokeStyle = '#22d3ee';
+                    ctx.fillStyle = 'rgba(6, 182, 212, 0.25)';
+                    ctx.lineWidth = 3.2;
+
+                    [-52, 52].forEach(oy => {
+                        ctx.beginPath();
+                        ctx.ellipse(310, 240 + oy, 64, 42, 0, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+
+                        for (let d = 0; d < 12; d++) {
+                            const a = (d / 12) * Math.PI * 2;
+                            ctx.beginPath();
+                            ctx.moveTo(310, 240 + oy);
+                            ctx.lineTo(310 + Math.cos(a) * 48, 240 + oy + Math.sin(a) * 30);
+                            ctx.stroke();
+                        }
+                    });
+
+                    // Optic & Spinal Nerve Tracts
+                    ctx.beginPath();
+                    ctx.moveTo(250, 218); ctx.quadraticCurveTo(190, 182, 148, 162);
+                    ctx.moveTo(250, 262); ctx.quadraticCurveTo(190, 298, 148, 318);
+                    ctx.moveTo(374, 228); ctx.lineTo(635, 228);
+                    ctx.moveTo(374, 252); ctx.lineTo(635, 252);
+                    ctx.stroke();
+                });
+
+                // Layer 3 (85-120 um): Deep Ventral Cranial Blood Vessels (Magenta)
+                renderConfocalSlice(z, 102, pinOn, () => {
+                    ctx.strokeStyle = '#e879f9';
+                    ctx.lineWidth = 4;
+                    ctx.beginPath();
+                    ctx.moveTo(165, 240);
+                    ctx.bezierCurveTo(245, 192, 315, 288, 405, 240);
+                    ctx.lineTo(630, 240);
+                    ctx.stroke();
+                });
+
+                const layerDesc = z < 38 ? 'Epidermal Scales' : (z < 82 ? 'Optic Brain Lobes' : 'Deep Blood Vessels');
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+                ctx.fillRect(14, 14, 385, 28);
+                ctx.fillStyle = pinOn ? '#22d3ee' : '#fda4af';
+                ctx.font = '700 13px monospace';
+                ctx.textAlign = 'left';
+                ctx.fillText(`Z-Depth: ${z} \u00B5m (${layerDesc})  |  Pinhole: ${pinOn ? 'ON' : 'OFF'}`, 24, 33);
+            }
+
+            function renderConfocalSlice(currentZ, targetZ, pinOn, drawFn) {
+                const dist = Math.abs(currentZ - targetZ);
+                ctx.save();
+                if (!pinOn) {
+                    ctx.filter = 'blur(8px)';
+                    ctx.globalAlpha = 0.6;
+                    drawFn();
+                } else if (dist < 32) {
+                    ctx.globalAlpha = 1 - dist / 32;
+                    ctx.shadowColor = '#38bdf8';
+                    ctx.shadowBlur = 12;
+                    drawFn();
+                }
+                ctx.restore();
+            }
+
+            // -----------------------------------------------------------------
+            // 6. ATOMIC FORCE MICROSCOPE (AFM: DNA Helix + Height Profile Graph)
+            // -----------------------------------------------------------------
+            function drawAfmProbe(W, H, t) {
+                ctx.fillStyle = '#090d16';
+                ctx.fillRect(0, 0, W, H);
+
+                const mapLeft = 36;
+                const mapW = W - 72;
+                const mapTop = 20;
+                const mapH = 250;
+
+                function sampleHeight(nx, ny) {
+                    const rx = nx * 0.85 + ny * 0.52;
+                    const ry = -nx * 0.52 + ny * 0.85;
+                    const helixWave = Math.sin(rx * 14) * 0.085;
+                    const distHelix = Math.abs(ry - helixWave);
+                    const dnaRidge = Math.exp(-(distHelix * distHelix) / 0.013);
+                    const basePairs = 0.78 + 0.22 * Math.sin(rx * 28);
+                    const distReceptor = Math.hypot(nx - 0.36, ny + 0.05);
+                    const receptorBump = 0.85 * Math.exp(-(distReceptor * distReceptor) / 0.019);
+                    return Math.min(1, dnaRidge * basePairs + receptorBump);
+                }
+
+                // False-color nanometer topography heatmap
+                const cols = 54;
+                const rows = 28;
+                const cellW = mapW / cols;
+                const cellH = mapH / rows;
+
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const nx = (c / cols) * 2 - 1;
+                        const ny = (r / rows) * 2 - 1;
+                        const hVal = sampleHeight(nx, ny);
+                        const red = Math.round(45 + hVal * 210);
+                        const grn = Math.round(18 + Math.pow(hVal, 1.3) * 195);
+                        const blu = Math.round(38 + Math.pow(hVal, 2.2) * 125);
+                        ctx.fillStyle = `rgb(${red}, ${grn}, ${blu})`;
+                        ctx.fillRect(mapLeft + c * cellW, mapTop + r * cellH, cellW + 0.7, cellH + 0.7);
+                    }
+                }
+
+                // Scan line & sharp V-shaped AFM cantilever tip
+                const scanY = mapTop + mapH * 0.48;
+                const ny = 0.48 * 2 - 1;
+                const normX = state.afmTipPos / 100;
+                const tipX = mapLeft + normX * mapW;
+                const currentHeight = sampleHeight(normX * 2 - 1, ny);
+
+                ctx.strokeStyle = 'rgba(56, 189, 248, 0.8)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([6, 4]);
+                ctx.beginPath();
+                ctx.moveTo(mapLeft, scanY);
+                ctx.lineTo(mapLeft + mapW, scanY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Sharp V-shaped Cantilever Probe deflecting over DNA ridges
+                const lift = currentHeight * 14;
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(tipX - 14, scanY - 32 - lift);
+                ctx.lineTo(tipX + 14, scanY - 32 - lift);
+                ctx.lineTo(tipX, scanY - lift);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // Lower Panel: Live Nanometer Height Profile Graph
+                const graphTop = 290;
+                const graphH = 140;
+                ctx.fillStyle = '#0f172a';
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 1.8;
+                ctx.fillRect(mapLeft, graphTop, mapW, graphH);
+                ctx.strokeRect(mapLeft, graphTop, mapW, graphH);
+
+                ctx.strokeStyle = '#facc15';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                for (let i = 0; i <= 90; i++) {
+                    const u = i / 90;
+                    const hv = sampleHeight(u * 2 - 1, ny);
+                    const gx = mapLeft + u * mapW;
+                    const gy = graphTop + graphH - 20 - hv * (graphH - 44);
+                    if (i === 0) ctx.moveTo(gx, gy);
+                    else ctx.lineTo(gx, gy);
+                }
+                ctx.stroke();
+
+                const markerY = graphTop + graphH - 20 - currentHeight * (graphH - 44);
+                ctx.fillStyle = '#38bdf8';
+                ctx.beginPath();
+                ctx.arc(tipX, markerY, 7, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.fillStyle = '#f8fafc';
+                ctx.font = '700 13px monospace';
+                ctx.textAlign = 'left';
+                ctx.fillText(`AFM Tactile Height: ${(currentHeight * 3.4).toFixed(2)} nm  (In Liquid Buffer)`, mapLeft + 12, graphTop + 21);
+            }
+
+            // -----------------------------------------------------------------
+            // 7. INVERTED MICROSCOPE (Bottom Dish Floor vs Upper Media)
+            // -----------------------------------------------------------------
+            function drawInvertedDish(W, H, t) {
+                const pct = state.invPlanePct; // 0% = Dish Floor, 100% = Upper Liquid Media
+                const floorBlur = (pct / 100) * 9.5;
+                const mediaBlur = ((100 - pct) / 100) * 8.5;
+
+                // Phase-contrast gray-blue illumination
+                ctx.fillStyle = '#64748b';
+                ctx.fillRect(0, 0, W, H);
+
+                // Synchronized beating cardiomyocyte contraction
+                const beat = Math.pow(Math.max(0, Math.sin(t * 5.0)), 6);
+                const scaleX = 1 - beat * 0.09;
+                const scaleY = 1 + beat * 0.045;
+
+                // Layer 1: Adherent Heart Muscle Cells on Glass Dish Bottom (0%)
+                ctx.save();
+                if (floorBlur > 0.3) ctx.filter = `blur(${floorBlur.toFixed(1)}px)`;
+                ctx.globalAlpha = Math.max(0.28, 1 - (pct / 100) * 0.65);
+
+                const cells = [
+                    { x: 245, y: 175, rx: 106, ry: 48, ang: 0.16 },
+                    { x: 470, y: 185, rx: 110, ry: 50, ang: -0.14 },
+                    { x: 265, y: 310, rx: 108, ry: 48, ang: -0.12 },
+                    { x: 485, y: 315, rx: 104, ry: 46, ang: 0.2 }
+                ];
+
+                cells.forEach(c => {
+                    ctx.save();
+                    ctx.translate(c.x, c.y);
+                    ctx.rotate(c.ang);
+                    ctx.scale(scaleX, scaleY);
+
+                    // Phase-contrast halo
+                    ctx.shadowColor = 'rgba(255, 255, 255, 0.92)';
+                    ctx.shadowBlur = 14;
+                    ctx.fillStyle = 'rgba(71, 85, 105, 0.88)';
+                    ctx.strokeStyle = '#f8fafc';
+                    ctx.lineWidth = 2.8;
+
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, c.rx, c.ry, 0, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                    ctx.shadowBlur = 0;
+
+                    // Sarcomere striations
+                    ctx.strokeStyle = 'rgba(30, 41, 59, 0.52)';
+                    ctx.lineWidth = 1.8;
+                    for (let sx = -c.rx * 0.68; sx <= c.rx * 0.68; sx += 12) {
+                        ctx.beginPath();
+                        ctx.moveTo(sx, -c.ry * 0.56);
+                        ctx.lineTo(sx, c.ry * 0.56);
+                        ctx.stroke();
+                    }
+
+                    // Cell nucleus
+                    ctx.fillStyle = '#1e293b';
+                    ctx.beginPath();
+                    ctx.ellipse(0, 0, 20, 12, 0, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.restore();
+                });
+                ctx.restore();
+
+                // Layer 2: Floating Unattached Debris in Upper Liquid Media (100%)
+                if (pct > 12) {
+                    ctx.save();
+                    if (mediaBlur > 0.3) ctx.filter = `blur(${mediaBlur.toFixed(1)}px)`;
+                    ctx.globalAlpha = Math.min(0.95, (pct - 12) / 55);
+
+                    const floaters = [
+                        [170, 130, 15], [360, 225, 17], [550, 155, 14],
+                        [310, 370, 16], [520, 345, 13], [215, 275, 12]
+                    ];
+                    floaters.forEach(([fx, fy, fr], i) => {
+                        const dx = fx + Math.sin(t * 0.8 + i) * 16;
+                        const dy = fy + Math.cos(t * 0.6 + i) * 12;
+                        ctx.fillStyle = 'rgba(226, 232, 240, 0.88)';
+                        ctx.strokeStyle = '#ffffff';
+                        ctx.lineWidth = 2.2;
+                        ctx.beginPath();
+                        ctx.arc(dx, dy, fr, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+                    });
+                    ctx.restore();
+                }
+
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+                ctx.fillRect(14, 14, 415, 28);
+                ctx.fillStyle = '#7dd3fc';
+                ctx.font = '700 13px monospace';
+                ctx.textAlign = 'left';
+                const status = pct < 20
+                    ? 'Bottom Objective: Sharp on Dish Floor (Adherent Cells)'
+                    : `Bottom Objective: Raised into Upper Media (${pct}%)`;
+                ctx.fillText(status, 24, 33);
+            }
+
+            // -----------------------------------------------------------------
+            // 8. RETINAL IMAGING MICROSCOPE (Fundus + Live OCT Cross-Section)
+            // -----------------------------------------------------------------
+            function drawRetinalFundusOct(W, H, t) {
+                ctx.fillStyle = '#090d16';
+                ctx.fillRect(0, 0, W, H);
+
+                const fundusCx = W / 2;
+                const fundusCy = 152;
+                const fundusR = 132;
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(fundusCx, fundusCy, fundusR, 0, Math.PI * 2);
+                ctx.clip();
+
+                // Warm oxygenated retinal fundus background
+                const fGrad = ctx.createRadialGradient(fundusCx, fundusCy, 18, fundusCx, fundusCy, fundusR);
+                fGrad.addColorStop(0, '#c2410c');
+                fGrad.addColorStop(0.65, '#9a3412');
+                fGrad.addColorStop(1, '#431407');
+                ctx.fillStyle = fGrad;
+                ctx.fillRect(0, 0, W, 300);
+
+                // Dark Macula & Fovea Centralis (Right of center)
+                const foveaX = 415;
+                ctx.fillStyle = 'rgba(67, 20, 7, 0.78)';
+                ctx.beginPath();
+                ctx.arc(foveaX, fundusCy, 24, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Bright Optic Disc / Blind Spot (Left of center)
+                const discX = 275;
+                ctx.fillStyle = '#fef08a';
+                ctx.beginPath();
+                ctx.ellipse(discX, fundusCy, 17, 25, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Branching Retinal Arteries & Veins radiating from Optic Disc
+                ctx.strokeStyle = '#7f1d1d';
+                ctx.lineWidth = 3.5;
+                const vessels = [
+                    [[discX, fundusCy], [335, 82], [470, 96]],
+                    [[discX, fundusCy], [335, 222], [480, 208]],
+                    [[discX, fundusCy], [210, 92]],
+                    [[discX, fundusCy], [205, 212]]
+                ];
+                vessels.forEach(v => {
+                    ctx.beginPath();
+                    ctx.moveTo(v[0][0], v[0][1]);
+                    ctx.quadraticCurveTo(v[1][0], v[1][1], v[2][0], v[2][1]);
+                    ctx.stroke();
+                });
+
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.92)';
+                ctx.font = '700 12px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('Optic Disc', discX, fundusCy + 42);
+                ctx.fillText('Fovea', foveaX, fundusCy + 42);
+
+                // Sweeping Vertical Green/Cyan OCT Laser Scan Beam
+                const scanX = (fundusCx - fundusR + 18) + (state.retinalScanPct / 100) * (fundusR * 2 - 36);
+                ctx.strokeStyle = '#22d3ee';
+                ctx.shadowColor = '#22d3ee';
+                ctx.shadowBlur = 10;
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(scanX, fundusCy - fundusR);
+                ctx.lineTo(scanX, fundusCy + fundusR);
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+
+                ctx.restore();
+
+                // Bottom Strip: Live OCT Retinal Layer Cross-Section
+                const octLeft = 36;
+                const octW = W - 72;
+                const octTop = 302;
+                const octH = 132;
+
+                ctx.fillStyle = '#0f172a';
+                ctx.strokeStyle = '#22d3ee';
+                ctx.lineWidth = 1.8;
+                ctx.fillRect(octLeft, octTop, octW, octH);
+                ctx.strokeRect(octLeft, octTop, octW, octH);
+
+                // Highlight how close the vertical OCT scan line is to the Fovea or Optic Disc
+                const distToFovea = Math.abs(scanX - foveaX);
+                const foveaPitFactor = Math.exp(-(distToFovea * distToFovea) / 900);
+
+                const distToDisc = Math.abs(scanX - discX);
+                const discCupFactor = Math.exp(-(distToDisc * distToDisc) / 900);
+
+                const layerColors = ['#38bdf8', '#4ade80', '#facc15', '#f43f5e'];
+                layerColors.forEach((col, idx) => {
+                    ctx.fillStyle = col;
+                    ctx.beginPath();
+                    const baseY = octTop + 30 + idx * 22;
+                    ctx.moveTo(octLeft, baseY);
+
+                    for (let px = 0; px <= octW; px += 8) {
+                        const xPos = octLeft + px;
+                        const dCenter = Math.abs(xPos - W / 2);
+                        const pitDip = (idx < 2 && dCenter < 65)
+                            ? Math.cos((dCenter / 65) * (Math.PI / 2)) * (24 * foveaPitFactor + 18 * discCupFactor)
+                            : 0;
+                        ctx.lineTo(xPos, baseY + pitDip);
+                    }
+
+                    ctx.lineTo(octLeft + octW, baseY + 15);
+                    ctx.lineTo(octLeft, baseY + 15);
+                    ctx.closePath();
+                    ctx.fill();
+                });
+
+                const regionLabel = foveaPitFactor > 0.45
+                    ? 'Scanning Foveal Pit'
+                    : (discCupFactor > 0.45 ? 'Scanning Optic Nerve Head' : 'Scanning Peripheral Retina');
+                ctx.fillStyle = '#f8fafc';
+                ctx.font = '700 12.5px monospace';
+                ctx.textAlign = 'left';
+                ctx.fillText(`LIVE OCT CROSS-SECTION  |  ${regionLabel}`, octLeft + 12, octTop + 19);
+            }
+
+            // =================================================================
+            // NAVIGATION EVENTS & ANIMATION LOOP
+            // =================================================================
+            scopeSelect.addEventListener('change', (e) => {
+                selectInstrument(e.target.value, true);
+            });
+
+            prevBtn.addEventListener('click', () => {
+                const idx = (SCOPES.findIndex(s => s.id === state.scopeId) - 1 + SCOPES.length) % SCOPES.length;
+                selectInstrument(SCOPES[idx].id, true);
+            });
+
+            nextBtn.addEventListener('click', () => {
+                const idx = (SCOPES.findIndex(s => s.id === state.scopeId) + 1) % SCOPES.length;
+                selectInstrument(SCOPES[idx].id, true);
+            });
+
+            function tick(timestamp) {
+                if (!lastTimestamp) lastTimestamp = timestamp;
+                const dt = Math.min((timestamp - lastTimestamp) / 1000, 0.1);
+                lastTimestamp = timestamp;
+
+                if (!state.paused) {
+                    elapsed += dt;
+                    renderScene();
+                }
+
+                window.requestAnimationFrame(tick);
+            }
+
+            // Initialize immediately on load
+            updateMotionButton();
+            selectInstrument('light', false);
+            window.requestAnimationFrame(tick);
+        })();
+    </script>
+</body>
+</html>
