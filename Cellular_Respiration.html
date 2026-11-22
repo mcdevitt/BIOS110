@@ -1,0 +1,2215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cellular Respiration: The Big Picture Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #FAF8F5;
+      color: #1C1917;
+    }
+    .font-serif-display {
+      font-family: 'Fraunces', Georgia, serif;
+    }
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    @keyframes flowDash {
+      to {
+        stroke-dashoffset: -24;
+      }
+    }
+    @keyframes pulseProton {
+      0%, 100% { transform: scale(1); opacity: 0.92; }
+      50% { transform: scale(1.2); opacity: 1; }
+    }
+    @keyframes spinRotor {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-flow {
+      stroke-dasharray: 6 6;
+      animation: flowDash 1.1s linear infinite;
+    }
+    .animate-flow-fast {
+      stroke-dasharray: 6 6;
+      animation: flowDash 0.45s linear infinite;
+    }
+    .proton-pulse {
+      animation: pulseProton 1.6s ease-in-out infinite;
+    }
+    .rotor-spin {
+      transform-origin: 735px 245px;
+      animation: spinRotor 2.4s linear infinite;
+    }
+    .rotor-spin-fast {
+      transform-origin: 735px 245px;
+      animation: spinRotor 1.05s linear infinite;
+    }
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F4F0E8;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D6CFC4;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#FAF8F5] text-stone-900 antialiased selection:bg-teal-100 selection:text-teal-900">
+
+  <!-- TOP HEADER & 3-TAB NAVIGATION -->
+  <header class="bg-white border-b border-[#E2DDD5] sticky top-0 z-30 shadow-2xs">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-[#0F766E] text-white flex items-center justify-center shadow-xs shrink-0">
+          <!-- Mitochondrion Icon SVG -->
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="6" width="20" height="12" rx="6" />
+            <path d="M5 12c1.5-2.5 3-2.5 4.5 0s3 2.5 4.5 0 3-2.5 4.5 0" stroke-linecap="round" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-serif-display text-lg sm:text-xl font-bold tracking-tight text-stone-900">
+              Cellular Respiration: <span class="text-[#0F766E]">The Big Picture Studio</span>
+            </h1>
+            <span class="hidden sm:inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#FAF8F5] text-stone-600 border border-[#E2DDD5]">
+              Interactive Diagram Lab
+            </span>
+          </div>
+          <p class="text-xs text-stone-500">Compartmentalization, Carbon &amp; e⁻ Flow, Perturbations, and Whole-Body Fuel Regulation</p>
+        </div>
+      </div>
+
+      <!-- 3 Cohesive Navigation Tabs -->
+      <nav class="flex flex-wrap bg-[#FAF8F5] p-1 rounded-xl border border-[#E2DDD5] self-start lg:self-auto gap-1" aria-label="Primary Views">
+        <button
+          id="tab-view1"
+          onclick="switchView('view1')"
+          class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-white text-[#0F766E] shadow-xs border border-[#E2DDD5] flex items-center gap-1.5"
+        >
+          <span class="w-2 h-2 rounded-full bg-[#0F766E]"></span>
+          1. Pathways &amp; Cell Map
+        </button>
+        <button
+          id="tab-view2"
+          onclick="switchView('view2')"
+          class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-stone-600 hover:text-stone-900 flex items-center gap-1.5"
+        >
+          <span class="w-2 h-2 rounded-full bg-[#4338CA]"></span>
+          2. Inner Membrane &amp; Perturbations
+        </button>
+        <button
+          id="tab-view3"
+          onclick="switchView('view3')"
+          class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-stone-600 hover:text-stone-900 flex items-center gap-1.5"
+        >
+          <span class="w-2 h-2 rounded-full bg-[#D97706]"></span>
+          3. Metabolism, Fuels &amp; Regulation
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-5 space-y-5">
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: PATHWAYS & CELL MAP                                          -->
+    <!-- =================================================================== -->
+    <section id="view1-container" class="space-y-5">
+
+      <!-- Control Ribbon: Oxygen Toggle + Diagram Matching Mode Toggle -->
+      <div class="bg-white rounded-2xl border border-[#E2DDD5] p-4 shadow-2xs flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        
+        <!-- Oxygen Availability Toggle -->
+        <div class="flex flex-wrap items-center gap-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-stone-500">Oxygen Condition:</span>
+          <div class="inline-flex rounded-xl bg-[#FAF8F5] p-1 border border-[#E2DDD5]">
+            <button
+              id="btn-o2-on"
+              onclick="setOxygenState(true)"
+              class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-[#0F766E] text-white shadow-2xs flex items-center gap-1.5"
+            >
+              <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+              O₂ Present (Aerobic Respiration)
+            </button>
+            <button
+              id="btn-o2-off"
+              onclick="setOxygenState(false)"
+              class="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-stone-600 hover:text-stone-900 flex items-center gap-1.5"
+            >
+              <span>O₂ Absent (Fermentation)</span>
+            </button>
+          </div>
+
+          <!-- Fermentation Organism Sub-toggle (visible only when O2 is absent) -->
+          <div id="fermentation-type-wrapper" class="hidden items-center gap-2 pl-1">
+            <span class="text-xs text-stone-400">→</span>
+            <div class="inline-flex rounded-xl bg-amber-50 p-1 border border-amber-200">
+              <button
+                id="btn-ferm-lactic"
+                onclick="setFermentationType('lactic')"
+                class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#D97706] text-white shadow-2xs"
+              >
+                Muscle (Lactic Acid)
+              </button>
+              <button
+                id="btn-ferm-alcohol"
+                onclick="setFermentationType('alcohol')"
+                class="px-2.5 py-1 rounded-lg text-xs font-semibold text-amber-900 hover:bg-amber-100"
+              >
+                Yeast (Alcohol)
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Diagram Matching Mode Toggle -->
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-stone-500">Diagram Mode:</span>
+          <div class="inline-flex rounded-xl bg-[#FAF8F5] p-1 border border-[#E2DDD5]">
+            <button
+              id="v1-mode-explore"
+              onclick="setView1Mode('explore')"
+              class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-[#0F766E] shadow-2xs border border-[#E2DDD5]"
+            >
+              Explore &amp; Step
+            </button>
+            <button
+              id="v1-mode-match"
+              onclick="setView1Mode('match')"
+              class="px-3 py-1.5 rounded-lg text-xs font-semibold text-stone-600 hover:text-stone-900 flex items-center gap-1.5"
+            >
+              <span>Practice Diagram Matching</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interactive Diagram Matching Tray (Visible only when v1Mode === 'match') -->
+      <div id="v1-match-tray" class="hidden bg-amber-50/90 rounded-2xl border border-amber-300 p-4 shadow-2xs space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-wider text-[#D97706]">Hands-On Diagram Labeling</span>
+            <h3 class="text-sm font-bold text-stone-900">1. Click a label chip below, then 2. Click its matching dashed target slot on the Cell &amp; Mitochondrion diagram!</h3>
+          </div>
+          <div class="flex items-center gap-2">
+            <span id="v1-match-score" class="mono text-xs font-bold px-2.5 py-1 rounded-full bg-white text-stone-800 border border-amber-300">0 / 6 Matched</span>
+            <button onclick="resetView1Match()" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-stone-100 text-stone-700 border border-stone-300">Reset</button>
+          </div>
+        </div>
+        <div id="v1-match-chips" class="flex flex-wrap gap-2">
+          <!-- Populated dynamically by JS -->
+        </div>
+      </div>
+
+      <!-- Pathway Stepper Buttons -->
+      <div id="v1-stepper-bar" class="bg-white rounded-2xl border border-[#E2DDD5] p-3 shadow-2xs">
+        <div class="flex items-center justify-between mb-2 px-1">
+          <span class="text-xs font-bold uppercase tracking-wider text-stone-500">Step Through Biochemical Stages</span>
+          <div class="flex items-center gap-2">
+            <button onclick="stepStage(-1)" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-[#FAF8F5] hover:bg-stone-200/70 text-stone-700 border border-[#E2DDD5] transition">← Prev</button>
+            <button onclick="stepStage(1)" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-teal-50 hover:bg-teal-100 text-[#0F766E] border border-teal-200 transition">Next →</button>
+          </div>
+        </div>
+        <div id="stage-buttons-grid" class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+          <!-- Populated dynamically by JS -->
+        </div>
+      </div>
+
+      <!-- Main Grid: Interactive Cell & Mitochondrion Diagram + Live Accounting Ledger -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- Left 8 Cols: Rich SVG Schematic -->
+        <div class="lg:col-span-8 bg-white rounded-2xl border border-[#E2DDD5] p-4 shadow-2xs flex flex-col justify-between">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div>
+              <h2 class="font-serif-display text-base font-bold text-stone-900">Cellular Compartments &amp; Pathway Cross-Section</h2>
+              <p id="v1-svg-subtitle" class="text-xs text-stone-500">Click any compartment or pathway station to inspect location, inputs, and outputs.</p>
+            </div>
+            <!-- Palette Legend -->
+            <div class="flex flex-wrap items-center gap-3 text-[11px] font-medium text-stone-600">
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#D97706]"></span>Cytoplasm / ATP</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#0F766E]"></span>Mitochondria</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#4338CA]"></span>NADH / FADH₂ (e⁻)</span>
+              <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#DC2626]"></span>CO₂ Waste</span>
+            </div>
+          </div>
+
+          <!-- Responsive SVG Schematic -->
+          <div class="w-full overflow-hidden rounded-xl border border-[#E2DDD5] bg-[#FAF8F5]">
+            <svg id="cell-map-svg" viewBox="0 0 880 465" class="w-full h-auto block select-none">
+              <defs>
+                <marker id="arrow-stone" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#44403C" />
+                </marker>
+                <marker id="arrow-indigo" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#4338CA" />
+                </marker>
+                <marker id="arrow-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#D97706" />
+                </marker>
+                <marker id="arrow-teal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#0F766E" />
+                </marker>
+              </defs>
+
+              <!-- EXTRACELLULAR SPACE (Far Left Strip) -->
+              <rect x="0" y="0" width="90" height="465" fill="#EDE9E0" />
+              <text x="45" y="28" text-anchor="middle" font-size="11" font-weight="700" fill="#57534E">BLOOD /</text>
+              <text x="45" y="42" text-anchor="middle" font-size="11" font-weight="700" fill="#57534E">OUTSIDE</text>
+
+              <!-- PLASMA MEMBRANE (x=90 to 106) -->
+              <rect x="90" y="0" width="16" height="465" fill="#78716C" />
+              <line x1="94" y1="0" x2="94" y2="465" stroke="#D6D3D1" stroke-width="2" stroke-dasharray="4 4" />
+              <line x1="102" y1="0" x2="102" y2="465" stroke="#D6D3D1" stroke-width="2" stroke-dasharray="4 4" />
+              <text x="98" y="445" text-anchor="middle" font-size="9" font-weight="700" fill="#ffffff" transform="rotate(-90 98 445)">PLASMA MEMBRANE</text>
+
+              <!-- COMPARTMENT 1: CYTOPLASM (x=106 to 372) -->
+              <rect x="106" y="0" width="266" height="465" fill="#FFFBEB" />
+              <text x="239" y="28" text-anchor="middle" font-size="11.5" font-weight="800" fill="#B45309" letter-spacing="0.04em">COMPARTMENT 1: CYTOPLASM</text>
+              <text x="239" y="42" text-anchor="middle" font-size="10" fill="#D97706">(Cytosol — Aqueous Fluid)</text>
+
+              <!-- STAGE 1: GLUCOSE UPTAKE -->
+              <g id="svg-stage-1" class="cursor-pointer" onclick="setStage(1)">
+                <rect x="81" y="114" width="34" height="32" rx="8" fill="#0F766E" stroke="#115E59" stroke-width="2" />
+                <text x="98" y="134" text-anchor="middle" font-size="8.5" font-weight="700" fill="#ffffff">GLUT4</text>
+
+                <rect x="14" y="116" width="54" height="28" rx="8" fill="#ffffff" stroke="#44403C" stroke-width="2" />
+                <text x="41" y="134" text-anchor="middle" font-size="10" font-weight="700" fill="#1C1917">Glucose</text>
+
+                <path d="M 69 130 L 135 130" stroke="#44403C" stroke-width="2.5" marker-end="url(#arrow-stone)" />
+                <text x="144" y="123" font-size="10" font-weight="700" fill="#1C1917">1. Glucose (6C) Enters</text>
+                <text x="144" y="137" font-size="9" fill="#57534E">Trapped by Hexokinase (Pᵢ)</text>
+              </g>
+
+              <!-- STAGE 2: GLYCOLYSIS BOX (Cytoplasm) -->
+              <g id="svg-stage-2" class="cursor-pointer" onclick="setStage(2)">
+                <rect id="box-stage-2" x="132" y="160" width="200" height="114" rx="14" fill="#ffffff" stroke="#D97706" stroke-width="2" />
+                <text x="232" y="181" text-anchor="middle" font-size="12" font-weight="800" fill="#B45309">2. GLYCOLYSIS</text>
+                <text x="232" y="195" text-anchor="middle" font-size="9.5" fill="#57534E">"Sugar Splitting" (10 enzymes)</text>
+                
+                <rect x="146" y="204" width="172" height="26" rx="6" fill="#FAF8F5" stroke="#E2DDD5" stroke-width="1" />
+                <text x="232" y="221" text-anchor="middle" font-size="10" font-weight="700" fill="#1C1917">6C Glucose → 2 × Pyruvate (3C)</text>
+
+                <!-- Net Yield Badges -->
+                <rect x="146" y="238" width="84" height="24" rx="6" fill="#FEF3C7" stroke="#D97706" stroke-width="1" />
+                <text x="188" y="253" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">+2 ATP (SLP)</text>
+
+                <rect x="236" y="238" width="82" height="24" rx="6" fill="#EEF2FF" stroke="#4338CA" stroke-width="1" />
+                <text x="277" y="253" text-anchor="middle" font-size="9.5" font-weight="700" fill="#3730A3">+2 NADH (e⁻)</text>
+              </g>
+
+              <!-- FERMENTATION FORK (Bottom of Cytoplasm) -->
+              <g id="svg-fermentation-group" opacity="0.3">
+                <path d="M 215 276 L 215 330" stroke="#D97706" stroke-width="2.5" marker-end="url(#arrow-amber)" />
+                <rect x="126" y="335" width="214" height="106" rx="14" fill="#FFFFFF" stroke="#D97706" stroke-width="2" />
+                <text id="ferm-svg-title" x="233" y="355" text-anchor="middle" font-size="10.5" font-weight="800" fill="#B45309">FERMENTATION (No O₂)</text>
+                <text id="ferm-svg-product" x="233" y="372" text-anchor="middle" font-size="10" font-weight="600" fill="#1C1917">2 Pyruvate → 2 Lactate (3C)</text>
+                <text id="ferm-svg-co2" x="233" y="387" text-anchor="middle" font-size="9" fill="#57534E">0 CO₂ released • Reversible in liver</text>
+                <!-- NAD+ Recycling Loop -->
+                <path d="M 142 365 C 112 335, 112 260, 142 238" fill="none" stroke="#4338CA" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#arrow-indigo)" />
+                <rect x="140" y="399" width="186" height="28" rx="6" fill="#EEF2FF" stroke="#4338CA" stroke-width="1" />
+                <text x="233" y="411" text-anchor="middle" font-size="9" font-weight="700" fill="#3730A3">Oxidizes NADH → NAD⁺</text>
+                <text x="233" y="422" text-anchor="middle" font-size="8.5" fill="#4338CA">So Glycolysis keeps making 2 ATP!</text>
+              </g>
+
+              <!-- =========================================================== -->
+              <!-- MITOCHONDRION (Right Side: x=372 to 870)                    -->
+              <!-- =========================================================== -->
+              <!-- Outer Membrane & Intermembrane Space -->
+              <rect x="372" y="16" width="498" height="433" rx="44" fill="#FEF3C7" stroke="#B45309" stroke-width="4" />
+              <text x="621" y="36" text-anchor="middle" font-size="10.5" font-weight="800" fill="#92400E" letter-spacing="0.03em">
+                OUTER MEMBRANE &amp; COMPARTMENT 2: INTERMEMBRANE SPACE (High H⁺ Reservoir)
+              </text>
+
+              <!-- Inner Membrane (Cristae folds) -->
+              <rect x="388" y="52" width="466" height="366" rx="34" fill="#F0FDFA" stroke="#0F766E" stroke-width="4" />
+              <text x="621" y="73" text-anchor="middle" font-size="10.5" font-weight="800" fill="#0F766E" letter-spacing="0.04em">
+                COMPARTMENT 3: MITOCHONDRIAL MATRIX (Enzymes, mtDNA, Ribosomes)
+              </text>
+
+              <!-- Pyruvate Transport Arrow across both membranes -->
+              <path d="M 334 210 L 418 210" stroke="#44403C" stroke-width="2.5" marker-end="url(#arrow-stone)" />
+              <rect x="342" y="186" width="66" height="18" rx="5" fill="#ffffff" stroke="#78716C" stroke-width="1" />
+              <text x="375" y="198" text-anchor="middle" font-size="8.5" font-weight="700" fill="#1C1917">2 Pyruvate</text>
+
+              <!-- STAGE 3: PYRUVATE OXIDATION -->
+              <g id="svg-stage-3" class="cursor-pointer" onclick="setStage(3)">
+                <rect id="box-stage-3" x="422" y="128" width="168" height="130" rx="14" fill="#ffffff" stroke="#0F766E" stroke-width="2" />
+                <text x="506" y="148" text-anchor="middle" font-size="11" font-weight="800" fill="#0F766E">3. PYRUVATE OXIDATION</text>
+                <text x="506" y="162" text-anchor="middle" font-size="9.5" fill="#57534E">Grooming Step (Matrix)</text>
+                <rect x="434" y="170" width="144" height="24" rx="6" fill="#FAF8F5" stroke="#E2DDD5" stroke-width="1" />
+                <text x="506" y="185" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1C1917">2 × 3C → 2 × Acetyl-CoA (2C)</text>
+
+                <!-- Outputs -->
+                <rect x="434" y="201" width="68" height="22" rx="6" fill="#FEE2E2" stroke="#DC2626" stroke-width="1" />
+                <text x="468" y="215" text-anchor="middle" font-size="9" font-weight="700" fill="#B91C1C">2 CO₂ Out</text>
+
+                <rect x="508" y="201" width="70" height="22" rx="6" fill="#EEF2FF" stroke="#4338CA" stroke-width="1" />
+                <text x="543" y="215" text-anchor="middle" font-size="9" font-weight="700" fill="#3730A3">+2 NADH</text>
+
+                <text x="506" y="244" text-anchor="middle" font-size="8.5" font-weight="600" fill="#78716C">0 ATP made directly here</text>
+              </g>
+
+              <!-- Arrow Stage 3 -> Stage 4 -->
+              <path d="M 506 260 L 506 282" stroke="#44403C" stroke-width="2.5" marker-end="url(#arrow-stone)" />
+
+              <!-- STAGE 4: KREBS / CITRIC ACID CYCLE -->
+              <g id="svg-stage-4" class="cursor-pointer" onclick="setStage(4)">
+                <rect id="box-stage-4" x="415" y="285" width="212" height="114" rx="14" fill="#ffffff" stroke="#0F766E" stroke-width="2" />
+                <text x="521" y="305" text-anchor="middle" font-size="11" font-weight="800" fill="#0F766E">4. KREBS (CITRIC ACID) CYCLE</text>
+                <text x="521" y="318" text-anchor="middle" font-size="9" fill="#57534E">2 Turns per Glucose (Matrix)</text>
+
+                <rect x="427" y="326" width="90" height="22" rx="6" fill="#FEE2E2" stroke="#DC2626" stroke-width="1" />
+                <text x="472" y="340" text-anchor="middle" font-size="9" font-weight="700" fill="#B91C1C">4 CO₂ Exhaled</text>
+
+                <rect x="523" y="326" width="92" height="22" rx="6" fill="#FEF3C7" stroke="#D97706" stroke-width="1" />
+                <text x="569" y="340" text-anchor="middle" font-size="9" font-weight="700" fill="#92400E">+2 ATP (SLP)</text>
+
+                <rect x="427" y="355" width="188" height="28" rx="6" fill="#EEF2FF" stroke="#4338CA" stroke-width="1" />
+                <text x="521" y="368" text-anchor="middle" font-size="9.5" font-weight="700" fill="#3730A3">+6 NADH &amp; +2 FADH₂</text>
+                <text x="521" y="379" text-anchor="middle" font-size="8" fill="#4338CA">Loaded high-energy e⁻ carriers</text>
+              </g>
+
+              <!-- Electron Carrier Highways (NADH / FADH2 to Stage 5) -->
+              <path d="M 320 250 C 370 105, 575 96, 652 140" fill="none" stroke="#4338CA" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrow-indigo)" />
+              <path d="M 578 212 L 645 198" fill="none" stroke="#4338CA" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrow-indigo)" />
+              <path d="M 616 368 L 650 322" fill="none" stroke="#4338CA" stroke-width="2" stroke-dasharray="5 4" marker-end="url(#arrow-indigo)" />
+
+              <!-- STAGE 5: OXIDATIVE PHOSPHORYLATION (Inner Membrane / Cristae) -->
+              <g id="svg-stage-5" class="cursor-pointer" onclick="setStage(5)">
+                <rect id="box-stage-5" x="650" y="106" width="192" height="292" rx="16" fill="#ffffff" stroke="#4338CA" stroke-width="2.5" />
+                <text x="746" y="127" text-anchor="middle" font-size="11" font-weight="800" fill="#3730A3">5. OXIDATIVE PHOS.</text>
+                <text x="746" y="140" text-anchor="middle" font-size="9" font-weight="700" fill="#0F766E">Inner Membrane (Cristae)</text>
+
+                <!-- Sub-box A: ETC -->
+                <rect x="662" y="150" width="168" height="104" rx="10" fill="#EEF2FF" stroke="#818CF8" stroke-width="1.5" />
+                <text x="746" y="166" text-anchor="middle" font-size="10" font-weight="800" fill="#312E81">A. Electron Transport Chain</text>
+                <text x="746" y="180" text-anchor="middle" font-size="9" fill="#3730A3">10 NADH + 2 FADH₂ drop e⁻</text>
+                <text x="746" y="194" text-anchor="middle" font-size="9" font-weight="700" fill="#0F766E">Pumps H⁺ → Intermembrane Space</text>
+                <rect x="672" y="204" width="148" height="38" rx="6" fill="#ffffff" stroke="#4338CA" stroke-width="1" />
+                <text x="746" y="219" text-anchor="middle" font-size="9" font-weight="700" fill="#1C1917">Final e⁻ Acceptor: ½ O₂</text>
+                <text x="746" y="233" text-anchor="middle" font-size="9" font-weight="800" fill="#0F766E">½ O₂ + 2e⁻ + 2H⁺ → H₂O</text>
+
+                <!-- Proton Gradient Arrow -->
+                <path d="M 746 256 L 746 278" stroke="#D97706" stroke-width="2.5" marker-end="url(#arrow-amber)" />
+                <text x="792" y="271" font-size="8.5" font-weight="700" fill="#B45309">H⁺ Gradient</text>
+
+                <!-- Sub-box B: Chemiosmosis & ATP Synthase -->
+                <rect x="662" y="280" width="168" height="106" rx="10" fill="#FFFBEB" stroke="#D97706" stroke-width="1.5" />
+                <text x="746" y="297" text-anchor="middle" font-size="10" font-weight="800" fill="#92400E">B. Chemiosmosis</text>
+                <text x="746" y="311" text-anchor="middle" font-size="9" fill="#78350F">H⁺ flows via ATP Synthase</text>
+                <rect x="672" y="320" width="148" height="30" rx="6" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5" />
+                <text x="746" y="339" text-anchor="middle" font-size="10.5" font-weight="800" fill="#92400E">~30–32 ATP Made!</text>
+                <text x="746" y="370" text-anchor="middle" font-size="8.5" font-weight="600" fill="#57534E">~90% of cellular ATP</text>
+              </g>
+
+              <!-- =========================================================== -->
+              <!-- INTERACTIVE DIAGRAM MATCHING OVERLAY SLOTS (TAB 1)          -->
+              <!-- =========================================================== -->
+              <g id="v1-match-slots-layer" class="hidden">
+                <!-- Slot 1: Glycolysis -->
+                <g class="cursor-pointer" onclick="handleView1SlotClick('glycolysis')">
+                  <rect id="v1-slot-rect-glycolysis" x="132" y="160" width="200" height="114" rx="14" fill="#FFFBEB" stroke="#D97706" stroke-width="3" stroke-dasharray="6 4" />
+                  <text id="v1-slot-text-glycolysis" x="232" y="221" text-anchor="middle" font-size="11" font-weight="800" fill="#B45309">[ ? ] Drop Stage in Cytoplasm</text>
+                </g>
+                <!-- Slot 2: Fermentation -->
+                <g class="cursor-pointer" onclick="handleView1SlotClick('fermentation')">
+                  <rect id="v1-slot-rect-fermentation" x="126" y="335" width="214" height="106" rx="14" fill="#FFFBEB" stroke="#D97706" stroke-width="3" stroke-dasharray="6 4" />
+                  <text id="v1-slot-text-fermentation" x="233" y="392" text-anchor="middle" font-size="11" font-weight="800" fill="#B45309">[ ? ] Drop Anaerobic NAD⁺ Loop</text>
+                </g>
+                <!-- Slot 3: Pyruvate Oxidation -->
+                <g class="cursor-pointer" onclick="handleView1SlotClick('pyruvate_ox')">
+                  <rect id="v1-slot-rect-pyruvate_ox" x="422" y="128" width="168" height="130" rx="14" fill="#F0FDFA" stroke="#0F766E" stroke-width="3" stroke-dasharray="6 4" />
+                  <text id="v1-slot-text-pyruvate_ox" x="506" y="196" text-anchor="middle" font-size="10.5" font-weight="800" fill="#0F766E">[ ? ] Drop 3C → 2C Step</text>
+                </g>
+                <!-- Slot 4: Krebs Cycle -->
+                <g class="cursor-pointer" onclick="handleView1SlotClick('krebs')">
+                  <rect id="v1-slot-rect-krebs" x="415" y="285" width="212" height="114" rx="14" fill="#F0FDFA" stroke="#0F766E" stroke-width="3" stroke-dasharray="6 4" />
+                  <text id="v1-slot-text-krebs" x="521" y="346" text-anchor="middle" font-size="10.5" font-weight="800" fill="#0F766E">[ ? ] Drop Matrix Cycle (4 CO₂)</text>
+                </g>
+                <!-- Slot 5: Oxidative Phosphorylation -->
+                <g class="cursor-pointer" onclick="handleView1SlotClick('ox_phos')">
+                  <rect id="v1-slot-rect-ox_phos" x="650" y="106" width="192" height="292" rx="16" fill="#EEF2FF" stroke="#4338CA" stroke-width="3" stroke-dasharray="6 4" />
+                  <text id="v1-slot-text-ox_phos" x="746" y="255" text-anchor="middle" font-size="11" font-weight="800" fill="#3730A3">[ ? ] Drop Cristae ATP Stage</text>
+                </g>
+                <!-- Slot 6: Intermembrane Space H+ -->
+                <g class="cursor-pointer" onclick="handleView1SlotClick('ims')">
+                  <rect id="v1-slot-rect-ims" x="415" y="18" width="415" height="26" rx="8" fill="#FEF3C7" stroke="#B45309" stroke-width="2.5" stroke-dasharray="5 3" />
+                  <text id="v1-slot-text-ims" x="622" y="35" text-anchor="middle" font-size="10.5" font-weight="800" fill="#92400E">[ ? ] Drop High-[H⁺] Compartment Label</text>
+                </g>
+              </g>
+
+            </svg>
+          </div>
+
+          <!-- Selected Stage Spotlight Card -->
+          <div id="stage-detail-card" class="mt-3 rounded-xl bg-[#FAF8F5] border border-[#E2DDD5] p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2">
+                <span id="detail-badge" class="px-2 py-0.5 rounded-md text-xs font-bold bg-teal-100 text-[#0F766E]">Stage 1 of 5</span>
+                <h3 id="detail-title" class="text-sm font-bold text-stone-900">1. Glucose Uptake (GLUT4 &amp; Insulin)</h3>
+              </div>
+              <p id="detail-desc" class="text-xs text-stone-600 mt-1 leading-relaxed">
+                Insulin binds its receptor, triggering GLUT4 channels to insert into the plasma membrane so glucose enters the cytoplasm. Hexokinase immediately phosphorylates glucose (trapping it inside the cell).
+              </p>
+            </div>
+            <div class="shrink-0 bg-white border border-[#E2DDD5] rounded-lg px-3 py-2 text-right">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-stone-400">Location</div>
+              <div id="detail-location" class="text-xs font-bold text-[#0F766E]">Plasma Membrane → Cytoplasm</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 4 Cols: Live Carbon & Electron Accounting Ledger -->
+        <div class="lg:col-span-4 space-y-4">
+          
+          <!-- Card 1: Where are the 6 Carbons? -->
+          <div class="bg-white rounded-2xl border border-[#E2DDD5] p-4 shadow-2xs">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-stone-700 flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-stone-800"></span>
+                Carbon Accounting (6C Tracker)
+              </h3>
+              <span id="carbon-status-pill" class="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-[#FAF8F5] text-stone-700 border border-[#E2DDD5]">6C Intact</span>
+            </div>
+
+            <!-- Visual 6-Carbon Dots Visualizer -->
+            <div class="bg-[#FAF8F5] rounded-xl p-3 border border-[#E2DDD5] space-y-2.5">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-stone-500 font-medium">Organic Fuel Skeleton:</span>
+                <span id="carbon-organic-label" class="font-bold text-stone-800 mono">1 × Glucose (6C)</span>
+              </div>
+              <div id="carbon-dots-organic" class="flex items-center gap-1.5 flex-wrap">
+                <!-- Rendered by JS -->
+              </div>
+
+              <div class="border-t border-[#E2DDD5] pt-2 flex items-center justify-between text-xs">
+                <span class="text-[#DC2626] font-medium">Released as CO₂ Gas:</span>
+                <span id="carbon-co2-label" class="font-bold text-[#DC2626] mono">0 CO₂</span>
+              </div>
+              <div id="carbon-dots-co2" class="flex items-center gap-1.5 flex-wrap min-h-[24px]">
+                <!-- Rendered by JS -->
+              </div>
+            </div>
+
+            <p class="text-xs text-stone-600 mt-2.5 leading-relaxed">
+              Every carbon atom exhaled as <strong class="text-stone-900">CO₂</strong> comes directly from breaking covalent bonds in glucose during Pyruvate Oxidation (2 CO₂) and the Krebs Cycle (4 CO₂)—never from the O₂ breathed in!
+            </p>
+          </div>
+
+          <!-- Card 2: Electron Carriers & Energy Transformation -->
+          <div class="bg-white rounded-2xl border border-[#E2DDD5] p-4 shadow-2xs">
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-[#4338CA] flex items-center gap-1.5">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#4338CA]"></span>
+                Electron &amp; ATP Ledger
+              </h3>
+              <span id="atp-total-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-300 mono">
+                0 Net ATP
+              </span>
+            </div>
+
+            <!-- Electron Carriers Grid -->
+            <div class="grid grid-cols-2 gap-2.5 mb-3">
+              <div class="rounded-xl bg-indigo-50/70 border border-indigo-200 p-2.5">
+                <div class="text-[11px] font-semibold text-indigo-950">NADH Pool (High-E e⁻)</div>
+                <div class="flex items-baseline justify-between mt-1">
+                  <span id="ledger-nadh" class="text-lg font-bold text-[#4338CA] mono">0</span>
+                  <span class="text-[10px] text-indigo-700">Max: 10 / glucose</span>
+                </div>
+                <div class="w-full bg-indigo-200/70 h-1.5 rounded-full mt-1.5 overflow-hidden">
+                  <div id="bar-nadh" class="bg-[#4338CA] h-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+              </div>
+
+              <div class="rounded-xl bg-teal-50/70 border border-teal-200 p-2.5">
+                <div class="text-[11px] font-semibold text-teal-950">FADH₂ Pool (High-E e⁻)</div>
+                <div class="flex items-baseline justify-between mt-1">
+                  <span id="ledger-fadh2" class="text-lg font-bold text-[#0F766E] mono">0</span>
+                  <span class="text-[10px] text-teal-700">Max: 2 / glucose</span>
+                </div>
+                <div class="w-full bg-teal-200/70 h-1.5 rounded-full mt-1.5 overflow-hidden">
+                  <div id="bar-fadh2" class="bg-[#0F766E] h-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ATP Breakdown Bars -->
+            <div class="space-y-2 bg-[#FAF8F5] rounded-xl p-3 border border-[#E2DDD5] text-xs">
+              <div class="flex justify-between items-center">
+                <span class="text-stone-600">Substrate-Level Phos. (Direct):</span>
+                <span id="ledger-slp-atp" class="font-bold text-stone-900 mono">0 ATP</span>
+              </div>
+              <div class="flex justify-between items-center">
+                <span class="text-stone-600">Oxidative Phos. (Chemiosmosis):</span>
+                <span id="ledger-ox-atp" class="font-bold text-[#D97706] mono">0 ATP</span>
+              </div>
+              <div class="border-t border-[#E2DDD5] pt-2 flex justify-between items-center">
+                <span class="font-semibold text-stone-800">Thermodynamic Capture:</span>
+                <span class="text-[11px] font-bold text-[#0F766E]">~39% ATP | ~60% Heat</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3: Quick Study Guide Synthesis Note -->
+          <div class="bg-teal-50/80 rounded-2xl border border-teal-200 p-4">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-[#0F766E] mb-1">
+              Big Picture Takeaway: Phosphorylation Modes
+            </h4>
+            <p class="text-xs text-teal-950/85 leading-relaxed">
+              <strong>Substrate-Level Phosphorylation</strong> (4 net ATP in Glycolysis + Krebs) uses an enzyme to transfer Pᵢ directly from a substrate to ADP. <strong>Oxidative Phosphorylation</strong> (~30–32 ATP) uses the ETC proton gradient to spin ATP Synthase.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: INNER MEMBRANE & PERTURBATIONS                               -->
+    <!-- =================================================================== -->
+    <section id="view2-container" class="hidden space-y-5">
+
+      <!-- Top Control Strip: Perturbation Scenarios + Diagram Labeling Mode Toggle -->
+      <div class="bg-white rounded-2xl border border-[#E2DDD5] p-4 shadow-2xs space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-[#DC2626]">Experimental Perturbation Simulator</span>
+            <h2 class="font-serif-display text-base font-bold text-stone-900">Select an Inhibitor or Membrane Disruption ("What If?" Lab)</h2>
+          </div>
+
+          <!-- Diagram Mode Toggle for Tab 2 -->
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-stone-500">ETC Mode:</span>
+            <div class="inline-flex rounded-xl bg-[#FAF8F5] p-1 border border-[#E2DDD5]">
+              <button
+                id="v2-mode-explore"
+                onclick="setView2Mode('explore')"
+                class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-[#0F766E] shadow-2xs border border-[#E2DDD5]"
+              >
+                Perturbation Lab
+              </button>
+              <button
+                id="v2-mode-match"
+                onclick="setView2Mode('match')"
+                class="px-3 py-1.5 rounded-lg text-xs font-semibold text-stone-600 hover:text-stone-900"
+              >
+                Label the ETC Diagram
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 Perturbation Buttons -->
+        <div id="v2-pert-buttons" class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+          <button
+            id="pert-control"
+            onclick="setPerturbation('control')"
+            class="p-2.5 rounded-xl border text-left transition-all bg-teal-50 border-[#0F766E] ring-1 ring-[#0F766E]"
+          >
+            <div class="text-xs font-bold text-teal-950">Control</div>
+            <div class="text-[10px] text-[#0F766E] mt-0.5">Normal Aerobic Cell</div>
+          </button>
+
+          <button
+            id="pert-dnp"
+            onclick="setPerturbation('dnp')"
+            class="p-2.5 rounded-xl border border-[#E2DDD5] bg-white hover:bg-[#FAF8F5] text-left transition-all"
+          >
+            <div class="text-xs font-bold text-stone-900">DNP</div>
+            <div class="text-[10px] text-stone-500 mt-0.5">Proton Leak / Uncoupler</div>
+          </button>
+
+          <button
+            id="pert-cyanide"
+            onclick="setPerturbation('cyanide')"
+            class="p-2.5 rounded-xl border border-[#E2DDD5] bg-white hover:bg-[#FAF8F5] text-left transition-all"
+          >
+            <div class="text-xs font-bold text-stone-900">Guthion / Cyanide</div>
+            <div class="text-[10px] text-stone-500 mt-0.5">Complex IV Blocker</div>
+          </button>
+
+          <button
+            id="pert-malonate"
+            onclick="setPerturbation('malonate')"
+            class="p-2.5 rounded-xl border border-[#E2DDD5] bg-white hover:bg-[#FAF8F5] text-left transition-all"
+          >
+            <div class="text-xs font-bold text-stone-900">Malonate</div>
+            <div class="text-[10px] text-stone-500 mt-0.5">Complex II Inhibitor</div>
+          </button>
+
+          <button
+            id="pert-perforins"
+            onclick="setPerturbation('perforins')"
+            class="p-2.5 rounded-xl border border-[#E2DDD5] bg-white hover:bg-[#FAF8F5] text-left transition-all"
+          >
+            <div class="text-xs font-bold text-stone-900">Perforins</div>
+            <div class="text-[10px] text-stone-500 mt-0.5">Membrane Pores</div>
+          </button>
+        </div>
+
+        <!-- Interactive Diagram Matching Tray for ETC (Visible only when v2Mode === 'match') -->
+        <div id="v2-match-tray" class="hidden bg-indigo-50/90 rounded-xl border border-indigo-200 p-3.5 space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-wider text-[#4338CA]">ETC &amp; Chemiosmosis Diagram Matching</span>
+              <p class="text-xs font-semibold text-stone-800">Select a component chip below, then click its target slot on the Inner Membrane diagram:</p>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="v2-match-score" class="mono text-xs font-bold px-2.5 py-1 rounded-full bg-white text-indigo-900 border border-indigo-200">0 / 6 Matched</span>
+              <button onclick="resetView2Match()" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-white hover:bg-stone-100 text-stone-700 border border-stone-300">Reset</button>
+            </div>
+          </div>
+          <div id="v2-match-chips" class="flex flex-wrap gap-2">
+            <!-- Populated dynamically by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Inner Membrane Interactive SVG + Live Telemetry Gauges -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        <!-- Interactive Inner Membrane & ATP Synthase Diagram (8 Cols) -->
+        <div class="lg:col-span-8 bg-white rounded-2xl border border-[#E2DDD5] p-4 shadow-2xs">
+          <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div>
+              <h3 class="font-serif-display text-base font-bold text-stone-900">Inner Mitochondrial Membrane: ETC &amp; ATP Synthase</h3>
+              <p class="text-xs text-stone-500">Electron transport pumps H⁺ into the Intermembrane Space to power Chemiosmosis.</p>
+            </div>
+            <span id="membrane-status-tag" class="px-2.5 py-1 rounded-full text-xs font-bold bg-teal-100 text-[#0F766E]">
+              Intact Chemiosmotic Coupling
+            </span>
+          </div>
+
+          <div class="w-full overflow-hidden rounded-xl border border-[#E2DDD5] bg-[#FAF8F5]">
+            <svg id="etc-svg" viewBox="0 0 860 400" class="w-full h-auto block select-none">
+              <defs>
+                <marker id="etc-arrow-indigo" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#4338CA" />
+                </marker>
+                <marker id="etc-arrow-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#D97706" />
+                </marker>
+                <marker id="etc-arrow-coral" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#DC2626" />
+                </marker>
+              </defs>
+
+              <!-- TOP COMPARTMENT: INTERMEMBRANE SPACE (High H+, Low pH) -->
+              <rect x="0" y="0" width="860" height="145" fill="#FEF3C7" />
+              <text x="20" y="26" font-size="11.5" font-weight="800" fill="#92400E" letter-spacing="0.04em">
+                INTERMEMBRANE SPACE (Proton Reservoir: High [H⁺], Low pH)
+              </text>
+
+              <!-- Proton Ions in Intermembrane Space -->
+              <g id="ims-protons-group">
+                <g class="proton-pulse"><circle cx="130" cy="65" r="13" fill="#D97706" /><text x="130" y="69" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">H⁺</text></g>
+                <g class="proton-pulse"><circle cx="220" cy="95" r="13" fill="#D97706" /><text x="220" y="99" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">H⁺</text></g>
+                <g class="proton-pulse"><circle cx="330" cy="58" r="13" fill="#D97706" /><text x="330" y="62" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">H⁺</text></g>
+                <g class="proton-pulse"><circle cx="430" cy="88" r="13" fill="#D97706" /><text x="430" y="92" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">H⁺</text></g>
+                <g class="proton-pulse"><circle cx="540" cy="62" r="13" fill="#D97706" /><text x="540" y="66" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">H⁺</text></g>
+                <g class="proton-pulse"><circle cx="640" cy="92" r="13" fill="#D97706" /><text x="640" y="96" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">H⁺</text></g>
+                <g class="proton-pulse"><circle cx="735" cy="64" r="13" fill="#D97706" /><text x="735" y="68" text-anchor="middle" font-size="10" font-weight="800" fill="#fff">H⁺</text></g>
+              </g>
+
+              <!-- MIDDLE LAYER: INNER MITOCHONDRIAL MEMBRANE -->
+              <rect x="0" y="145" width="860" height="95" fill="#E7E5E4" />
+              <line x1="0" y1="145" x2="860" y2="145" stroke="#78716C" stroke-width="3" />
+              <line x1="0" y1="240" x2="860" y2="240" stroke="#78716C" stroke-width="3" />
+              <text x="16" y="196" font-size="10" font-weight="700" fill="#57534E">INNER MEMBRANE</text>
+
+              <!-- BOTTOM COMPARTMENT: MITOCHONDRIAL MATRIX -->
+              <rect x="0" y="240" width="860" height="160" fill="#F0FDFA" />
+              <text x="20" y="384" font-size="11.5" font-weight="800" fill="#0F766E" letter-spacing="0.04em">
+                MITOCHONDRIAL MATRIX (Low [H⁺], High pH — Krebs Cycle &amp; ATP Synthesis)
+              </text>
+
+              <!-- COMPLEX I (NADH Dehydrogenase) -->
+              <g id="complex-1">
+                <rect x="115" y="130" width="68" height="125" rx="16" fill="#4338CA" stroke="#312E81" stroke-width="2" />
+                <text x="149" y="188" text-anchor="middle" font-size="12" font-weight="800" fill="#ffffff">Complex</text>
+                <text x="149" y="204" text-anchor="middle" font-size="13" font-weight="800" fill="#ffffff">I</text>
+                <!-- NADH input -->
+                <text x="110" y="285" text-anchor="middle" font-size="11" font-weight="700" fill="#3730A3">NADH</text>
+                <text x="188" y="285" text-anchor="middle" font-size="11" font-weight="700" fill="#4338CA">NAD⁺ + H⁺</text>
+                <path d="M 115 270 Q 149 245 180 270" fill="none" stroke="#4338CA" stroke-width="2.5" marker-end="url(#etc-arrow-indigo)" />
+                <!-- H+ Pump I -->
+                <path id="pump-c1" d="M 149 262 L 149 112" stroke="#D97706" stroke-width="3" class="animate-flow" marker-end="url(#etc-arrow-amber)" />
+              </g>
+
+              <!-- COMPLEX II (Succinate Dehydrogenase - Krebs Enzyme!) -->
+              <g id="complex-2">
+                <rect x="225" y="168" width="64" height="86" rx="14" fill="#0F766E" stroke="#115E59" stroke-width="2" />
+                <text x="257" y="206" text-anchor="middle" font-size="11" font-weight="800" fill="#ffffff">Complex</text>
+                <text x="257" y="222" text-anchor="middle" font-size="12" font-weight="800" fill="#ffffff">II</text>
+                <text x="257" y="236" text-anchor="middle" font-size="8" font-weight="600" fill="#CCFBF1">(No H⁺ pump)</text>
+                <!-- FADH2 input -->
+                <text x="222" y="285" text-anchor="middle" font-size="11" font-weight="700" fill="#0F766E">FADH₂</text>
+                <text x="292" y="285" text-anchor="middle" font-size="11" font-weight="700" fill="#115E59">FAD</text>
+                <path d="M 228 270 Q 257 248 286 270" fill="none" stroke="#0F766E" stroke-width="2.5" marker-end="url(#etc-arrow-indigo)" />
+              </g>
+
+              <!-- UBIQUINONE (Q) -->
+              <g id="carrier-q">
+                <circle cx="332" cy="192" r="18" fill="#4338CA" stroke="#312E81" stroke-width="2" />
+                <text x="332" y="197" text-anchor="middle" font-size="12" font-weight="800" fill="#ffffff">Q</text>
+              </g>
+
+              <!-- COMPLEX III -->
+              <g id="complex-3">
+                <rect x="382" y="130" width="68" height="125" rx="16" fill="#4338CA" stroke="#312E81" stroke-width="2" />
+                <text x="416" y="188" text-anchor="middle" font-size="12" font-weight="800" fill="#ffffff">Complex</text>
+                <text x="416" y="204" text-anchor="middle" font-size="13" font-weight="800" fill="#ffffff">III</text>
+                <!-- H+ Pump III -->
+                <path id="pump-c3" d="M 416 262 L 416 112" stroke="#D97706" stroke-width="3" class="animate-flow" marker-end="url(#etc-arrow-amber)" />
+              </g>
+
+              <!-- CYTOCHROME C (Cyt c) -->
+              <g id="carrier-cytc">
+                <circle cx="485" cy="152" r="17" fill="#0F766E" stroke="#115E59" stroke-width="2" />
+                <text x="485" y="156" text-anchor="middle" font-size="10" font-weight="800" fill="#ffffff">Cyt c</text>
+              </g>
+
+              <!-- COMPLEX IV (Cytochrome c Oxidase) -->
+              <g id="complex-4">
+                <rect x="525" y="130" width="72" height="125" rx="16" fill="#4338CA" stroke="#312E81" stroke-width="2" />
+                <text x="561" y="188" text-anchor="middle" font-size="12" font-weight="800" fill="#ffffff">Complex</text>
+                <text x="561" y="204" text-anchor="middle" font-size="13" font-weight="800" fill="#ffffff">IV</text>
+                <!-- H+ Pump IV -->
+                <path id="pump-c4" d="M 561 262 L 561 112" stroke="#D97706" stroke-width="3" class="animate-flow" marker-end="url(#etc-arrow-amber)" />
+
+                <!-- O2 -> H2O Reaction -->
+                <text x="522" y="290" text-anchor="middle" font-size="11" font-weight="800" fill="#3730A3">½ O₂ + 2H⁺</text>
+                <path d="M 538 274 Q 561 250 588 274" fill="none" stroke="#0F766E" stroke-width="2.5" marker-end="url(#etc-arrow-indigo)" />
+                <text x="604" y="290" text-anchor="middle" font-size="11" font-weight="800" fill="#0F766E">H₂O</text>
+              </g>
+
+              <!-- ELECTRON FLOW LINES THROUGH ETC -->
+              <path id="e-flow-1-q" d="M 183 192 L 312 192" stroke="#818CF8" stroke-width="3.5" class="animate-flow" />
+              <path id="e-flow-2-q" d="M 289 204 L 314 198" stroke="#2DD4BF" stroke-width="3" class="animate-flow" />
+              <path id="e-flow-q-3" d="M 350 192 L 380 192" stroke="#818CF8" stroke-width="3.5" class="animate-flow" />
+              <path id="e-flow-3-4" d="M 450 175 L 523 175" stroke="#818CF8" stroke-width="3.5" class="animate-flow" />
+
+              <!-- DNP / PERFORIN MEMBRANE LEAK CHANNELS (Hidden in Control) -->
+              <g id="leak-channel-group" class="hidden">
+                <rect x="630" y="140" width="32" height="105" rx="8" fill="#FEE2E2" stroke="#DC2626" stroke-width="2.5" stroke-dasharray="4 2" />
+                <text id="leak-label" x="646" y="196" text-anchor="middle" font-size="9" font-weight="800" fill="#B91C1C" transform="rotate(-90 646 196)">DNP LEAK</text>
+                <path d="M 646 115 L 646 268" stroke="#DC2626" stroke-width="3" class="animate-flow-fast" marker-end="url(#etc-arrow-coral)" />
+                <text x="646" y="286" text-anchor="middle" font-size="9.5" font-weight="800" fill="#B91C1C">H⁺ Leak (Heat!)</text>
+              </g>
+
+              <!-- ATP SYNTHASE (Chemiosmotic Turbine) -->
+              <g id="atp-synthase-group">
+                <rect x="717" y="132" width="36" height="90" rx="8" fill="#D97706" stroke="#78350F" stroke-width="2" />
+                <circle id="atp-rotor" cx="735" cy="245" r="32" fill="#D97706" stroke="#78350F" stroke-width="2.5" class="rotor-spin" />
+                <text x="735" y="242" text-anchor="middle" font-size="9.5" font-weight="800" fill="#ffffff">ATP</text>
+                <text x="735" y="254" text-anchor="middle" font-size="8.5" font-weight="700" fill="#FEF3C7">Synthase</text>
+
+                <!-- H+ Downhill Flow through ATP Synthase -->
+                <path d="M 735 105 L 735 208" stroke="#FDE047" stroke-width="3.5" class="animate-flow" marker-end="url(#etc-arrow-amber)" />
+
+                <!-- ADP + Pi -> ATP -->
+                <text x="692" y="315" text-anchor="middle" font-size="11" font-weight="700" fill="#57534E">ADP + Pᵢ</text>
+                <path d="M 716 300 Q 735 280 760 300" fill="none" stroke="#D97706" stroke-width="2.5" marker-end="url(#etc-arrow-amber)" />
+                <rect x="762" y="298" width="54" height="24" rx="7" fill="#FEF3C7" stroke="#D97706" stroke-width="2" />
+                <text x="789" y="314" text-anchor="middle" font-size="11" font-weight="800" fill="#92400E">ATP</text>
+              </g>
+
+              <!-- INHIBITOR STOP MARKERS -->
+              <g id="inhibitor-badge" class="hidden">
+                <circle id="inhibitor-circle" cx="561" cy="192" r="24" fill="#DC2626" stroke="#ffffff" stroke-width="3" />
+                <text id="inhibitor-text" x="561" y="196" text-anchor="middle" font-size="10" font-weight="800" fill="#ffffff">BLOCK</text>
+              </g>
+
+              <!-- =========================================================== -->
+              <!-- INTERACTIVE DIAGRAM MATCHING OVERLAY SLOTS (TAB 2)          -->
+              <!-- =========================================================== -->
+              <g id="v2-match-slots-layer" class="hidden">
+                <!-- Slot 1: Complex I (NADH) -->
+                <g class="cursor-pointer" onclick="handleView2SlotClick('c1')">
+                  <rect id="v2-slot-rect-c1" x="106" y="128" width="86" height="130" rx="14" fill="#EEF2FF" stroke="#4338CA" stroke-width="3" stroke-dasharray="6 4" />
+                  <text id="v2-slot-text-c1" x="149" y="196" text-anchor="middle" font-size="10" font-weight="800" fill="#3730A3">[ ? ] NADH Entry</text>
+                </g>
+                <!-- Slot 2: Complex II (FADH2) -->
+                <g class="cursor-pointer" onclick="handleView2SlotClick('c2')">
+                  <rect id="v2-slot-rect-c2" x="218" y="164" width="78" height="92" rx="14" fill="#F0FDFA" stroke="#0F766E" stroke-width="3" stroke-dasharray="6 4" />
+                  <text id="v2-slot-text-c2" x="257" y="214" text-anchor="middle" font-size="10" font-weight="800" fill="#0F766E">[ ? ] FADH₂</text>
+                </g>
+                <!-- Slot 3: Complex IV (O2 -> H2O) -->
+                <g class="cursor-pointer" onclick="handleView2SlotClick('c4')">
+                  <rect id="v2-slot-rect-c4" x="515" y="128" width="92" height="168" rx="14" fill="#EEF2FF" stroke="#4338CA" stroke-width="3" stroke-dasharray="6 4" />
+                  <text id="v2-slot-text-c4" x="561" y="214" text-anchor="middle" font-size="10" font-weight="800" fill="#3730A3">[ ? ] O₂ → H₂O</text>
+                </g>
+                <!-- Slot 4: Proton Gradient Reservoir -->
+                <g class="cursor-pointer" onclick="handleView2SlotClick('gradient')">
+                  <rect id="v2-slot-rect-gradient" x="190" y="42" width="460" height="58" rx="12" fill="#FEF3C7" stroke="#D97706" stroke-width="3" stroke-dasharray="6 4" />
+                  <text id="v2-slot-text-gradient" x="420" y="75" text-anchor="middle" font-size="11" font-weight="800" fill="#92400E">[ ? ] Drop High-[H⁺] Electrochemical Gradient</text>
+                </g>
+                <!-- Slot 5: ATP Synthase -->
+                <g class="cursor-pointer" onclick="handleView2SlotClick('atp_synthase')">
+                  <rect id="v2-slot-rect-atp_synthase" x="688" y="128" width="108" height="196" rx="16" fill="#FFFBEB" stroke="#D97706" stroke-width="3" stroke-dasharray="6 4" />
+                  <text id="v2-slot-text-atp_synthase" x="742" y="230" text-anchor="middle" font-size="10.5" font-weight="800" fill="#92400E">[ ? ] H⁺ Turbine</text>
+                </g>
+                <!-- Slot 6: Matrix -->
+                <g class="cursor-pointer" onclick="handleView2SlotClick('matrix')">
+                  <rect id="v2-slot-rect-matrix" x="210" y="334" width="380" height="44" rx="10" fill="#F0FDFA" stroke="#0F766E" stroke-width="2.5" stroke-dasharray="6 4" />
+                  <text id="v2-slot-text-matrix" x="400" y="360" text-anchor="middle" font-size="10.5" font-weight="800" fill="#0F766E">[ ? ] Drop Low-[H⁺] Compartment Name</text>
+                </g>
+              </g>
+
+            </svg>
+          </div>
+        </div>
+
+        <!-- Right 4 Cols: Quantitative Telemetry Gauges & Mechanistic Analysis -->
+        <div class="lg:col-span-4 space-y-4">
+          
+          <!-- Live Telemetry Gauges -->
+          <div class="bg-white rounded-2xl border border-[#E2DDD5] p-4 shadow-2xs space-y-3.5">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-stone-700">Live Mitochondrial Telemetry</h3>
+
+            <!-- Gauge 1: O2 Consumption -->
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span class="text-stone-700">O₂ Consumption (Terminal e⁻ Flow)</span>
+                <span id="val-o2" class="mono text-[#0F766E] font-bold">100% (Normal)</span>
+              </div>
+              <div class="w-full h-2.5 bg-[#FAF8F5] rounded-full overflow-hidden border border-[#E2DDD5]">
+                <div id="gauge-o2" class="h-full bg-[#0F766E] transition-all duration-300" style="width: 100%"></div>
+              </div>
+            </div>
+
+            <!-- Gauge 2: NADH Oxidation -->
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span class="text-stone-700">NADH → NAD⁺ Oxidation Rate</span>
+                <span id="val-nadh-ox" class="mono text-[#4338CA] font-bold">100% (Active)</span>
+              </div>
+              <div class="w-full h-2.5 bg-[#FAF8F5] rounded-full overflow-hidden border border-[#E2DDD5]">
+                <div id="gauge-nadh-ox" class="h-full bg-[#4338CA] transition-all duration-300" style="width: 100%"></div>
+              </div>
+            </div>
+
+            <!-- Gauge 3: H+ Proton Gradient -->
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span class="text-stone-700">H⁺ Electrochemical Gradient (ΔpH)</span>
+                <span id="val-gradient" class="mono text-[#D97706] font-bold">High (Steep)</span>
+              </div>
+              <div class="w-full h-2.5 bg-[#FAF8F5] rounded-full overflow-hidden border border-[#E2DDD5]">
+                <div id="gauge-gradient" class="h-full bg-[#D97706] transition-all duration-300" style="width: 100%"></div>
+              </div>
+            </div>
+
+            <!-- Gauge 4: ATP Synthesis -->
+            <div>
+              <div class="flex justify-between text-xs font-semibold mb-1">
+                <span class="text-stone-700">Chemiosmotic ATP Synthesis</span>
+                <span id="val-atp" class="mono text-[#0F766E] font-bold">~30 ATP / Glucose</span>
+              </div>
+              <div class="w-full h-2.5 bg-[#FAF8F5] rounded-full overflow-hidden border border-[#E2DDD5]">
+                <div id="gauge-atp" class="h-full bg-[#0F766E] transition-all duration-300" style="width: 100%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mechanistic Explanation Box -->
+          <div class="bg-stone-900 text-stone-100 rounded-2xl p-4 shadow-2xs space-y-2 border border-stone-800">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-amber-400">Mechanistic Diagnosis</span>
+              <span id="pert-heat-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-stone-800 text-stone-300 border border-stone-700">Heat: Baseline</span>
+            </div>
+            <h4 id="pert-title" class="font-serif-display text-sm font-bold text-white">Control: Coupled Oxidative Phosphorylation</h4>
+            <p id="pert-mechanism" class="text-xs text-stone-300 leading-relaxed">
+              Electrons from NADH (Complex I) and FADH₂ (Complex II) travel down the ETC to O₂, pumping H⁺ into the intermembrane space. Because the inner membrane is impermeable to ions, H⁺ can only return to the matrix through ATP Synthase, coupling electron transport directly to ATP production.
+            </p>
+            <div class="pt-2 border-t border-stone-800 text-[11px] text-teal-300 font-medium" id="pert-exam-tip">
+              Key Takeaway: Electron transport and ATP synthesis are separate processes linked solely by the H⁺ gradient!
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 3: METABOLISM, FUELS & REGULATION                               -->
+    <!-- =================================================================== -->
+    <section id="view3-container" class="hidden space-y-6">
+
+      <!-- SECTION 3A: ALL ROADS LEAD TO THE KREBS CYCLE + BETA-OXIDATION & DEAMINATION -->
+      <div class="bg-white rounded-2xl border border-[#E2DDD5] p-5 shadow-2xs space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-[#E2DDD5] pb-3">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-[#0F766E]">Metabolic Flexibility</span>
+            <h2 class="font-serif-display text-lg font-bold text-stone-900">All Roads Lead to the Krebs Cycle: Macromolecule Entry</h2>
+            <p class="text-xs text-stone-500">Explore how Carbohydrates, Fats (Beta-Oxidation), and Proteins (Deamination) converge on central respiration.</p>
+          </div>
+
+          <!-- Fuel Focus Selector -->
+          <div class="inline-flex rounded-xl bg-[#FAF8F5] p-1 border border-[#E2DDD5]">
+            <button id="v3-fuel-all" onclick="setV3Fuel('all')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-[#0F766E] shadow-2xs border border-[#E2DDD5]">All 3 Fuels</button>
+            <button id="v3-fuel-fat" onclick="setV3Fuel('fat')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-stone-600 hover:text-stone-900">Fats (β-Oxidation)</button>
+            <button id="v3-fuel-protein" onclick="setV3Fuel('protein')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-stone-600 hover:text-stone-900">Proteins (Deamination)</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+          
+          <!-- Left 7 Cols: Custom SVG Convergence Diagram -->
+          <div class="lg:col-span-7 rounded-xl border border-[#E2DDD5] bg-[#FAF8F5] overflow-hidden">
+            <svg viewBox="0 0 680 350" class="w-full h-auto block select-none">
+              <defs>
+                <marker id="v3-arrow-stone" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#44403C" />
+                </marker>
+                <marker id="v3-arrow-amber" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#D97706" />
+                </marker>
+                <marker id="v3-arrow-teal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#0F766E" />
+                </marker>
+                <marker id="v3-arrow-coral" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#DC2626" />
+                </marker>
+              </defs>
+
+              <!-- TOP ROW: 3 MACROMOLECULE COLUMNS -->
+              <!-- Column 1: CARBOHYDRATES -->
+              <g id="v3-svg-carb">
+                <rect x="24" y="16" width="180" height="44" rx="10" fill="#FEF3C7" stroke="#D97706" stroke-width="2" />
+                <text x="114" y="35" text-anchor="middle" font-size="11" font-weight="800" fill="#92400E">CARBOHYDRATES</text>
+                <text x="114" y="49" text-anchor="middle" font-size="9.5" fill="#B45309">Starch, Glycogen → Sugars</text>
+                <path d="M 114 60 L 114 88" stroke="#D97706" stroke-width="2" marker-end="url(#v3-arrow-amber)" />
+                <rect x="44" y="92" width="140" height="28" rx="8" fill="#FFFFFF" stroke="#D97706" stroke-width="1.5" />
+                <text x="114" y="110" text-anchor="middle" font-size="10" font-weight="700" fill="#1C1917">Glucose (6C)</text>
+                <path d="M 114 120 L 114 152" stroke="#D97706" stroke-width="2" marker-end="url(#v3-arrow-amber)" />
+              </g>
+
+              <!-- Column 2: FATS (TRIGLYCERIDES) -->
+              <g id="v3-svg-fat">
+                <rect x="246" y="16" width="188" height="44" rx="10" fill="#F0FDFA" stroke="#0F766E" stroke-width="2" />
+                <text x="340" y="35" text-anchor="middle" font-size="11" font-weight="800" fill="#0F766E">FATS (TRIGLYCERIDES)</text>
+                <text x="340" y="49" text-anchor="middle" font-size="9.5" fill="#115E59">Glycerol + 3 Fatty Acid Chains</text>
+
+                <!-- Glycerol branch to Glycolysis -->
+                <path d="M 285 60 L 210 154" stroke="#0F766E" stroke-width="2" stroke-dasharray="4 3" marker-end="url(#v3-arrow-teal)" />
+                <rect x="198" y="88" width="76" height="22" rx="6" fill="#FFFFFF" stroke="#0F766E" stroke-width="1" />
+                <text x="236" y="102" text-anchor="middle" font-size="9" font-weight="700" fill="#0F766E">Glycerol (3C)</text>
+
+                <!-- Fatty Acids -> Beta-Oxidation -> Acetyl-CoA -->
+                <path d="M 365 60 L 365 110" stroke="#0F766E" stroke-width="2.5" marker-end="url(#v3-arrow-teal)" />
+                <rect x="292" y="114" width="146" height="36" rx="8" fill="#CCFBF1" stroke="#0F766E" stroke-width="1.5" />
+                <text x="365" y="130" text-anchor="middle" font-size="10" font-weight="800" fill="#115E59">Beta-Oxidation</text>
+                <text x="365" y="143" text-anchor="middle" font-size="8.5" fill="#0F766E">Slices chains into 2C chunks</text>
+                <path d="M 365 150 L 352 218" stroke="#0F766E" stroke-width="2.5" marker-end="url(#v3-arrow-teal)" />
+              </g>
+
+              <!-- Column 3: PROTEINS -->
+              <g id="v3-svg-protein">
+                <rect x="476" y="16" width="180" height="44" rx="10" fill="#EEF2FF" stroke="#4338CA" stroke-width="2" />
+                <text x="566" y="35" text-anchor="middle" font-size="11" font-weight="800" fill="#312E81">PROTEINS</text>
+                <text x="566" y="49" text-anchor="middle" font-size="9.5" fill="#4338CA">Polypeptides → Amino Acids</text>
+
+                <path d="M 566 60 L 566 94" stroke="#4338CA" stroke-width="2" marker-end="url(#v3-arrow-stone)" />
+                <rect x="492" y="98" width="148" height="36" rx="8" fill="#FFFFFF" stroke="#4338CA" stroke-width="1.5" />
+                <text x="566" y="114" text-anchor="middle" font-size="10" font-weight="800" fill="#312E81">Deamination</text>
+                <text x="566" y="127" text-anchor="middle" font-size="8.5" fill="#4338CA">Strips -NH₂ group off C-skeleton</text>
+
+                <!-- NH3 Waste Exit -->
+                <path d="M 615 134 L 642 162" stroke="#DC2626" stroke-width="2" marker-end="url(#v3-arrow-coral)" />
+                <rect x="595" y="164" width="74" height="22" rx="6" fill="#FEE2E2" stroke="#DC2626" stroke-width="1" />
+                <text x="632" y="178" text-anchor="middle" font-size="8.5" font-weight="800" fill="#B91C1C">NH₃ → Urea</text>
+
+                <!-- Carbon skeletons entering at Pyruvate, Acetyl-CoA, Krebs -->
+                <path d="M 525 134 L 245 206" stroke="#4338CA" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#v3-arrow-stone)" />
+                <path d="M 545 134 L 395 224" stroke="#4338CA" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#v3-arrow-stone)" />
+                <path d="M 566 134 L 442 292" stroke="#4338CA" stroke-width="1.8" stroke-dasharray="4 3" marker-end="url(#v3-arrow-stone)" />
+              </g>
+
+              <!-- CENTRAL CONVERGENCE SPINE -->
+              <!-- Glycolysis Node -->
+              <rect x="54" y="156" width="176" height="32" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="2" />
+              <text x="142" y="176" text-anchor="middle" font-size="10.5" font-weight="800" fill="#92400E">Glycolysis (Cytoplasm)</text>
+              <path d="M 142 188 L 142 212" stroke="#44403C" stroke-width="2" marker-end="url(#v3-arrow-stone)" />
+
+              <!-- Pyruvate Node -->
+              <rect x="74" y="215" width="165" height="28" rx="8" fill="#FFFFFF" stroke="#44403C" stroke-width="1.5" />
+              <text x="156" y="233" text-anchor="middle" font-size="10" font-weight="700" fill="#1C1917">Pyruvate (3C)</text>
+              <path d="M 240 229 L 278 229" stroke="#44403C" stroke-width="2" marker-end="url(#v3-arrow-stone)" />
+
+              <!-- Acetyl-CoA Hub -->
+              <rect x="282" y="213" width="136" height="34" rx="10" fill="#0F766E" stroke="#115E59" stroke-width="2" />
+              <text x="350" y="234" text-anchor="middle" font-size="11" font-weight="800" fill="#FFFFFF">Acetyl-CoA (2C)</text>
+              <path d="M 350 247 L 350 274" stroke="#0F766E" stroke-width="2.5" marker-end="url(#v3-arrow-teal)" />
+
+              <!-- Citric Acid Cycle Hub -->
+              <rect x="255" y="278" width="190" height="54" rx="14" fill="#F0FDFA" stroke="#0F766E" stroke-width="2.5" />
+              <text x="350" y="301" text-anchor="middle" font-size="11.5" font-weight="800" fill="#0F766E">KREBS / CITRIC ACID CYCLE</text>
+              <text x="350" y="317" text-anchor="middle" font-size="9.5" font-weight="600" fill="#115E59">→ NADH + FADH₂ → Oxidative Phos. (ATP)</text>
+            </svg>
+          </div>
+
+          <!-- Right 5 Cols: Interactive Beta-Oxidation Slicer & Deamination Lab -->
+          <div class="lg:col-span-5 space-y-4">
+            
+            <!-- Interactive Beta-Oxidation Chain Slicer -->
+            <div class="bg-[#FAF8F5] rounded-xl border border-[#E2DDD5] p-4 space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-[#0F766E]">Interactive Beta-Oxidation Slicer</span>
+                <span class="text-[11px] font-semibold px-2 py-0.5 rounded bg-teal-100 text-[#0F766E]">Mitochondrial Matrix</span>
+              </div>
+              <p class="text-xs text-stone-600">
+                Adjust a fatty acid's carbon length and chain count (1 free fatty acid vs. 3 chains in a triglyceride) to see how many 2-carbon <strong>Acetyl-CoA</strong> units are sliced off:
+              </p>
+
+              <!-- Chain Length & Count Controls -->
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[11px] font-bold text-stone-700 mb-1">Carbons per Chain:</label>
+                  <select id="fa-carbons-select" onchange="updateBetaOxidation()" class="w-full rounded-lg border border-[#E2DDD5] bg-white px-2.5 py-1.5 text-xs font-semibold text-stone-800">
+                    <option value="8">8 Carbons (Caprylic)</option>
+                    <option value="12">12 Carbons (Lauric)</option>
+                    <option value="16" selected>16 Carbons (Palmitic)</option>
+                    <option value="18">18 Carbons (Stearic)</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[11px] font-bold text-stone-700 mb-1">Number of Chains:</label>
+                  <select id="fa-chains-select" onchange="updateBetaOxidation()" class="w-full rounded-lg border border-[#E2DDD5] bg-white px-2.5 py-1.5 text-xs font-semibold text-stone-800">
+                    <option value="1">1 Fatty Acid Chain</option>
+                    <option value="3" selected>3 Chains (1 Triglyceride)</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Visual 2C Sliced Chunks -->
+              <div class="bg-white rounded-lg border border-[#E2DDD5] p-2.5 space-y-2">
+                <div class="flex justify-between text-xs">
+                  <span class="text-stone-500">Total Carbons Sliced:</span>
+                  <span id="beta-total-c" class="mono font-bold text-stone-900">48 Carbons</span>
+                </div>
+                <div id="beta-chunks-visual" class="flex flex-wrap gap-1">
+                  <!-- Populated by JS -->
+                </div>
+                <div class="border-t border-[#E2DDD5] pt-2 flex justify-between items-center text-xs">
+                  <span class="font-semibold text-[#0F766E]">Acetyl-CoA (2C) Yield:</span>
+                  <span id="beta-acetyl-yield" class="mono font-bold text-[#0F766E]">24 × Acetyl-CoA (~300+ ATP!)</span>
+                </div>
+              </div>
+              <p class="text-[11px] text-stone-500 italic">
+                Compare: 1 Glucose (6C) yields only <strong>2 Acetyl-CoA</strong> (~32 ATP). A single 16C triglyceride yields <strong>24 Acetyl-CoA</strong>—explaining why fats store >2× more energy per gram!
+              </p>
+            </div>
+
+            <!-- Protein Deamination Callout -->
+            <div class="bg-indigo-50/70 rounded-xl border border-indigo-200 p-3.5 space-y-1.5">
+              <div class="flex items-center justify-between">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-[#312E81]">Protein Catabolism: Deamination</h4>
+                <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-white text-[#4338CA] border border-indigo-200">Endurance / Starvation</span>
+              </div>
+              <p class="text-xs text-stone-700 leading-relaxed">
+                Amino acids are normally saved for building proteins, but during prolonged fasting or endurance exercise, enzymes strip off their nitrogen-containing amino group (<strong>-NH₂ → NH₃ → excreted as Urea</strong>). The remaining carbon skeletons enter at Pyruvate, Acetyl-CoA, or Krebs intermediates.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3B: GLUCOSE ENTRY (INSULIN/GLUT4), PFK ALLOSTERIC CONTROL & PHOSPHOCREATINE -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+        <!-- PANEL 1: INSULIN & GLUT4 VESICLE TRANSLOCATION -->
+        <div class="bg-white rounded-2xl border border-[#E2DDD5] p-4 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-[#0F766E]">Hormonal Gatekeeping</span>
+              <div class="inline-flex rounded-lg bg-[#FAF8F5] p-0.5 border border-[#E2DDD5]">
+                <button id="btn-ins-off" onclick="setInsulinState(false)" class="px-2 py-1 rounded-md text-[11px] font-semibold bg-white text-stone-800 shadow-2xs border border-[#E2DDD5]">Insulin Absent</button>
+                <button id="btn-ins-on" onclick="setInsulinState(true)" class="px-2 py-1 rounded-md text-[11px] font-semibold text-stone-600 hover:text-stone-900">Insulin Present</button>
+              </div>
+            </div>
+            <h3 class="font-serif-display text-base font-bold text-stone-900">Insulin &amp; GLUT4 Translocation</h3>
+          </div>
+
+          <!-- Interactive SVG of Plasma Membrane, Insulin Receptor & GLUT4 Vesicle -->
+          <div class="rounded-xl border border-[#E2DDD5] bg-[#FAF8F5] overflow-hidden">
+            <svg viewBox="0 0 340 215" class="w-full h-auto block select-none">
+              <!-- Bloodstream (Top) -->
+              <rect x="0" y="0" width="340" height="72" fill="#FEE2E2" opacity="0.55" />
+              <text x="12" y="18" font-size="9.5" font-weight="800" fill="#991B1B">BLOODSTREAM (Extracellular)</text>
+
+              <!-- Plasma Membrane -->
+              <rect x="0" y="72" width="340" height="18" fill="#78716C" />
+              <text x="170" y="84" text-anchor="middle" font-size="8.5" font-weight="700" fill="#FFFFFF">PLASMA MEMBRANE (Hydrophobic Core)</text>
+
+              <!-- Cytoplasm (Bottom) -->
+              <rect x="0" y="90" width="340" height="125" fill="#FFFBEB" />
+              <text x="12" y="204" font-size="9.5" font-weight="800" fill="#B45309">CYTOPLASM (Muscle / Fat Cell)</text>
+
+              <!-- Insulin Receptor -->
+              <rect x="52" y="62" width="28" height="38" rx="6" fill="#4338CA" stroke="#312E81" stroke-width="1.5" />
+              <text x="66" y="84" text-anchor="middle" font-size="8" font-weight="700" fill="#FFFFFF">InsR</text>
+
+              <!-- Insulin Ligand (Shown when active) -->
+              <g id="ins-ligand-group" class="hidden">
+                <circle cx="66" cy="48" r="11" fill="#0F766E" stroke="#115E59" stroke-width="1.5" />
+                <text x="66" y="51" text-anchor="middle" font-size="7.5" font-weight="800" fill="#FFFFFF">Insulin</text>
+                <!-- Signaling cascade arrow -->
+                <path d="M 66 104 L 66 142 L 155 142" fill="none" stroke="#0F766E" stroke-width="2" stroke-dasharray="4 3" />
+                <text x="110" y="136" text-anchor="middle" font-size="8.5" font-weight="700" fill="#0F766E">Signal Cascade</text>
+              </g>
+
+              <!-- GLUT4 Storage Vesicle (Visible when Insulin Absent) -->
+              <g id="glut4-vesicle-group">
+                <circle cx="215" cy="148" r="32" fill="#FFFFFF" stroke="#0F766E" stroke-width="2" stroke-dasharray="4 3" />
+                <rect x="201" y="112" width="28" height="14" rx="4" fill="#0F766E" />
+                <rect x="201" y="170" width="28" height="14" rx="4" fill="#0F766E" />
+                <text x="215" y="151" text-anchor="middle" font-size="8.5" font-weight="800" fill="#0F766E">GLUT4 Vesicle</text>
+              </g>
+
+              <!-- GLUT4 Inserted in Membrane (Visible when Insulin Present) -->
+              <g id="glut4-membrane-group" class="hidden">
+                <rect x="195" y="66" width="40" height="30" rx="6" fill="#0F766E" stroke="#115E59" stroke-width="2" />
+                <text x="215" y="84" text-anchor="middle" font-size="8.5" font-weight="800" fill="#FFFFFF">GLUT4</text>
+                <!-- Glucose flowing through -->
+                <path d="M 215 36 L 215 135" stroke="#D97706" stroke-width="3" class="animate-flow" />
+                <rect x="190" y="140" width="50" height="22" rx="6" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5" />
+                <text x="215" y="154" text-anchor="middle" font-size="8.5" font-weight="800" fill="#92400E">G6P Trapped</text>
+              </g>
+
+              <!-- Blood Glucose Molecules -->
+              <g id="blood-glucose-nodes">
+                <rect x="135" y="28" width="44" height="20" rx="6" fill="#FFFFFF" stroke="#44403C" stroke-width="1.5" />
+                <text x="157" y="41" text-anchor="middle" font-size="8.5" font-weight="700" fill="#1C1917">Glucose</text>
+                <rect x="252" y="34" width="44" height="20" rx="6" fill="#FFFFFF" stroke="#44403C" stroke-width="1.5" />
+                <text x="274" y="47" text-anchor="middle" font-size="8.5" font-weight="700" fill="#1C1917">Glucose</text>
+              </g>
+            </svg>
+          </div>
+
+          <p id="insulin-caption" class="text-xs text-stone-600 leading-relaxed">
+            <strong>Insulin Absent (Fasting):</strong> GLUT4 transporters remain sequestered inside cytoplasmic vesicles. Hydrophilic glucose cannot cross the lipid bilayer and stays in the bloodstream.
+          </p>
+        </div>
+
+        <!-- PANEL 2: PFK ALLOSTERIC REGULATION & MUTANT SIMULATOR -->
+        <div class="bg-white rounded-2xl border border-[#E2DDD5] p-4 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-[#4338CA]">Allosteric Pacemaker</span>
+              <label class="inline-flex items-center gap-1.5 cursor-pointer text-[11px] font-semibold text-[#DC2626]">
+                <input id="pfk-mutant-checkbox" type="checkbox" onchange="updatePFKPanel()" class="rounded accent-[#DC2626]" />
+                <span>High-Affinity Mutant</span>
+              </label>
+            </div>
+            <h3 class="font-serif-display text-base font-bold text-stone-900">PFK Dual-Site Regulation</h3>
+          </div>
+
+          <!-- Energy Demand Slider -->
+          <div class="bg-[#FAF8F5] rounded-xl p-2.5 border border-[#E2DDD5]">
+            <div class="flex justify-between text-[11px] font-bold mb-1">
+              <span class="text-stone-600">Cell Energy State:</span>
+              <span id="pfk-state-label" class="text-[#0F766E]">Balanced ATP / ADP</span>
+            </div>
+            <input id="v3-pfk-slider" type="range" min="1" max="3" step="1" value="2" oninput="updatePFKPanel()" class="w-full accent-[#4338CA] cursor-pointer" />
+            <div class="flex justify-between text-[10px] font-semibold text-stone-500 mt-0.5">
+              <span>1. Rest (High ATP)</span>
+              <span>2. Normal</span>
+              <span>3. Active (High ADP/AMP)</span>
+            </div>
+          </div>
+
+          <!-- PFK Enzyme Dual-Site SVG -->
+          <div class="rounded-xl border border-[#E2DDD5] bg-[#FAF8F5] overflow-hidden">
+            <svg viewBox="0 0 340 135" class="w-full h-auto block select-none">
+              <!-- Enzyme Body -->
+              <rect x="95" y="24" width="150" height="86" rx="22" fill="#EEF2FF" stroke="#4338CA" stroke-width="2.5" />
+              <text x="170" y="54" text-anchor="middle" font-size="11" font-weight="800" fill="#312E81">PFK Enzyme</text>
+              <text id="pfk-svg-rate" x="170" y="70" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0F766E">Glycolysis Rate: Moderate</text>
+
+              <!-- Active Site (Top Notch) -->
+              <rect x="122" y="14" width="96" height="20" rx="6" fill="#FFFFFF" stroke="#4338CA" stroke-width="1.5" />
+              <text x="170" y="27" text-anchor="middle" font-size="8.5" font-weight="700" fill="#1C1917">Active Site (ATP Substrate)</text>
+
+              <!-- Allosteric Site (Bottom Notch) -->
+              <rect id="pfk-allo-box" x="115" y="94" width="110" height="24" rx="6" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5" />
+              <text id="pfk-allo-text" x="170" y="109" text-anchor="middle" font-size="8.5" font-weight="800" fill="#92400E">Allosteric Site: Empty</text>
+
+              <!-- Output Arrow -->
+              <path id="pfk-flow-arrow" d="M 252 67 L 318 67" stroke="#0F766E" stroke-width="3" marker-end="url(#v3-arrow-teal)" />
+              <text x="285" y="58" text-anchor="middle" font-size="8.5" font-weight="700" fill="#0F766E">To Krebs</text>
+            </svg>
+          </div>
+
+          <p id="pfk-caption" class="text-xs text-stone-600 leading-relaxed">
+            <strong>Dual-Site Logic:</strong> ATP is both a substrate at PFK's active site and an allosteric <em>inhibitor</em> at high concentrations. ADP/AMP bind the allosteric site to <em>activate</em> PFK when energy runs low.
+          </p>
+        </div>
+
+        <!-- PANEL 3: PHOSPHOCREATINE RAPID ATP BUFFER (7-SECOND RESERVE) -->
+        <div class="bg-white rounded-2xl border border-[#E2DDD5] p-4 shadow-2xs flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-[#D97706]">Immediate Sprint Buffer</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">~7-Sec ATP Reserve</span>
+            </div>
+            <h3 class="font-serif-display text-base font-bold text-stone-900">Phosphocreatine &amp; Creatine Kinase</h3>
+          </div>
+
+          <!-- Sprint Timeline Selector -->
+          <div class="grid grid-cols-3 gap-1.5 bg-[#FAF8F5] p-1 rounded-xl border border-[#E2DDD5]">
+            <button id="pcr-btn-0" onclick="setSprintPhase(0)" class="py-1.5 px-2 rounded-lg text-[11px] font-semibold bg-white text-[#D97706] shadow-2xs border border-[#E2DDD5]">0–2 sec (Start)</button>
+            <button id="pcr-btn-1" onclick="setSprintPhase(1)" class="py-1.5 px-2 rounded-lg text-[11px] font-semibold text-stone-600 hover:text-stone-900">3–15 sec (PCr)</button>
+            <button id="pcr-btn-2" onclick="setSprintPhase(2)" class="py-1.5 px-2 rounded-lg text-[11px] font-semibold text-stone-600 hover:text-stone-900">30+ sec (Pathways)</button>
+          </div>
+
+          <!-- Creatine Kinase Reaction SVG -->
+          <div class="rounded-xl border border-[#E2DDD5] bg-[#FAF8F5] overflow-hidden">
+            <svg viewBox="0 0 340 135" class="w-full h-auto block select-none">
+              <!-- Left Reactants -->
+              <rect x="14" y="22" width="102" height="32" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="1.5" />
+              <text x="65" y="41" text-anchor="middle" font-size="9.5" font-weight="800" fill="#92400E">Phosphocreatine</text>
+
+              <rect x="28" y="80" width="74" height="28" rx="8" fill="#FFFFFF" stroke="#44403C" stroke-width="1.5" />
+              <text x="65" y="98" text-anchor="middle" font-size="10" font-weight="700" fill="#1C1917">ADP</text>
+
+              <!-- Creatine Kinase Hub -->
+              <circle cx="170" cy="66" r="30" fill="#0F766E" stroke="#115E59" stroke-width="2" />
+              <text x="170" y="63" text-anchor="middle" font-size="9" font-weight="800" fill="#FFFFFF">Creatine</text>
+              <text x="170" y="75" text-anchor="middle" font-size="9" font-weight="800" fill="#CCFBF1">Kinase</text>
+
+              <path d="M 118 38 L 142 52" stroke="#D97706" stroke-width="2" marker-end="url(#v3-arrow-amber)" />
+              <path d="M 104 94 L 142 80" stroke="#44403C" stroke-width="2" marker-end="url(#v3-arrow-stone)" />
+              <path d="M 198 52 L 226 38" stroke="#44403C" stroke-width="2" marker-end="url(#v3-arrow-stone)" />
+              <path d="M 198 80 L 226 94" stroke="#D97706" stroke-width="2.5" marker-end="url(#v3-arrow-amber)" />
+
+              <!-- Right Products -->
+              <rect x="230" y="22" width="94" height="32" rx="8" fill="#FFFFFF" stroke="#44403C" stroke-width="1.5" />
+              <text x="277" y="41" text-anchor="middle" font-size="10" font-weight="700" fill="#1C1917">Creatine</text>
+
+              <rect x="230" y="78" width="94" height="32" rx="8" fill="#FEF3C7" stroke="#D97706" stroke-width="2" />
+              <text x="277" y="98" text-anchor="middle" font-size="11" font-weight="800" fill="#92400E">ATP (Instant!)</text>
+            </svg>
+          </div>
+
+          <p id="pcr-caption" class="text-xs text-stone-600 leading-relaxed">
+            <strong>0–2 Seconds:</strong> Resting muscle stores only enough free ATP for ~7 seconds of maximal effort. As myosin heads hydrolyze ATP → ADP, Creatine Kinase immediately transfers Pᵢ from Phosphocreatine to ADP (substrate-level phosphorylation).
+          </p>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 text-center text-xs text-stone-400">
+    Cellular Respiration: The Big Picture Studio • Interactive Introductory Biology Diagram Lab
+  </footer>
+
+  <!-- =================================================================== -->
+  <!-- APPLICATION LOGIC & STATE MANAGEMENT                                -->
+  <!-- =================================================================== -->
+  <script>
+    // -------------------------------------------------------------------------
+    // APPLICATION STATE
+    // -------------------------------------------------------------------------
+    const state = {
+      activeView: 'view1',
+      o2Present: true,
+      fermentationType: 'lactic', // 'lactic' | 'alcohol'
+      currentStage: 1,            // 1..5
+      v1Mode: 'explore',          // 'explore' | 'match'
+      v1SelectedChip: null,
+      v1Matched: {},              // { slotKey: true }
+
+      perturbation: 'control',    // 'control' | 'dnp' | 'cyanide' | 'malonate' | 'perforins'
+      v2Mode: 'explore',          // 'explore' | 'match'
+      v2SelectedChip: null,
+      v2Matched: {},              // { slotKey: true }
+
+      v3Fuel: 'all',              // 'all' | 'fat' | 'protein'
+      insulinPresent: false,
+      sprintPhase: 0
+    };
+
+    // -------------------------------------------------------------------------
+    // DATA DEFINITIONS: STAGES, MATCHING CHIPS, PERTURBATIONS
+    // -------------------------------------------------------------------------
+    const STAGES_AEROBIC = [
+      {
+        id: 1,
+        short: '1. Glucose Uptake',
+        title: '1. Glucose Uptake (GLUT4 & Insulin)',
+        location: 'Plasma Membrane → Cytoplasm',
+        desc: 'Insulin binds its receptor, triggering GLUT4 channels to insert into the plasma membrane so glucose enters the cytoplasm. Hexokinase immediately phosphorylates glucose (trapping it inside the cell).',
+        organicC: 6,
+        organicLabel: '1 × Glucose (6C)',
+        co2Count: 0,
+        nadh: 0,
+        fadh2: 0,
+        slpAtp: 0,
+        oxAtp: 0
+      },
+      {
+        id: 2,
+        short: '2. Glycolysis',
+        title: '2. Glycolysis ("Sugar Splitting")',
+        location: 'Compartment 1: Cytoplasm',
+        desc: 'In the cytoplasm (no O₂ required), 10 enzymes split 6C Glucose into two 3C Pyruvate molecules. Energy investment uses 2 ATP and payoff makes 4 ATP, yielding a net gain of 2 ATP (substrate-level phosphorylation) and 2 NADH.',
+        organicC: 6,
+        organicLabel: '2 × Pyruvate (3C each)',
+        co2Count: 0,
+        nadh: 2,
+        fadh2: 0,
+        slpAtp: 2,
+        oxAtp: 0
+      },
+      {
+        id: 3,
+        short: '3. Pyruvate Oxidation',
+        title: '3. Pyruvate Oxidation (The Grooming Step)',
+        location: 'Mitochondrial Matrix Entry',
+        desc: 'When O₂ is present, both 3C Pyruvates enter the mitochondrial matrix. Each loses 1 carbon as exhaled CO₂, reduces NAD⁺ to NADH, and attaches to Coenzyme A to form two 2C Acetyl-CoA molecules.',
+        organicC: 4,
+        organicLabel: '2 × Acetyl-CoA (2C each)',
+        co2Count: 2,
+        nadh: 4,
+        fadh2: 0,
+        slpAtp: 2,
+        oxAtp: 0
+      },
+      {
+        id: 4,
+        short: '4. Krebs Cycle',
+        title: '4. Krebs / Citric Acid Cycle',
+        location: 'Compartment 3: Mitochondrial Matrix',
+        desc: 'Both 2C Acetyl-CoA molecules join 4C Oxaloacetate to form 6C Citrate and are completely oxidized. The remaining 4 carbons exit as CO₂, while capturing high-energy electrons in 6 NADH and 2 FADH₂ plus 2 direct ATP.',
+        organicC: 0,
+        organicLabel: '0C Left (Oxaloacetate Recycled)',
+        co2Count: 6,
+        nadh: 10,
+        fadh2: 2,
+        slpAtp: 4,
+        oxAtp: 0
+      },
+      {
+        id: 5,
+        short: '5. Oxidative Phos.',
+        title: '5. Oxidative Phosphorylation (ETC & Chemiosmosis)',
+        location: 'Inner Mitochondrial Membrane (Cristae)',
+        desc: 'All 10 NADH and 2 FADH₂ unload electrons to the Electron Transport Chain. Electrons flow to O₂ (forming H₂O), pumping H⁺ into the intermembrane space. H⁺ flows back through ATP Synthase to generate ~30–32 ATP!',
+        organicC: 0,
+        organicLabel: '0C Left (All 6C Exhaled as CO₂)',
+        co2Count: 6,
+        nadh: 10,
+        fadh2: 2,
+        slpAtp: 4,
+        oxAtp: 32
+      }
+    ];
+
+    const V1_MATCH_ITEMS = [
+      { key: 'glycolysis', label: 'Glycolysis (2 SLP ATP, 2 NADH)', shortFill: '✓ Glycolysis (Cytoplasm)' },
+      { key: 'fermentation', label: 'Fermentation (Recycles NAD⁺)', shortFill: '✓ Fermentation (NADH → NAD⁺)' },
+      { key: 'pyruvate_ox', label: 'Pyruvate Oxidation (2 CO₂, 2 Acetyl-CoA)', shortFill: '✓ Pyruvate Oxidation (2 CO₂)' },
+      { key: 'krebs', label: 'Krebs Cycle (4 CO₂, 2 SLP ATP, 6 NADH, 2 FADH₂)', shortFill: '✓ Krebs Cycle (4 CO₂, 2 ATP)' },
+      { key: 'ox_phos', label: 'Oxidative Phos. (~30–32 ATP, H₂O)', shortFill: '✓ Oxidative Phos. (~32 ATP)' },
+      { key: 'ims', label: 'Intermembrane Space (High H⁺)', shortFill: '✓ Intermembrane Space (High H⁺)' }
+    ];
+
+    const V2_MATCH_ITEMS = [
+      { key: 'c1', label: 'Complex I (NADH Entry + H⁺ Pump)', shortFill: '✓ Complex I' },
+      { key: 'c2', label: 'Complex II (FADH₂ Entry, No Pump)', shortFill: '✓ Complex II' },
+      { key: 'c4', label: 'Complex IV (O₂ Accepts e⁻ → H₂O)', shortFill: '✓ Complex IV' },
+      { key: 'gradient', label: 'Intermembrane Space (High [H⁺] Gradient)', shortFill: '✓ High [H⁺] Gradient' },
+      { key: 'atp_synthase', label: 'ATP Synthase (Chemiosmosis)', shortFill: '✓ ATP Synthase' },
+      { key: 'matrix', label: 'Mitochondrial Matrix (Low [H⁺])', shortFill: '✓ Matrix (Low [H⁺])' }
+    ];
+
+    const PERTURBATIONS = {
+      control: {
+        title: 'Control: Coupled Oxidative Phosphorylation',
+        o2Text: '100% (Normal)',
+        o2Pct: 100,
+        o2Color: 'bg-[#0F766E]',
+        nadhText: '100% (Active)',
+        nadhPct: 100,
+        gradText: 'High (Steep ΔpH)',
+        gradPct: 100,
+        atpText: '~30–32 ATP / Glucose',
+        atpPct: 100,
+        heatBadge: 'Heat: Baseline (~60%)',
+        statusTag: 'Intact Chemiosmotic Coupling',
+        statusClass: 'bg-teal-100 text-[#0F766E]',
+        mechanism: 'Electrons from NADH (Complex I) and FADH₂ (Complex II) travel down the ETC to O₂, pumping H⁺ into the intermembrane space. Because the inner membrane is impermeable to ions, H⁺ returns exclusively through ATP Synthase, driving ADP + Pᵢ → ATP.',
+        tip: 'Study Guide Insight: Electron transport and ATP synthesis are separate processes coupled together by the H⁺ gradient.'
+      },
+      dnp: {
+        title: 'DNP (2,4-Dinitrophenol): Proton Uncoupler',
+        o2Text: '135% (Hyperactive!)',
+        o2Pct: 100,
+        o2Color: 'bg-[#D97706]',
+        nadhText: '135% (Rapid Oxidation)',
+        nadhPct: 100,
+        gradText: 'Collapsed (~0%)',
+        gradPct: 8,
+        atpText: '0 Chemiosmotic ATP',
+        atpPct: 5,
+        heatBadge: 'Heat: DANGEROUS SPIKE!',
+        statusTag: 'Uncoupled: H⁺ Gradient Short-Circuited',
+        statusClass: 'bg-red-100 text-[#DC2626]',
+        mechanism: 'DNP shuttles H⁺ across the inner membrane, bypassing ATP Synthase. With no back-pressure from a proton gradient, the ETC runs at maximum speed—consuming O₂ and oxidizing NADH rapidly—while all free energy dissipates as intense body heat instead of ATP!',
+        tip: 'Study Guide Insight: O₂ consumption stays HIGH (even increases!), NADH oxidation stays HIGH, H⁺ gradient collapses, and ATP drops to zero.'
+      },
+      cyanide: {
+        title: 'Guthion / Cyanide: Complex IV Blocker',
+        o2Text: '0% (Halted)',
+        o2Pct: 0,
+        o2Color: 'bg-[#DC2626]',
+        nadhText: '0% (Backed Up)',
+        nadhPct: 0,
+        gradText: 'Dissipated (0%)',
+        gradPct: 0,
+        atpText: '0 Chemiosmotic ATP',
+        atpPct: 0,
+        heatBadge: 'Heat: Drops Rapidly',
+        statusTag: 'ETC Traffic Jam at Complex IV',
+        statusClass: 'bg-red-100 text-[#DC2626]',
+        mechanism: 'Guthion (an organophosphate pesticide) and Cyanide block Complex IV, preventing electron transfer to the final electron acceptor (O₂). Like a blocked highway, electrons back up across Complexes III, Q, and I—halting H⁺ pumping, NADH oxidation, and ATP synthesis.',
+        tip: 'Study Guide Insight: Without O₂ accepting electrons at Complex IV, the entire upstream ETC stalls and NADH cannot be recycled to NAD⁺.'
+      },
+      malonate: {
+        title: 'Malonate: Competitive Inhibitor of Complex II',
+        o2Text: '35% (Reduced / Fading)',
+        o2Pct: 35,
+        o2Color: 'bg-[#D97706]',
+        nadhText: '40% (Complex I Only)',
+        nadhPct: 40,
+        gradText: 'Low / Declining',
+        gradPct: 35,
+        atpText: '~10 ATP (Temporary)',
+        atpPct: 35,
+        heatBadge: 'Heat: Reduced',
+        statusTag: 'Complex II & Krebs Cycle Stalled',
+        statusClass: 'bg-amber-100 text-amber-900',
+        mechanism: 'Malonate mimics succinate and inhibits Complex II (Succinate Dehydrogenase)—the enzyme shared directly between the Krebs Cycle and the ETC! FADH₂ cannot unload electrons, and because Complex II is part of the Krebs Cycle, the cycle backs up and starves Complex I of fresh NADH.',
+        tip: 'Study Guide Insight: Complex II is literally a Krebs Cycle enzyme embedded in the inner membrane!'
+      },
+      perforins: {
+        title: 'Perforins: Cytotoxic Membrane Pores',
+        o2Text: '100% (ETC Intact)',
+        o2Pct: 100,
+        o2Color: 'bg-[#0F766E]',
+        nadhText: '100% (ETC Intact)',
+        nadhPct: 100,
+        gradText: '0% (Leaks Through Holes)',
+        gradPct: 5,
+        atpText: '0 Chemiosmotic ATP',
+        atpPct: 5,
+        heatBadge: 'Heat: Elevated',
+        statusTag: 'Membrane Integrity Destroyed',
+        statusClass: 'bg-red-100 text-[#DC2626]',
+        mechanism: 'Immune cytotoxic T-cells release Perforins that punch physical pores through membranes without destroying ETC protein complexes. Electrons still flow from NADH/FADH₂ to O₂, but pumped H⁺ ions immediately diffuse back through the holes—preventing a proton-motive force from powering ATP Synthase.',
+        tip: 'Study Guide Insight: Proves that an intact, closed membrane compartment is strictly required for chemiosmosis!'
+      }
+    };
+
+    // -------------------------------------------------------------------------
+    // NAVIGATION: 3 TOP TABS
+    // -------------------------------------------------------------------------
+    function switchView(viewId) {
+      state.activeView = viewId;
+      ['view1', 'view2', 'view3'].forEach(v => {
+        const container = document.getElementById(`${v}-container`);
+        const tabBtn = document.getElementById(`tab-${v}`);
+        if (v === viewId) {
+          container.classList.remove('hidden');
+          tabBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all bg-white text-[#0F766E] shadow-2xs border border-[#E2DDD5] flex items-center gap-1.5';
+        } else {
+          container.classList.add('hidden');
+          tabBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition-all text-stone-600 hover:text-stone-900 flex items-center gap-1.5';
+        }
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // TAB 1: PATHWAYS, CELL MAP & DIAGRAM MATCHING
+    // -------------------------------------------------------------------------
+    function setOxygenState(isPresent) {
+      state.o2Present = isPresent;
+      const btnOn = document.getElementById('btn-o2-on');
+      const btnOff = document.getElementById('btn-o2-off');
+      const fermWrap = document.getElementById('fermentation-type-wrapper');
+
+      if (isPresent) {
+        btnOn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-[#0F766E] text-white shadow-2xs flex items-center gap-1.5';
+        btnOff.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-stone-600 hover:text-stone-900 flex items-center gap-1.5';
+        fermWrap.classList.add('hidden');
+        fermWrap.classList.remove('flex');
+      } else {
+        btnOff.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-[#D97706] text-white shadow-2xs flex items-center gap-1.5';
+        btnOn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all text-stone-600 hover:text-stone-900 flex items-center gap-1.5';
+        fermWrap.classList.remove('hidden');
+        fermWrap.classList.add('flex');
+        if (state.currentStage > 2) {
+          state.currentStage = 2;
+        }
+      }
+      renderView1();
+    }
+
+    function setFermentationType(type) {
+      state.fermentationType = type;
+      const btnLactic = document.getElementById('btn-ferm-lactic');
+      const btnAlcohol = document.getElementById('btn-ferm-alcohol');
+
+      if (type === 'lactic') {
+        btnLactic.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#D97706] text-white shadow-2xs';
+        btnAlcohol.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold text-amber-900 hover:bg-amber-100';
+      } else {
+        btnAlcohol.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-[#D97706] text-white shadow-2xs';
+        btnLactic.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold text-amber-900 hover:bg-amber-100';
+      }
+      renderView1();
+    }
+
+    function setStage(stageNum) {
+      if (state.v1Mode === 'match') return;
+      if (!state.o2Present && stageNum > 2) {
+        setOxygenState(true);
+      }
+      state.currentStage = stageNum;
+      renderView1();
+    }
+
+    function stepStage(delta) {
+      const maxStage = state.o2Present ? 5 : 2;
+      let next = state.currentStage + delta;
+      if (next < 1) next = 1;
+      if (next > maxStage) next = maxStage;
+      state.currentStage = next;
+      renderView1();
+    }
+
+    function setView1Mode(mode) {
+      state.v1Mode = mode;
+      const btnExp = document.getElementById('v1-mode-explore');
+      const btnMatch = document.getElementById('v1-mode-match');
+      const tray = document.getElementById('v1-match-tray');
+      const stepper = document.getElementById('v1-stepper-bar');
+      const slotsLayer = document.getElementById('v1-match-slots-layer');
+
+      if (mode === 'explore') {
+        btnExp.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-[#0F766E] shadow-2xs border border-[#E2DDD5]';
+        btnMatch.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-stone-600 hover:text-stone-900 flex items-center gap-1.5';
+        tray.classList.add('hidden');
+        stepper.classList.remove('hidden');
+        slotsLayer.classList.add('hidden');
+        document.getElementById('v1-svg-subtitle').textContent = 'Click any compartment or pathway station to inspect location, inputs, and outputs.';
+      } else {
+        btnMatch.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-[#D97706] shadow-2xs border border-[#E2DDD5] flex items-center gap-1.5';
+        btnExp.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-stone-600 hover:text-stone-900';
+        tray.classList.remove('hidden');
+        stepper.classList.add('hidden');
+        slotsLayer.classList.remove('hidden');
+        document.getElementById('v1-svg-subtitle').textContent = 'Select a label chip above, then click the matching dashed target box on the diagram.';
+        renderView1MatchTray();
+      }
+    }
+
+    function selectView1Chip(key) {
+      if (state.v1Matched[key]) return;
+      state.v1SelectedChip = key;
+      renderView1MatchTray();
+    }
+
+    function handleView1SlotClick(slotKey) {
+      if (!state.v1SelectedChip || state.v1Matched[slotKey]) return;
+      const rect = document.getElementById(`v1-slot-rect-${slotKey}`);
+      const text = document.getElementById(`v1-slot-text-${slotKey}`);
+
+      if (state.v1SelectedChip === slotKey) {
+        state.v1Matched[slotKey] = true;
+        const item = V1_MATCH_ITEMS.find(i => i.key === slotKey);
+        rect.setAttribute('fill', '#CCFBF1');
+        rect.setAttribute('stroke', '#0F766E');
+        rect.setAttribute('stroke-dasharray', 'none');
+        text.setAttribute('fill', '#115E59');
+        text.textContent = item.shortFill;
+        state.v1SelectedChip = null;
+      } else {
+        // Brief coral flash on wrong slot
+        const origStroke = rect.getAttribute('stroke');
+        rect.setAttribute('stroke', '#DC2626');
+        setTimeout(() => {
+          if (!state.v1Matched[slotKey]) rect.setAttribute('stroke', origStroke);
+        }, 450);
+      }
+      renderView1MatchTray();
+    }
+
+    function resetView1Match() {
+      state.v1Matched = {};
+      state.v1SelectedChip = null;
+      const defaults = {
+        glycolysis: { text: '[ ? ] Drop Stage in Cytoplasm', fill: '#FFFBEB', stroke: '#D97706', tFill: '#B45309' },
+        fermentation: { text: '[ ? ] Drop Anaerobic NAD⁺ Loop', fill: '#FFFBEB', stroke: '#D97706', tFill: '#B45309' },
+        pyruvate_ox: { text: '[ ? ] Drop 3C → 2C Step', fill: '#F0FDFA', stroke: '#0F766E', tFill: '#0F766E' },
+        krebs: { text: '[ ? ] Drop Matrix Cycle (4 CO₂)', fill: '#F0FDFA', stroke: '#0F766E', tFill: '#0F766E' },
+        ox_phos: { text: '[ ? ] Drop Cristae ATP Stage', fill: '#EEF2FF', stroke: '#4338CA', tFill: '#3730A3' },
+        ims: { text: '[ ? ] Drop High-[H⁺] Compartment Label', fill: '#FEF3C7', stroke: '#B45309', tFill: '#92400E' }
+      };
+      Object.keys(defaults).forEach(k => {
+        const d = defaults[k];
+        const rect = document.getElementById(`v1-slot-rect-${k}`);
+        const text = document.getElementById(`v1-slot-text-${k}`);
+        rect.setAttribute('fill', d.fill);
+        rect.setAttribute('stroke', d.stroke);
+        rect.setAttribute('stroke-dasharray', '6 4');
+        text.setAttribute('fill', d.tFill);
+        text.textContent = d.text;
+      });
+      renderView1MatchTray();
+    }
+
+    function renderView1MatchTray() {
+      const chipsDiv = document.getElementById('v1-match-chips');
+      chipsDiv.innerHTML = '';
+      let count = 0;
+
+      V1_MATCH_ITEMS.forEach(item => {
+        const isDone = !!state.v1Matched[item.key];
+        if (isDone) count++;
+        const isSelected = state.v1SelectedChip === item.key;
+
+        const btn = document.createElement('button');
+        btn.disabled = isDone;
+        btn.onclick = () => selectView1Chip(item.key);
+        btn.className = `px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+          isDone
+            ? 'bg-teal-50 border-teal-300 text-teal-800 opacity-60 cursor-default line-through'
+            : isSelected
+            ? 'bg-[#D97706] border-[#B45309] text-white shadow-xs scale-[1.02]'
+            : 'bg-white border-amber-300 text-stone-800 hover:bg-amber-100/70'
+        }`;
+        btn.textContent = item.label;
+        chipsDiv.appendChild(btn);
+      });
+
+      document.getElementById('v1-match-score').textContent = `${count} / ${V1_MATCH_ITEMS.length} Matched`;
+    }
+
+    function renderView1() {
+      // 1. Render Stage Stepper Buttons
+      const grid = document.getElementById('stage-buttons-grid');
+      grid.innerHTML = '';
+      STAGES_AEROBIC.forEach(st => {
+        const disabled = !state.o2Present && st.id > 2;
+        const active = state.currentStage === st.id;
+        const btn = document.createElement('button');
+        btn.disabled = disabled;
+        btn.onclick = () => setStage(st.id);
+        btn.className = `px-3 py-2 rounded-xl border text-left transition-all ${
+          disabled
+            ? 'bg-[#FAF8F5] border-[#E2DDD5] text-stone-400 opacity-55 cursor-not-allowed'
+            : active
+            ? 'bg-[#0F766E] border-[#0F766E] text-white shadow-2xs'
+            : 'bg-white border-[#E2DDD5] text-stone-700 hover:border-teal-400 hover:bg-teal-50/40'
+        }`;
+        btn.innerHTML = `
+          <div class="text-xs font-bold truncate">${st.short}</div>
+          <div class="text-[10px] ${active ? 'text-teal-100' : 'text-stone-400'} truncate">
+            ${disabled ? 'Requires O₂' : st.id <= 2 ? 'Cytoplasm' : 'Mitochondrion'}
+          </div>
+        `;
+        grid.appendChild(btn);
+      });
+
+      // 2. Highlight SVG Boxes
+      [2, 3, 4, 5].forEach(id => {
+        const box = document.getElementById(`box-stage-${id}`);
+        if (!box) return;
+        if (state.currentStage === id) {
+          box.setAttribute('stroke-width', '4');
+          box.setAttribute('fill', id === 2 ? '#FEF3C7' : id === 5 ? '#EEF2FF' : '#CCFBF1');
+        } else {
+          box.setAttribute('stroke-width', '2');
+          box.setAttribute('fill', '#ffffff');
+        }
+      });
+
+      // 3. Handle Fermentation vs Aerobic SVG visuals
+      const fermGroup = document.getElementById('svg-fermentation-group');
+      const fermTitle = document.getElementById('ferm-svg-title');
+      const fermProduct = document.getElementById('ferm-svg-product');
+      const fermCo2 = document.getElementById('ferm-svg-co2');
+
+      if (!state.o2Present) {
+        fermGroup.setAttribute('opacity', '1');
+        if (state.fermentationType === 'lactic') {
+          fermTitle.textContent = 'LACTIC ACID FERMENTATION (Muscle)';
+          fermProduct.textContent = '2 Pyruvate (3C) → 2 Lactate (3C)';
+          fermCo2.textContent = '0 CO₂ released • Reversible in liver';
+        } else {
+          fermTitle.textContent = 'ALCOHOL FERMENTATION (Yeast)';
+          fermProduct.textContent = '2 Pyruvate (3C) → 2 Ethanol (2C) + 2 CO₂';
+          fermCo2.textContent = '2 CO₂ bubbles released (bread/brewing)';
+        }
+      } else {
+        fermGroup.setAttribute('opacity', '0.28');
+      }
+
+      // 4. Update Spotlight Card & Accounting Ledger
+      const stageObj = STAGES_AEROBIC[state.currentStage - 1];
+      let organicC = stageObj.organicC;
+      let organicLabel = stageObj.organicLabel;
+      let co2Count = stageObj.co2Count;
+      let nadh = stageObj.nadh;
+      let fadh2 = stageObj.fadh2;
+      let slpAtp = stageObj.slpAtp;
+      let oxAtp = stageObj.oxAtp;
+
+      if (!state.o2Present && state.currentStage === 2) {
+        document.getElementById('detail-badge').textContent = 'Anaerobic Fork (No O₂)';
+        if (state.fermentationType === 'lactic') {
+          document.getElementById('detail-title').textContent = 'Glycolysis + Lactic Acid Fermentation';
+          document.getElementById('detail-desc').textContent = 'Without O₂ to accept electrons at the ETC, NADH accumulates. Muscle cells reduce 2 Pyruvate (3C) into 2 Lactate (3C) to oxidize NADH back into NAD⁺—allowing Glycolysis to keep producing 2 net ATP per glucose.';
+          organicC = 6;
+          organicLabel = '2 × Lactate (3C each)';
+          co2Count = 0;
+        } else {
+          document.getElementById('detail-title').textContent = 'Glycolysis + Alcohol Fermentation';
+          document.getElementById('detail-desc').textContent = 'Yeast cells decarboxylate 2 Pyruvate (3C) into 2 Acetaldehyde (releasing 2 CO₂), then reduce it to 2 Ethanol (2C) to regenerate NAD⁺ so Glycolysis keeps yielding 2 net ATP.';
+          organicC = 4;
+          organicLabel = '2 × Ethanol (2C each)';
+          co2Count = 2;
+        }
+        document.getElementById('detail-location').textContent = 'Cytoplasm Only (Mitochondria Bypassed)';
+        nadh = 0;
+        fadh2 = 0;
+        slpAtp = 2;
+        oxAtp = 0;
+      } else {
+        document.getElementById('detail-badge').textContent = `Stage ${stageObj.id} of 5`;
+        document.getElementById('detail-title').textContent = stageObj.title;
+        document.getElementById('detail-desc').textContent = stageObj.desc;
+        document.getElementById('detail-location').textContent = stageObj.location;
+      }
+
+      // Render Carbon Dots
+      const orgDotsEl = document.getElementById('carbon-dots-organic');
+      const co2DotsEl = document.getElementById('carbon-dots-co2');
+      orgDotsEl.innerHTML = '';
+      co2DotsEl.innerHTML = '';
+
+      for (let i = 0; i < organicC; i++) {
+        orgDotsEl.innerHTML += `<span class="w-6 h-6 rounded-full bg-stone-800 text-white text-[10px] font-bold flex items-center justify-center shadow-2xs">C</span>`;
+      }
+      if (organicC === 0) {
+        orgDotsEl.innerHTML = `<span class="text-xs italic text-stone-400">All 6 carbons completely oxidized!</span>`;
+      }
+
+      for (let i = 0; i < co2Count; i++) {
+        co2DotsEl.innerHTML += `<span class="px-2 py-0.5 rounded-full bg-red-100 border border-red-300 text-[#DC2626] text-[10px] font-bold mono">CO₂</span>`;
+      }
+      if (co2Count === 0) {
+        co2DotsEl.innerHTML = `<span class="text-xs italic text-stone-400">None released yet</span>`;
+      }
+
+      document.getElementById('carbon-organic-label').textContent = organicLabel;
+      document.getElementById('carbon-co2-label').textContent = `${co2Count} CO₂`;
+      document.getElementById('carbon-status-pill').textContent = `${organicC}C Organic / ${co2Count}C Gas`;
+
+      // Render Electron & ATP Ledger
+      document.getElementById('ledger-nadh').textContent = nadh;
+      document.getElementById('bar-nadh').style.width = `${(nadh / 10) * 100}%`;
+      document.getElementById('ledger-fadh2').textContent = fadh2;
+      document.getElementById('bar-fadh2').style.width = `${(fadh2 / 2) * 100}%`;
+
+      document.getElementById('ledger-slp-atp').textContent = `${slpAtp} ATP`;
+      document.getElementById('ledger-ox-atp').textContent = oxAtp > 0 ? `~${oxAtp} ATP` : '0 ATP';
+      const totalAtp = slpAtp + oxAtp;
+      document.getElementById('atp-total-badge').textContent = oxAtp > 0 ? `~34–36 Net ATP` : `${totalAtp} Net ATP`;
+    }
+
+    // -------------------------------------------------------------------------
+    // TAB 2: PERTURBATION SANDBOX & ETC DIAGRAM MATCHING
+    // -------------------------------------------------------------------------
+    function setView2Mode(mode) {
+      state.v2Mode = mode;
+      const btnExp = document.getElementById('v2-mode-explore');
+      const btnMatch = document.getElementById('v2-mode-match');
+      const pertBtns = document.getElementById('v2-pert-buttons');
+      const matchTray = document.getElementById('v2-match-tray');
+      const slotsLayer = document.getElementById('v2-match-slots-layer');
+
+      if (mode === 'explore') {
+        btnExp.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-[#0F766E] shadow-2xs border border-[#E2DDD5]';
+        btnMatch.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-stone-600 hover:text-stone-900';
+        pertBtns.classList.remove('hidden');
+        matchTray.classList.add('hidden');
+        slotsLayer.classList.add('hidden');
+      } else {
+        setPerturbation('control');
+        btnMatch.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-[#4338CA] shadow-2xs border border-[#E2DDD5]';
+        btnExp.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-stone-600 hover:text-stone-900';
+        pertBtns.classList.add('hidden');
+        matchTray.classList.remove('hidden');
+        slotsLayer.classList.remove('hidden');
+        renderView2MatchTray();
+      }
+    }
+
+    function selectView2Chip(key) {
+      if (state.v2Matched[key]) return;
+      state.v2SelectedChip = key;
+      renderView2MatchTray();
+    }
+
+    function handleView2SlotClick(slotKey) {
+      if (!state.v2SelectedChip || state.v2Matched[slotKey]) return;
+      const rect = document.getElementById(`v2-slot-rect-${slotKey}`);
+      const text = document.getElementById(`v2-slot-text-${slotKey}`);
+
+      if (state.v2SelectedChip === slotKey) {
+        state.v2Matched[slotKey] = true;
+        const item = V2_MATCH_ITEMS.find(i => i.key === slotKey);
+        rect.setAttribute('fill', '#CCFBF1');
+        rect.setAttribute('stroke', '#0F766E');
+        rect.setAttribute('stroke-dasharray', 'none');
+        text.setAttribute('fill', '#115E59');
+        text.textContent = item.shortFill;
+        state.v2SelectedChip = null;
+      } else {
+        const origStroke = rect.getAttribute('stroke');
+        rect.setAttribute('stroke', '#DC2626');
+        setTimeout(() => {
+          if (!state.v2Matched[slotKey]) rect.setAttribute('stroke', origStroke);
+        }, 450);
+      }
+      renderView2MatchTray();
+    }
+
+    function resetView2Match() {
+      state.v2Matched = {};
+      state.v2SelectedChip = null;
+      const defaults = {
+        c1: { text: '[ ? ] NADH Entry', fill: '#EEF2FF', stroke: '#4338CA', tFill: '#3730A3' },
+        c2: { text: '[ ? ] FADH₂', fill: '#F0FDFA', stroke: '#0F766E', tFill: '#0F766E' },
+        c4: { text: '[ ? ] O₂ → H₂O', fill: '#EEF2FF', stroke: '#4338CA', tFill: '#3730A3' },
+        gradient: { text: '[ ? ] Drop High-[H⁺] Electrochemical Gradient', fill: '#FEF3C7', stroke: '#D97706', tFill: '#92400E' },
+        atp_synthase: { text: '[ ? ] H⁺ Turbine', fill: '#FFFBEB', stroke: '#D97706', tFill: '#92400E' },
+        matrix: { text: '[ ? ] Drop Low-[H⁺] Compartment Name', fill: '#F0FDFA', stroke: '#0F766E', tFill: '#0F766E' }
+      };
+      Object.keys(defaults).forEach(k => {
+        const d = defaults[k];
+        const rect = document.getElementById(`v2-slot-rect-${k}`);
+        const text = document.getElementById(`v2-slot-text-${k}`);
+        rect.setAttribute('fill', d.fill);
+        rect.setAttribute('stroke', d.stroke);
+        rect.setAttribute('stroke-dasharray', '6 4');
+        text.setAttribute('fill', d.tFill);
+        text.textContent = d.text;
+      });
+      renderView2MatchTray();
+    }
+
+    function renderView2MatchTray() {
+      const chipsDiv = document.getElementById('v2-match-chips');
+      chipsDiv.innerHTML = '';
+      let count = 0;
+
+      V2_MATCH_ITEMS.forEach(item => {
+        const isDone = !!state.v2Matched[item.key];
+        if (isDone) count++;
+        const isSelected = state.v2SelectedChip === item.key;
+
+        const btn = document.createElement('button');
+        btn.disabled = isDone;
+        btn.onclick = () => selectView2Chip(item.key);
+        btn.className = `px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
+          isDone
+            ? 'bg-teal-50 border-teal-300 text-teal-800 opacity-60 cursor-default line-through'
+            : isSelected
+            ? 'bg-[#4338CA] border-[#312E81] text-white shadow-xs scale-[1.02]'
+            : 'bg-white border-indigo-200 text-stone-800 hover:bg-indigo-100/60'
+        }`;
+        btn.textContent = item.label;
+        chipsDiv.appendChild(btn);
+      });
+
+      document.getElementById('v2-match-score').textContent = `${count} / ${V2_MATCH_ITEMS.length} Matched`;
+    }
+
+    function setPerturbation(pertKey) {
+      state.perturbation = pertKey;
+
+      ['control', 'dnp', 'cyanide', 'malonate', 'perforins'].forEach(k => {
+        const btn = document.getElementById(`pert-${k}`);
+        if (k === pertKey) {
+          const isControl = k === 'control';
+          btn.className = isControl
+            ? 'p-2.5 rounded-xl border text-left transition-all bg-teal-50 border-[#0F766E] ring-1 ring-[#0F766E]'
+            : 'p-2.5 rounded-xl border text-left transition-all bg-red-50 border-[#DC2626] ring-1 ring-[#DC2626]';
+        } else {
+          btn.className = 'p-2.5 rounded-xl border border-[#E2DDD5] bg-white hover:bg-[#FAF8F5] text-left transition-all';
+        }
+      });
+
+      const data = PERTURBATIONS[pertKey];
+
+      document.getElementById('val-o2').textContent = data.o2Text;
+      document.getElementById('gauge-o2').style.width = `${data.o2Pct}%`;
+      document.getElementById('gauge-o2').className = `h-full ${data.o2Color} transition-all duration-300`;
+
+      document.getElementById('val-nadh-ox').textContent = data.nadhText;
+      document.getElementById('gauge-nadh-ox').style.width = `${data.nadhPct}%`;
+
+      document.getElementById('val-gradient').textContent = data.gradText;
+      document.getElementById('gauge-gradient').style.width = `${data.gradPct}%`;
+
+      document.getElementById('val-atp').textContent = data.atpText;
+      document.getElementById('gauge-atp').style.width = `${data.atpPct}%`;
+
+      document.getElementById('pert-title').textContent = data.title;
+      document.getElementById('pert-mechanism').textContent = data.mechanism;
+      document.getElementById('pert-exam-tip').textContent = data.tip;
+      document.getElementById('pert-heat-badge').textContent = data.heatBadge;
+
+      const tag = document.getElementById('membrane-status-tag');
+      tag.textContent = data.statusTag;
+      tag.className = `px-2.5 py-1 rounded-full text-xs font-bold ${data.statusClass}`;
+
+      const leakGroup = document.getElementById('leak-channel-group');
+      const leakLabel = document.getElementById('leak-label');
+      const inhBadge = document.getElementById('inhibitor-badge');
+      const inhCircle = document.getElementById('inhibitor-circle');
+      const inhText = document.getElementById('inhibitor-text');
+      const imsProtons = document.getElementById('ims-protons-group');
+      const rotor = document.getElementById('atp-rotor');
+
+      const flows = ['e-flow-1-q', 'e-flow-2-q', 'e-flow-q-3', 'e-flow-3-4', 'pump-c1', 'pump-c3', 'pump-c4'];
+
+      leakGroup.classList.add('hidden');
+      inhBadge.classList.add('hidden');
+      imsProtons.setAttribute('opacity', '1');
+      rotor.classList.add('rotor-spin');
+      flows.forEach(fid => {
+        const el = document.getElementById(fid);
+        if (el) el.style.opacity = '1';
+      });
+
+      if (pertKey === 'dnp') {
+        leakGroup.classList.remove('hidden');
+        leakLabel.textContent = 'DNP LEAK';
+        imsProtons.setAttribute('opacity', '0.25');
+        rotor.classList.remove('rotor-spin');
+      } else if (pertKey === 'perforins') {
+        leakGroup.classList.remove('hidden');
+        leakLabel.textContent = 'PORE HOLE';
+        imsProtons.setAttribute('opacity', '0.2');
+        rotor.classList.remove('rotor-spin');
+      } else if (pertKey === 'cyanide') {
+        inhBadge.classList.remove('hidden');
+        inhCircle.setAttribute('cx', '561');
+        inhCircle.setAttribute('cy', '192');
+        inhText.setAttribute('x', '561');
+        inhText.setAttribute('y', '196');
+        inhText.textContent = 'BLOCK';
+        imsProtons.setAttribute('opacity', '0.15');
+        rotor.classList.remove('rotor-spin');
+        flows.forEach(fid => {
+          const el = document.getElementById(fid);
+          if (el) el.style.opacity = '0.15';
+        });
+      } else if (pertKey === 'malonate') {
+        inhBadge.classList.remove('hidden');
+        inhCircle.setAttribute('cx', '257');
+        inhCircle.setAttribute('cy', '210');
+        inhText.setAttribute('x', '257');
+        inhText.setAttribute('y', '214');
+        inhText.textContent = 'BLOCK';
+        document.getElementById('e-flow-2-q').style.opacity = '0.1';
+        imsProtons.setAttribute('opacity', '0.5');
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // TAB 3: METABOLISM, FUELS & REGULATION CONTROLS
+    // -------------------------------------------------------------------------
+    function setV3Fuel(fuel) {
+      state.v3Fuel = fuel;
+      ['all', 'fat', 'protein'].forEach(f => {
+        const btn = document.getElementById(`v3-fuel-${f}`);
+        if (f === fuel) {
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-[#0F766E] shadow-2xs border border-[#E2DDD5]';
+        } else {
+          btn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-stone-600 hover:text-stone-900';
+        }
+      });
+
+      const carbG = document.getElementById('v3-svg-carb');
+      const fatG = document.getElementById('v3-svg-fat');
+      const protG = document.getElementById('v3-svg-protein');
+
+      carbG.setAttribute('opacity', fuel === 'all' ? '1' : '0.28');
+      fatG.setAttribute('opacity', fuel === 'all' || fuel === 'fat' ? '1' : '0.28');
+      protG.setAttribute('opacity', fuel === 'all' || fuel === 'protein' ? '1' : '0.28');
+    }
+
+    function updateBetaOxidation() {
+      const carbons = Number(document.getElementById('fa-carbons-select').value);
+      const chains = Number(document.getElementById('fa-chains-select').value);
+      const totalC = carbons * chains;
+      const acetylCount = totalC / 2;
+      const estAtp = acetylCount * 14; // ~14 ATP per 2C unit including beta-ox NADH/FADH2 + Krebs
+
+      document.getElementById('beta-total-c').textContent = `${totalC} Carbons`;
+      document.getElementById('beta-acetyl-yield').textContent = `${acetylCount} × Acetyl-CoA (~${estAtp} ATP!)`;
+
+      const container = document.getElementById('beta-chunks-visual');
+      container.innerHTML = '';
+      const displayMax = Math.min(acetylCount, 18);
+      for (let i = 0; i < displayMax; i++) {
+        container.innerHTML += `<span class="px-1.5 py-0.5 rounded bg-teal-100 border border-teal-300 text-[#0F766E] text-[10px] font-bold mono">2C</span>`;
+      }
+      if (acetylCount > 18) {
+        container.innerHTML += `<span class="px-1.5 py-0.5 rounded bg-stone-100 text-stone-600 text-[10px] font-bold mono">+${acetylCount - 18} more</span>`;
+      }
+    }
+
+    function setInsulinState(present) {
+      state.insulinPresent = present;
+      const btnOff = document.getElementById('btn-ins-off');
+      const btnOn = document.getElementById('btn-ins-on');
+      const insLigand = document.getElementById('ins-ligand-group');
+      const vesicle = document.getElementById('glut4-vesicle-group');
+      const memGlut = document.getElementById('glut4-membrane-group');
+      const caption = document.getElementById('insulin-caption');
+
+      if (present) {
+        btnOn.className = 'px-2 py-1 rounded-md text-[11px] font-semibold bg-[#0F766E] text-white shadow-2xs';
+        btnOff.className = 'px-2 py-1 rounded-md text-[11px] font-semibold text-stone-600 hover:text-stone-900';
+        insLigand.classList.remove('hidden');
+        vesicle.classList.add('hidden');
+        memGlut.classList.remove('hidden');
+        caption.innerHTML = '<strong>Insulin Present (Fed State):</strong> Insulin binds its receptor, signaling GLUT4 vesicles to fuse with the plasma membrane. Glucose rushes into the cell and is phosphorylated (G6P) to fuel Glycolysis or Glycogen storage.';
+      } else {
+        btnOff.className = 'px-2 py-1 rounded-md text-[11px] font-semibold bg-white text-stone-800 shadow-2xs border border-[#E2DDD5]';
+        btnOn.className = 'px-2 py-1 rounded-md text-[11px] font-semibold text-stone-600 hover:text-stone-900';
+        insLigand.classList.add('hidden');
+        vesicle.classList.remove('hidden');
+        memGlut.classList.add('hidden');
+        caption.innerHTML = '<strong>Insulin Absent (Fasting):</strong> GLUT4 transporters remain sequestered inside cytoplasmic vesicles. Hydrophilic glucose cannot cross the lipid bilayer and stays in the bloodstream.';
+      }
+    }
+
+    function updatePFKPanel() {
+      const level = Number(document.getElementById('v3-pfk-slider').value);
+      const isMutant = document.getElementById('pfk-mutant-checkbox').checked;
+
+      const label = document.getElementById('pfk-state-label');
+      const rateText = document.getElementById('pfk-svg-rate');
+      const alloBox = document.getElementById('pfk-allo-box');
+      const alloText = document.getElementById('pfk-allo-text');
+      const arrow = document.getElementById('pfk-flow-arrow');
+      const caption = document.getElementById('pfk-caption');
+
+      if (isMutant) {
+        label.textContent = level === 3 ? 'High ADP/AMP' : 'Mutant: Hyper-Sensitive to ATP!';
+        label.className = 'text-[#DC2626] font-bold';
+        alloBox.setAttribute('fill', '#FEE2E2');
+        alloBox.setAttribute('stroke', '#DC2626');
+        alloText.setAttribute('fill', '#B91C1C');
+        alloText.textContent = 'ATP Locked in Allosteric Site!';
+        rateText.textContent = 'Glycolysis Rate: Severely Inhibited';
+        rateText.setAttribute('fill', '#DC2626');
+        arrow.style.opacity = '0.25';
+        caption.innerHTML = '<strong>High-Affinity Allosteric Mutant:</strong> Because PFK\'s allosteric site binds ATP even at low resting concentrations, the enzyme stays permanently shut off—starving the cell of pyruvate and ATP!';
+        return;
+      }
+
+      arrow.style.opacity = '1';
+      if (level === 1) {
+        label.textContent = 'Rest (High ATP / Citrate)';
+        label.className = 'text-[#D97706] font-bold';
+        alloBox.setAttribute('fill', '#FEE2E2');
+        alloBox.setAttribute('stroke', '#DC2626');
+        alloText.setAttribute('fill', '#B91C1C');
+        alloText.textContent = 'Allosteric Inhibitor: ATP Bound';
+        rateText.textContent = 'Glycolysis Rate: Slowed (Feedback)';
+        rateText.setAttribute('fill', '#D97706');
+        arrow.style.opacity = '0.35';
+        caption.innerHTML = '<strong>Feedback Inhibition (Rest):</strong> Abundant ATP binds PFK\'s lower-affinity allosteric inhibitory site, changing enzyme shape to slow Glycolysis and conserve glucose.';
+      } else if (level === 2) {
+        label.textContent = 'Balanced ATP / ADP';
+        label.className = 'text-[#0F766E] font-bold';
+        alloBox.setAttribute('fill', '#FEF3C7');
+        alloBox.setAttribute('stroke', '#D97706');
+        alloText.setAttribute('fill', '#92400E');
+        alloText.textContent = 'Allosteric Site: Empty';
+        rateText.textContent = 'Glycolysis Rate: Steady Baseline';
+        rateText.setAttribute('fill', '#0F766E');
+        caption.innerHTML = '<strong>Dual-Site Logic:</strong> ATP is both a substrate at PFK\'s active site and an allosteric <em>inhibitor</em> at high concentrations. ADP/AMP bind the allosteric site to <em>activate</em> PFK when energy runs low.';
+      } else {
+        label.textContent = 'Sprint (High ADP / AMP)';
+        label.className = 'text-[#4338CA] font-bold';
+        alloBox.setAttribute('fill', '#CCFBF1');
+        alloBox.setAttribute('stroke', '#0F766E');
+        alloText.setAttribute('fill', '#115E59');
+        alloText.textContent = 'Allosteric Activator: ADP/AMP';
+        rateText.textContent = 'Glycolysis Rate: MAXIMUM';
+        rateText.setAttribute('fill', '#4338CA');
+        caption.innerHTML = '<strong>Allosteric Activation (Exercise):</strong> As muscles burn ATP into ADP and AMP, AMP binds PFK\'s activator site—accelerating Glycolysis, Pyruvate Oxidation, and the ETC.';
+      }
+    }
+
+    function setSprintPhase(phase) {
+      state.sprintPhase = phase;
+      [0, 1, 2].forEach(p => {
+        const btn = document.getElementById(`pcr-btn-${p}`);
+        if (p === phase) {
+          btn.className = 'py-1.5 px-2 rounded-lg text-[11px] font-semibold bg-white text-[#D97706] shadow-2xs border border-[#E2DDD5]';
+        } else {
+          btn.className = 'py-1.5 px-2 rounded-lg text-[11px] font-semibold text-stone-600 hover:text-stone-900';
+        }
+      });
+
+      const caption = document.getElementById('pcr-caption');
+      if (phase === 0) {
+        caption.innerHTML = '<strong>0–2 Seconds:</strong> Resting muscle stores only enough free ATP for ~7 seconds of maximal effort. As myosin heads hydrolyze ATP → ADP, Creatine Kinase immediately transfers Pᵢ from Phosphocreatine to ADP (substrate-level phosphorylation).';
+      } else if (phase === 1) {
+        caption.innerHTML = '<strong>3–15 Seconds (PCr Peak):</strong> Phosphocreatine acts as a high-energy phosphate reservoir, regenerating ATP in a single enzymatic step—bridging the gap before multi-step Glycolysis reaches full speed.';
+      } else {
+        caption.innerHTML = '<strong>30+ Seconds (Metabolic Hand-off):</strong> Once Phosphocreatine stores deplete, fast Glycolysis + Lactic Acid Fermentation (anaerobic bursts) and Aerobic Respiration (sustained endurance) take over ATP production.';
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // INITIALIZATION
+    // -------------------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      renderView1();
+      setPerturbation('control');
+      updateBetaOxidation();
+      updatePFKPanel();
+    });
+  </script>
+</body>
+</html>
