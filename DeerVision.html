@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeerVision Lab | Dichromatic Ungulate Vision Simulator</title>
+    <!-- Tailwind CSS for responsive, modern UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter & JetBrains Mono Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        forest: {
+                            950: '#0a120e',
+                            900: '#111f18',
+                            800: '#1a2f24',
+                            700: '#254434',
+                            600: '#325e48',
+                            500: '#458062',
+                            100: '#e6f0eb',
+                        },
+                        blaze: {
+                            500: '#ff5500',
+                            600: '#e04800',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom styles for the comparison slider and interactive elements */
+        body {
+            background-color: #0b120e;
+            color: #f1f5f9;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Viewport container maintaining clean aspect ratio and preventing overflow */
+        #comparison-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 10;
+            max-height: 74vh;
+            background-color: #070c09;
+            border-radius: 1rem;
+            overflow: hidden;
+            touch-action: none; /* Prevents scrolling while dragging slider on mobile */
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.65);
+        }
+
+        @media (max-width: 640px) {
+            #comparison-container {
+                aspect-ratio: 4 / 3;
+                max-height: 60vh;
+            }
+        }
+
+        .viewer-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        /* Vertical Divider Handle */
+        #slider-handle {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background-color: #ffffff;
+            box-shadow: 0 0 14px rgba(0, 0, 0, 0.9);
+            cursor: ew-resize;
+            z-index: 30;
+            transform: translateX(-50%);
+        }
+
+        #slider-knob {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 46px;
+            height: 46px;
+            border-radius: 9999px;
+            background: rgba(17, 31, 24, 0.94);
+            border: 2.5px solid #ffffff;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.65);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            transition: transform 0.15s ease, background-color 0.15s ease;
+        }
+
+        #slider-handle:hover #slider-knob,
+        #slider-handle.dragging #slider-knob {
+            transform: translate(-50%, -50%) scale(1.1);
+            background: #ff5500;
+            border-color: #fff;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Top Navigation / Header -->
+    <header class="bg-forest-900/95 border-b border-forest-800 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-blaze-500 to-amber-600 flex items-center justify-center shadow-lg shadow-blaze-500/20">
+                    <!-- Eye Stylized Icon -->
+                    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-base sm:text-lg font-bold tracking-tight text-white leading-tight">DeerVision Lab</h1>
+                    <p class="text-[11px] sm:text-xs text-slate-400">Drag the line left &amp; right to compare Human vs. White-Tailed Deer vision</p>
+                </div>
+            </div>
+
+            <!-- Three Clean Source Controls -->
+            <div class="flex flex-wrap items-center gap-2">
+                <button id="btn-sample" class="px-3 py-2 rounded-lg text-xs sm:text-sm font-medium bg-forest-700 hover:bg-forest-600 text-white border border-forest-600 transition flex items-center gap-1.5 shadow-sm">
+                    <svg class="w-4 h-4 text-emerald-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <span>Woodland Scene</span>
+                </button>
+
+                <label for="file-upload" class="cursor-pointer px-3 py-2 rounded-lg text-xs sm:text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5 shadow-sm">
+                    <svg class="w-4 h-4 text-sky-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                    </svg>
+                    <span>Upload Photo</span>
+                    <input id="file-upload" type="file" accept="image/*" class="hidden">
+                </label>
+
+                <button id="btn-camera" class="px-3 py-2 rounded-lg text-xs sm:text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5 shadow-sm">
+                    <svg class="w-4 h-4 text-blaze-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    <span id="camera-btn-text">Live Camera</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Notification / Status Banner (Replaces alert() cleanly) -->
+    <div id="status-banner" class="hidden max-w-6xl mx-auto w-full px-4 sm:px-6 mt-3">
+        <div id="status-banner-inner" class="rounded-xl px-4 py-2.5 text-xs sm:text-sm flex items-center justify-between border">
+            <div class="flex items-center gap-2.5">
+                <span id="status-icon"></span>
+                <span id="status-message" class="font-medium"></span>
+            </div>
+            <button id="status-close" class="text-xs opacity-75 hover:opacity-100 px-2 py-1 rounded">Dismiss</button>
+        </div>
+    </div>
+
+    <!-- Main Centerpiece Viewport & Concise Educational Key -->
+    <main class="flex-1 max-w-6xl mx-auto w-full px-4 sm:px-6 py-4 flex flex-col gap-4 justify-center">
+        
+        <!-- Split-Screen Comparison Viewport -->
+        <div id="comparison-container" class="border border-forest-700/80">
+            
+            <!-- Bottom Layer (Full Width): Realistic Deer Vision -->
+            <canvas id="canvas-deer" class="viewer-canvas"></canvas>
+
+            <!-- Top Layer (Clipped by Slider): Human Vision -->
+            <canvas id="canvas-human" class="viewer-canvas"></canvas>
+
+            <!-- Floating Labels -->
+            <div class="absolute top-3.5 left-3.5 z-20 pointer-events-none flex items-center gap-2 bg-slate-950/80 backdrop-blur-md border border-white/15 px-3 py-1.5 rounded-lg shadow-lg">
+                <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-red-500 via-green-500 to-blue-500"></span>
+                <span class="text-xs font-semibold tracking-wide text-white">Human Vision</span>
+            </div>
+
+            <div class="absolute top-3.5 right-3.5 z-20 pointer-events-none flex items-center gap-2 bg-forest-950/85 backdrop-blur-md border border-emerald-500/30 px-3 py-1.5 rounded-lg shadow-lg">
+                <span class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-amber-500 to-blue-500"></span>
+                <span class="text-xs font-semibold tracking-wide text-emerald-300">Deer Vision</span>
+            </div>
+
+            <!-- Live Camera Pause/Resume Overlay Controls (Visible only when webcam active) -->
+            <div id="webcam-controls" class="hidden absolute bottom-3.5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 bg-slate-950/85 backdrop-blur-md border border-white/15 px-3 py-1.5 rounded-full shadow-xl">
+                <span class="flex items-center gap-1.5 text-xs text-rose-400 font-medium px-2">
+                    <span id="live-dot" class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+                    <span id="live-status-text">LIVE</span>
+                </span>
+                <button id="btn-freeze-cam" class="px-3 py-1 rounded-full text-xs font-semibold bg-white text-slate-900 hover:bg-slate-200 transition">
+                    Pause
+                </button>
+            </div>
+
+            <!-- Interactive Draggable Vertical Slider -->
+            <div id="slider-handle" style="left: 50%;" role="slider" aria-label="Comparison slider between human and deer vision" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0">
+                <div id="slider-knob" title="Drag left or right to compare">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 9l-3 3 3 3m8-6l3 3-3 3" />
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Concise Classroom Key -->
+        <div class="bg-forest-900/75 border border-forest-800/90 rounded-xl px-4 py-3 flex flex-col md:flex-row items-start md:items-center justify-between gap-3 text-xs text-slate-300">
+            <div class="flex items-center gap-2.5">
+                <span class="w-3 h-3 rounded-sm bg-blaze-500 shrink-0"></span>
+                <p><strong class="text-white">Why Blaze Orange Disappears:</strong> Deer lack red-sensitive cones, seeing orange &amp; red as muted yellowish-brown that blends into autumn woods.</p>
+            </div>
+            <div class="hidden md:block h-4 w-px bg-forest-700 shrink-0"></div>
+            <div class="flex items-center gap-2.5">
+                <span class="w-3 h-3 rounded-sm bg-sky-400 shrink-0"></span>
+                <p><strong class="text-white">Why Blue Jeans Glow:</strong> Deer lack a UV-blocking eye lens, making blue denim &amp; UV laundry brighteners stand out vividly alongside softer ~20/75 visual detail.</p>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Hidden Source Video & Offscreen Processing Canvas -->
+    <video id="webcam-video" autoplay playsinline muted class="hidden"></video>
+    <canvas id="canvas-source" class="hidden"></canvas>
+    <canvas id="canvas-blur-temp" class="hidden"></canvas>
+
+    <script>
+        /**
+         * DeerVision Lab - Realistic White-Tailed Deer Vision Engine
+         * 
+         * Always-on biologically accurate pipeline (VerCauteren & Pipas 2003; Jacobs et al. 1994):
+         * 1. Dichromatic Color Vision: S-cones (~455 nm) & M-cones (~537 nm), lacking L-cones (red).
+         *    Converts sRGB to linear light and projects onto deer cone sensitivities so blaze orange
+         *    and autumn reds collapse into olive/yellowish-browns that blend into woodland foliage.
+         * 2. Heightened Blue & Near-UV Sensitivity: Lacks human yellow lens filter; boosts short-wavelength
+         *    blue/violet luminance and saturation (making denim & optical brighteners glow).
+         * 3. Rod-Dominated / Tapetum Lucidum Luminance Curve: Subtle midtone/shadow contrast adaptation.
+         * 4. Realistic Visual Acuity (~20/60 to 20/100): Smooth multi-pass optical softening scaled to
+         *    canvas resolution, preserving movement/silhouettes while softening fine human-level textures.
+         */
+
+        // DOM Elements
+        const container = document.getElementById('comparison-container');
+        const canvasHuman = document.getElementById('canvas-human');
+        const canvasDeer = document.getElementById('canvas-deer');
+        const canvasSource = document.getElementById('canvas-source');
+        const canvasBlurTemp = document.getElementById('canvas-blur-temp');
+        const webcamVideo = document.getElementById('webcam-video');
+
+        const ctxHuman = canvasHuman.getContext('2d', { willReadFrequently: true });
+        const ctxDeer = canvasDeer.getContext('2d', { willReadFrequently: true });
+        const ctxSource = canvasSource.getContext('2d', { willReadFrequently: true });
+        const ctxBlurTemp = canvasBlurTemp.getContext('2d');
+
+        const sliderHandle = document.getElementById('slider-handle');
+
+        const btnSample = document.getElementById('btn-sample');
+        const fileUpload = document.getElementById('file-upload');
+        const btnCamera = document.getElementById('btn-camera');
+        const cameraBtnText = document.getElementById('camera-btn-text');
+        const webcamControls = document.getElementById('webcam-controls');
+        const btnFreezeCam = document.getElementById('btn-freeze-cam');
+        const liveDot = document.getElementById('live-dot');
+        const liveStatusText = document.getElementById('live-status-text');
+
+        // Application State
+        const state = {
+            splitPercent: 50,
+            isDragging: false,
+            mode: 'sample', // 'sample' | 'upload' | 'camera'
+            cameraStream: null,
+            cameraFrozen: false,
+            animFrameId: null,
+            sourceWidth: 960,
+            sourceHeight: 600
+        };
+
+        // Precompute sRGB <-> Linear RGB Lookup Tables for 60fps pixel processing
+        const SRGB_TO_LINEAR = new Float32Array(256);
+        const LINEAR_TO_SRGB = new Uint8ClampedArray(4096);
+
+        (function initGammaLUTs() {
+            for (let i = 0; i < 256; i++) {
+                const c = i / 255;
+                SRGB_TO_LINEAR[i] = c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+            }
+            for (let i = 0; i < 4096; i++) {
+                const l = i / 4095;
+                // Subtle rod-dominated / tapetum lucidum shadow-lift luminance curve
+                const adapted = Math.pow(l, 0.94);
+                const s = adapted <= 0.0031308 ? adapted * 12.92 : 1.055 * Math.pow(adapted, 1 / 2.4) - 0.055;
+                LINEAR_TO_SRGB[i] = Math.round(Math.min(1, Math.max(0, s)) * 255);
+            }
+        })();
+
+        /**
+         * Displays non-intrusive status banners instead of alert()
+         */
+        function showStatus(message, type = 'info') {
+            const banner = document.getElementById('status-banner');
+            const inner = document.getElementById('status-banner-inner');
+            const msgEl = document.getElementById('status-message');
+            const iconEl = document.getElementById('status-icon');
+
+            banner.classList.remove('hidden');
+            msgEl.textContent = message;
+
+            if (type === 'error') {
+                inner.className = 'rounded-xl px-4 py-2.5 text-xs sm:text-sm flex items-center justify-between border bg-rose-950/90 border-rose-700 text-rose-200';
+                iconEl.innerHTML = '⚠️';
+            } else {
+                inner.className = 'rounded-xl px-4 py-2.5 text-xs sm:text-sm flex items-center justify-between border bg-forest-900/95 border-emerald-600/50 text-emerald-200';
+                iconEl.innerHTML = '🦌';
+            }
+        }
+
+        document.getElementById('status-close').addEventListener('click', () => {
+            document.getElementById('status-banner').classList.add('hidden');
+        });
+
+        /**
+         * Updates the CSS clip-path and handle position for the split-screen slider
+         */
+        function updateSplitPosition(percent) {
+            state.splitPercent = Math.max(0, Math.min(100, percent));
+            sliderHandle.style.left = `${state.splitPercent}%`;
+            sliderHandle.setAttribute('aria-valuenow', Math.round(state.splitPercent));
+            canvasHuman.style.clipPath = `inset(0 ${100 - state.splitPercent}% 0 0)`;
+        }
+
+        /**
+         * Converts mouse/touch clientX to percentage across the comparison container
+         */
+        function handlePointerMove(clientX) {
+            const rect = container.getBoundingClientRect();
+            if (rect.width <= 0) return;
+            const x = clientX - rect.left;
+            const percent = (x / rect.width) * 100;
+            updateSplitPosition(percent);
+        }
+
+        // Mouse & Touch Events for Split Slider
+        container.addEventListener('mousedown', (e) => {
+            if (e.target.closest('#webcam-controls')) return;
+            state.isDragging = true;
+            sliderHandle.classList.add('dragging');
+            handlePointerMove(e.clientX);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!state.isDragging) return;
+            handlePointerMove(e.clientX);
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (state.isDragging) {
+                state.isDragging = false;
+                sliderHandle.classList.remove('dragging');
+            }
+        });
+
+        container.addEventListener('touchstart', (e) => {
+            if (e.target.closest('#webcam-controls')) return;
+            state.isDragging = true;
+            sliderHandle.classList.add('dragging');
+            if (e.touches.length > 0) {
+                handlePointerMove(e.touches[0].clientX);
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!state.isDragging) return;
+            if (e.touches.length > 0) {
+                handlePointerMove(e.touches[0].clientX);
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchend', () => {
+            state.isDragging = false;
+            sliderHandle.classList.remove('dragging');
+        });
+
+        // Keyboard accessibility for slider handle
+        sliderHandle.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                updateSplitPosition(state.splitPercent - 3);
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                updateSplitPosition(state.splitPercent + 3);
+            }
+        });
+
+        /**
+         * Resizes internal canvases cleanly while maintaining smooth 60fps performance
+         */
+        function setCanvasDimensions(width, height) {
+            const maxDim = 960;
+            let w = width;
+            let h = height;
+            if (w > maxDim) {
+                h = Math.round((h * maxDim) / w);
+                w = maxDim;
+            }
+            state.sourceWidth = w;
+            state.sourceHeight = h;
+
+            [canvasSource, canvasHuman, canvasDeer].forEach(c => {
+                c.width = w;
+                c.height = h;
+            });
+        }
+
+        /**
+         * Core Realistic Deer Vision Transformation Pipeline:
+         * Combines dichromatic S/M cone projection, heightened UV/blue lens sensitivity,
+         * rod-dominated luminance response, and ~20/75 spatial visual acuity softening.
+         */
+        function renderSimulationFrame() {
+            const w = state.sourceWidth;
+            const h = state.sourceHeight;
+            if (w === 0 || h === 0) return;
+
+            // 1. Render sharp Human Trichromatic View on top canvas
+            ctxHuman.drawImage(canvasSource, 0, 0, w, h);
+
+            // 2. Extract linear pixel values for Deer Vision transformation
+            const imgData = ctxSource.getImageData(0, 0, w, h);
+            const data = imgData.data;
+
+            for (let i = 0; i < data.length; i += 4) {
+                const rLin = SRGB_TO_LINEAR[data[i]];
+                const gLin = SRGB_TO_LINEAR[data[i + 1]];
+                const bLin = SRGB_TO_LINEAR[data[i + 2]];
+
+                // Dichromatic projection (L-cone absent; M-cone at ~537nm & S-cone at ~455nm)
+                // Long-wavelength blaze orange & red collapse onto muted olive/yellowish-brown
+                let dR = 0.165 * rLin + 0.835 * gLin;
+                let dG = 0.160 * rLin + 0.840 * gLin;
+                let dB = 0.008 * rLin - 0.025 * gLin + 1.017 * bLin;
+
+                // Heightened Short-Wavelength / Near-UV Sensitivity (No yellow UV lens filter in deer)
+                // Makes blue denim and UV-brightened fabrics stand out vividly
+                const blueExcess = Math.max(0, bLin - 0.44 * (rLin + gLin));
+                if (blueExcess > 0.01) {
+                    dB += blueExcess * 0.68;
+                    dR = Math.max(0, dR - blueExcess * 0.08);
+                    dG += blueExcess * 0.14;
+                }
+
+                // Convert back to sRGB via gamma + tapetum luminance LUT
+                const idxR = Math.min(4095, Math.max(0, (dR * 4095) | 0));
+                const idxG = Math.min(4095, Math.max(0, (dG * 4095) | 0));
+                const idxB = Math.min(4095, Math.max(0, (dB * 4095) | 0));
+
+                data[i] = LINEAR_TO_SRGB[idxR];
+                data[i + 1] = LINEAR_TO_SRGB[idxG];
+                data[i + 2] = LINEAR_TO_SRGB[idxB];
+            }
+
+            // 3. Apply Realistic Visual Acuity (~20/60 to 20/100 spatial resolution)
+            // Multi-stage bilinear optical softening scaled proportionally to canvas resolution
+            const scaleFactor = 0.38;
+            const bw = Math.max(1, Math.floor(w * scaleFactor));
+            const bh = Math.max(1, Math.floor(h * scaleFactor));
+
+            canvasBlurTemp.width = w;
+            canvasBlurTemp.height = h;
+            ctxBlurTemp.putImageData(imgData, 0, 0);
+
+            ctxDeer.save();
+            ctxDeer.imageSmoothingEnabled = true;
+            ctxDeer.imageSmoothingQuality = 'high';
+            ctxDeer.drawImage(canvasBlurTemp, 0, 0, w, h, 0, 0, bw, bh);
+            ctxDeer.drawImage(canvasDeer, 0, 0, bw, bh, 0, 0, w, h);
+            ctxDeer.restore();
+        }
+
+        /**
+         * Generates a rich, realistic procedural woodland hunting scene:
+         * - Autumn oaks, birches, and maples with red, orange, yellow, and olive foliage
+         * - A hunter wearing a bright Blaze Orange safety vest & cap (which vanishes into the
+         *   background foliage in Deer Vision) alongside Blue Jeans (which stand out starkly)
+         * - Distant white-tailed doe silhouette near the tree line
+         */
+        function generateWoodlandSampleScene() {
+            stopCamera();
+            state.mode = 'sample';
+            const w = 960;
+            const h = 600;
+            setCanvasDimensions(w, h);
+
+            const ctx = ctxSource;
+            ctx.save();
+
+            // 1. Crisp Autumn Blue Sky
+            const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.55);
+            skyGrad.addColorStop(0, '#1e64b4');
+            skyGrad.addColorStop(0.55, '#5ba4e5');
+            skyGrad.addColorStop(1, '#cde4f7');
+            ctx.fillStyle = skyGrad;
+            ctx.fillRect(0, 0, w, h * 0.6);
+
+            // Distant misty ridge
+            ctx.fillStyle = '#4e6b5c';
+            ctx.beginPath();
+            ctx.moveTo(0, h * 0.48);
+            ctx.quadraticCurveTo(w * 0.25, h * 0.36, w * 0.52, h * 0.45);
+            ctx.quadraticCurveTo(w * 0.8, h * 0.52, w, h * 0.40);
+            ctx.lineTo(w, h * 0.65);
+            ctx.lineTo(0, h * 0.65);
+            ctx.closePath();
+            ctx.fill();
+
+            // 2. Background Forest Canopy (Mix of evergreens, golden oaks, and crimson maples)
+            const foliageClusters = [
+                { x: 90, y: 180, r: 120, color: '#2d5233' },
+                { x: 220, y: 150, r: 140, color: '#b84a14' }, // Autumn rust-orange
+                { x: 370, y: 190, r: 130, color: '#3b6138' },
+                { x: 520, y: 140, r: 145, color: '#c97a16' }, // Golden ochre
+                { x: 690, y: 170, r: 135, color: '#9e2a1c' }, // Crimson maple
+                { x: 850, y: 160, r: 140, color: '#294a2e' },
+            ];
+
+            foliageClusters.forEach(c => {
+                for (let j = 0; j < 18; j++) {
+                    const angle = (j / 18) * Math.PI * 2;
+                    const dist = (j % 3) * (c.r * 0.28);
+                    ctx.fillStyle = c.color;
+                    ctx.beginPath();
+                    ctx.arc(c.x + Math.cos(angle) * dist, c.y + Math.sin(angle) * dist * 0.7, c.r * 0.42, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+
+            // 3. Forest Floor & Leaf Litter
+            const groundGrad = ctx.createLinearGradient(0, h * 0.52, 0, h);
+            groundGrad.addColorStop(0, '#5a6332');
+            groundGrad.addColorStop(0.35, '#6b532b');
+            groundGrad.addColorStop(1, '#3d2e18');
+            ctx.fillStyle = groundGrad;
+            ctx.fillRect(0, h * 0.52, w, h * 0.48);
+
+            // Forest Stream on the right (reflecting sky blue)
+            const streamGrad = ctx.createLinearGradient(w * 0.62, h * 0.54, w * 0.95, h);
+            streamGrad.addColorStop(0, '#5299d6');
+            streamGrad.addColorStop(1, '#1d568f');
+            ctx.fillStyle = streamGrad;
+            ctx.beginPath();
+            ctx.moveTo(w * 0.68, h * 0.53);
+            ctx.bezierCurveTo(w * 0.78, h * 0.65, w * 0.58, h * 0.82, w * 0.74, h);
+            ctx.lineTo(w * 0.96, h);
+            ctx.bezierCurveTo(w * 0.82, h * 0.80, w * 0.92, h * 0.64, w * 0.76, h * 0.53);
+            ctx.closePath();
+            ctx.fill();
+
+            // 4. Midground Tree Trunks (Oak & Birch bark texture)
+            function drawOakTrunk(x, yTop, yBottom, width, baseColor, shadowColor) {
+                const grad = ctx.createLinearGradient(x - width / 2, 0, x + width / 2, 0);
+                grad.addColorStop(0, shadowColor);
+                grad.addColorStop(0.65, baseColor);
+                grad.addColorStop(1, shadowColor);
+                ctx.fillStyle = grad;
+                ctx.fillRect(x - width / 2, yTop, width, yBottom - yTop);
+
+                ctx.strokeStyle = 'rgba(20, 15, 10, 0.35)';
+                ctx.lineWidth = 2;
+                for (let bx = x - width * 0.35; bx < x + width * 0.4; bx += 7) {
+                    ctx.beginPath();
+                    ctx.moveTo(bx, yTop);
+                    ctx.lineTo(bx + Math.sin(bx) * 3, yBottom);
+                    ctx.stroke();
+                }
+            }
+
+            function drawBirchTrunk(x, yTop, yBottom, width) {
+                const grad = ctx.createLinearGradient(x - width / 2, 0, x + width / 2, 0);
+                grad.addColorStop(0, '#cbd5e1');
+                grad.addColorStop(0.55, '#f8fafc');
+                grad.addColorStop(1, '#94a3b8');
+                ctx.fillStyle = grad;
+                ctx.fillRect(x - width / 2, yTop, width, yBottom - yTop);
+
+                // Characteristic horizontal dark birch bark lenticels
+                ctx.fillStyle = '#1e293b';
+                for (let by = yTop + 18; by < yBottom - 10; by += 26) {
+                    const markW = width * (0.35 + ((by * 7) % 4) * 0.12);
+                    const offsetX = ((by * 13) % 10) - 5;
+                    ctx.fillRect(x - markW / 2 + offsetX, by, markW, 3.5);
+                }
+            }
+
+            drawOakTrunk(110, 0, h * 0.88, 54, '#594736', '#33271c');
+            drawBirchTrunk(315, 0, h * 0.72, 32);
+            drawOakTrunk(635, 0, h * 0.78, 42, '#544332', '#2e2319');
+            drawOakTrunk(885, 0, h * 0.94, 68, '#4d3d2e', '#291f16');
+
+            // 5. Distant White-Tailed Deer Silhouette standing near tree line (x=765, y=318)
+            ctx.save();
+            ctx.fillStyle = '#7c5d3b';
+            // Body
+            ctx.beginPath();
+            ctx.ellipse(765, 322, 22, 10, -0.05, 0, Math.PI * 2);
+            ctx.fill();
+            // Legs
+            ctx.strokeStyle = '#63482b';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.moveTo(750, 328); ctx.lineTo(748, 352);
+            ctx.moveTo(757, 329); ctx.lineTo(757, 353);
+            ctx.moveTo(775, 328); ctx.lineTo(775, 352);
+            ctx.moveTo(781, 327); ctx.lineTo(784, 351);
+            ctx.stroke();
+            // Neck & Head
+            ctx.fillStyle = '#856542';
+            ctx.beginPath();
+            ctx.moveTo(748, 318);
+            ctx.lineTo(738, 298);
+            ctx.lineTo(746, 296);
+            ctx.lineTo(755, 316);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.ellipse(736, 298, 8, 4.5, -0.2, 0, Math.PI * 2);
+            ctx.fill();
+            // Ears & White Tail patch
+            ctx.beginPath();
+            ctx.ellipse(743, 291, 2.5, 5.5, 0.35, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#f1f5f9';
+            ctx.beginPath();
+            ctx.ellipse(786, 319, 3, 5, 0.2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+
+            // 6. Midground Autumn Shrubs & Ferns (Directly behind and beside the hunter)
+            const bushPalette = ['#7d5c24', '#586e2b', '#a84e18', '#6b5327', '#4b6327'];
+            for (let i = 0; i < 65; i++) {
+                const bx = (i * 15.3) % w;
+                const by = h * 0.52 + ((i * 29) % (h * 0.25));
+                ctx.fillStyle = bushPalette[i % bushPalette.length];
+                ctx.beginPath();
+                ctx.arc(bx, by, 18 + (i % 14), 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // 7. THE HUNTER (Center-Left at x=465)
+            // Wearing Blaze Orange Vest & Cap + Woodland Camo Sleeves + Classic Blue Jeans
+            const hx = 465;
+            const hy = 315;
+
+            // Ground shadow under boots
+            ctx.fillStyle = 'rgba(15, 12, 8, 0.45)';
+            ctx.beginPath();
+            ctx.ellipse(hx, hy + 198, 48, 11, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Boots (Dark leather brown)
+            ctx.fillStyle = '#362417';
+            ctx.beginPath();
+            ctx.roundRect(hx - 26, hy + 178, 22, 22, 5);
+            ctx.roundRect(hx + 5, hy + 178, 22, 22, 5);
+            ctx.fill();
+
+            // BLUE JEANS (Denim indigo-blue — pops vividly in Deer Vision!)
+            const denimGrad = ctx.createLinearGradient(hx - 25, hy + 80, hx + 25, hy + 180);
+            denimGrad.addColorStop(0, '#1d4ed8');
+            denimGrad.addColorStop(0.5, '#2563eb');
+            denimGrad.addColorStop(1, '#1e3a8a');
+            ctx.fillStyle = denimGrad;
+            ctx.beginPath();
+            ctx.roundRect(hx - 24, hy + 82, 20, 100, 6);
+            ctx.roundRect(hx + 4, hy + 82, 20, 100, 6);
+            ctx.fill();
+
+            // Jean seams & highlights
+            ctx.strokeStyle = '#60a5fa';
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(hx - 14, hy + 88);
+            ctx.lineTo(hx - 14, hy + 175);
+            ctx.moveTo(hx + 14, hy + 88);
+            ctx.lineTo(hx + 14, hy + 175);
+            ctx.stroke();
+
+            // Camouflage Sleeves (Olive/brown woodland camo)
+            ctx.fillStyle = '#4e5932';
+            ctx.beginPath();
+            ctx.roundRect(hx - 40, hy + 12, 16, 72, 8);
+            ctx.roundRect(hx + 24, hy + 12, 16, 72, 8);
+            ctx.fill();
+
+            // Hands
+            ctx.fillStyle = '#d9a077';
+            ctx.beginPath();
+            ctx.arc(hx - 32, hy + 86, 7, 0, Math.PI * 2);
+            ctx.arc(hx + 32, hy + 86, 7, 0, Math.PI * 2);
+            ctx.fill();
+
+            // BLAZE ORANGE VEST (Vibrant #FF5200 — bright to humans, blends into woods for deer!)
+            const vestGrad = ctx.createLinearGradient(hx - 26, hy + 6, hx + 26, hy + 86);
+            vestGrad.addColorStop(0, '#ff5e00');
+            vestGrad.addColorStop(1, '#e64500');
+            ctx.fillStyle = vestGrad;
+            ctx.beginPath();
+            ctx.roundRect(hx - 26, hy + 6, 52, 80, 10);
+            ctx.fill();
+
+            // Vest zipper & pockets detail
+            ctx.strokeStyle = '#9a2c00';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(hx, hy + 8);
+            ctx.lineTo(hx, hy + 85);
+            ctx.strokeRect(hx - 20, hy + 52, 14, 18);
+            ctx.strokeRect(hx + 6, hy + 52, 14, 18);
+            ctx.stroke();
+
+            // Binoculars hanging on chest
+            ctx.fillStyle = '#1e293b';
+            ctx.beginPath();
+            ctx.roundRect(hx - 10, hy + 28, 8, 16, 2);
+            ctx.roundRect(hx + 2, hy + 28, 8, 16, 2);
+            ctx.fill();
+
+            // Head & Neck
+            ctx.fillStyle = '#e0a982';
+            ctx.fillRect(hx - 7, hy - 6, 14, 14);
+            ctx.beginPath();
+            ctx.arc(hx, hy - 18, 15, 0, Math.PI * 2);
+            ctx.fill();
+
+            // BLAZE ORANGE HUNTING CAP
+            ctx.fillStyle = '#ff5500';
+            ctx.beginPath();
+            ctx.arc(hx, hy - 22, 16, Math.PI, 0);
+            ctx.fill();
+            ctx.fillStyle = '#d94400';
+            ctx.beginPath();
+            ctx.ellipse(hx + 4, hy - 22, 19, 4.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 8. Foreground Fallen Leaves & Wild Bluebells
+            const leafColors = ['#c94a12', '#d97714', '#69782d', '#8c3b19', '#a67c21'];
+            for (let i = 0; i < 160; i++) {
+                const lx = (i * 47.7) % w;
+                const ly = h * 0.66 + ((i * 31.3) % (h * 0.34));
+                ctx.fillStyle = leafColors[i % leafColors.length];
+                ctx.beginPath();
+                ctx.ellipse(lx, ly, 6 + (i % 5), 3 + (i % 3), (i % 6) * 0.5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // Foreground wild bluebells cluster on bottom-left
+            for (let b = 0; b < 14; b++) {
+                const fx = 165 + (b % 5) * 14 + Math.sin(b) * 6;
+                const fy = 485 + Math.floor(b / 5) * 16;
+                ctx.strokeStyle = '#3b5926';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(fx, fy + 18);
+                ctx.lineTo(fx, fy);
+                ctx.stroke();
+
+                ctx.fillStyle = '#4f46e5';
+                ctx.beginPath();
+                ctx.arc(fx, fy, 5, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            ctx.restore();
+            renderSimulationFrame();
+        }
+
+        /**
+         * Handles Custom Image Upload from Student Device
+         */
+        fileUpload.addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showStatus('Please select a valid image file (JPG, PNG, WebP).', 'error');
+                return;
+            }
+
+            stopCamera();
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    state.mode = 'upload';
+                    setCanvasDimensions(img.naturalWidth, img.naturalHeight);
+                    ctxSource.drawImage(img, 0, 0, state.sourceWidth, state.sourceHeight);
+                    renderSimulationFrame();
+                    showStatus(`Loaded "${file.name}". Drag the divider line to compare Human vs. Deer vision!`, 'info');
+                };
+                img.onerror = () => {
+                    showStatus('Unable to decode that image file. Try another photo.', 'error');
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+            fileUpload.value = '';
+        });
+
+        /**
+         * Live Webcam Streaming & Pause/Resume Logic
+         */
+        function stopCamera() {
+            if (state.animFrameId) {
+                cancelAnimationFrame(state.animFrameId);
+                state.animFrameId = null;
+            }
+            if (state.cameraStream) {
+                state.cameraStream.getTracks().forEach(track => track.stop());
+                state.cameraStream = null;
+            }
+            webcamVideo.srcObject = null;
+            state.cameraFrozen = false;
+            webcamControls.classList.add('hidden');
+            cameraBtnText.textContent = 'Live Camera';
+            btnCamera.classList.remove('bg-rose-900/60', 'border-rose-600', 'text-rose-200');
+        }
+
+        function webcamLoop() {
+            if (state.mode !== 'camera') return;
+            if (!state.cameraFrozen && webcamVideo.readyState >= webcamVideo.HAVE_CURRENT_DATA) {
+                ctxSource.drawImage(webcamVideo, 0, 0, state.sourceWidth, state.sourceHeight);
+                renderSimulationFrame();
+            }
+            state.animFrameId = requestAnimationFrame(webcamLoop);
+        }
+
+        btnCamera.addEventListener('click', async () => {
+            if (state.mode === 'camera') {
+                generateWoodlandSampleScene();
+                showStatus('Camera stopped. Returned to Woodland Scene.', 'info');
+                return;
+            }
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showStatus('Camera access is not supported in this browser or requires HTTPS.', 'error');
+                return;
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 960 },
+                        height: { ideal: 600 }
+                    },
+                    audio: false
+                });
+
+                state.cameraStream = stream;
+                state.mode = 'camera';
+                state.cameraFrozen = false;
+                webcamVideo.srcObject = stream;
+
+                webcamVideo.onloadedmetadata = () => {
+                    webcamVideo.play();
+                    const vw = webcamVideo.videoWidth || 800;
+                    const vh = webcamVideo.videoHeight || 600;
+                    setCanvasDimensions(vw, vh);
+
+                    cameraBtnText.textContent = 'Stop Camera';
+                    btnCamera.classList.add('bg-rose-900/60', 'border-rose-600', 'text-rose-200');
+                    webcamControls.classList.remove('hidden');
+                    btnFreezeCam.textContent = 'Pause';
+                    liveDot.classList.add('animate-pulse', 'bg-rose-500');
+                    liveDot.classList.remove('bg-amber-400');
+                    liveStatusText.textContent = 'LIVE';
+
+                    showStatus('Live camera active! Point at blaze orange, camo, or blue jeans to test deer vision.', 'info');
+                    webcamLoop();
+                };
+            } catch (err) {
+                console.error('Camera error:', err);
+                showStatus('Camera permission denied or no camera detected. You can still upload a photo!', 'error');
+            }
+        });
+
+        // Pause / Resume Live Camera Frame
+        btnFreezeCam.addEventListener('click', () => {
+            if (state.mode !== 'camera') return;
+            state.cameraFrozen = !state.cameraFrozen;
+            if (state.cameraFrozen) {
+                btnFreezeCam.textContent = 'Resume';
+                liveDot.classList.remove('animate-pulse', 'bg-rose-500');
+                liveDot.classList.add('bg-amber-400');
+                liveStatusText.textContent = 'PAUSED';
+            } else {
+                btnFreezeCam.textContent = 'Pause';
+                liveDot.classList.add('animate-pulse', 'bg-rose-500');
+                liveDot.classList.remove('bg-amber-400');
+                liveStatusText.textContent = 'LIVE';
+            }
+        });
+
+        // Sample Scene Button
+        btnSample.addEventListener('click', () => {
+            generateWoodlandSampleScene();
+            document.getElementById('status-banner').classList.add('hidden');
+        });
+
+        // Initialize App on Load
+        window.addEventListener('DOMContentLoaded', () => {
+            updateSplitPosition(50);
+            generateWoodlandSampleScene();
+        });
+    </script>
+</body>
+</html>
