@@ -1,0 +1,1967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BirdVision Lab | Avian Tetrachromatic &amp; UV Vision Simulator</title>
+    <style>
+        :root {
+            --bg-primary: #0b1120;
+            --bg-surface: #111827;
+            --bg-elevated: #1e293b;
+            --border-subtle: rgba(148, 163, 184, 0.18);
+            --border-accent: rgba(56, 189, 248, 0.35);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-sky: #38bdf8;
+            --accent-uv: #c084fc;
+            --accent-uv-deep: #9333ea;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        /* Header Bar */
+        header {
+            background: rgba(17, 24, 39, 0.92);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-subtle);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            padding: 0.65rem 1.25rem;
+        }
+
+        .header-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #38bdf8 0%, #9333ea 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 18px rgba(147, 51, 234, 0.3);
+            flex-shrink: 0;
+        }
+
+        .brand-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .brand-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Header Action Buttons */
+        .controls-group {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            appearance: none;
+            border: 1px solid var(--border-subtle);
+            background-color: var(--bg-elevated);
+            color: #e2e8f0;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.5rem 0.85rem;
+            border-radius: 9px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            transition: all 0.16s ease;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn:hover {
+            background-color: #283548;
+            border-color: rgba(148, 163, 184, 0.35);
+            color: #ffffff;
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn-active-source {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(192, 132, 252, 0.22));
+            border-color: rgba(192, 132, 252, 0.55);
+            color: #ffffff;
+        }
+
+        .btn-camera-live {
+            background: rgba(190, 18, 60, 0.25);
+            border-color: rgba(244, 63, 94, 0.6);
+            color: #fecdd3;
+        }
+
+        .hidden-input {
+            display: none;
+        }
+
+        /* Status Banner */
+        #status-banner {
+            max-width: 1180px;
+            width: calc(100% - 2.5rem);
+            margin: 0.65rem auto 0;
+            display: none;
+        }
+
+        #status-banner.visible {
+            display: block;
+        }
+
+        .status-inner {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.55rem 0.9rem;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            background: rgba(15, 23, 42, 0.92);
+            color: #bae6fd;
+        }
+
+        .status-inner.error {
+            border-color: rgba(244, 63, 94, 0.45);
+            background: rgba(76, 5, 25, 0.85);
+            color: #fecdd3;
+        }
+
+        .status-dismiss {
+            background: transparent;
+            border: none;
+            color: inherit;
+            opacity: 0.75;
+            cursor: pointer;
+            font-size: 0.75rem;
+            padding: 0.2rem 0.45rem;
+            border-radius: 6px;
+        }
+
+        .status-dismiss:hover {
+            opacity: 1;
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Main Viewport Layout */
+        main {
+            flex: 1;
+            max-width: 1180px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0.85rem 1.25rem 1rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 0.85rem;
+        }
+
+        #comparison-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9.5;
+            max-height: 72vh;
+            background-color: #050811;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border-accent);
+            box-shadow: 0 24px 55px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(192, 132, 252, 0.12);
+            touch-action: none;
+        }
+
+        @media (max-width: 640px) {
+            header {
+                padding: 0.6rem 0.9rem;
+            }
+            main {
+                padding: 0.65rem 0.9rem 0.85rem;
+            }
+            #comparison-container {
+                aspect-ratio: 4 / 3;
+                max-height: 58vh;
+            }
+        }
+
+        .viewer-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+        }
+
+        /* Floating Corner Labels */
+        .view-badge {
+            position: absolute;
+            top: 0.85rem;
+            z-index: 20;
+            pointer-events: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.75rem;
+            border-radius: 9px;
+            background: rgba(9, 13, 24, 0.82);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.45);
+            font-size: 0.74rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        .badge-left {
+            left: 0.85rem;
+            color: #f1f5f9;
+        }
+
+        .badge-right {
+            right: 0.85rem;
+            border-color: rgba(192, 132, 252, 0.4);
+            color: #e9d5ff;
+        }
+
+        .dot-human {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ef4444, #22c55e, #3b82f6);
+            flex-shrink: 0;
+        }
+
+        .dot-bird {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #38bdf8, #c084fc, #f43f5e);
+            box-shadow: 0 0 8px rgba(192, 132, 252, 0.8);
+            flex-shrink: 0;
+        }
+
+        @media (max-width: 520px) {
+            .view-badge {
+                font-size: 0.65rem;
+                padding: 0.3rem 0.55rem;
+                top: 0.55rem;
+            }
+            .badge-left { left: 0.55rem; }
+            .badge-right { right: 0.55rem; }
+        }
+
+        /* Webcam Live Controls Pill */
+        #webcam-controls {
+            position: absolute;
+            bottom: 0.9rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 30;
+            display: none;
+            align-items: center;
+            gap: 0.55rem;
+            padding: 0.35rem 0.45rem 0.35rem 0.8rem;
+            border-radius: 999px;
+            background: rgba(9, 13, 24, 0.88);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55);
+        }
+
+        #webcam-controls.visible {
+            display: flex;
+        }
+
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            color: #fda4af;
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #f43f5e;
+            animation: pulse 1.4s infinite;
+        }
+
+        .live-dot.paused {
+            background-color: #fbbf24;
+            animation: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+
+        .btn-freeze {
+            border: none;
+            background: #f8fafc;
+            color: #0f172a;
+            font-size: 0.74rem;
+            font-weight: 700;
+            padding: 0.32rem 0.8rem;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background 0.15s ease;
+        }
+
+        .btn-freeze:hover {
+            background: #e2e8f0;
+        }
+
+        /* Draggable Vertical Divider */
+        #slider-handle {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(180deg, #38bdf8 0%, #ffffff 50%, #c084fc 100%);
+            box-shadow: 0 0 16px rgba(0, 0, 0, 0.95);
+            cursor: ew-resize;
+            z-index: 25;
+            transform: translateX(-50%);
+            outline: none;
+        }
+
+        #slider-handle:focus-visible #slider-knob {
+            box-shadow: 0 0 0 3px var(--accent-sky), 0 6px 18px rgba(0, 0, 0, 0.7);
+        }
+
+        #slider-knob {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: rgba(15, 23, 42, 0.95);
+            border: 2.5px solid #ffffff;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+        }
+
+        #slider-handle:hover #slider-knob,
+        #slider-handle.dragging #slider-knob {
+            transform: translate(-50%, -50%) scale(1.1);
+            background: linear-gradient(135deg, #0284c7, #9333ea);
+            border-color: #f8fafc;
+        }
+
+        /* Compact Educational Footer Key */
+        .edu-footer {
+            background: rgba(17, 24, 39, 0.85);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 0.75rem 1rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.9rem;
+        }
+
+        @media (max-width: 860px) {
+            .edu-footer {
+                grid-template-columns: 1fr;
+                gap: 0.65rem;
+            }
+        }
+
+        .edu-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.6rem;
+            font-size: 0.76rem;
+            line-height: 1.42;
+            color: #cbd5e1;
+        }
+
+        .edu-swatch {
+            width: 11px;
+            height: 11px;
+            border-radius: 3px;
+            margin-top: 0.22rem;
+            flex-shrink: 0;
+        }
+
+        .swatch-tetra {
+            background: linear-gradient(135deg, #38bdf8, #c084fc);
+            box-shadow: 0 0 8px rgba(192, 132, 252, 0.6);
+        }
+
+        .swatch-uv {
+            background: #e879f9;
+            box-shadow: 0 0 8px rgba(232, 121, 249, 0.6);
+        }
+
+        .swatch-acuity {
+            background: #34d399;
+        }
+
+        .edu-item strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .hidden-media {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Navigation Header -->
+    <header>
+        <div class="header-inner">
+            <div class="brand">
+                <div class="brand-icon" aria-hidden="true">
+                    <!-- Stylized Avian Eye / Prism SVG -->
+                    <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/>
+                        <circle cx="12" cy="12" r="3.2"/>
+            <!-- Four Input Source Controls -->
+            <div class="controls-group">
+                <button id="btn-sample" class="btn btn-active-source" type="button">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c084fc" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+                        <circle cx="17" cy="7" r="2"/>
+                    </svg>
+                    <span>Meadow Scene</span>
+                </button>
+
+                <button id="btn-plumage" class="btn" type="button">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#e879f9" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"/>
+                        <line x1="16" y1="8" x2="2" y2="22"/>
+                        <line x1="17.5" y1="15" x2="9" y2="15"/>
+                    </svg>
+                    <span>Bird Plumage (UV)</span>
+                </button>
+
+                <label for="file-upload" class="btn" role="button" tabindex="0">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#38bdf8" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="17 8 12 3 7 8"/>
+                        <line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <span>Upload Photo</span>
+                    <input id="file-upload" class="hidden-input" type="file" accept="image/*">
+                </label>
+
+                <button id="btn-camera" class="btn" type="button">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M23 7l-7 5 7 5V7z"/>
+                        <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                    </svg>
+                    <span id="camera-btn-text">Live Camera</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Non-blocking Status Banner -->
+    <div id="status-banner" role="status" aria-live="polite">
+        <div id="status-inner" class="status-inner">
+            <span id="status-message"></span>
+            <button id="status-close" class="status-dismiss" type="button">Dismiss</button>
+        </div>
+    </div>
+
+    <!-- Main Centerpiece Split-Screen Viewport & Educational Footer -->
+    <main>
+        <div id="comparison-container">
+            <!-- Base Layer (Full Width): Avian Tetrachromatic + UV Vision -->
+            <canvas id="canvas-bird" class="viewer-canvas"></canvas>
+
+            <!-- Clipped Overlay Layer (Left of Slider): Human Trichromatic Vision -->
+            <canvas id="canvas-human" class="viewer-canvas"></canvas>
+
+            <!-- High-Contrast Corner Labels -->
+            <div class="view-badge badge-left">
+                <span class="dot-human" aria-hidden="true"></span>
+                <span>HUMAN VISION &middot; Trichromatic</span>
+            </div>
+
+            <div class="view-badge badge-right">
+                <span class="dot-bird" aria-hidden="true"></span>
+                <span>BIRD VISION &middot; Tetrachromatic + UV</span>
+            </div>
+
+            <!-- Live Camera Pause/Resume Controls -->
+            <div id="webcam-controls">
+                <span class="live-indicator">
+                    <span id="live-dot" class="live-dot"></span>
+                    <span id="live-status-text">LIVE</span>
+                </span>
+                <button id="btn-freeze-cam" class="btn-freeze" type="button">Pause</button>
+            </div>
+
+            <!-- Draggable Vertical Divider -->
+            <div id="slider-handle" style="left: 50%;" role="slider" aria-label="Split-screen comparison slider between Human Vision and Bird Vision" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50" tabindex="0">
+                <div id="slider-knob" title="Drag left or right, or use Left/Right arrow keys">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 3 12 9 6"></polyline>
+                        <polyline points="15 6 21 12 15 18"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compact Educational Key -->
+        <footer class="edu-footer">
+            <div class="edu-item">
+                <span class="edu-swatch swatch-tetra" aria-hidden="true"></span>
+                <p id="edu-text-1"><strong>4-Cone Tetrachromacy:</strong> Songbirds add a fourth UV/violet cone (~370&ndash;410 nm) to red, green, and blue cones, unlocking an extra dimension of color.</p>
+            </div>
+            <div class="edu-item">
+                <span class="edu-swatch swatch-uv" aria-hidden="true"></span>
+                <p id="edu-text-2"><strong>UV Patterns &amp; Plumage:</strong> Reveals hidden UV nectar guides on flowers, waxy bloom on ripe berries, iridescent bird throat/wing patches, and UV-brightened clothing.</p>
+            </div>
+            <div class="edu-item">
+                <span class="edu-swatch swatch-acuity" aria-hidden="true"></span>
+                <p id="edu-text-3"><strong>Hyper-Sharp Acuity:</strong> Densely packed retinal photoreceptors and colored oil droplets sharpen fine textures and boost chromatic separation across foliage.</p>
+            </div>
+        </footer>
+    </main>
+
+    <!-- Offscreen Processing Elements -->
+    <video id="webcam-video" autoplay playsinline muted class="hidden-media"></video>
+    <canvas id="canvas-human-source" class="hidden-media"></canvas>
+    <canvas id="canvas-bird-source" class="hidden-media"></canvas>
+
+    <script>
+        /**
+         * BirdVision Lab — Avian Tetrachromatic & Ultraviolet Vision Engine
+         *
+         * Biologically grounded simulation of diurnal passerine (songbird) vision
+         * (Hart 2001; Vorobyev & Osorio 1998; Cuthill et al. 2000):
+         *
+         * 1. Tetrachromatic Cone & Oil Droplet Spectral Tuning:
+         *    - Diurnal songbirds possess four single-cone classes:
+         *      UVS (~370 nm), SWS (~445 nm), MWS (~508 nm), and LWS (~565 nm).
+         *    - Colored intracellular oil droplets (C-type, Y-type, R-type) narrow cone
+         *      sensitivity curves, dramatically increasing chromatic separation between
+         *      greens, yellows, oranges, and reds compared to human trichromacy.
+         *    - Short-wavelength blue/violet and latent UV reflectance channels are mapped
+         *      into vivid UV-magenta / electric iridescent hues (representing the non-spectral
+         *      "bird-purple" UV+Red and UV+Green perceptual dimensions).
+         *
+         * 2. Dual-Layer Scene & Photo Pipeline:
+         *    - In the built-in Meadow & Berries scene, hidden biological UV reflectance
+         *      (flower nectar bullseyes, waxy berry epicuticular bloom, cryptic plumage UV
+         *      patches, and hiker fabric brighteners) is encoded into an auxiliary UV map
+         *      that is invisible in Human Vision and revealed in Bird Vision.
+         *    - For uploaded photos and live webcam streams, short-wavelength blue/violet
+         *      luminance and high-brightness specular/fluorescent whites estimate UV reflectance.
+         *
+         * 3. Hyper-Sharp Spatial Acuity & Micro-Contrast:
+         *    - Birds have up to 2x–3x higher photoreceptor density in their fovea than humans.
+         *    - A fast 3x3 unsharp-mask / Laplacian local contrast pass sharpens feather barbs,
+         *      bark crevices, leaf veins, and camouflaged insects.
+         */
+
+        const container = document.getElementById('comparison-container');
+        const canvasHuman = document.getElementById('canvas-human');
+        const canvasBird = document.getElementById('canvas-bird');
+        const canvasHumanSource = document.getElementById('canvas-human-source');
+        const canvasBirdSource = document.getElementById('canvas-bird-source');
+        const webcamVideo = document.getElementById('webcam-video');
+
+        const ctxHuman = canvasHuman.getContext('2d', { willReadFrequently: true });
+        const ctxBird = canvasBird.getContext('2d', { willReadFrequently: true });
+        const ctxHumanSrc = canvasHumanSource.getContext('2d', { willReadFrequently: true });
+        const ctxBirdSrc = canvasBirdSource.getContext('2d', { willReadFrequently: true });
+
+        const sliderHandle = document.getElementById('slider-handle');
+        const btnSample = document.getElementById('btn-sample');
+        const btnPlumage = document.getElementById('btn-plumage');
+        const fileUpload = document.getElementById('file-upload');
+        const btnCamera = document.getElementById('btn-camera');
+        const cameraBtnText = document.getElementById('camera-btn-text');
+        const webcamControls = document.getElementById('webcam-controls');
+        const btnFreezeCam = document.getElementById('btn-freeze-cam');
+        const liveDot = document.getElementById('live-dot');
+        const liveStatusText = document.getElementById('live-status-text');
+        const eduText1 = document.getElementById('edu-text-1');
+        const eduText2 = document.getElementById('edu-text-2');
+        const eduText3 = document.getElementById('edu-text-3');
+
+        const state = {
+            splitPercent: 50,
+            isDragging: false,
+            mode: 'sample', // 'sample' | 'plumage' | 'upload' | 'camera'
+            cameraStream: null,
+            cameraFrozen: false,
+            animFrameId: null,
+            sourceWidth: 960,
+            sourceHeight: 570
+        };
+
+        // Gamma Lookup Tables for fast linear-light spectral math
+        const SRGB_TO_LINEAR = new Float32Array(256);
+        const LINEAR_TO_SRGB = new Uint8ClampedArray(4096);
+
+        (function initGammaLUTs() {
+            for (let i = 0; i < 256; i++) {
+                const c = i / 255;
+                SRGB_TO_LINEAR[i] = c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+            }
+            for (let i = 0; i < 4096; i++) {
+                const l = i / 4095;
+                const s = l <= 0.0031308 ? l * 12.92 : 1.055 * Math.pow(l, 1 / 2.4) - 0.055;
+                LINEAR_TO_SRGB[i] = Math.round(Math.min(1, Math.max(0, s)) * 255);
+            }
+        })();
+
+        /**
+         * Status Banner Helper
+         */
+        function showStatus(message, isError = false) {
+            const banner = document.getElementById('status-banner');
+            const inner = document.getElementById('status-inner');
+            const msgEl = document.getElementById('status-message');
+
+            msgEl.textContent = message;
+            inner.className = isError ? 'status-inner error' : 'status-inner';
+            banner.classList.add('visible');
+        }
+
+        function hideStatus() {
+            document.getElementById('status-banner').classList.remove('visible');
+        }
+
+        document.getElementById('status-close').addEventListener('click', hideStatus);
+
+        function updateActiveSourceButton(mode) {
+            btnSample.classList.toggle('btn-active-source', mode === 'sample');
+            btnPlumage.classList.toggle('btn-active-source', mode === 'plumage');
+            btnCamera.classList.toggle('btn-camera-live', mode === 'camera');
+        }
+
+        function updateEducationalTakeaway(mode) {
+            if (mode === 'plumage') {
+                eduText1.innerHTML = '<strong>Structural UV Plumage:</strong> Nanoscale keratin &amp; melanin matrices in Blue Tit and Bluebird feathers scatter pure UV (~375 nm) invisible to humans.';
+                eduText2.innerHTML = '<strong>Mate Choice &amp; Fluorescence:</strong> White cheeks mask UV-violet badges, while Budgerigar cheek/crown feathers emit UV-excited yellow-green fluorescence.';
+                eduText3.innerHTML = '<strong>Barb &amp; Barbule Acuity:</strong> High avian foveal cone density resolves microscopic feather barbules and iridescent structural sheen.';
+            } else {
+                eduText1.innerHTML = '<strong>4-Cone Tetrachromacy:</strong> Songbirds add a fourth UV/violet cone (~370&ndash;410 nm) to red, green, and blue cones, unlocking an extra dimension of color.';
+                eduText2.innerHTML = '<strong>UV Patterns &amp; Plumage:</strong> Reveals hidden UV nectar guides on flowers, waxy bloom on ripe berries, iridescent bird throat/wing patches, and UV-brightened clothing.';
+                eduText3.innerHTML = '<strong>Hyper-Sharp Acuity:</strong> Densely packed retinal photoreceptors and colored oil droplets sharpen fine textures and boost chromatic separation across foliage.';
+            }
+        }
+
+        /**
+         * Split-Screen Slider Positioning
+         */
+        function updateSplitPosition(percent) {
+            state.splitPercent = Math.max(0, Math.min(100, percent));
+            sliderHandle.style.left = `${state.splitPercent}%`;
+            sliderHandle.setAttribute('aria-valuenow', Math.round(state.splitPercent));
+            canvasHuman.style.clipPath = `inset(0 ${100 - state.splitPercent}% 0 0)`;
+        }
+
+        function handlePointerMove(clientX) {
+            const rect = container.getBoundingClientRect();
+            if (rect.width <= 0) return;
+            const percent = ((clientX - rect.left) / rect.width) * 100;
+            updateSplitPosition(percent);
+        }
+
+        container.addEventListener('mousedown', (e) => {
+            if (e.target.closest('#webcam-controls')) return;
+            state.isDragging = true;
+            sliderHandle.classList.add('dragging');
+            handlePointerMove(e.clientX);
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!state.isDragging) return;
+            handlePointerMove(e.clientX);
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (state.isDragging) {
+                state.isDragging = false;
+                sliderHandle.classList.remove('dragging');
+            }
+        });
+
+        container.addEventListener('touchstart', (e) => {
+            if (e.target.closest('#webcam-controls')) return;
+            state.isDragging = true;
+            sliderHandle.classList.add('dragging');
+            if (e.touches.length > 0) {
+                handlePointerMove(e.touches[0].clientX);
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+            if (!state.isDragging) return;
+            if (e.touches.length > 0) {
+                handlePointerMove(e.touches[0].clientX);
+            }
+        }, { passive: true });
+
+        window.addEventListener('touchend', () => {
+            state.isDragging = false;
+            sliderHandle.classList.remove('dragging');
+        });
+
+        sliderHandle.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                updateSplitPosition(state.splitPercent - 3);
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                updateSplitPosition(state.splitPercent + 3);
+            }
+        });
+
+        /**
+         * Resizes all canvases consistently
+         */
+        function setCanvasDimensions(width, height) {
+            const maxDim = 960;
+            let w = width;
+            let h = height;
+            if (w > maxDim) {
+                h = Math.round((h * maxDim) / w);
+                w = maxDim;
+            }
+            state.sourceWidth = w;
+            state.sourceHeight = h;
+
+            [canvasHuman, canvasBird, canvasHumanSource, canvasBirdSource].forEach(c => {
+                c.width = w;
+                c.height = h;
+            });
+        }
+
+        /**
+         * Core Avian Vision Rendering Pipeline
+         *
+         * @param {boolean} hasExplicitUVLayer - True when rendering the procedural Meadow scene
+         *   where canvasBirdSource already holds UV-encoded reflectance patterns; false for
+         *   standard RGB photos/camera frames where UV is inferred from short-wavelength channels.
+         */
+        function renderSimulationFrame(hasExplicitUVLayer = false) {
+            const w = state.sourceWidth;
+            const h = state.sourceHeight;
+            if (w === 0 || h === 0) return;
+
+            // 1. Draw Human Trichromatic View on the top clipped canvas
+            ctxHuman.drawImage(canvasHumanSource, 0, 0, w, h);
+
+            // 2. Read pixel buffer for Bird Vision transformation
+            const srcCanvas = hasExplicitUVLayer ? canvasBirdSource : canvasHumanSource;
+            const imgData = (hasExplicitUVLayer ? ctxBirdSrc : ctxHumanSrc).getImageData(0, 0, w, h);
+            const data = imgData.data;
+            const len = data.length;
+
+            // Temporary float buffers for linear spectral & micro-contrast processing
+            const pixelCount = w * h;
+            const outR = new Float32Array(pixelCount);
+            const outG = new Float32Array(pixelCount);
+            const outB = new Float32Array(pixelCount);
+
+            for (let p = 0, i = 0; p < pixelCount; p++, i += 4) {
+                const rLin = SRGB_TO_LINEAR[data[i]];
+                const gLin = SRGB_TO_LINEAR[data[i + 1]];
+                const bLin = SRGB_TO_LINEAR[data[i + 2]];
+
+                // Step A: Oil-Droplet Narrow-Band Spectral Separation
+                // Birds' pigmented cone oil droplets reduce spectral overlap between MWS and LWS cones,
+                // making greens, yellows, oranges, and reds distinctly sharper and more vivid.
+                let lws = 1.24 * rLin - 0.19 * gLin - 0.03 * bLin;
+                let mws = -0.14 * rLin + 1.26 * gLin - 0.10 * bLin;
+                let sws = -0.04 * rLin - 0.12 * gLin + 1.18 * bLin;
+
+                lws = Math.max(0, lws);
+                mws = Math.max(0, mws);
+                sws = Math.max(0, sws);
+
+                // Step B: Ultraviolet (UVS ~370nm) Cone Excitation
+                // Short-wavelength blue/violet light + optical brighteners excite the UVS cone.
+                // Mapped into non-spectral UV-magenta / iridescent electric tones (Red + Blue boost).
+                const blueDominance = Math.max(0, bLin - 0.42 * (rLin + gLin));
+                const violetHint = Math.max(0, Math.min(rLin, bLin) - 0.55 * gLin);
+                // Bright whites / synthetic fabrics often contain UV optical brighteners
+                const brightenerUV = (rLin > 0.72 && gLin > 0.72 && bLin > 0.76)
+                    ? (bLin - 0.72) * 1.15
+                    : 0;
+
+                const uvSignal = blueDominance * 0.85 + violetHint * 0.95 + brightenerUV;
+
+                if (uvSignal > 0.005) {
+                    // UV stimulates non-spectral "bird-purple" (simultaneous UVS + LWS/SWS perception)
+                    lws += uvSignal * 0.78;
+                    sws += uvSignal * 0.92;
+                    mws = Math.max(0, mws - uvSignal * 0.12);
+                }
+
+                outR[p] = lws;
+                outG[p] = mws;
+                outB[p] = sws;
+            }
+
+            // Step C: Hyper-Sharp Avian Foveal Acuity (Unsharp Mask / Local Micro-Contrast)
+            // Enhances fine edge detail (feather barbs, leaf veins, bark, insects) cleanly
+            const sharpenStrength = 0.42;
+
+            for (let y = 0; y < h; y++) {
+                const rowOffset = y * w;
+                const prevRow = (y > 0 ? y - 1 : y) * w;
+                const nextRow = (y < h - 1 ? y + 1 : y) * w;
+
+                for (let x = 0; x < w; x++) {
+                    const p = rowOffset + x;
+                    const xL = x > 0 ? x - 1 : x;
+                    const xR = x < w - 1 ? x + 1 : x;
+
+                    const cR = outR[p];
+                    const cG = outG[p];
+                    const cB = outB[p];
+
+                    // 4-neighbor cardinal average for fast local detail extraction
+                    const avgR = 0.25 * (outR[prevRow + x] + outR[nextRow + x] + outR[rowOffset + xL] + outR[rowOffset + xR]);
+                    const avgG = 0.25 * (outG[prevRow + x] + outG[nextRow + x] + outG[rowOffset + xL] + outG[rowOffset + xR]);
+                    const avgB = 0.25 * (outB[prevRow + x] + outB[nextRow + x] + outB[rowOffset + xL] + outB[rowOffset + xR]);
+
+                    const sharpR = cR + sharpenStrength * (cR - avgR);
+                    const sharpG = cG + sharpenStrength * (cG - avgG);
+                    const sharpB = cB + sharpenStrength * (cB - avgB);
+
+                    const idx = p * 4;
+                    const lutR = Math.min(4095, Math.max(0, (sharpR * 4095) | 0));
+                    const lutG = Math.min(4095, Math.max(0, (sharpG * 4095) | 0));
+                    const lutB = Math.min(4095, Math.max(0, (sharpB * 4095) | 0));
+
+                    data[idx] = LINEAR_TO_SRGB[lutR];
+                    data[idx + 1] = LINEAR_TO_SRGB[lutG];
+                    data[idx + 2] = LINEAR_TO_SRGB[lutB];
+                    data[idx + 3] = 255;
+                }
+            }
+
+            ctxBird.putImageData(imgData, 0, 0);
+        }
+
+        /**
+         * Procedural Default Scene: Sunlit Forest Edge & Wildflower Meadow
+         *
+         * Renders paired Human-visible and UV-augmented buffers so students immediately see:
+         * 1. Wild dark berries with epicuticular waxy UV bloom (dark blue-black to humans;
+         *    luminous UV-violet/magenta targets to fruit-eating birds).
+         * 2. Yellow & white meadow wildflowers with hidden UV nectar bullseyes on petals.
+         * 3. A male songbird perched on a mossy branch whose muted brown/slate chest and
+         *    wing covert feathers erupt with UV-iridescent violet-blue signaling patches.
+         * 4. A camouflaged green caterpillar along a leaf stem sharpened by avian acuity.
+         * 5. A distant hiker wearing a white shirt treated with UV optical brighteners.
+         */
+        function generateMeadowAndBerriesScene() {
+            stopCamera();
+            state.mode = 'sample';
+            updateActiveSourceButton('sample');
+            updateEducationalTakeaway('sample');
+
+            const w = 960;
+            const h = 570;
+            setCanvasDimensions(w, h);
+
+            // Helper to draw the shared physical environment onto a target context
+            function drawBaseEnvironment(ctx, isBirdUV) {
+                ctx.save();
+
+                // 1. Morning Sky & Sunbeams
+                const skyGrad = ctx.createLinearGradient(0, 0, 0, h * 0.56);
+                if (isBirdUV) {
+                    skyGrad.addColorStop(0, '#1d4ed8');
+                    skyGrad.addColorStop(0.55, '#6366f1');
+                    skyGrad.addColorStop(1, '#c4b5fd');
+                } else {
+                    skyGrad.addColorStop(0, '#2563eb');
+                    skyGrad.addColorStop(0.55, '#60a5fa');
+                    skyGrad.addColorStop(1, '#dbeafe');
+                }
+                ctx.fillStyle = skyGrad;
+                ctx.fillRect(0, 0, w, h * 0.58);
+
+                // Soft Distant Meadow Hills
+                ctx.fillStyle = isBirdUV ? '#3b6e4c' : '#4d7c5b';
+                ctx.beginPath();
+                ctx.moveTo(0, h * 0.46);
+                ctx.quadraticCurveTo(w * 0.28, h * 0.34, w * 0.55, h * 0.43);
+                ctx.quadraticCurveTo(w * 0.82, h * 0.50, w, h * 0.38);
+                ctx.lineTo(w, h * 0.62);
+                ctx.lineTo(0, h * 0.62);
+                ctx.closePath();
+                ctx.fill();
+
+                // Distant Forest Edge Silhouettes
+                const treeColors = isBirdUV ? ['#1e4620', '#2d5a27', '#3f6212'] : ['#294c2b', '#365e37', '#4b6b33'];
+                for (let tx = 30; tx < w; tx += 65) {
+                    const th = 75 + ((tx * 19) % 45);
+                    ctx.fillStyle = treeColors[(tx / 65 | 0) % treeColors.length];
+                    ctx.beginPath();
+                    ctx.arc(tx, h * 0.41 - th * 0.3, th * 0.52, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // 2. Distant Hiker on Meadow Path (x=760, y=248)
+                // White shirt contains UV optical brighteners (plain white to human, glowing UV-violet to birds)
+                const hx = 762;
+                const hy = 246;
+                // Legs
+                ctx.fillStyle = '#334155';
+                ctx.fillRect(hx - 7, hy + 22, 5, 22);
+                ctx.fillRect(hx + 2, hy + 22, 5, 22);
+                // UV-Brightened Shirt
+                ctx.fillStyle = isBirdUV ? '#a855f7' : '#f8fafc';
+                ctx.beginPath();
+                ctx.roundRect(hx - 9, hy + 4, 18, 20, 4);
+                ctx.fill();
+                if (isBirdUV) {
+                    ctx.strokeStyle = '#f0abfc';
+                    ctx.lineWidth = 1.5;
+                    ctx.stroke();
+                }
+                // Head & Hat
+                ctx.fillStyle = '#d9a077';
+                ctx.beginPath();
+                ctx.arc(hx, hy - 2, 5.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#78350f';
+                ctx.fillRect(hx - 8, hy - 6, 16, 2.5);
+
+                // 3. Sunlit Meadow Grass Field
+                const fieldGrad = ctx.createLinearGradient(0, h * 0.45, 0, h);
+                if (isBirdUV) {
+                    fieldGrad.addColorStop(0, '#3f7d20');
+                    fieldGrad.addColorStop(0.5, '#2d6a1e');
+                    fieldGrad.addColorStop(1, '#1b4314');
+                } else {
+                    fieldGrad.addColorStop(0, '#5a8f3d');
+                    fieldGrad.addColorStop(0.5, '#46752d');
+                    fieldGrad.addColorStop(1, '#2b4d1b');
+                }
+                ctx.fillStyle = fieldGrad;
+                ctx.fillRect(0, h * 0.45, w, h * 0.55);
+
+                // Layered Grass Blades
+                for (let g = 0; g < 220; g++) {
+                    const gx = (g * 37.3) % w;
+                    const gy = h * 0.47 + ((g * 23.7) % (h * 0.52));
+                    const gh = 14 + (g % 18);
+                    ctx.strokeStyle = (g % 2 === 0)
+                        ? (isBirdUV ? '#4d9e28' : '#6ca349')
+                        : (isBirdUV ? '#2c6618' : '#3a6324');
+                    ctx.lineWidth = 1.8;
+                    ctx.beginPath();
+                    ctx.moveTo(gx, gy);
+                    ctx.quadraticCurveTo(gx + ((g % 3) - 1) * 5, gy - gh * 0.6, gx + ((g % 5) - 2) * 4, gy - gh);
+                    ctx.stroke();
+                }
+
+                // 4. Mossy Oak Branch on Left Holding a Songbird & Berry Clusters
+                ctx.save();
+                const branchGrad = ctx.createLinearGradient(0, 180, 420, 310);
+                branchGrad.addColorStop(0, '#3e2b1d');
+                branchGrad.addColorStop(0.6, '#5c412d');
+                branchGrad.addColorStop(1, '#473222');
+                ctx.strokeStyle = branchGrad;
+                ctx.lineCap = 'round';
+
+                // Main branch
+                ctx.lineWidth = 22;
+                ctx.beginPath();
+                ctx.moveTo(-20, 215);
+                ctx.quadraticCurveTo(190, 235, 395, 295);
+                ctx.stroke();
+
+                // Upper twig
+                ctx.lineWidth = 10;
+                ctx.beginPath();
+                ctx.moveTo(210, 238);
+                ctx.quadraticCurveTo(310, 210, 435, 195);
+                ctx.stroke();
+
+                // Bark crevices & moss patches
+                ctx.strokeStyle = 'rgba(20, 12, 6, 0.45)';
+                ctx.lineWidth = 1.5;
+                for (let bx = 15; bx < 370; bx += 22) {
+                    ctx.beginPath();
+                    ctx.moveTo(bx, 216 + bx * 0.18);
+                    ctx.lineTo(bx + 14, 219 + bx * 0.18);
+                    ctx.stroke();
+                }
+
+                // 5. Green Leaves & Camouflaged Caterpillar (x=345, y=202)
+                function drawLeaf(lx, ly, angle, scale) {
+                    ctx.save();
+                    ctx.translate(lx, ly);
+                    ctx.rotate(angle);
+                    ctx.scale(scale, scale);
+                    ctx.fillStyle = isBirdUV ? '#3a8c22' : '#4f8a36';
+                    ctx.beginPath();
+                    ctx.moveTo(0, 0);
+                    ctx.bezierCurveTo(18, -16, 48, -14, 64, 0);
+                    ctx.bezierCurveTo(48, 14, 18, 16, 0, 0);
+                    ctx.fill();
+                    // Central leaf vein
+                    ctx.strokeStyle = isBirdUV ? '#86efac' : '#7ab35c';
+                    ctx.lineWidth = 1.4;
+                    ctx.beginPath();
+                    ctx.moveTo(2, 0);
+                    ctx.lineTo(58, 0);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                drawLeaf(295, 215, -0.35, 1.15);
+                drawLeaf(365, 202, -0.1, 1.25);
+                drawLeaf(415, 196, 0.25, 1.0);
+                drawLeaf(130, 224, 0.45, 1.1);
+                drawLeaf(85, 212, -0.5, 1.15);
+
+                // Camouflaged Caterpillar resting on the upper leaf (x=385, y=195)
+                for (let seg = 0; seg < 6; seg++) {
+                    ctx.fillStyle = isBirdUV ? '#84cc16' : '#659e44';
+                    ctx.beginPath();
+                    ctx.arc(382 + seg * 6.5, 194 - Math.sin(seg * 0.7) * 2.5, 4.2, 0, Math.PI * 2);
+                    ctx.fill();
+                    if (isBirdUV) {
+                        // Subtle UV-reflective dorsal spots on caterpillar
+                        ctx.fillStyle = '#fef08a';
+                        ctx.beginPath();
+                        ctx.arc(382 + seg * 6.5, 192.5 - Math.sin(seg * 0.7) * 2.5, 1.4, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+
+                // 6. WILD BERRY CLUSTERS WITH UV WAXY BLOOM (Left Foreground & Branch)
+                // To humans: dark navy/black berries with faint grey sheen.
+                // To birds: vivid ultraviolet-magenta & electric violet beacons against green leaves!
+                const berries = [
+                    { x: 105, y: 258, r: 12 }, { x: 126, y: 266, r: 13 }, { x: 114, y: 282, r: 12 },
+                    { x: 138, y: 284, r: 11 }, { x: 96, y: 276, r: 10 }, { x: 124, y: 248, r: 10 },
+                    { x: 255, y: 268, r: 11 }, { x: 274, y: 275, r: 12 }, { x: 264, y: 290, r: 11 },
+                    { x: 284, y: 292, r: 10 }
+                ];
+
+                // Berry stems
+                ctx.strokeStyle = '#4d3826';
+                ctx.lineWidth = 2;
+                berries.forEach(b => {
+                    ctx.beginPath();
+                    ctx.moveTo(b.x, b.y - b.r);
+                    ctx.lineTo(b.x - 4, b.y - b.r - 16);
+                    ctx.stroke();
+                });
+
+                berries.forEach(b => {
+                    const bGrad = ctx.createRadialGradient(
+                        b.x - b.r * 0.3, b.y - b.r * 0.35, b.r * 0.1,
+                        b.x, b.y, b.r
+                    );
+                    if (isBirdUV) {
+                        // Strong UV epicuticular wax reflection
+                        bGrad.addColorStop(0, '#f5d0fe');
+                        bGrad.addColorStop(0.45, '#c026d3');
+                        bGrad.addColorStop(1, '#581c87');
+                    } else {
+                        // Subtle dark sloe/blueberry appearance to human eyes
+                        bGrad.addColorStop(0, '#64748b');
+                        bGrad.addColorStop(0.45, '#1e293b');
+                        bGrad.addColorStop(1, '#090d16');
+                    }
+                    ctx.fillStyle = bGrad;
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // 7. SONGBIRD PERCHED ON BRANCH (x=215, y=182)
+                // Cryptic brownish-slate plumage to humans; brilliant UV throat & wing patches in bird vision!
+                const bx = 212;
+                const by = 186;
+
+                // Tail feathers
+                ctx.fillStyle = isBirdUV ? '#312e81' : '#3f3b37';
+                ctx.beginPath();
+                ctx.moveTo(bx - 22, by + 16);
+                ctx.lineTo(bx - 64, by + 48);
+                ctx.lineTo(bx - 54, by + 56);
+                ctx.lineTo(bx - 14, by + 24);
+                ctx.closePath();
+                ctx.fill();
+
+                // Bird Body
+                ctx.fillStyle = isBirdUV ? '#574637' : '#6b5b4b';
+                ctx.beginPath();
+                ctx.ellipse(bx, by + 6, 26, 18, -0.35, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Breast / Throat Patch (Muted buff-grey to human; glowing UV-iridescent violet/blue to bird!)
+                const throatGrad = ctx.createRadialGradient(bx + 12, by + 2, 2, bx + 10, by + 4, 18);
+                if (isBirdUV) {
+                    throatGrad.addColorStop(0, '#e879f9');
+                    throatGrad.addColorStop(0.55, '#7c3aed');
+                    throatGrad.addColorStop(1, '#2563eb');
+                } else {
+                    throatGrad.addColorStop(0, '#cbd5e1');
+                    throatGrad.addColorStop(0.7, '#94a3b8');
+                    throatGrad.addColorStop(1, '#6b5b4b');
+                }
+                ctx.fillStyle = throatGrad;
+                ctx.beginPath();
+                ctx.ellipse(bx + 11, by + 3, 14, 13, -0.2, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Folded Wing & UV-Reflective Wing Bar
+                ctx.fillStyle = isBirdUV ? '#3b2f26' : '#4a3e35';
+                ctx.beginPath();
+                ctx.ellipse(bx - 6, by + 8, 20, 10, -0.3, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.strokeStyle = isBirdUV ? '#d946ef' : '#cbd5e1';
+                ctx.lineWidth = 3.2;
+                ctx.beginPath();
+                ctx.moveTo(bx - 16, by + 7);
+                ctx.lineTo(bx + 4, by + 1);
+                ctx.stroke();
+
+                // Head & Crown
+                ctx.fillStyle = isBirdUV ? '#3730a3' : '#47433f';
+                ctx.beginPath();
+                ctx.arc(bx + 18, by - 14, 12.5, 0, Math.PI * 2);
+                ctx.fill();
+
+                // UV Crown Highlight
+                if (isBirdUV) {
+                    ctx.fillStyle = '#a855f7';
+                    ctx.beginPath();
+                    ctx.ellipse(bx + 17, by - 22, 9, 4, -0.15, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Eye & Beak
+                ctx.fillStyle = '#090d16';
+                ctx.beginPath();
+                ctx.arc(bx + 22, by - 15, 2.8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(bx + 23, by - 16, 1, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Conical Seed/Berry Beak
+                ctx.fillStyle = '#d97706';
+                ctx.beginPath();
+                ctx.moveTo(bx + 29, by - 17);
+                ctx.lineTo(bx + 41, by - 13);
+                ctx.lineTo(bx + 29, by - 10);
+                ctx.closePath();
+                ctx.fill();
+
+                // Feet gripping branch
+                ctx.strokeStyle = '#1e293b';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(bx - 2, by + 21); ctx.lineTo(bx - 4, by + 32);
+                ctx.moveTo(bx + 6, by + 20); ctx.lineTo(bx + 5, by + 32);
+                ctx.stroke();
+
+                ctx.restore();
+
+                // 8. MEADOW WILDFLOWERS WITH HIDDEN UV NECTAR GUIDES (Foreground Right & Center)
+                // To humans: uniform bright yellow buttercups & white daisies.
+                // To birds: vivid UV-absorbing / UV-reflecting bullseye target rings guiding pollinators & seed-eaters!
+                function drawWildflower(fx, fy, radius, petalCount, basePetalColor, uvOuterColor, uvInnerBullseye) {
+                    // Stem
+                    ctx.strokeStyle = isBirdUV ? '#22c55e' : '#4d7c0f';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(fx, fy);
+                    ctx.quadraticCurveTo(fx - 6, fy + 45, fx + 4, fy + 95);
+                    ctx.stroke();
+
+                    // Petals
+                    for (let p = 0; p < petalCount; p++) {
+                        const angle = (p / petalCount) * Math.PI * 2;
+                        ctx.save();
+                        ctx.translate(fx, fy);
+                        ctx.rotate(angle);
+
+                        ctx.fillStyle = isBirdUV ? uvOuterColor : basePetalColor;
+                        ctx.beginPath();
+                        ctx.ellipse(radius * 0.62, 0, radius * 0.52, radius * 0.24, 0, 0, Math.PI * 2);
+                        ctx.fill();
+
+                        // Inner UV Nectar Bullseye Pattern (Invisible to humans!)
+                        if (isBirdUV) {
+                            ctx.fillStyle = uvInnerBullseye;
+                            ctx.beginPath();
+                            ctx.ellipse(radius * 0.34, 0, radius * 0.24, radius * 0.15, 0, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                        ctx.restore();
+                    }
+
+                    // Flower Center Disk
+                    ctx.fillStyle = isBirdUV ? '#3b0764' : '#b45309';
+                    ctx.beginPath();
+                    ctx.arc(fx, fy, radius * 0.24, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // Cluster of Buttercups (uniform yellow to humans -> yellow + dramatic UV-magenta bullseye to birds)
+                drawWildflower(520, 415, 36, 7, '#facc15', '#fde047', '#c026d3');
+                drawWildflower(615, 385, 32, 7, '#facc15', '#fde047', '#c026d3');
+                drawWildflower(575, 468, 40, 8, '#eab308', '#facc15', '#a21caf');
+                drawWildflower(445, 455, 30, 6, '#facc15', '#fde047', '#c026d3');
+
+                // Cluster of Meadow Daisies (uniform white petals to humans -> glowing UV-violet ring to birds)
+                drawWildflower(725, 425, 35, 12, '#f8fafc', '#e9d5ff', '#9333ea');
+                drawWildflower(815, 455, 38, 12, '#f8fafc', '#e9d5ff', '#9333ea');
+                drawWildflower(680, 488, 30, 10, '#f1f5f9', '#ddd6fe', '#7e22ce');
+
+                ctx.restore();
+            }
+
+            // Render Human-visible scene and UV-augmented avian scene
+            drawBaseEnvironment(ctxHumanSrc, false);
+            drawBaseEnvironment(ctxBirdSrc, true);
+
+            // Process avian spectral tuning & micro-contrast sharpening
+            renderSimulationFrame(true);
+        }
+
+        /**
+         * Procedural High-Detail Macro Scene: Avian Plumage & UV Structural Coloration
+         *
+         * Renders a photographic-quality macro study combining:
+         * 1. Left/Center: Close-up portrait of a Eurasian Blue Tit (Cyanistes caeruleus)
+         *    displaying subtle cobalt cap, white cheeks, and olive-blue wing coverts to human eyes,
+         *    while revealing intense UV-violet structural crown/cheek/wing-bar signals in Bird Vision.
+         * 2. Right Foreground: Macro close-up of overlapping structural blue contour feathers and
+         *    fluorescent psittacofulvin yellow-green Budgerigar cheek/crown plumes showing individual
+         *    rachis shafts, keratin barbs, interlocking barbules, and downy plumulaceous bases.
+         */
+        function generateBirdPlumageScene() {
+            stopCamera();
+            state.mode = 'plumage';
+            updateActiveSourceButton('plumage');
+            updateEducationalTakeaway('plumage');
+
+            const w = 960;
+            const h = 570;
+            setCanvasDimensions(w, h);
+
+            // Deterministic pseudo-random helper for consistent fine feather barb textures
+            function pseudoRand(seed) {
+                const x = Math.sin(seed * 12.9898 + 78.233) * 43758.5453;
+                return x - Math.floor(x);
+            }
+
+            // Helper: Renders a single photorealistic feather with rachis, barbs, barbules, and downy base
+            function drawDetailedFeather(ctx, opts) {
+                const {
+                    x, y, length, width, angle,
+                    shaftColor, baseDownColor, vaneInnerColor, vaneOuterColor,
+                    uvTipColor, uvGlowColor, isBirdUV, seedOffset = 0
+                } = opts;
+
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(angle);
+
+                // Soft drop shadow beneath overlapping feather
+                ctx.fillStyle = 'rgba(4, 7, 15, 0.36)';
+                ctx.beginPath();
+                ctx.ellipse(length * 0.52, 6, length * 0.48, width * 0.46, 0.03, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 1. Plumulaceous (downy) fluffy base barbs near the calamus/quill
+                const downCount = 26;
+                for (let d = 0; d < downCount; d++) {
+                    const t = (d / downCount) * 0.24;
+                    const bx = length * (0.06 + t);
+                    const side = d % 2 === 0 ? 1 : -1;
+                    const downLen = width * (0.34 + pseudoRand(d + seedOffset) * 0.22);
+                    ctx.strokeStyle = baseDownColor;
+                    ctx.lineWidth = 1.15;
+                    ctx.beginPath();
+                    ctx.moveTo(bx, 0);
+                    ctx.quadraticCurveTo(
+                        bx + downLen * 0.25,
+                        side * downLen * 0.65,
+                        bx - downLen * 0.12 + pseudoRand(d * 3 + seedOffset) * 10,
+                        side * downLen
+                    );
+                    ctx.stroke();
+                }
+
+                // 2. Pennaceous Vane Barbs & Micro-Barbules (Left & Right sides of Rachis)
+                const barbPairs = Math.floor(length * 0.62);
+                for (let side of [-1, 1]) {
+                    for (let i = 4; i < barbPairs; i++) {
+                        const u = i / barbPairs; // 0 at base -> 1 at distal tip
+                        const bx = length * (0.12 + u * 0.86);
+
+                        // Realistic asymmetric feather vane envelope
+                        const envelope = Math.sin(Math.pow(u, 0.72) * Math.PI);
+                        const asym = side === 1 ? 1.06 : 0.92;
+                        const barbLen = width * 0.52 * envelope * asym;
+                        if (barbLen < 1.5) continue;
+
+                        const sweep = barbLen * 0.48;
+                        const tipX = bx + sweep;
+                        const tipY = side * barbLen;
+
+                        // Slight natural split/notch between occasional barb groups
+                        const gapShift = (i % 19 === 0) ? 1.6 : 0;
+
+                        const grad = ctx.createLinearGradient(bx, 0, tipX, tipY);
+                        grad.addColorStop(0, vaneInnerColor);
+                        grad.addColorStop(0.62, vaneOuterColor);
+                        if (isBirdUV && uvTipColor) {
+                            grad.addColorStop(0.84, uvTipColor);
+                            grad.addColorStop(1, uvGlowColor || uvTipColor);
+                        } else {
+                            grad.addColorStop(1, vaneOuterColor);
+                        }
+
+                        ctx.strokeStyle = grad;
+                        ctx.lineWidth = 1.45;
+                        ctx.beginPath();
+                        ctx.moveTo(bx, 0);
+                        ctx.quadraticCurveTo(
+                            bx + sweep * 0.55,
+                            side * barbLen * 0.52 + gapShift,
+                            tipX,
+                            tipY + gapShift
+                        );
+                        ctx.stroke();
+
+                        // Iridescent UV structural sheen along distal barbules
+                        if (isBirdUV && u > 0.45 && i % 2 === 0 && uvGlowColor) {
+                            ctx.strokeStyle = uvGlowColor;
+                            ctx.lineWidth = 0.85;
+                            ctx.beginPath();
+                            ctx.moveTo(bx + sweep * 0.55, side * barbLen * 0.52);
+                            ctx.lineTo(tipX, tipY);
+                            ctx.stroke();
+                        }
+                    }
+                }
+
+                // 3. Central Keratin Rachis (Shaft) & Calamus Quill
+                const shaftGrad = ctx.createLinearGradient(0, 0, length, 0);
+                shaftGrad.addColorStop(0, '#e2e8f0');
+                shaftGrad.addColorStop(0.25, shaftColor);
+                shaftGrad.addColorStop(1, isBirdUV && uvTipColor ? uvTipColor : shaftColor);
+
+                ctx.strokeStyle = shaftGrad;
+                ctx.lineWidth = 2.6;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.quadraticCurveTo(length * 0.5, -1.5, length * 0.97, 0);
+                ctx.stroke();
+
+                // Fine specular highlight along the top ridge of the rachis
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.42)';
+                ctx.lineWidth = 0.8;
+                ctx.beginPath();
+                ctx.moveTo(length * 0.05, -0.7);
+                ctx.quadraticCurveTo(length * 0.5, -2.1, length * 0.92, -0.5);
+                ctx.stroke();
+
+                ctx.restore();
+            }
+
+            // Helper: Draws dense micro-plumage texture strokes for the Blue Tit portrait
+            function drawMicroPlumageStrokes(ctx, cx, cy, rx, ry, count, baseCol, tipCol, angleBase, spread, len) {
+                for (let i = 0; i < count; i++) {
+                    const r1 = pseudoRand(i * 1.7 + cx);
+                    const r2 = pseudoRand(i * 2.9 + cy);
+                    const theta = r1 * Math.PI * 2;
+                    const rad = Math.sqrt(r2);
+                    const px = cx + Math.cos(theta) * rx * rad;
+                    const py = cy + Math.sin(theta) * ry * rad;
+                    const ang = angleBase + (pseudoRand(i * 4.1) - 0.5) * spread + Math.sin(theta) * 0.25;
+
+                    const g = ctx.createLinearGradient(px, py, px + Math.cos(ang) * len, py + Math.sin(ang) * len);
+                    g.addColorStop(0, baseCol);
+                    g.addColorStop(1, tipCol);
+                    ctx.strokeStyle = g;
+                    ctx.lineWidth = 1.6;
+                    ctx.beginPath();
+                    ctx.moveTo(px, py);
+                    ctx.lineTo(px + Math.cos(ang) * len, py + Math.sin(ang) * len);
+                    ctx.stroke();
+                }
+            }
+
+            function renderPlumageBuffer(ctx, isBirdUV) {
+                ctx.save();
+
+                // 1. Soft Photographic Woodland Bokeh Background (f/2.8 shallow depth-of-field)
+                const bgGrad = ctx.createLinearGradient(0, 0, w, h);
+                if (isBirdUV) {
+                    bgGrad.addColorStop(0, '#0f1c18');
+                    bgGrad.addColorStop(0.5, '#192a22');
+                    bgGrad.addColorStop(1, '#131829');
+                } else {
+                    bgGrad.addColorStop(0, '#18241c');
+                    bgGrad.addColorStop(0.5, '#263628');
+                    bgGrad.addColorStop(1, '#1c242b');
+                }
+                ctx.fillStyle = bgGrad;
+                ctx.fillRect(0, 0, w, h);
+
+                // Soft out-of-focus sun-dappled bokeh circles
+                const bokehSpots = [
+                    { x: 110, y: 95, r: 85, col: isBirdUV ? 'rgba(139, 92, 246, 0.14)' : 'rgba(163, 230, 53, 0.10)' },
+                    { x: 470, y: 80, r: 110, col: isBirdUV ? 'rgba(56, 189, 248, 0.15)' : 'rgba(250, 204, 21, 0.11)' },
+                    { x: 840, y: 120, r: 95, col: isBirdUV ? 'rgba(192, 132, 252, 0.16)' : 'rgba(148, 163, 184, 0.10)' },
+                    { x: 520, y: 470, r: 120, col: isBirdUV ? 'rgba(99, 102, 241, 0.16)' : 'rgba(74, 222, 128, 0.09)' },
+                    { x: 75, y: 480, r: 90, col: isBirdUV ? 'rgba(168, 85, 247, 0.14)' : 'rgba(251, 191, 36, 0.09)' }
+                ];
+                bokehSpots.forEach(b => {
+                    const rg = ctx.createRadialGradient(b.x, b.y, 4, b.x, b.y, b.r);
+                    rg.addColorStop(0, b.col);
+                    rg.addColorStop(1, 'rgba(0,0,0,0)');
+                    ctx.fillStyle = rg;
+                    ctx.beginPath();
+                    ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // 2. Moss-Covered Lichen Branch (Perch for the Blue Tit on the left)
+                ctx.save();
+                const perchGrad = ctx.createLinearGradient(0, 420, 490, 530);
+                perchGrad.addColorStop(0, '#2c2117');
+                perchGrad.addColorStop(0.5, '#473626');
+                perchGrad.addColorStop(1, '#261c14');
+                ctx.strokeStyle = perchGrad;
+                ctx.lineWidth = 34;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(-25, 495);
+                ctx.quadraticCurveTo(215, 448, 495, 488);
+                ctx.stroke();
+
+                // Lichen patches (crustose lichen reflects subtle UV in avian vision)
+                for (let l = 0; l < 24; l++) {
+                    const lx = 15 + l * 19;
+                    const ly = 472 - Math.sin((lx / 490) * Math.PI) * 26 + ((l % 3) - 1) * 6;
+                    ctx.fillStyle = isBirdUV ? 'rgba(196, 181, 253, 0.55)' : 'rgba(163, 177, 138, 0.45)';
+                    ctx.beginPath();
+                    ctx.ellipse(lx, ly, 9 + (l % 5), 4.5, (l % 4) * 0.3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.restore();
+
+                // 3. MACRO SONGBIRD PORTRAIT: EURASIAN BLUE TIT (Left-Center, x=255, y=275)
+                // Famous in avian vision research (Andersson et al. 1998) for strong sexual UV signaling
+                // in its crown, cheek patch, and wing coverts despite appearing subtle blue/white to humans.
+                const bx = 255;
+                const by = 275;
+
+                // Tail Feathers extending down-left
+                drawDetailedFeather(ctx, {
+                    x: bx - 75, y: by + 85, length: 165, width: 32, angle: 2.38,
+                    shaftColor: '#1e293b', baseDownColor: '#334155',
+                    vaneInnerColor: isBirdUV ? '#1e3a8a' : '#2c4c70',
+                    vaneOuterColor: isBirdUV ? '#4f46e5' : '#3b6998',
+                    uvTipColor: '#9333ea', uvGlowColor: '#e879f9',
+                    isBirdUV, seedOffset: 11
+                });
+                drawDetailedFeather(ctx, {
+                    x: bx - 62, y: by + 95, length: 158, width: 30, angle: 2.26,
+                    shaftColor: '#1e293b', baseDownColor: '#334155',
+                    vaneInnerColor: isBirdUV ? '#1d4ed8' : '#335c85',
+                    vaneOuterColor: isBirdUV ? '#6366f1' : '#4778a8',
+                    uvTipColor: '#a855f7', uvGlowColor: '#f0abfc',
+                    isBirdUV, seedOffset: 27
+                });
+
+                // Plump Yellow-Olive Breast & Belly
+                const bellyGrad = ctx.createRadialGradient(bx + 26, by + 62, 14, bx + 12, by + 68, 96);
+                if (isBirdUV) {
+                    // Carotenoid yellow sharpened by avian oil droplets
+                    bellyGrad.addColorStop(0, '#fef08a');
+                    bellyGrad.addColorStop(0.55, '#eab308');
+                    bellyGrad.addColorStop(1, '#854d0e');
+                } else {
+                    bellyGrad.addColorStop(0, '#fef9c3');
+                    bellyGrad.addColorStop(0.55, '#eab308');
+                    bellyGrad.addColorStop(1, '#a16207');
+                }
+                ctx.fillStyle = bellyGrad;
+                ctx.beginPath();
+                ctx.ellipse(bx + 10, by + 68, 76, 86, -0.15, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Fine breast feather barbs
+                drawMicroPlumageStrokes(
+                    ctx, bx + 14, by + 68, 66, 76, 220,
+                    isBirdUV ? '#ca8a04' : '#ca8a04',
+                    isBirdUV ? '#fef08a' : '#fef08a',
+                    1.45, 0.55, 16
+                );
+
+                // Dark central belly stripe (characteristic of Blue Tits)
+                ctx.fillStyle = isBirdUV ? '#1e1b4b' : '#1e293b';
+                ctx.beginPath();
+                ctx.ellipse(bx + 26, by + 98, 9, 44, -0.08, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Olive-Green Mantle / Back
+                ctx.fillStyle = isBirdUV ? '#3f6212' : '#577532';
+                ctx.beginPath();
+                ctx.ellipse(bx - 34, by + 26, 56, 68, -0.32, 0, Math.PI * 2);
+                ctx.fill();
+
+                drawMicroPlumageStrokes(
+                    ctx, bx - 34, by + 26, 48, 58, 160,
+                    isBirdUV ? '#365314' : '#466127',
+                    isBirdUV ? '#84cc16' : '#769648',
+                    2.15, 0.5, 15
+                );
+
+                // Folded Wing with Layered Blue Coverts & UV-Reflective Wing Bar
+                const wingFeathers = [
+                    { ox: -54, oy: 24, len: 122, wid: 34, ang: 1.92, s: 101 },
+                    { ox: -42, oy: 16, len: 112, wid: 32, ang: 1.84, s: 102 },
+                    { ox: -30, oy: 10, len: 98, wid: 30, ang: 1.76, s: 103 },
+                    { ox: -46, oy: 4, len: 74, wid: 26, ang: 1.68, s: 104 },
+                    { ox: -32, oy: -2, len: 68, wid: 25, ang: 1.60, s: 105 }
+                ];
+
+                wingFeathers.forEach((wf, idx) => {
+                    const isCovert = idx >= 3;
+                    drawDetailedFeather(ctx, {
+                        x: bx + wf.ox,
+                        y: by + wf.oy,
+                        length: wf.len,
+                        width: wf.wid,
+                        angle: wf.ang,
+                        shaftColor: isBirdUV ? '#93c5fd' : '#cbd5e1',
+                        baseDownColor: '#334155',
+                        vaneInnerColor: isBirdUV ? '#1d4ed8' : '#255282',
+                        vaneOuterColor: isBirdUV ? '#6366f1' : '#3b73ad',
+                        uvTipColor: isCovert ? '#c026d3' : '#7c3aed',
+                        uvGlowColor: isCovert ? '#f5d0fe' : '#c4b5fd',
+                        isBirdUV,
+                        seedOffset: wf.s
+                    });
+                });
+
+                // Crisp White / UV-Luminous Wing Bar across Greater Coverts
+                ctx.save();
+                ctx.strokeStyle = isBirdUV ? '#f0abfc' : '#f8fafc';
+                ctx.lineWidth = 4.2;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(bx - 64, by + 36);
+                ctx.quadraticCurveTo(bx - 42, by + 31, bx - 22, by + 23);
+                ctx.stroke();
+                ctx.restore();
+
+                // Bird Head Base
+                ctx.fillStyle = isBirdUV ? '#1e1b4b' : '#1e293b';
+                ctx.beginPath();
+                ctx.arc(bx + 14, by - 48, 48, 0, Math.PI * 2);
+                ctx.fill();
+
+                // White Cheek Patch (Appears crisp white to humans; glows with UV-violet structural sheen to birds!)
+                const cheekGrad = ctx.createRadialGradient(bx + 14, by - 42, 4, bx + 12, by - 42, 31);
+                if (isBirdUV) {
+                    cheekGrad.addColorStop(0, '#f5d0fe');
+                    cheekGrad.addColorStop(0.55, '#c084fc');
+                    cheekGrad.addColorStop(1, '#6d28d9');
+                } else {
+                    cheekGrad.addColorStop(0, '#ffffff');
+                    cheekGrad.addColorStop(0.75, '#f1f5f9');
+                    cheekGrad.addColorStop(1, '#cbd5e1');
+                }
+                ctx.fillStyle = cheekGrad;
+                ctx.beginPath();
+                ctx.ellipse(bx + 12, by - 41, 29, 22, -0.18, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Micro-barbs on Cheek Patch
+                drawMicroPlumageStrokes(
+                    ctx, bx + 12, by - 41, 24, 18, 95,
+                    isBirdUV ? '#a855f7' : '#e2e8f0',
+                    isBirdUV ? '#fae8ff' : '#ffffff',
+                    2.9, 0.6, 9
+                );
+
+                // Dark Blue-Black Eye Stripe & Collar Bib
+                ctx.strokeStyle = isBirdUV ? '#1e1b4b' : '#0f172a';
+                ctx.lineWidth = 7.5;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(bx + 54, by - 48);
+                ctx.quadraticCurveTo(bx + 24, by - 49, bx - 28, by - 36);
+                ctx.stroke();
+
+                // Collar Bib
+                ctx.lineWidth = 9;
+                ctx.beginPath();
+                ctx.arc(bx + 12, by - 42, 34, 0.35, 2.55);
+                ctx.stroke();
+
+                // Iconic Structural Blue / Intense Ultraviolet Crown Cap!
+                const crownGrad = ctx.createRadialGradient(bx + 22, by - 76, 5, bx + 14, by - 68, 44);
+                if (isBirdUV) {
+                    // Peak ~375nm UV reflection mapped to intense non-spectral UV-violet/magenta
+                    crownGrad.addColorStop(0, '#f0abfc');
+                    crownGrad.addColorStop(0.42, '#9333ea');
+                    crownGrad.addColorStop(0.82, '#4338ca');
+                    crownGrad.addColorStop(1, '#1e1b4b');
+                } else {
+                    // Subtle natural cobalt blue to human vision
+                    crownGrad.addColorStop(0, '#60a5fa');
+                    crownGrad.addColorStop(0.5, '#2563eb');
+                    crownGrad.addColorStop(1, '#1e3a8a');
+                }
+                ctx.fillStyle = crownGrad;
+                ctx.beginPath();
+                ctx.ellipse(bx + 14, by - 71, 41, 24, -0.12, Math.PI * 0.95, Math.PI * 2.08);
+                ctx.fill();
+
+                // Crown Micro-Feathers
+                drawMicroPlumageStrokes(
+                    ctx, bx + 14, by - 73, 35, 16, 130,
+                    isBirdUV ? '#6d28d9' : '#1d4ed8',
+                    isBirdUV ? '#f5d0fe' : '#93c5fd',
+                    3.0, 0.45, 11
+                );
+
+                // White Forehead Band separating Crown & Eye Stripe
+                ctx.strokeStyle = isBirdUV ? '#e9d5ff' : '#f8fafc';
+                ctx.lineWidth = 4.5;
+                ctx.beginPath();
+                ctx.moveTo(bx + 51, by - 55);
+                ctx.quadraticCurveTo(bx + 24, by - 63, bx - 20, by - 53);
+                ctx.stroke();
+
+                // Glossy Dark Eye with Catchlight
+                ctx.fillStyle = '#050811';
+                ctx.beginPath();
+                ctx.arc(bx + 29, by - 49, 7.2, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = isBirdUV ? '#c084fc' : '#64748b';
+                ctx.lineWidth = 1.2;
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(bx + 31.5, by - 51.5, 2.3, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Sharp Conical Insect/Seed Bill
+                ctx.fillStyle = '#1e293b';
+                ctx.beginPath();
+                ctx.moveTo(bx + 54, by - 53);
+                ctx.lineTo(bx + 76, by - 46);
+                ctx.lineTo(bx + 54, by - 41);
+                ctx.closePath();
+                ctx.fill();
+
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(bx + 54, by - 47);
+                ctx.lineTo(bx + 75, by - 46);
+                ctx.stroke();
+
+                // Feet Clasping the Mossy Perch
+                ctx.strokeStyle = '#475569';
+                ctx.lineWidth = 3.2;
+                ctx.lineCap = 'round';
+                ctx.beginPath();
+                ctx.moveTo(bx + 4, by + 148);
+                ctx.lineTo(bx + 10, by + 184);
+                ctx.moveTo(bx + 28, by + 144);
+                ctx.lineTo(bx + 34, by + 184);
+                ctx.stroke();
+
+                // 4. MACRO CLOSE-UP FEATHER ARRAY ON RIGHT HALF (x=540..920)
+                // Displays overlapping individual plumage feathers at high magnification:
+                // - Structural Blue & Iridescent Violet Peacock/Bluebird Contour Feathers
+                // - Fluorescent Yellow-Green Budgerigar Crown/Cheek Plumes (psittacofulvin pigments
+                //   that absorb UV and fluoresce intensely in avian tetrachromatic vision!)
+                const macroFeathers = [
+                    // Back layer: Large Peacock/Jay structural blue-teal covert feathers
+                    {
+                        x: 565, y: 120, length: 310, width: 108, angle: 0.28,
+                        shaftColor: '#cbd5e1', baseDownColor: '#475569',
+                        vaneInnerColor: isBirdUV ? '#1e3a8a' : '#1e40af',
+                        vaneOuterColor: isBirdUV ? '#4f46e5' : '#2563eb',
+                        uvTipColor: '#9333ea', uvGlowColor: '#e879f9',
+                        isBirdUV, seedOffset: 301
+                    },
+                    {
+                        x: 595, y: 245, length: 325, width: 114, angle: 0.14,
+                        shaftColor: '#e2e8f0', baseDownColor: '#64748b',
+                        vaneInnerColor: isBirdUV ? '#0f766e' : '#1d4ed8',
+                        vaneOuterColor: isBirdUV ? '#6366f1' : '#3b82f6',
+                        uvTipColor: '#a855f7', uvGlowColor: '#f0abfc',
+                        isBirdUV, seedOffset: 402
+                    },
+                    // Mid layer: Budgerigar fluorescent yellow-green crown & cheek plumes
+                    {
+                        x: 530, y: 365, length: 285, width: 96, angle: -0.06,
+                        shaftColor: '#fef08a', baseDownColor: '#64748b',
+                        vaneInnerColor: isBirdUV ? '#65a30d' : '#a3e635',
+                        vaneOuterColor: isBirdUV ? '#bef264' : '#fde047',
+                        uvTipColor: isBirdUV ? '#fef08a' : '#fef9c3',
+                        uvGlowColor: '#ecfccb',
+                        isBirdUV, seedOffset: 503
+                    },
+                    // Foreground hero feather: Iridescent UV-Violet & Cobalt Contour Feather
+                    {
+                        x: 615, y: 465, length: 295, width: 102, angle: -0.24,
+                        shaftColor: '#f8fafc', baseDownColor: '#94a3b8',
+                        vaneInnerColor: isBirdUV ? '#312e81' : '#1e3a8a',
+                        vaneOuterColor: isBirdUV ? '#7c3aed' : '#3b82f6',
+                        uvTipColor: '#d946ef', uvGlowColor: '#fae8ff',
+                        isBirdUV, seedOffset: 604
+                    }
+                ];
+
+                macroFeathers.forEach(f => drawDetailedFeather(ctx, f));
+
+                // Subtle Macro Lens Frame Caption Tag in Bottom-Right Corner
+                ctx.fillStyle = 'rgba(9, 13, 24, 0.72)';
+                ctx.beginPath();
+                ctx.roundRect(w - 278, h - 36, 264, 24, 6);
+                ctx.fill();
+
+                ctx.font = '600 11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillStyle = isBirdUV ? '#e9d5ff' : '#cbd5e1';
+                ctx.textAlign = 'right';
+                ctx.fillText(
+                    isBirdUV
+                        ? 'UV Structural Iridescence & Psittacofulvin Glow'
+                        : 'Blue Tit & Fluorescent Budgerigar Plumage',
+                    w - 22,
+                    h - 20
+                );
+
+                ctx.restore();
+            }
+
+            // Render both Human-visible and UV-augmented plumage buffers
+            renderPlumageBuffer(ctxHumanSrc, false);
+            renderPlumageBuffer(ctxBirdSrc, true);
+
+            // Process through the avian tetrachromatic & foveal acuity pipeline
+            renderSimulationFrame(true);
+        }
+
+        /**
+         * Custom Photo Upload Handler
+         */
+        fileUpload.addEventListener('change', (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+
+            if (!file.type.startsWith('image/')) {
+                showStatus('Please choose a valid image file (JPG, PNG, or WebP).', true);
+                return;
+            }
+
+            stopCamera();
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const img = new Image();
+                img.onload = () => {
+                    state.mode = 'upload';
+                    updateActiveSourceButton('upload');
+                    updateEducationalTakeaway('upload');
+                    setCanvasDimensions(img.naturalWidth, img.naturalHeight);
+                    ctxHumanSrc.drawImage(img, 0, 0, state.sourceWidth, state.sourceHeight);
+                    renderSimulationFrame(false);
+                    showStatus(`Loaded "${file.name}". Drag the divider line to compare Human vs. Bird vision!`);
+                };
+                img.onerror = () => {
+                    showStatus('Could not decode that image file. Please try another photo.', true);
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+            fileUpload.value = '';
+        });
+
+        /**
+         * Live Webcam Streaming & Pause/Resume Controls
+         */
+        function stopCamera() {
+            if (state.animFrameId) {
+                cancelAnimationFrame(state.animFrameId);
+                state.animFrameId = null;
+            }
+            if (state.cameraStream) {
+                state.cameraStream.getTracks().forEach(track => track.stop());
+                state.cameraStream = null;
+            }
+            webcamVideo.srcObject = null;
+            state.cameraFrozen = false;
+            webcamControls.classList.remove('visible');
+            cameraBtnText.textContent = 'Live Camera';
+            btnCamera.classList.remove('btn-camera-live');
+        }
+
+        function webcamLoop() {
+            if (state.mode !== 'camera') return;
+            if (!state.cameraFrozen && webcamVideo.readyState >= webcamVideo.HAVE_CURRENT_DATA) {
+                ctxHumanSrc.drawImage(webcamVideo, 0, 0, state.sourceWidth, state.sourceHeight);
+                renderSimulationFrame(false);
+            }
+            state.animFrameId = requestAnimationFrame(webcamLoop);
+        }
+
+        btnCamera.addEventListener('click', async () => {
+            if (state.mode === 'camera') {
+                generateMeadowAndBerriesScene();
+                showStatus('Camera stopped. Returned to Meadow Scene.');
+                return;
+            }
+
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                showStatus('Camera access is unavailable in this browser or requires a secure HTTPS connection.', true);
+                return;
+            }
+
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 960 },
+                        height: { ideal: 570 }
+                    },
+                    audio: false
+                });
+
+                state.cameraStream = stream;
+                state.mode = 'camera';
+                state.cameraFrozen = false;
+                updateActiveSourceButton('camera');
+                updateEducationalTakeaway('camera');
+                webcamVideo.srcObject = stream;
+
+                webcamVideo.onloadedmetadata = () => {
+                    webcamVideo.play();
+                    const vw = webcamVideo.videoWidth || 800;
+                    const vh = webcamVideo.videoHeight || 570;
+                    setCanvasDimensions(vw, vh);
+
+                    cameraBtnText.textContent = 'Stop Camera';
+                    webcamControls.classList.add('visible');
+                    btnFreezeCam.textContent = 'Pause';
+                    liveDot.classList.remove('paused');
+                    liveStatusText.textContent = 'LIVE';
+
+                    showStatus('Live camera active! Point at flowers, berries, feathers, or bright clothing to inspect UV & tetrachromatic contrast.');
+                    webcamLoop();
+                };
+            } catch (err) {
+                console.error('Camera access error:', err);
+                showStatus('Camera access was blocked or no camera was found. You can still upload any photo!', true);
+            }
+        });
+
+        btnFreezeCam.addEventListener('click', () => {
+            if (state.mode !== 'camera') return;
+            state.cameraFrozen = !state.cameraFrozen;
+            if (state.cameraFrozen) {
+                btnFreezeCam.textContent = 'Resume';
+                liveDot.classList.add('paused');
+                liveStatusText.textContent = 'PAUSED';
+            } else {
+                btnFreezeCam.textContent = 'Pause';
+                liveDot.classList.remove('paused');
+                liveStatusText.textContent = 'LIVE';
+            }
+        });
+
+        btnSample.addEventListener('click', () => {
+            generateMeadowAndBerriesScene();
+            hideStatus();
+        });
+
+        btnPlumage.addEventListener('click', () => {
+            generateBirdPlumageScene();
+            hideStatus();
+        });
+
+        // Initialize App on Load
+        window.addEventListener('DOMContentLoaded', () => {
+            updateSplitPosition(50);
+            generateMeadowAndBerriesScene();
+        });
+    </script>
+</body>
+</html>
