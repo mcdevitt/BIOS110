@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>High Five vs. Knee Reflex: Whole-Body Nervous System Explorer</title>
+  <!-- Google Fonts: Fraunces for display headers, Plus Jakarta Sans & JetBrains Mono for UI/telemetry -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['Fraunces', 'Georgia', 'serif'],
+            sans: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            alabaster: '#FAF8F5',
+            surface: '#FFFFFF',
+            warmBorder: '#E5DFD5',
+            tealAfferent: '#0D7377',
+            tealSoft: '#E3F4F4',
+            amberCns: '#D97706',
+            amberSoft: '#FEF3C7',
+            indigoEfferent: '#4338CA',
+            indigoSoft: '#E0E7FF',
+            coralSignal: '#E11D48',
+            coralSoft: '#FFE4E6',
+            ink: '#1E293B',
+            muted: '#64748B'
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #FAF8F5;
+      color: #1E293B;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .studio-panel {
+      background: #FFFFFF;
+      border: 1px solid #E5DFD5;
+      border-radius: 1.15rem;
+      box-shadow: 0 3px 14px rgba(30, 41, 59, 0.035);
+    }
+    @keyframes dashPulse {
+      to { stroke-dashoffset: -28; }
+    }
+    .signal-flow {
+      stroke-dasharray: 8 6;
+      animation: dashPulse 0.75s linear infinite;
+    }
+    @keyframes ringPulse {
+      0%, 100% { transform: scale(1); opacity: 0.85; }
+      50% { transform: scale(1.16); opacity: 0.35; }
+    }
+    .node-halo {
+      transform-box: fill-box;
+      transform-origin: center;
+      animation: ringPulse 1.8s infinite ease-in-out;
+    }
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #FAF8F5; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Sticky Header & Color Legend -->
+  <header class="bg-white border-b border-warmBorder sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      <div class="flex items-center gap-3.5">
+        <div class="w-11 h-11 rounded-2xl bg-tealAfferent text-white flex items-center justify-center shadow-sm shrink-0">
+          <!-- Whole-body Neural Pathway Icon -->
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 3a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" fill="currentColor" fill-opacity="0.25"/>
+            <path d="M12 9v12M12 13l-6-3M12 15l6 4" stroke-linecap="round"/>
+            <circle cx="6" cy="10" r="1.5" fill="currentColor"/>
+            <circle cx="18" cy="19" r="1.5" fill="currentColor"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-[11px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-tealSoft text-tealAfferent font-bold">Whole-Body Integration Studio</span>
+            <span class="text-[11px] font-mono text-muted">CNS • PNS • Cellular • Synaptic</span>
+          </div>
+          <h1 class="font-serif text-xl sm:text-2xl font-bold text-ink tracking-tight leading-tight">
+            High Five vs. Knee Reflex: Nervous System Explorer
+          </h1>
+        </div>
+      </div>
+
+      <!-- Semantic Color Legend -->
+      <div class="flex flex-wrap items-center gap-2 text-xs">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-tealSoft text-tealAfferent font-semibold border border-teal-200">
+          <span class="w-2.5 h-2.5 rounded-full bg-tealAfferent"></span>Afferent / Sensory
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amberSoft text-amber-900 font-semibold border border-amber-200">
+          <span class="w-2.5 h-2.5 rounded-full bg-amberCns"></span>CNS Integration
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigoSoft text-indigoEfferent font-semibold border border-indigo-200">
+          <span class="w-2.5 h-2.5 rounded-full bg-indigoEfferent"></span>Efferent / Motor
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-coralSoft text-coralSignal font-semibold border border-rose-200">
+          <span class="w-2.5 h-2.5 rounded-full bg-coralSignal"></span>AP &amp; Synapse Firing
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- =======================================================================
+         SECTION 1: SCENARIO SWITCHER & PLAYBACK CONTROLS BAR
+         ======================================================================= -->
+    <section class="studio-panel p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+      <!-- Scenario Switcher -->
+      <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+        <span class="text-xs font-mono font-bold uppercase tracking-wider text-muted">Select Pathway:</span>
+        <div class="inline-flex rounded-xl bg-alabaster p-1 border border-warmBorder">
+          <button id="btn-scenario-reflex" onclick="setScenario('reflex')" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-coralSignal text-white shadow-sm transition flex items-center gap-2">
+            <span>🦵 Patellar Knee Reflex</span>
+            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/20">Involuntary</span>
+          </button>
+          <button id="btn-scenario-highfive" onclick="setScenario('highfive')" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold text-slate-600 hover:text-ink transition flex items-center gap-2">
+            <span>✋ Intentional High Five</span>
+            <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-slate-200/80 text-slate-700">Voluntary</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mode Toggle (Circuit Tracer vs Diagram Matching) + Playback Controls -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <div class="inline-flex rounded-xl bg-alabaster p-1 border border-warmBorder">
+          <button id="btn-mode-trace" onclick="setMode('trace')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-tealAfferent text-white shadow-sm transition">
+            Circuit Tracer
+          </button>
+          <button id="btn-mode-match" onclick="setMode('match')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-ink transition">
+            Label Diagram (1–6)
+          </button>
+        </div>
+
+        <div id="playback-controls" class="flex items-center gap-1.5 bg-alabaster p-1 rounded-xl border border-warmBorder">
+          <button onclick="prevStep()" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 border border-warmBorder text-xs font-bold text-ink transition" title="Previous Step">
+            ◀ Prev
+          </button>
+          <button id="btn-play-pause" onclick="togglePlay()" class="px-3 py-1.5 rounded-lg bg-ink hover:bg-slate-800 text-white text-xs font-bold transition min-w-[78px]">
+            ▶ Play
+          </button>
+          <button onclick="nextStep()" class="px-2.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 border border-warmBorder text-xs font-bold text-ink transition" title="Next Step">
+            Next ▶
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         SECTION 2: INTERACTIVE WHOLE-BODY SVG + LIVE MULTI-SCALE TELEMETRY
+         ======================================================================= -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Left 7 Cols: Whole-Body Anatomical SVG Canvas -->
+      <div class="lg:col-span-7 studio-panel p-5 flex flex-col justify-between">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-warmBorder">
+          <div>
+            <h2 id="diagram-heading" class="font-serif text-lg sm:text-xl font-bold text-ink">
+              Patellar Knee Reflex Arc (Spinal Cord Loop)
+            </h2>
+            <p id="diagram-subheading" class="text-xs text-muted">
+              Click any station (1–5) or press Play to trace signals from tendon stretch to quadriceps contraction.
+            </p>
+          </div>
+          <span id="step-counter-pill" class="font-mono text-xs font-bold px-3 py-1 rounded-full bg-coralSoft text-coralSignal border border-rose-200">
+            STEP 1 OF 5
+          </span>
+        </div>
+
+        <!-- Whole-Body Anatomical SVG -->
+        <div class="my-3 bg-[#FCFBF9] rounded-2xl border border-warmBorder p-2 sm:p-3 overflow-hidden">
+          <svg id="whole-body-svg" viewBox="0 0 680 480" class="w-full h-auto select-none">
+            <defs>
+              <marker id="arrTeal" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#0D7377"/>
+              </marker>
+              <marker id="arrAmber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#D97706"/>
+              </marker>
+              <marker id="arrIndigo" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#4338CA"/>
+              </marker>
+              <marker id="arrCoral" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 10 5 L 0 9 z" fill="#E11D48"/>
+              </marker>
+            </defs>
+
+            <!-- Background Division Zones: CNS (Left/Center) vs PNS (Right) -->
+            <rect x="14" y="14" width="290" height="452" rx="14" fill="#FEF3C7" fill-opacity="0.35" stroke="#FDE68A" stroke-width="1.2"/>
+            <text x="28" y="36" font-size="11" font-weight="700" fill="#B45309" font-family="Plus Jakarta Sans, sans-serif">CENTRAL NERVOUS SYSTEM (CNS)</text>
+            <text x="28" y="50" font-size="9.5" fill="#92400E" font-family="Plus Jakarta Sans, sans-serif">Brain &amp; Spinal Cord • Oligodendrocyte Myelin</text>
+
+            <rect x="318" y="14" width="348" height="452" rx="14" fill="#E3F4F4" fill-opacity="0.32" stroke="#CCFBF1" stroke-width="1.2"/>
+            <text x="332" y="36" font-size="11" font-weight="700" fill="#0D7377" font-family="Plus Jakarta Sans, sans-serif">PERIPHERAL NERVOUS SYSTEM (PNS)</text>
+            <text x="332" y="50" font-size="9.5" fill="#115E59" font-family="Plus Jakarta Sans, sans-serif">Cranial &amp; Spinal Nerves • Schwann Cell Myelin</text>
+
+            <!-- ==================== BRAIN ILLUSTRATION (Top Left in CNS) ==================== -->
+            <g id="brain-anatomy">
+              <!-- Outer Cerebrum Silhouette -->
+              <path d="M 65 135 C 55 95, 95 65, 155 68 C 215 70, 248 98, 242 138 C 238 162, 212 172, 185 170 L 145 172 C 115 174, 75 162, 65 135 Z" fill="#FFFBEB" stroke="#D97706" stroke-width="2.2"/>
+              <!-- Frontal Lobe & Motor Cortex Highlight -->
+              <path id="region-frontal" d="M 65 135 C 55 95, 95 65, 148 68 L 148 152 C 115 156, 75 154, 65 135 Z" fill="#FDE68A" fill-opacity="0.7" stroke="#D97706" stroke-width="1.5"/>
+              <text x="104" y="108" text-anchor="middle" font-size="10" font-weight="700" fill="#92400E">Frontal Lobe</text>
+              <text x="104" y="121" text-anchor="middle" font-size="9" font-weight="600" fill="#B45309">&amp; Motor Cortex</text>
+
+              <!-- Cerebellum (Back/Bottom of Brain) -->
+              <ellipse id="region-cerebellum" cx="212" cy="166" rx="32" ry="18" fill="#FCD34D" stroke="#B45309" stroke-width="1.8"/>
+              <path d="M 186 166 Q 212 158 238 166 M 188 171 Q 212 164 236 171" stroke="#92400E" stroke-width="1" fill="none"/>
+              <text x="212" y="196" text-anchor="middle" font-size="9.5" font-weight="700" fill="#92400E">Cerebellum</text>
+
+              <!-- Brainstem -->
+              <rect x="148" y="166" width="24" height="44" rx="8" fill="#FDE68A" stroke="#D97706" stroke-width="1.8"/>
+            </g>
+
+            <!-- ==================== SPINAL CORD CROSS-SECTION / COLUMN ==================== -->
+            <g id="spinal-cord-anatomy">
+              <!-- Vertical Spinal Column -->
+              <rect x="146" y="210" width="28" height="225" rx="12" fill="#FEF3C7" stroke="#D97706" stroke-width="2"/>
+              <!-- Enlarged Spinal Cord Integration Cross-Section Callout at y=315 -->
+              <ellipse cx="160" cy="325" rx="64" ry="44" fill="#FFFBEB" stroke="#D97706" stroke-width="2.2"/>
+              <!-- Butterfly Gray Matter -->
+              <path d="M 132 305 Q 148 318 160 318 Q 172 318 188 305 Q 182 325 188 345 Q 172 332 160 332 Q 148 332 132 345 Q 138 325 132 305 Z" fill="#F59E0B" fill-opacity="0.45" stroke="#B45309" stroke-width="1.4"/>
+              <text x="160" y="382" text-anchor="middle" font-size="10" font-weight="700" fill="#92400E">Spinal Cord (CNS)</text>
+
+              <!-- CNS Interneuron inside Gray Matter -->
+              <g id="cns-interneuron">
+                <circle cx="174" cy="316" r="6" fill="#D97706" stroke="#FFFFFF" stroke-width="1.5"/>
+                <path d="M 174 322 L 174 336" stroke="#D97706" stroke-width="2.5" stroke-linecap="round"/>
+              </g>
+            </g>
+
+            <!-- ==================== PATHWAY A: PATELLAR KNEE REFLEX (Lower Half) ==================== -->
+            <g id="svg-pathway-reflex">
+              <!-- Patellar Tendon & Quadriceps Muscle Effector (Bottom Right in PNS) -->
+              <g transform="translate(525, 345)">
+                <!-- Femur / Knee Joint Schematic -->
+                <rect x="-25" y="-58" width="95" height="44" rx="14" fill="#FFE4E6" stroke="#E11D48" stroke-width="2"/>
+                <text x="22" y="-39" text-anchor="middle" font-size="10" font-weight="700" fill="#9F1239">Quadriceps Muscle</text>
+                <text x="22" y="-26" text-anchor="middle" font-size="9" fill="#BE123C">(Somatic Effector)</text>
+
+                <!-- Knee & Patellar Tendon -->
+                <circle cx="22" cy="8" r="16" fill="#F1F5F9" stroke="#64748B" stroke-width="2"/>
+                <text x="22" y="12" text-anchor="middle" font-size="9" font-weight="700" fill="#334155">Knee</text>
+                <line x1="22" y1="-14" x2="22" y2="36" stroke="#0D7377" stroke-width="5" stroke-linecap="round"/>
+                <text x="22" y="52" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0D7377">Patellar Tendon</text>
+                <text x="22" y="64" text-anchor="middle" font-size="8.5" fill="#115E59">(Stretch Receptor)</text>
+              </g>
+
+              <!-- Afferent Sensory Neuron Wire (Tendon -> Dorsal Root Ganglion -> Spinal Cord) -->
+              <path id="reflex-wire-afferent" d="M 522 365 C 430 285, 320 278, 222 308" fill="none" stroke="#0D7377" stroke-width="3.5" marker-end="url(#arrTeal)"/>
+              <!-- Dorsal Root Ganglion (Cell Body in PNS) -->
+              <circle cx="345" cy="288" r="10" fill="#0D7377" stroke="#FFFFFF" stroke-width="2"/>
+              <text x="345" y="272" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0D7377">Dorsal Root Ganglion</text>
+              <text x="435" y="292" text-anchor="middle" font-size="9" font-weight="600" fill="#0D7377">Sensory (Afferent) Axon</text>
+
+              <!-- Efferent Motor Neuron Wire (Ventral Root -> Quadriceps NMJ) -->
+              <path id="reflex-wire-efferent" d="M 186 340 C 290 365, 405 352, 496 316" fill="none" stroke="#4338CA" stroke-width="3.5" marker-end="url(#arrIndigo)"/>
+              <text x="345" y="374" text-anchor="middle" font-size="9.5" font-weight="700" fill="#4338CA">Ventral Root → Somatic Motor (Efferent) Axon</text>
+
+              <!-- Brain Bypass Notice -->
+              <rect x="46" y="218" width="188" height="24" rx="8" fill="#FFE4E6" stroke="#FDA4AF" stroke-width="1"/>
+              <text x="140" y="234" text-anchor="middle" font-size="9.5" font-weight="700" fill="#BE123C">⚡ Bypasses Brain for Protective Speed</text>
+            </g>
+
+            <!-- ==================== PATHWAY B: INTENTIONAL HIGH FIVE (Upper/Mid Half) ==================== -->
+            <g id="svg-pathway-highfive" class="hidden">
+              <!-- Arm & Hand Skeletal Muscle Effector (Top/Mid Right in PNS) -->
+              <g transform="translate(530, 155)">
+                <rect x="-35" y="-36" width="105" height="58" rx="14" fill="#E0E7FF" stroke="#4338CA" stroke-width="2"/>
+                <text x="18" y="-14" text-anchor="middle" font-size="10" font-weight="700" fill="#312E81">Arm &amp; Hand Muscles</text>
+                <text x="18" y="0" text-anchor="middle" font-size="9" fill="#4338CA">(Skeletal Effectors)</text>
+                <text x="18" y="14" text-anchor="middle" font-size="9" font-weight="700" fill="#E11D48">✋ Crisp High Five!</text>
+              </g>
+
+              <!-- Brain Planning Loop: Frontal Lobe <-> Cerebellum -->
+              <path id="hf-wire-brain" d="M 135 125 Q 178 135 202 152" fill="none" stroke="#D97706" stroke-width="3.2" marker-end="url(#arrAmber)"/>
+              <text x="200" y="112" text-anchor="middle" font-size="9" font-weight="700" fill="#B45309">Motor Plan + Timing</text>
+
+              <!-- Upper Motor Neuron Descending Tract (Motor Cortex -> Spinal Cord) -->
+              <path id="hf-wire-descend" d="M 148 152 L 160 315" fill="none" stroke="#D97706" stroke-width="3.5" marker-end="url(#arrAmber)"/>
+              <text x="85" y="248" text-anchor="middle" font-size="9" font-weight="700" fill="#92400E">Upper Motor Neuron</text>
+              <text x="85" y="260" text-anchor="middle" font-size="8.5" fill="#B45309">(CNS Descending Tract)</text>
+
+              <!-- Lower Motor Neuron Wire (Spinal Ventral Horn -> Arm NMJ) -->
+              <path id="hf-wire-efferent" d="M 184 328 C 285 275, 395 215, 492 158" fill="none" stroke="#4338CA" stroke-width="3.5" marker-end="url(#arrIndigo)"/>
+              <text x="368" y="218" text-anchor="middle" font-size="9.5" font-weight="700" fill="#4338CA">Lower Motor Neuron (Somatic Efferent)</text>
+
+              <!-- Proprioceptive & Visual Sensory Feedback Loop (Hand/Eyes -> Brain) -->
+              <path id="hf-wire-feedback" d="M 495 132 C 395 92, 310 88, 238 118" fill="none" stroke="#0D7377" stroke-width="2.8" stroke-dasharray="5 4" marker-end="url(#arrTeal)"/>
+              <text x="380" y="88" text-anchor="middle" font-size="9" font-weight="700" fill="#0D7377">Sensory (Afferent) Visual &amp; Joint Feedback</text>
+            </g>
+
+            <!-- ==================== ACTIVE STEP HIGHLIGHT HALO & PULSE DOT ==================== -->
+            <g id="active-station-marker" transform="translate(547, 365)">
+              <circle cx="0" cy="0" r="18" fill="#E11D48" fill-opacity="0.25" class="node-halo"/>
+              <circle cx="0" cy="0" r="8" fill="#E11D48" stroke="#FFFFFF" stroke-width="2.5"/>
+            </g>
+
+            <!-- ==================== CLICKABLE STEP STATIONS (1 to 5) ==================== -->
+            <g id="station-pins-layer">
+              <!-- Populated dynamically by JS based on active scenario -->
+            </g>
+
+            <!-- ==================== DIAGRAM MATCHING PINS (A-F, hidden in Trace Mode) ==================== -->
+            <g id="matching-pins-layer" class="hidden">
+              <!-- Pin 1: Frontal Lobe & Motor Cortex -->
+              <g id="mpin-1" onclick="handleMatchPinClick(1)" class="cursor-pointer" transform="translate(104, 82)">
+                <circle cx="0" cy="0" r="15" fill="#FFFFFF" stroke="#D97706" stroke-width="2.5"/>
+                <text x="0" y="4.5" text-anchor="middle" font-size="12" font-weight="700" fill="#B45309" font-family="JetBrains Mono, monospace">1</text>
+              </g>
+              <!-- Pin 2: Cerebellum -->
+              <g id="mpin-2" onclick="handleMatchPinClick(2)" class="cursor-pointer" transform="translate(238, 166)">
+                <circle cx="0" cy="0" r="15" fill="#FFFFFF" stroke="#D97706" stroke-width="2.5"/>
+                <text x="0" y="4.5" text-anchor="middle" font-size="12" font-weight="700" fill="#B45309" font-family="JetBrains Mono, monospace">2</text>
+              </g>
+              <!-- Pin 3: Dorsal Root Ganglion -->
+              <g id="mpin-3" onclick="handleMatchPinClick(3)" class="cursor-pointer" transform="translate(345, 288)">
+                <circle cx="0" cy="0" r="15" fill="#FFFFFF" stroke="#0D7377" stroke-width="2.5"/>
+                <text x="0" y="4.5" text-anchor="middle" font-size="12" font-weight="700" fill="#0D7377" font-family="JetBrains Mono, monospace">3</text>
+              </g>
+              <!-- Pin 4: CNS Interneuron -->
+              <g id="mpin-4" onclick="handleMatchPinClick(4)" class="cursor-pointer" transform="translate(174, 316)">
+                <circle cx="0" cy="0" r="15" fill="#FFFFFF" stroke="#D97706" stroke-width="2.5"/>
+                <text x="0" y="4.5" text-anchor="middle" font-size="12" font-weight="700" fill="#B45309" font-family="JetBrains Mono, monospace">4</text>
+              </g>
+              <!-- Pin 5: Afferent Sensory Neuron -->
+              <g id="mpin-5" onclick="handleMatchPinClick(5)" class="cursor-pointer" transform="translate(445, 312)">
+                <circle cx="0" cy="0" r="15" fill="#FFFFFF" stroke="#0D7377" stroke-width="2.5"/>
+                <text x="0" y="4.5" text-anchor="middle" font-size="12" font-weight="700" fill="#0D7377" font-family="JetBrains Mono, monospace">5</text>
+              </g>
+              <!-- Pin 6: Ventral Root & Motor Neuron -->
+              <g id="mpin-6" onclick="handleMatchPinClick(6)" class="cursor-pointer" transform="translate(345, 354)">
+                <circle cx="0" cy="0" r="15" fill="#FFFFFF" stroke="#4338CA" stroke-width="2.5"/>
+                <text x="0" y="4.5" text-anchor="middle" font-size="12" font-weight="700" fill="#4338CA" font-family="JetBrains Mono, monospace">6</text>
+              </g>
+            </g>
+          </svg>
+        </div>
+
+        <!-- Step Scrubber Pills (1 to 5) -->
+        <div id="step-scrubber-bar" class="grid grid-cols-5 gap-1.5">
+          <!-- Populated dynamically by JS -->
+        </div>
+      </div>
+
+      <!-- Right 5 Cols: Multi-Scale Telemetry Strip OR Diagram Matching Panel -->
+      <div class="lg:col-span-5 studio-panel p-5 flex flex-col justify-between">
+        
+        <!-- TELEMETRY INSPECTOR (Default Mode) -->
+        <div id="telemetry-panel" class="space-y-4">
+          <div class="border-b border-warmBorder pb-3">
+            <div class="flex items-center justify-between">
+              <span id="tel-step-tag" class="text-[11px] font-mono font-bold uppercase tracking-wider text-coralSignal">STEP 1 • RECEPTOR &amp; AFFERENT INPUT</span>
+              <span id="tel-latency" class="text-[11px] font-mono px-2 py-0.5 rounded bg-alabaster border border-warmBorder text-muted">t = 0–5 ms</span>
+            </div>
+            <h3 id="tel-title" class="font-serif text-xl font-bold text-ink mt-1">
+              Patellar Tendon Stretch &amp; Receptor Depolarization
+            </h3>
+          </div>
+
+          <!-- 4-Layer Multi-Scale Telemetry Cards -->
+          <div class="space-y-2.5">
+            <!-- (a) Nervous System Division -->
+            <div class="p-3 rounded-xl bg-tealSoft/45 border border-teal-200/80">
+              <div class="text-[10px] font-mono font-bold uppercase tracking-wider text-tealAfferent">1. Nervous System Division</div>
+              <div id="tel-division" class="text-xs sm:text-sm font-bold text-ink mt-0.5">
+                Peripheral Nervous System (PNS) → Sensory (Afferent) Division
+              </div>
+            </div>
+
+            <!-- (b) Anatomical Structure -->
+            <div class="p-3 rounded-xl bg-amberSoft/45 border border-amber-200/80">
+              <div class="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-900">2. Anatomical Structure</div>
+              <div id="tel-anatomy" class="text-xs sm:text-sm font-bold text-ink mt-0.5">
+                Patellar Tendon Muscle Spindle → Femoral Nerve → Dorsal Root Ganglion
+              </div>
+            </div>
+
+            <!-- (c) Cell & Glial Type -->
+            <div class="p-3 rounded-xl bg-indigoSoft/45 border border-indigo-200/80">
+              <div class="text-[10px] font-mono font-bold uppercase tracking-wider text-indigoEfferent">3. Cell &amp; Glial Support Type</div>
+              <div id="tel-cell" class="text-xs sm:text-sm font-bold text-ink mt-0.5">
+                Pseudounipolar Sensory Neuron + Schwann Cell Myelin Sheath (PNS)
+              </div>
+            </div>
+
+            <!-- (d) Cellular & Synaptic Mechanism -->
+            <div class="p-3.5 rounded-xl bg-coralSoft/40 border border-rose-200/90 space-y-1">
+              <div class="text-[10px] font-mono font-bold uppercase tracking-wider text-coralSignal">4. Cellular &amp; Synaptic Mechanism</div>
+              <p id="tel-mechanism" class="text-xs text-slate-800 leading-relaxed">
+                Mechanical stretch opens mechanosensitive cation channels, depolarizing the receptor past <strong>-55 mV threshold</strong>. Voltage-gated <strong>Na⁺ channels</strong> snap open (+40 mV spike), triggering rapid <strong>saltatory conduction</strong> across Nodes of Ranvier into the spinal cord.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- DIAGRAM MATCHING PANEL (Hidden unless Label Diagram mode is active) -->
+        <div id="matching-panel" class="hidden space-y-4">
+          <div class="border-b border-warmBorder pb-3 flex items-center justify-between">
+            <div>
+              <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-amberCns">Anatomical Label Challenge</span>
+              <h3 class="font-serif text-lg font-bold text-ink">Match Whole-Body Structures (1–6)</h3>
+            </div>
+            <span id="match-score-badge" class="font-mono text-xs font-bold px-2.5 py-1 rounded-full bg-tealSoft text-tealAfferent">0 / 6 Matched</span>
+          </div>
+
+          <p class="text-xs text-muted leading-relaxed">
+            <strong>How it works:</strong> 1) Click a structure chip below, then 2) click its numbered pin (1–6) on the whole-body nervous system diagram.
+          </p>
+
+          <!-- Chips Grid -->
+          <div id="matching-chips-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <!-- Populated by JS -->
+          </div>
+
+          <!-- Instant Feedback & Hint Box -->
+          <div id="matching-feedback-box" class="p-3.5 rounded-xl bg-alabaster border border-warmBorder text-xs text-slate-700 leading-relaxed min-h-[72px] flex flex-col justify-center">
+            Select a structure chip above to start labeling the whole-body circuit diagram.
+          </div>
+
+          <div class="flex items-center gap-2 pt-1">
+            <button onclick="showMatchingHint()" class="flex-1 py-2 px-3 rounded-xl bg-amberSoft/70 hover:bg-amberSoft text-amber-950 border border-amber-300 text-xs font-bold transition">
+              💡 Hint for Selected Chip
+            </button>
+            <button onclick="resetMatching()" class="py-2 px-3 rounded-xl bg-white hover:bg-alabaster text-slate-700 border border-warmBorder text-xs font-semibold transition">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Bottom Slide Synthesis Takeaway -->
+        <div class="mt-4 pt-3.5 border-t border-warmBorder">
+          <div class="text-[10px] font-mono font-bold uppercase tracking-wider text-muted mb-1">Lecture Slide Big Picture</div>
+          <p id="tel-synthesis" class="text-xs text-slate-700 leading-relaxed">
+            <strong>Why speed wins here:</strong> Because the sensory neuron synapses directly inside the spinal cord without waiting for cortical awareness, the knee extends in ~30 ms—protecting the tendon from overstretching.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =======================================================================
+         SECTION 3: NERVOUS SYSTEM DIVISION HIERARCHY & COMPARISON MATRIX
+         ======================================================================= -->
+    <section class="studio-panel p-5 sm:p-6 space-y-5">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 border-b border-warmBorder pb-4">
+        <div>
+          <span class="text-[11px] font-mono font-bold uppercase tracking-wider text-indigoEfferent">Complete Lecture Synthesis</span>
+          <h2 class="font-serif text-lg sm:text-xl font-bold text-ink">
+            Nervous System Hierarchy &amp; Side-by-Side Comparison Matrix
+          </h2>
+          <p class="text-xs text-muted mt-0.5">
+            Click any division card below to highlight how CNS and PNS branches coordinate voluntary actions, reflexes, and background homeostasis.
+          </p>
+        </div>
+        <div class="inline-flex rounded-xl bg-alabaster p-1 border border-warmBorder self-start">
+          <button onclick="highlightBranch('all')" id="branch-btn-all" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-ink text-white">All Divisions</button>
+          <button onclick="highlightBranch('somatic')" id="branch-btn-somatic" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-ink">Somatic (High Five &amp; Knee)</button>
+          <button onclick="highlightBranch('autonomic')" id="branch-btn-autonomic" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-ink">Autonomic (Homeostasis)</button>
+        </div>
+      </div>
+
+      <!-- Visual Tree Cards of Nervous System Divisions -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs">
+        <div id="card-div-cns" class="p-3.5 rounded-xl bg-amberSoft/40 border border-amber-200 space-y-1.5 transition">
+          <div class="flex items-center justify-between">
+            <span class="font-mono font-bold text-amber-900">CNS</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-white text-amber-900 font-semibold border border-amber-200">Brain + Spinal Cord</span>
+          </div>
+          <div class="font-bold text-ink">Central Nervous System</div>
+          <p class="text-slate-700 leading-relaxed">
+            Integration hub. <strong>High Five</strong> uses Frontal Lobe, Motor Cortex &amp; Cerebellum; <strong>Knee Reflex</strong> integrates solely in Spinal Cord gray matter. Myelinated by <strong>Oligodendrocytes</strong>.
+          </p>
+        </div>
+
+        <div id="card-div-afferent" class="p-3.5 rounded-xl bg-tealSoft/40 border border-teal-200 space-y-1.5 transition">
+          <div class="flex items-center justify-between">
+            <span class="font-mono font-bold text-tealAfferent">PNS • AFFERENT</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-white text-tealAfferent font-semibold border border-teal-200">Sensory Input</span>
+          </div>
+          <div class="font-bold text-ink">Sensory (Afferent) Division</div>
+          <p class="text-slate-700 leading-relaxed">
+            Carries signals <em>into</em> the CNS. Carries tendon stretch in the <strong>Knee Reflex</strong>, and visual + joint proprioception feedback during a <strong>High Five</strong>.
+          </p>
+        </div>
+
+        <div id="card-div-somatic" class="p-3.5 rounded-xl bg-indigoSoft/45 border border-indigo-200 space-y-1.5 transition">
+          <div class="flex items-center justify-between">
+            <span class="font-mono font-bold text-indigoEfferent">PNS • SOMATIC</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-white text-indigoEfferent font-semibold border border-indigo-200">Skeletal Muscle</span>
+          </div>
+          <div class="font-bold text-ink">Somatic Motor (Efferent)</div>
+          <p class="text-slate-700 leading-relaxed">
+            Drives <strong>both</strong> the High Five (voluntary arm muscles) and the Knee Reflex (involuntary quadriceps contraction) via acetylcholine (ACh) at neuromuscular junctions.
+          </p>
+        </div>
+
+        <div id="card-div-autonomic" class="p-3.5 rounded-xl bg-coralSoft/35 border border-rose-200 space-y-1.5 transition">
+          <div class="flex items-center justify-between">
+            <span class="font-mono font-bold text-coralSignal">PNS • AUTONOMIC</span>
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-white text-coralSignal font-semibold border border-rose-200">Smooth/Cardiac/Glands</span>
+          </div>
+          <div class="font-bold text-ink">Sympathetic &amp; Parasympathetic</div>
+          <p class="text-slate-700 leading-relaxed">
+            Involuntary internal homeostasis (e.g., <strong>thermoregulation</strong> via sweat glands &amp; blood vessels, heart rate). <em>Sympathetic</em> = Fight-or-Flight; <em>Parasympathetic</em> = Rest-and-Digest.
+          </p>
+        </div>
+      </div>
+
+      <!-- Responsive Side-by-Side Comparison Table -->
+      <div class="overflow-x-auto rounded-xl border border-warmBorder">
+        <table class="w-full text-left border-collapse text-xs sm:text-sm">
+          <thead>
+            <tr class="bg-alabaster border-b border-warmBorder text-ink font-serif">
+              <th class="py-3 px-4 font-bold">Biological Level</th>
+              <th class="py-3 px-4 font-bold text-coralSignal">🦵 Patellar Knee Reflex</th>
+              <th class="py-3 px-4 font-bold text-indigoEfferent">✋ Intentional High Five</th>
+              <th class="py-3 px-4 font-bold text-tealAfferent">🌡️ Homeostatic Thermoregulation</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-warmBorder bg-white text-slate-700">
+            <tr>
+              <td class="py-3 px-4 font-semibold text-ink">Control Type &amp; PNS Branch</td>
+              <td class="py-3 px-4">Involuntary Reflex • <strong>Somatic PNS</strong></td>
+              <td class="py-3 px-4">Voluntary Action • <strong>Somatic PNS</strong></td>
+              <td class="py-3 px-4">Involuntary Homeostasis • <strong>Autonomic PNS</strong></td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 font-semibold text-ink">Primary CNS Hub</td>
+              <td class="py-3 px-4"><strong>Spinal Cord</strong> (Bypasses brain)</td>
+              <td class="py-3 px-4"><strong>Frontal Lobe, Motor Cortex &amp; Cerebellum</strong> → Spinal Cord</td>
+              <td class="py-3 px-4"><strong>Hypothalamus</strong> &amp; Brainstem</td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 font-semibold text-ink">Neuron Chain</td>
+              <td class="py-3 px-4">Sensory Neuron → Spinal Interneuron → Lower Motor Neuron</td>
+              <td class="py-3 px-4">Cortical Upper Motor Neuron → Lower Motor Neuron (+ Sensory feedback)</td>
+              <td class="py-3 px-4">Thermoreceptor Sensory → Hypothalamus → Sympathetic / Parasympathetic</td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 font-semibold text-ink">Glial Myelin &amp; Speed</td>
+              <td class="py-3 px-4">Schwann cells (PNS) &amp; Oligodendrocytes (CNS) • Ultra-fast saltatory conduction (~30 ms)</td>
+              <td class="py-3 px-4">Oligodendrocytes (descending tract) + Schwann cells (arm nerve) • Coordinated (~150–250 ms)</td>
+              <td class="py-3 px-4">Lightly myelinated / unmyelinated postganglionic autonomic fibers</td>
+            </tr>
+            <tr>
+              <td class="py-3 px-4 font-semibold text-ink">Effector &amp; Synapse</td>
+              <td class="py-3 px-4"><strong>Quadriceps skeletal muscle</strong> (ACh opens Na⁺ channels → leg kick)</td>
+              <td class="py-3 px-4"><strong>Arm &amp; hand skeletal muscles</strong> (ACh opens Na⁺ channels → palm slap)</td>
+              <td class="py-3 px-4"><strong>Sweat glands &amp; dermal arterioles</strong> (vasodilation / vasoconstriction)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    // =========================================================================
+    // DATA MODEL: PATELAR KNEE REFLEX vs. INTENTIONAL HIGH FIVE (5 STEPS EACH)
+    // =========================================================================
+    const scenarios = {
+      reflex: {
+        heading: 'Patellar Knee Reflex Arc (Spinal Cord Loop)',
+        subheading: 'Click any station (1–5) or press Play to trace signals from tendon stretch to quadriceps contraction.',
+        pillClass: 'font-mono text-xs font-bold px-3 py-1 rounded-full bg-coralSoft text-coralSignal border border-rose-200',
+        steps: [
+          {
+            num: 1,
+            shortLabel: '1. Tendon Tap',
+            x: 547, y: 365,
+            tag: 'STEP 1 OF 5 • STIMULUS & RECEPTOR',
+            latency: 't = 0–2 ms',
+            title: 'Patellar Tendon Stretch & Receptor Depolarization',
+            division: 'Peripheral Nervous System (PNS) — Sensory Receptor Ending',
+            anatomy: 'Patellar Tendon & Quadriceps Muscle Spindle (Knee Joint)',
+            cell: 'Specialized Sensory Nerve Ending (Afferent Dendritic Zone)',
+            mechanism: 'A reflex hammer taps the patellar tendon, stretching the quadriceps muscle spindle. Mechanical stretch opens cation channels, allowing positive ions to enter and depolarize the membrane from <strong>-70 mV resting potential</strong> past the <strong>-55 mV threshold</strong>.',
+            synthesis: '<strong>All-or-Nothing Principle:</strong> Once tendon stretch crosses -55 mV, the sensory neuron fires a full-amplitude +40 mV action potential.'
+          },
+          {
+            num: 2,
+            shortLabel: '2. Sensory Axon',
+            x: 345, y: 288,
+            tag: 'STEP 2 OF 5 • AFFERENT CONDUCTION',
+            latency: 't = 2–10 ms',
+            title: 'Afferent Action Potential Races via Dorsal Root Ganglion',
+            division: 'Peripheral Nervous System (PNS) — Sensory (Afferent) Division',
+            anatomy: 'Femoral Nerve → Dorsal Root Ganglion → Dorsal Horn of Spinal Cord',
+            cell: 'Pseudounipolar Sensory Neuron wrapped by Schwann Cell Myelin (PNS)',
+            mechanism: 'Voltage-gated <strong>Na⁺ channels</strong> open in sequence at exposed <strong>Nodes of Ranvier</strong>, propelling the electrical impulse inward via rapid <strong>saltatory conduction</strong>. Its cell body sits safely inside the Dorsal Root Ganglion just outside the spinal cord.',
+            synthesis: '<strong>Why Schwann Cells Matter:</strong> Without PNS myelin insulation, this sensory signal would travel ~10× slower and waste far more ATP on Na⁺/K⁺ pumps.'
+          },
+          {
+            num: 3,
+            shortLabel: '3. Spinal CNS',
+            x: 174, y: 316,
+            tag: 'STEP 3 OF 5 • CNS SPINAL INTEGRATION',
+            latency: 't = 10–14 ms',
+            title: 'Spinal Cord Interneuron Integration (Bypasses Brain)',
+            division: 'Central Nervous System (CNS) — Spinal Cord Gray Matter',
+            anatomy: 'Spinal Cord Dorsal-to-Ventral Horn Circuit',
+            cell: 'CNS Interneuron (Relay Neuron) + Oligodendrocyte / Astrocyte Support',
+            mechanism: 'At the central synapse, arriving depolarization opens voltage-gated <strong>Ca²⁺ channels</strong> in the sensory axon terminal, triggering exocytosis of excitatory neurotransmitters across the synaptic cleft to activate both the motor neuron and an inhibitory interneuron (which relaxes the opposing hamstring).',
+            synthesis: '<strong>Brain Bypass:</strong> Routing through a spinal cord interneuron saves precious milliseconds—your leg kicks <em>before</em> your cerebral cortex even registers the tap!'
+          },
+          {
+            num: 4,
+            shortLabel: '4. Motor Axon',
+            x: 345, y: 354,
+            tag: 'STEP 4 OF 5 • EFFERENT CONDUCTION',
+            latency: 't = 14–24 ms',
+            title: 'Somatic Motor Neuron Fires Outward via Ventral Root',
+            division: 'Peripheral Nervous System (PNS) — Somatic Motor (Efferent) Division',
+            anatomy: 'Spinal Cord Ventral Horn → Ventral Root → Peripheral Motor Nerve',
+            cell: 'Multipolar Lower Motor Neuron + Schwann Cell Myelin Sheath',
+            mechanism: 'Depolarized past -55 mV in the spinal cord, the motor neuron conducts an all-or-nothing electrical action potential (+40 mV Na⁺ influx followed by K⁺ efflux repolarization) outward toward the thigh.',
+            synthesis: '<strong>Dorsal vs. Ventral Rule:</strong> Sensory (Afferent) enters the spinal cord <em>dorsally</em>; Motor (Efferent) exits <em>ventrally</em>.'
+          },
+          {
+            num: 5,
+            shortLabel: '5. Leg Kick!',
+            x: 547, y: 318,
+            tag: 'STEP 5 OF 5 • SYNAPSE & EFFECTOR RESPONSE',
+            latency: 't = 24–30 ms',
+            title: 'Neuromuscular Synapse Releases ACh → Quadriceps Kicks',
+            division: 'PNS Somatic Effector Output (Neuromuscular Junction)',
+            anatomy: 'Axon Terminal Boutons on Quadriceps Skeletal Muscle Fibers',
+            cell: 'Motor Axon Terminal → Synaptic Cleft → Skeletal Muscle Fiber',
+            mechanism: 'Electrical AP → Ca²⁺ influx → synaptic vesicles release <strong>Acetylcholine (ACh)</strong> across the synaptic cleft → ACh binds ligand-gated receptors on muscle cells → Na⁺ rushes in → muscle contracts and the lower leg kicks forward!',
+            synthesis: '<strong>Complete Loop:</strong> Electrical → Chemical → Electrical conversion at the neuromuscular junction turns a neural impulse into physical movement.'
+          }
+        ]
+      },
+      highfive: {
+        heading: 'Intentional High Five Circuit (Voluntary Brain-to-Hand)',
+        subheading: 'Click any station (1–5) or press Play to trace voluntary motor planning from cerebral cortex to hand slap.',
+        pillClass: 'font-mono text-xs font-bold px-3 py-1 rounded-full bg-indigoSoft text-indigoEfferent border border-indigo-200',
+        steps: [
+          {
+            num: 1,
+            shortLabel: '1. Frontal Lobe',
+            x: 104, y: 98,
+            tag: 'STEP 1 OF 5 • CONSCIOUS DECISION & PLANNING',
+            latency: 't = 0–50 ms',
+            title: 'Prefrontal Decision & Primary Motor Cortex Activation',
+            division: 'Central Nervous System (CNS) — Cerebral Cortex',
+            anatomy: 'Frontal Lobe (Prefrontal Cortex & Primary Motor Cortex)',
+            cell: 'Cortical Pyramidal Neurons (Upper Motor Neurons) + Oligodendrocytes',
+            mechanism: 'Seeing your friend raise their hand triggers conscious decision-making in the <strong>Frontal Lobe</strong>. Excitatory synaptic inputs summate on Primary Motor Cortex neurons, crossing threshold (-55 mV) to launch voluntary motor commands.',
+            synthesis: '<strong>Key Contrast with Knee Reflex:</strong> Unlike a spinal reflex arc, an intentional high five begins with conscious cortical planning in the Frontal Lobe.'
+          },
+          {
+            num: 2,
+            shortLabel: '2. Cerebellum',
+            x: 212, y: 166,
+            tag: 'STEP 2 OF 5 • TIMING & COORDINATION',
+            latency: 't = 50–90 ms',
+            title: 'Cerebellum Fine-Tunes Trajectory, Force & Timing',
+            division: 'Central Nervous System (CNS) — Hindbrain Coordination Hub',
+            anatomy: 'Cerebellum & Brainstem Relay Nuclei',
+            cell: 'Cerebellar Purkinje & Granule Interneurons + CNS Glia',
+            mechanism: 'The <strong>Cerebellum</strong> receives a copy of the motor plan alongside visual/proprioceptive sensory input, adjusting firing frequency across synapses so your hand hits your friend’s palm accurately instead of missing.',
+            synthesis: '<strong>Why Cerebellum Matters:</strong> Damage or alcohol impairment of the cerebellum causes clumsy, mistimed movements even when muscles are strong.'
+          },
+          {
+            num: 3,
+            shortLabel: '3. Spinal Tract',
+            x: 160, y: 270,
+            tag: 'STEP 3 OF 5 • DESCENDING CNS CONDUCTION',
+            latency: 't = 90–120 ms',
+            title: 'Upper Motor Neurons Descend the Spinal Cord',
+            division: 'Central Nervous System (CNS) — Corticospinal Tract',
+            anatomy: 'Brainstem → Cervical Spinal Cord Gray Matter (Ventral Horn)',
+            cell: 'Upper Motor Neuron Axon myelinated by Oligodendrocytes (CNS)',
+            mechanism: 'Saltatory action potentials race down the spinal cord and synapse onto cervical Lower Motor Neurons. Voltage-gated <strong>Ca²⁺ influx</strong> releases glutamate across the spinal cleft to excite the arm motor pool.',
+            synthesis: '<strong>CNS Glia Check:</strong> Inside the brain and spinal cord, myelin is built by <strong>Oligodendrocytes</strong> (each wrapping multiple axons).'
+          },
+          {
+            num: 4,
+            shortLabel: '4. Somatic Nerve',
+            x: 368, y: 218,
+            tag: 'STEP 4 OF 5 • EFFERENT PNS OUTFLOW',
+            latency: 't = 120–155 ms',
+            title: 'Lower Motor Neurons Exit via Somatic PNS Nerves',
+            division: 'Peripheral Nervous System (PNS) — Somatic Motor (Efferent) Division',
+            anatomy: 'Cervical Ventral Root → Brachial Plexus → Arm & Hand Nerves',
+            cell: 'Multipolar Lower Motor Neuron wrapped by Schwann Cells (PNS)',
+            mechanism: 'Lower motor neurons conduct rapid Na⁺/K⁺ action potentials out of the CNS into the arm. Stronger muscle force for a crisp slap is encoded by recruiting more motor units and firing at higher frequency after each refractory period.',
+            synthesis: '<strong>Somatic vs. Autonomic:</strong> Because skeletal arm muscles are under conscious control, this travels through the <strong>Somatic</strong> branch of the Efferent PNS.'
+          },
+          {
+            num: 5,
+            shortLabel: '5. High Five!',
+            x: 547, y: 155,
+            tag: 'STEP 5 OF 5 • EFFECTOR & SENSORY FEEDBACK',
+            latency: 't = 155–200 ms',
+            title: 'ACh Triggers Hand Slap + Afferent Sensory Confirmation',
+            division: 'PNS Somatic Effector + Afferent Tactile/Proprioceptive Feedback',
+            anatomy: 'Arm/Hand Neuromuscular Junctions → Skin Touch Receptors → Cortex',
+            cell: 'Motor Axon Terminals + Tactile Sensory Neurons (Schwann-myelinated)',
+            mechanism: '<strong>Acetylcholine (ACh)</strong> excites arm skeletal muscles to execute the high five. Upon impact, skin mechanoreceptors fire <strong>Afferent sensory action potentials</strong> back to the parietal lobe and cerebellum to confirm contact!',
+            synthesis: '<strong>Closed-Loop Control:</strong> Efferent motor commands create the action, while Afferent sensory feedback tells your brain the high five succeeded.'
+          }
+        ]
+      }
+    };
+
+    // Matching Mode Targets (Pins 1 to 6 on the Whole-Body Diagram)
+    const matchTargets = [
+      {
+        id: 1,
+        label: 'Frontal Lobe & Motor Cortex',
+        hint: 'Look at the front/top region of the brain inside the CNS where conscious decisions and voluntary motor commands originate.'
+      },
+      {
+        id: 2,
+        label: 'Cerebellum',
+        hint: 'Look at the striated structure tucked at the lower back of the brain that coordinates timing and smooth movement.'
+      },
+      {
+        id: 3,
+        label: 'Dorsal Root Ganglion',
+        hint: 'Look just outside the spinal cord along the incoming sensory pathway—this swelling houses sensory neuron cell bodies.'
+      },
+      {
+        id: 4,
+        label: 'CNS Interneuron',
+        hint: 'Look inside the butterfly-shaped gray matter of the spinal cord where incoming sensory signals relay to motor neurons.'
+      },
+      {
+        id: 5,
+        label: 'Afferent Sensory Neuron',
+        hint: 'Look at the teal peripheral nerve fiber carrying stretch impulses inward from the patellar tendon toward the spinal cord.'
+      },
+      {
+        id: 6,
+        label: 'Ventral Root & Motor Neuron',
+        hint: 'Look at the indigo efferent fiber exiting the front (ventral) side of the spinal cord toward the quadriceps muscle.'
+      }
+    ];
+
+    // =========================================================================
+    // APPLICATION STATE
+    // =========================================================================
+    const appState = {
+      scenario: 'reflex', // 'reflex' | 'highfive'
+      mode: 'trace',        // 'trace' | 'match'
+      stepIdx: 0,           // 0..4
+      isPlaying: false,
+      playTimer: null,
+      selectedChipId: null,
+      matchedPins: {}       // { 1: true, ... }
+    };
+
+    // =========================================================================
+    // CORE RENDERING & INTERACTION LOGIC
+    // =========================================================================
+    function setScenario(scen) {
+      stopPlay();
+      appState.scenario = scen;
+      appState.stepIdx = 0;
+
+      const btnReflex = document.getElementById('btn-scenario-reflex');
+      const btnHf = document.getElementById('btn-scenario-highfive');
+      const svgReflex = document.getElementById('svg-pathway-reflex');
+      const svgHf = document.getElementById('svg-pathway-highfive');
+
+      if (scen === 'reflex') {
+        btnReflex.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-coralSignal text-white shadow-sm transition flex items-center gap-2';
+        btnHf.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold text-slate-600 hover:text-ink transition flex items-center gap-2';
+        svgReflex.classList.remove('hidden');
+        svgHf.classList.add('hidden');
+      } else {
+        btnHf.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold bg-indigoEfferent text-white shadow-sm transition flex items-center gap-2';
+        btnReflex.className = 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold text-slate-600 hover:text-ink transition flex items-center gap-2';
+        svgHf.classList.remove('hidden');
+        svgReflex.classList.add('hidden');
+      }
+
+      const data = scenarios[scen];
+      document.getElementById('diagram-heading').textContent = data.heading;
+      document.getElementById('diagram-subheading').textContent = data.subheading;
+      document.getElementById('step-counter-pill').className = data.pillClass;
+
+      renderStepStations();
+      updateStepDisplay();
+    }
+
+    function setMode(mode) {
+      appState.mode = mode;
+      stopPlay();
+
+      const btnTrace = document.getElementById('btn-mode-trace');
+      const btnMatch = document.getElementById('btn-mode-match');
+      const telPanel = document.getElementById('telemetry-panel');
+      const matPanel = document.getElementById('matching-panel');
+      const stationLayer = document.getElementById('station-pins-layer');
+      const matchLayer = document.getElementById('matching-pins-layer');
+      const activeHalo = document.getElementById('active-station-marker');
+      const playback = document.getElementById('playback-controls');
+
+      if (mode === 'trace') {
+        btnTrace.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-tealAfferent text-white shadow-sm transition';
+        btnMatch.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-ink transition';
+        telPanel.classList.remove('hidden');
+        matPanel.classList.add('hidden');
+        stationLayer.classList.remove('hidden');
+        matchLayer.classList.add('hidden');
+        activeHalo.classList.remove('hidden');
+        playback.classList.remove('hidden');
+        // Ensure active scenario pathway is visible
+        setScenario(appState.scenario);
+      } else {
+        btnMatch.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-amberCns text-white shadow-sm transition';
+        btnTrace.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-ink transition';
+        telPanel.classList.add('hidden');
+        matPanel.classList.remove('hidden');
+        stationLayer.classList.add('hidden');
+        matchLayer.classList.remove('hidden');
+        activeHalo.classList.add('hidden');
+        playback.classList.add('hidden');
+        // Show reflex wires during matching so all 6 pins (brain + spinal roots) have clear context
+        document.getElementById('svg-pathway-reflex').classList.remove('hidden');
+        document.getElementById('svg-pathway-highfive').classList.add('hidden');
+        renderMatchingChips();
+      }
+    }
+
+    function renderStepStations() {
+      const data = scenarios[appState.scenario];
+      const pinsLayer = document.getElementById('station-pins-layer');
+      const scrubberBar = document.getElementById('step-scrubber-bar');
+
+      pinsLayer.innerHTML = data.steps.map((s, idx) => `
+        <g onclick="goToStep(${idx})" class="cursor-pointer" transform="translate(${s.x}, ${s.y})">
+          <circle cx="0" cy="0" r="13" fill="#FFFFFF" stroke="${appState.scenario === 'reflex' ? '#E11D48' : '#4338CA'}" stroke-width="2.2"/>
+          <text x="0" y="4" text-anchor="middle" font-size="11" font-weight="700" fill="${appState.scenario === 'reflex' ? '#E11D48' : '#4338CA'}" font-family="JetBrains Mono, monospace">${s.num}</text>
+        </g>
+      `).join('');
+
+      scrubberBar.innerHTML = data.steps.map((s, idx) => `
+        <button id="scrubber-btn-${idx}" onclick="goToStep(${idx})" class="py-2 px-1.5 rounded-xl text-[11px] font-semibold border transition text-center truncate">
+          ${s.shortLabel}
+        </button>
+      `).join('');
+    }
+
+    function updateStepDisplay() {
+      const data = scenarios[appState.scenario];
+      const step = data.steps[appState.stepIdx];
+
+      document.getElementById('step-counter-pill').textContent = `STEP ${step.num} OF 5`;
+      document.getElementById('active-station-marker').setAttribute('transform', `translate(${step.x}, ${step.y})`);
+
+      // Update Telemetry Fields
+      document.getElementById('tel-step-tag').textContent = step.tag;
+      document.getElementById('tel-latency').textContent = step.latency;
+      document.getElementById('tel-title').textContent = step.title;
+      document.getElementById('tel-division').textContent = step.division;
+      document.getElementById('tel-anatomy').textContent = step.anatomy;
+      document.getElementById('tel-cell').textContent = step.cell;
+      document.getElementById('tel-mechanism').innerHTML = step.mechanism;
+      document.getElementById('tel-synthesis').innerHTML = step.synthesis;
+
+      // Update Scrubber Button Styles
+      data.steps.forEach((_, idx) => {
+        const btn = document.getElementById(`scrubber-btn-${idx}`);
+        if (!btn) return;
+        if (idx === appState.stepIdx) {
+          btn.className = `py-2 px-1.5 rounded-xl text-[11px] font-bold text-white shadow-sm transition text-center truncate ${
+            appState.scenario === 'reflex' ? 'bg-coralSignal border-coralSignal' : 'bg-indigoEfferent border-indigoEfferent'
+          }`;
+        } else {
+          btn.className = 'py-2 px-1.5 rounded-xl text-[11px] font-semibold bg-alabaster text-slate-700 border border-warmBorder hover:bg-white transition text-center truncate';
+        }
+      });
+
+      // Animate active wire class
+      const allWires = ['reflex-wire-afferent', 'reflex-wire-efferent', 'hf-wire-brain', 'hf-wire-descend', 'hf-wire-efferent', 'hf-wire-feedback'];
+      allWires.forEach(wId => {
+        const el = document.getElementById(wId);
+        if (el) el.classList.remove('signal-flow');
+      });
+
+      if (appState.scenario === 'reflex') {
+        if (appState.stepIdx <= 1) document.getElementById('reflex-wire-afferent').classList.add('signal-flow');
+        if (appState.stepIdx >= 3) document.getElementById('reflex-wire-efferent').classList.add('signal-flow');
+      } else {
+        if (appState.stepIdx === 0 || appState.stepIdx === 1) document.getElementById('hf-wire-brain').classList.add('signal-flow');
+        if (appState.stepIdx === 2) document.getElementById('hf-wire-descend').classList.add('signal-flow');
+        if (appState.stepIdx === 3) document.getElementById('hf-wire-efferent').classList.add('signal-flow');
+        if (appState.stepIdx === 4) {
+          document.getElementById('hf-wire-efferent').classList.add('signal-flow');
+          document.getElementById('hf-wire-feedback').classList.add('signal-flow');
+        }
+      }
+    }
+
+    function goToStep(idx) {
+      appState.stepIdx = idx;
+      updateStepDisplay();
+    }
+
+    function nextStep() {
+      appState.stepIdx = (appState.stepIdx + 1) % 5;
+      updateStepDisplay();
+    }
+
+    function prevStep() {
+      appState.stepIdx = (appState.stepIdx - 1 + 5) % 5;
+      updateStepDisplay();
+    }
+
+    function togglePlay() {
+      if (appState.isPlaying) {
+        stopPlay();
+      } else {
+        appState.isPlaying = true;
+        document.getElementById('btn-play-pause').textContent = '⏸ Pause';
+        appState.playTimer = setInterval(() => {
+          nextStep();
+        }, 2600);
+      }
+    }
+
+    function stopPlay() {
+      appState.isPlaying = false;
+      const btn = document.getElementById('btn-play-pause');
+      if (btn) btn.textContent = '▶ Play';
+      if (appState.playTimer) {
+        clearInterval(appState.playTimer);
+        appState.playTimer = null;
+      }
+    }
+
+    // =========================================================================
+    // DIAGRAM MATCHING MODE FUNCTIONS
+    // =========================================================================
+    function renderMatchingChips() {
+      const grid = document.getElementById('matching-chips-grid');
+      grid.innerHTML = '';
+
+      matchTargets.forEach(item => {
+        const isMatched = !!appState.matchedPins[item.id];
+        const isSelected = appState.selectedChipId === item.id;
+        const btn = document.createElement('button');
+        btn.disabled = isMatched;
+        btn.onclick = () => {
+          appState.selectedChipId = item.id;
+          renderMatchingChips();
+          document.getElementById('matching-feedback-box').innerHTML = `Selected <strong>${item.label}</strong>. Now click the corresponding numbered pin (1–6) on the whole-body diagram.`;
+        };
+        btn.className = `p-2.5 rounded-xl text-xs font-semibold border text-left transition flex items-center justify-between ${
+          isMatched
+            ? 'bg-tealSoft/70 border-teal-300 text-tealAfferent opacity-75 cursor-default'
+            : isSelected
+            ? 'bg-amberSoft border-amberCns text-amber-950 ring-2 ring-amberCns/40'
+            : 'bg-white border-warmBorder text-slate-700 hover:bg-alabaster'
+        }`;
+        btn.innerHTML = `<span>${item.label}</span>${isMatched ? '<span class="font-bold">✓</span>' : ''}`;
+        grid.appendChild(btn);
+      });
+
+      const count = Object.keys(appState.matchedPins).length;
+      document.getElementById('match-score-badge').textContent = `${count} / 6 Matched`;
+    }
+
+    function handleMatchPinClick(pinId) {
+      if (appState.mode !== 'match') return;
+      const fb = document.getElementById('matching-feedback-box');
+
+      if (!appState.selectedChipId) {
+        fb.innerHTML = `First click a structure chip on the right, then click pin <strong>#${pinId}</strong> on the diagram.`;
+        return;
+      }
+
+      if (appState.selectedChipId === pinId) {
+        appState.matchedPins[pinId] = true;
+        const c = document.querySelector(`#mpin-${pinId} circle`);
+        const t = document.querySelector(`#mpin-${pinId} text`);
+        if (c) { c.setAttribute('fill', '#0D7377'); c.setAttribute('stroke', '#0D7377'); }
+        if (t) { t.setAttribute('fill', '#FFFFFF'); }
+
+        const matchedObj = matchTargets.find(x => x.id === pinId);
+        fb.innerHTML = `<span class="text-tealAfferent font-bold">Correct!</span> Pin #${pinId} is the <strong>${matchedObj.label}</strong>.`;
+        appState.selectedChipId = null;
+        renderMatchingChips();
+
+        if (Object.keys(appState.matchedPins).length === 6) {
+          fb.innerHTML = `<span class="text-tealAfferent font-bold">All 6 Structures Matched!</span> You have connected CNS brain regions, spinal roots, and PNS afferent/efferent pathways.`;
+        }
+      } else {
+        const selectedObj = matchTargets.find(x => x.id === appState.selectedChipId);
+        fb.innerHTML = `<span class="text-coralSignal font-bold">Not quite:</span> Pin #${pinId} is not ${selectedObj.label}. Click <em>Hint for Selected Chip</em> if you want a clue!`;
+      }
+    }
+
+    function showMatchingHint() {
+      const fb = document.getElementById('matching-feedback-box');
+      if (!appState.selectedChipId) {
+        fb.textContent = 'Select a structure chip first to view its anatomical hint.';
+        return;
+      }
+      const item = matchTargets.find(x => x.id === appState.selectedChipId);
+      fb.innerHTML = `<strong class="text-amber-900">Hint (${item.label}):</strong> ${item.hint}`;
+    }
+
+    function resetMatching() {
+      appState.matchedPins = {};
+      appState.selectedChipId = null;
+      const defaultColors = { 1: '#D97706', 2: '#D97706', 3: '#0D7377', 4: '#D97706', 5: '#0D7377', 6: '#4338CA' };
+      [1, 2, 3, 4, 5, 6].forEach(id => {
+        const c = document.querySelector(`#mpin-${id} circle`);
+        const t = document.querySelector(`#mpin-${id} text`);
+        if (c) { c.setAttribute('fill', '#FFFFFF'); c.setAttribute('stroke', defaultColors[id]); }
+        if (t) { t.setAttribute('fill', defaultColors[id]); }
+      });
+      renderMatchingChips();
+      document.getElementById('matching-feedback-box').textContent = 'Select a structure chip above to start labeling the whole-body circuit diagram.';
+    }
+
+    // =========================================================================
+    // NERVOUS SYSTEM DIVISION HIERARCHY HIGHLIGHTER
+    // =========================================================================
+    function highlightBranch(branch) {
+      ['all', 'somatic', 'autonomic'].forEach(b => {
+        const btn = document.getElementById(`branch-btn-${b}`);
+        btn.className = b === branch
+          ? 'px-3 py-1.5 rounded-lg text-xs font-bold bg-ink text-white'
+          : 'px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-ink';
+      });
+
+      const cards = {
+        cns: document.getElementById('card-div-cns'),
+        afferent: document.getElementById('card-div-afferent'),
+        somatic: document.getElementById('card-div-somatic'),
+        autonomic: document.getElementById('card-div-autonomic')
+      };
+
+      Object.values(cards).forEach(c => c.classList.remove('ring-2', 'ring-ink', 'opacity-40'));
+
+      if (branch === 'somatic') {
+        cards.cns.classList.add('ring-2', 'ring-amberCns');
+        cards.afferent.classList.add('ring-2', 'ring-tealAfferent');
+        cards.somatic.classList.add('ring-2', 'ring-indigoEfferent');
+        cards.autonomic.classList.add('opacity-40');
+      } else if (branch === 'autonomic') {
+        cards.cns.classList.add('ring-2', 'ring-amberCns');
+        cards.afferent.classList.add('ring-2', 'ring-tealAfferent');
+        cards.autonomic.classList.add('ring-2', 'ring-coralSignal');
+        cards.somatic.classList.add('opacity-40');
+      }
+    }
+
+    // Initialize on load
+    window.addEventListener('DOMContentLoaded', () => {
+      setScenario('reflex');
+    });
+  </script>
+</body>
+</html>
