@@ -1,0 +1,2559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PerceptionLab — Accessible Optical Illusions &amp; Visual Neuroscience</title>
+    <style>
+        :root {
+            --bg-workspace: #f8fafc;
+            --bg-surface: #ffffff;
+            --bg-subtle: #f1f5f9;
+            --bg-hover: #e2e8f0;
+            --slate-950: #020617;
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+            --slate-700: #334155;
+            --slate-600: #475569;
+            --border-strong: #64748b;
+            --border-light: #94a3b8;
+            --border-subtle: #cbd5e1;
+
+            /* High-Contrast WCAG AA Accessible Accents (>= 4.5:1 on white) */
+            --accent-blue: #1d4ed8;
+            --accent-blue-dark: #1e40af;
+            --accent-blue-soft: #eff6ff;
+            --accent-teal: #0f766e;
+            --accent-teal-dark: #115e59;
+            --accent-teal-soft: #f0fdfa;
+            --accent-amber: #b45309;
+            --accent-amber-soft: #fffbeb;
+            --accent-rose: #be123c;
+            --accent-rose-soft: #fff1f2;
+            --accent-violet: #6d28d9;
+            --accent-violet-soft: #f5f3ff;
+            --focus-ring: #2563eb;
+
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+            --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.1), 0 2px 6px -1px rgba(15, 23, 42, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html {
+                scroll-behavior: auto;
+            }
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-workspace);
+            color: var(--slate-900);
+            line-height: 1.55;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Global Accessible Focus Outlines */
+        :focus-visible {
+            outline: 3px solid var(--focus-ring);
+            outline-offset: 2px;
+        }
+
+        header :focus-visible {
+            outline: 3px solid #38bdf8;
+            outline-offset: 2px;
+        }
+
+        /* Skip to Main Content Link */
+        .skip-link {
+            position: absolute;
+            top: -100px;
+            left: 0.75rem;
+            z-index: 100;
+            background: #ffffff;
+            color: var(--slate-950);
+            font-weight: 800;
+            font-size: 0.9rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0 0 10px 10px;
+            border: 2px solid var(--accent-blue);
+            text-decoration: none;
+            box-shadow: var(--shadow-md);
+            transition: top 0.15s ease;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* Screen Reader Only Utility */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* =====================================================================
+           MOBILE-FIRST COMPACT HEADER & SELECTOR BAR
+           ===================================================================== */
+        header {
+            background: var(--slate-900);
+            color: #ffffff;
+            border-bottom: 1px solid var(--slate-800);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: var(--shadow-md);
+        }
+
+        .header-inner {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0.5rem 0.75rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            min-width: 0;
+        }
+
+        .brand-badge {
+            width: 34px;
+            height: 34px;
+            border-radius: 9px;
+            background: linear-gradient(135deg, #38bdf8 0%, #1d4ed8 55%, #6d28d9 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            flex-shrink: 0;
+        }
+
+        .brand-title {
+            font-size: 0.98rem;
+            font-weight: 800;
+            letter-spacing: -0.015em;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .brand-subtitle {
+            font-size: 0.72rem;
+            color: #cbd5e1;
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .header-inner {
+                padding: 0.65rem 1.25rem;
+                gap: 0.85rem;
+            }
+            .brand-title {
+                font-size: 1.08rem;
+            }
+            .brand-subtitle {
+                display: block;
+            }
+        }
+
+        /* Accessible Illusion Switcher Controls (>= 44px touch targets) */
+        .switcher-nav {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex: 1;
+            min-width: 0;
+            max-width: 100%;
+        }
+
+        @media (min-width: 768px) {
+            .switcher-nav {
+                flex: 0 1 auto;
+                min-width: 390px;
+            }
+        }
+
+        .select-wrapper {
+            position: relative;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .illusion-select {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 100%;
+            min-height: 44px;
+            padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+            border-radius: 10px;
+            border: 1.5px solid #94a3b8;
+            background-color: #ffffff;
+            color: var(--slate-950);
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 700;
+            line-height: 1.25;
+            cursor: pointer;
+            text-overflow: ellipsis;
+        }
+
+        .select-chevron {
+            position: absolute;
+            right: 0.7rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            color: var(--slate-900);
+        }
+
+        .nav-step-btn {
+            appearance: none;
+            min-width: 44px;
+            min-height: 44px;
+            padding: 0 0.65rem;
+            border-radius: 10px;
+            border: 1.5px solid #94a3b8;
+            background-color: var(--slate-800);
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.25rem;
+            flex-shrink: 0;
+            transition: background-color 0.15s ease;
+        }
+
+        .nav-step-btn:hover {
+            background-color: #334155;
+            border-color: #ffffff;
+        }
+
+        .nav-step-text {
+            display: none;
+        }
+
+        @media (min-width: 640px) {
+            .nav-step-text {
+                display: inline;
+            }
+        }
+
+        /* Reduced Motion Notice Banner */
+        .motion-banner {
+            background: var(--accent-amber-soft);
+            border-bottom: 1px solid #fcd34d;
+            color: #78350f;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.45rem 0.9rem;
+            text-align: center;
+            display: none;
+        }
+
+        .motion-banner.visible {
+            display: block;
+        }
+
+        /* =====================================================================
+           MAIN WORKSPACE & SHARED LAB COMPONENTS
+           ===================================================================== */
+        main {
+            flex: 1;
+            max-width: 1240px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0.75rem;
+        }
+
+        @media (min-width: 768px) {
+            main {
+                padding: 1.25rem;
+            }
+        }
+
+        .lab-panel {
+            display: none;
+        }
+
+        .lab-panel.active {
+            display: block;
+        }
+
+        .exp-header {
+            margin-bottom: 0.75rem;
+        }
+
+        .exp-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-blue-dark);
+            background: var(--accent-blue-soft);
+            border: 1px solid #93c5fd;
+            padding: 0.2rem 0.55rem;
+            border-radius: 6px;
+            margin-bottom: 0.3rem;
+        }
+
+        .exp-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--slate-950);
+            line-height: 1.25;
+            margin-bottom: 0.25rem;
+        }
+
+        @media (min-width: 768px) {
+            .exp-title {
+                font-size: 1.4rem;
+            }
+        }
+
+        .exp-instruction {
+            font-size: 0.88rem;
+            color: var(--slate-800);
+            max-width: 840px;
+        }
+
+        .lab-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            align-items: start;
+        }
+
+        @media (min-width: 960px) {
+            .lab-grid {
+                grid-template-columns: 1.45fr 1fr;
+                gap: 1.25rem;
+            }
+        }
+
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            box-shadow: var(--shadow-md);
+            padding: 0.75rem;
+            min-width: 0;
+        }
+
+        @media (min-width: 640px) {
+            .card {
+                padding: 1.15rem;
+                border-radius: 16px;
+            }
+        }
+
+        .specimen-stage {
+            position: relative;
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1.5px solid var(--border-strong);
+            background: #0f172a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .specimen-canvas {
+            width: 100%;
+            height: auto;
+            max-height: 56vh;
+            object-fit: contain;
+            display: block;
+            touch-action: manipulation;
+        }
+
+        @media (min-width: 960px) {
+            .specimen-canvas {
+                max-height: none;
+            }
+        }
+
+        /* Fieldset & Controls Bar (>= 44px touch targets) */
+        fieldset.controls-panel {
+            margin-top: 0.75rem;
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            min-width: 0;
+        }
+
+        fieldset.controls-panel legend {
+            font-size: 0.76rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--slate-800);
+            padding: 0 0.4rem;
+        }
+
+        .control-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.55rem;
+        }
+
+        .btn-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+            width: 100%;
+        }
+
+        @media (min-width: 640px) {
+            .btn-group {
+                width: auto;
+            }
+        }
+
+        .btn {
+            appearance: none;
+            min-height: 44px;
+            min-width: 44px;
+            border: 1.5px solid var(--border-strong);
+            background: var(--bg-surface);
+            color: var(--slate-900);
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 0.5rem 0.85rem;
+            border-radius: 9px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            transition: background-color 0.14s ease, border-color 0.14s ease;
+            box-shadow: var(--shadow-sm);
+            flex: 1 1 auto;
+        }
+
+        @media (min-width: 640px) {
+            .btn {
+                flex: 0 1 auto;
+            }
+        }
+
+        .btn:hover {
+            background: var(--bg-hover);
+            border-color: var(--slate-900);
+        }
+
+        .btn.active,
+        .btn[aria-pressed="true"] {
+            background: var(--slate-900);
+            color: #ffffff;
+            border-color: var(--slate-900);
+        }
+
+        .btn-truth {
+            appearance: none;
+            min-height: 44px;
+            min-width: 44px;
+            border: 2px solid var(--accent-teal);
+            background: var(--accent-teal-soft);
+            color: var(--accent-teal-dark);
+            font-family: inherit;
+            font-size: 0.82rem;
+            font-weight: 800;
+            padding: 0.5rem 0.9rem;
+            border-radius: 9px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            width: 100%;
+            transition: background-color 0.14s ease, color 0.14s ease;
+        }
+
+        @media (min-width: 640px) {
+            .btn-truth {
+                width: auto;
+            }
+        }
+
+        .btn-truth:hover {
+            background: #ccfbf1;
+        }
+
+        .btn-truth.active,
+        .btn-truth[aria-pressed="true"] {
+            background: var(--accent-teal-dark);
+            border-color: var(--accent-teal-dark);
+            color: #ffffff;
+        }
+
+        .slider-item {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            flex: 1 1 240px;
+            min-height: 44px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--slate-900);
+        }
+
+        .slider-item input[type="range"] {
+            flex: 1 1 130px;
+            min-height: 44px;
+            accent-color: var(--accent-blue);
+            cursor: pointer;
+        }
+
+        .val-pill {
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+            font-size: 0.78rem;
+            font-weight: 800;
+            background: #ffffff;
+            border: 1.5px solid var(--border-strong);
+            padding: 0.25rem 0.5rem;
+            border-radius: 6px;
+            color: var(--slate-950);
+            min-width: 48px;
+            text-align: center;
+        }
+
+        /* Biological Breakdown Sidebar Card */
+        .bio-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-subtle);
+            border-top: 4px solid var(--accent-blue);
+            border-radius: 14px;
+            box-shadow: var(--shadow-md);
+            padding: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            min-width: 0;
+        }
+
+        @media (min-width: 640px) {
+            .bio-card {
+                padding: 1.15rem;
+                border-radius: 16px;
+            }
+        }
+
+        .bio-heading {
+            font-size: 1.02rem;
+            font-weight: 800;
+            color: var(--slate-950);
+            margin-top: 0.4rem;
+        }
+
+        .bio-locus-tag {
+            display: inline-block;
+            font-size: 0.74rem;
+            font-weight: 800;
+            padding: 0.24rem 0.6rem;
+            border-radius: 6px;
+            background: var(--accent-violet-soft);
+            color: var(--accent-violet);
+            border: 1px solid #c4b5fd;
+        }
+
+        .bio-text {
+            font-size: 0.88rem;
+            color: var(--slate-800);
+            line-height: 1.58;
+        }
+
+        .bio-callout {
+            background: var(--bg-subtle);
+            border-left: 4px solid var(--accent-teal);
+            border-radius: 0 10px 10px 0;
+            padding: 0.75rem 0.9rem;
+            font-size: 0.85rem;
+            color: var(--slate-900);
+        }
+
+        /* Accessible Data Table for Non-Visual & Quantitative Comparison */
+        .data-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border-subtle);
+            border-radius: 10px;
+            background: #ffffff;
+        }
+
+        table.a11y-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.8rem;
+            text-align: left;
+            color: var(--slate-900);
+        }
+
+        table.a11y-table caption {
+            font-weight: 800;
+            font-size: 0.8rem;
+            padding: 0.55rem 0.7rem;
+            text-align: left;
+            background: var(--bg-subtle);
+            color: var(--slate-900);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        table.a11y-table th,
+        table.a11y-table td {
+            padding: 0.5rem 0.65rem;
+            border-bottom: 1px solid var(--border-subtle);
+            vertical-align: top;
+        }
+
+        table.a11y-table th {
+            background: #f8fafc;
+            font-weight: 800;
+            color: var(--slate-950);
+        }
+
+        table.a11y-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Receptive Field Interactive Diagram in Exp 1 */
+        .rf-widget {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-subtle);
+            border-radius: 12px;
+            padding: 0.8rem;
+        }
+
+        /* Eyedropper Readout Pill in Exp 3 */
+        .rgb-readout-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            background: var(--slate-900);
+            color: #ffffff;
+            padding: 0.6rem 0.85rem;
+            border-radius: 9px;
+            font-size: 0.8rem;
+            font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        }
+
+        .swatch-preview {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border-radius: 4px;
+            border: 1.5px solid #ffffff;
+            vertical-align: middle;
+            margin-right: 0.35rem;
+        }
+
+        /* Blind Spot Test Box in Exp 4 */
+        .blindspot-box {
+            position: relative;
+            height: 124px;
+            border-radius: 12px;
+            border: 2px solid var(--border-strong);
+            background-color: #ffffff;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            margin: 0.6rem 0;
+        }
+
+        .blindspot-box.striped {
+            background-image: repeating-linear-gradient(
+                0deg,
+                #ffffff 0px,
+                #ffffff 12px,
+                #94a3b8 12px,
+                #94a3b8 20px
+            );
+        }
+
+        .bs-cross {
+            position: absolute;
+            left: 16%;
+            font-size: 1.75rem;
+            font-weight: 900;
+            color: var(--slate-950);
+            user-select: none;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 0 5px;
+            border-radius: 4px;
+        }
+
+        .bs-target {
+            position: absolute;
+            left: 72%;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent-rose);
+            box-shadow: 0 0 0 3px #ffffff;
+            transform: translateX(-50%);
+        }
+
+        /* Pathway Map Grid */
+        .pathway-stages-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+            margin-top: 1rem;
+        }
+
+        @media (min-width: 600px) {
+            .pathway-stages-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 960px) {
+            .pathway-stages-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .pathway-step-card {
+            appearance: none;
+            text-align: left;
+            font-family: inherit;
+            background: var(--bg-surface);
+            border: 1.5px solid var(--border-strong);
+            border-radius: 14px;
+            padding: 0.95rem;
+            min-height: 44px;
+            box-shadow: var(--shadow-sm);
+            cursor: pointer;
+            transition: border-color 0.16s ease, box-shadow 0.16s ease;
+        }
+
+        .pathway-step-card:hover {
+            border-color: var(--accent-blue);
+            box-shadow: var(--shadow-md);
+        }
+
+        .pathway-step-num {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--accent-blue-dark);
+            margin-bottom: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Keyboard Skip Link -->
+    <a href="#main-content" class="skip-link">Skip to interactive illusion workspace</a>
+
+    <!-- Polite Screen-Reader Live Announcer -->
+    <div id="sr-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- Compact Mobile-First Header with Accessible Dropdown Switcher -->
+    <header>
+        <div class="header-inner">
+            <div class="brand">
+                <div class="brand-badge" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/>
+                        <circle cx="12" cy="12" r="3.2"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="brand-title">PerceptionLab</div>
+                    <div class="brand-subtitle">Visual Neuroscience &amp; Optical Illusions</div>
+                </div>
+            </div>
+
+            <nav class="switcher-nav" aria-label="Experiment Selector">
+                <button id="btn-prev-exp" class="nav-step-btn" type="button" aria-label="Previous experiment">
+                    <span aria-hidden="true">&larr;</span>
+                    <span class="nav-step-text">Prev</span>
+                </button>
+
+                <div class="select-wrapper">
+                    <label for="illusionSelect" class="sr-only">Choose an optical illusion experiment or visual pathway map</label>
+                    <select id="illusionSelect" class="illusion-select">
+                        <option value="panel-hermann">1. Hermann &amp; Scintillating Grid</option>
+                        <option value="panel-chaser">2. Lilac Chaser &amp; Afterimages</option>
+                        <option value="panel-shadow">3. Adelson&rsquo;s Checker Shadow</option>
+                        <option value="panel-troxler">4. Troxler Fading &amp; Blind Spot</option>
+                        <option value="panel-geom">5. Caf&eacute; Wall &amp; M&uuml;ller-Lyer</option>
+                        <option value="panel-motion">6. Waterfall &amp; Peripheral Drift</option>
+                        <option value="panel-pathway">7. Visual Pathway Map (Eye to Cortex)</option>
+                    </select>
+                    <svg class="select-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+
+                <button id="btn-next-exp" class="nav-step-btn" type="button" aria-label="Next experiment">
+                    <span class="nav-step-text">Next</span>
+                    <span aria-hidden="true">&rarr;</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Reduced Motion System Preference Notice -->
+    <div id="reduced-motion-banner" class="motion-banner" role="region" aria-label="Motion preference notice">
+        System &ldquo;Reduce Motion&rdquo; preference detected: automatic animations start paused. Use the controls below to step or play manually.
+    </div>
+
+    <main id="main-content" tabindex="-1">
+        <!-- =================================================================
+             EXPERIMENT 1: HERMANN GRID & SCINTILLATING GRID
+             ================================================================= -->
+        <section id="panel-hermann" class="lab-panel active" aria-labelledby="title-hermann">
+            <div class="exp-header">
+                <div class="exp-kicker">Experiment 1 of 6 &middot; Retinal Ganglion Cells</div>
+                <h1 id="title-hermann" class="exp-title">Hermann Grid &amp; Scintillating Grid</h1>
+                <p class="exp-instruction">Look across the white intersections—phantom gray smudges appear in your peripheral vision, yet vanish the instant you look directly at one. Switch to the <strong>Scintillating Grid</strong> to see flashing dark dots.</p>
+            </div>
+
+            <div class="lab-grid">
+                <div class="card">
+                    <div class="specimen-stage">
+                        <canvas id="canvas-hermann" class="specimen-canvas" width="640" height="440" role="img" aria-label="Hermann Grid optical illusion showing black squares separated by white intersecting corridors where illusory gray spots appear at intersections"></canvas>
+                    </div>
+
+                    <fieldset class="controls-panel">
+                        <legend>Hermann Grid Controls</legend>
+                        <div class="control-row">
+                            <div class="btn-group">
+                                <button id="btn-grid-classic" class="btn active" type="button" aria-pressed="true">Classic Hermann Grid</button>
+                                <button id="btn-grid-scint" class="btn" type="button" aria-pressed="false">Scintillating Grid</button>
+                            </div>
+
+                            <button id="btn-hermann-truth" class="btn-truth" type="button" aria-pressed="false">
+                                <span>Reveal Truth: Isolate 1 Intersection</span>
+                            </button>
+                        </div>
+
+                        <div class="control-row">
+                            <label class="slider-item" for="slider-hermann-size">
+                                <span>Grid Spacing:</span>
+                                <input id="slider-hermann-size" type="range" min="48" max="96" value="68">
+                                <span id="val-hermann-size" class="val-pill">68px</span>
+                            </label>
+                            <label class="slider-item" for="slider-hermann-contrast">
+                                <span>Contrast:</span>
+                                <input id="slider-hermann-contrast" type="range" min="40" max="100" value="100">
+                                <span id="val-hermann-contrast" class="val-pill">100%</span>
+                            </label>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="bio-card">
+                    <div>
+                        <span class="bio-locus-tag">Anatomical Locus: Retinal Ganglion Cells (Center-Surround)</span>
+                        <h2 class="bio-heading">Why Your Eye Does This: Lateral Inhibition</h2>
+                    </div>
+
+                    <p class="bio-text">
+                        Your retina does not send raw pixel brightness to the brain. Instead, <strong>retinal ganglion cells</strong> have circular <em>center-surround receptive fields</em>: light hitting the center excites the neuron (+), while light hitting the surrounding ring inhibits it (&minus;). This edge-sharpening circuit is called <strong>lateral inhibition</strong>.
+                    </p>
+
+                    <div class="rf-widget">
+                        <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.55rem;">
+                            <strong style="font-size:0.84rem; color:var(--slate-950);">Receptive Field Firing Calculator</strong>
+                            <div class="btn-group">
+                                <button id="btn-rf-inter" class="btn active" type="button" aria-pressed="true">At Intersection</button>
+                                <button id="btn-rf-corridor" class="btn" type="button" aria-pressed="false">In Corridor</button>
+                            </div>
+                        </div>
+
+                        <svg id="svg-receptive-field" viewBox="0 0 360 135" role="img" aria-label="Center-surround receptive field diagram showing net ganglion cell firing rate of +20 at an intersection versus +60 in a corridor" style="width:100%; height:auto; display:block; background:#ffffff; border-radius:8px; border:1px solid var(--border-strong);">
+                            <g id="rf-visual-group" transform="translate(15, 12)">
+                                <rect x="0" y="0" width="110" height="110" rx="6" fill="#0f172a"/>
+                                <rect id="rf-street-v" x="41" y="0" width="28" height="110" fill="#ffffff"/>
+                                <rect id="rf-street-h" x="0" y="41" width="110" height="28" fill="#ffffff"/>
+                                <circle id="rf-surround-ring" cx="55" cy="55" r="36" fill="rgba(190, 18, 60, 0.22)" stroke="#be123c" stroke-width="2" stroke-dasharray="4 2"/>
+                                <circle cx="55" cy="55" r="13" fill="rgba(15, 118, 110, 0.35)" stroke="#0f766e" stroke-width="2"/>
+                                <text x="55" y="59" text-anchor="middle" font-size="11" font-weight="900" fill="#115e59">+100</text>
+                                <text id="rf-inh-top" x="55" y="29" text-anchor="middle" font-size="9.5" font-weight="800" fill="#9f1239">&minus;20</text>
+                                <text id="rf-inh-bot" x="55" y="88" text-anchor="middle" font-size="9.5" font-weight="800" fill="#9f1239">&minus;20</text>
+                                <text id="rf-inh-left" x="25" y="58" text-anchor="middle" font-size="9.5" font-weight="800" fill="#9f1239">&minus;20</text>
+                                <text id="rf-inh-right" x="85" y="58" text-anchor="middle" font-size="9.5" font-weight="800" fill="#9f1239">&minus;20</text>
+                            </g>
+
+                            <g transform="translate(140, 20)">
+                                <text x="0" y="12" font-size="10.5" font-weight="800" fill="#0f172a">Ganglion Cell Net Firing Rate:</text>
+                                <text id="rf-math-line1" x="0" y="34" font-size="10" fill="#115e59" font-weight="700">Center Excitation: +100</text>
+                                <text id="rf-math-line2" x="0" y="52" font-size="10" fill="#9f1239" font-weight="700">Surround Inhibition: &minus;80 (4 white arms)</text>
+                                <line x1="0" y1="62" x2="205" y2="62" stroke="#94a3b8" stroke-width="1.5"/>
+                                <text id="rf-math-total" x="0" y="80" font-size="11.5" font-weight="900" fill="#0f172a">Net Signal = +20 (Looks Darker!)</text>
+                                <text id="rf-math-note" x="0" y="98" font-size="9" fill="#334155">4 bright arms inhibit the center strongly.</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <div class="data-table-wrap">
+                        <table class="a11y-table">
+                            <caption>Quantitative Comparison: Receptive Field Response</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Retinal Location</th>
+                                    <th scope="col">Center (+)</th>
+                                    <th scope="col">Surround (&minus;)</th>
+                                    <th scope="col">Net Firing &amp; Perception</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Street Intersection</strong></td>
+                                    <td>+100</td>
+                                    <td>&minus;80 (4 white arms)</td>
+                                    <td><strong>+20</strong> (Appears smudged gray)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Straight Corridor</strong></td>
+                                    <td>+100</td>
+                                    <td>&minus;40 (2 white arms)</td>
+                                    <td><strong>+60</strong> (Appears bright white)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bio-callout">
+                        <strong>Why do the dots vanish when you look straight at them?</strong> Your central fovea has tiny, high-resolution receptive fields that fit completely inside a single white street, avoiding the surrounding black corners.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================================================================
+             EXPERIMENT 2: LILAC CHASER & CHROMATIC AFTERIMAGES
+             ================================================================= -->
+        <section id="panel-chaser" class="lab-panel" aria-labelledby="title-chaser">
+            <div class="exp-header">
+                <div class="exp-kicker">Experiment 2 of 6 &middot; Cone Adaptation &amp; Opponent Channels</div>
+                <h1 id="title-chaser" class="exp-title">Lilac Chaser &amp; Chromatic Afterimages</h1>
+                <p class="exp-instruction">Stare steadily at the central <strong>+</strong> cross without moving your eyes for 10&ndash;15 seconds. Watch a vivid <strong>emerald green disc</strong> orbit the circle—and then see all the lilac discs vanish completely.</p>
+            </div>
+
+            <div class="lab-grid">
+                <div class="card">
+                    <div class="specimen-stage" style="background: #bfbfbf;">
+                        <canvas id="canvas-chaser" class="specimen-canvas" width="640" height="440" role="img" aria-label="Lilac Chaser illusion showing 12 blurred lilac discs arranged in a circle around a central fixation cross on a neutral gray background, with one gap rotating sequentially around the ring"></canvas>
+                    </div>
+
+                    <fieldset class="controls-panel">
+                        <legend>Afterimage &amp; Chaser Controls</legend>
+                        <div class="control-row">
+                            <div class="btn-group">
+                                <button id="btn-chaser-mode-ring" class="btn active" type="button" aria-pressed="true">Lilac Chaser Ring</button>
+                                <button id="btn-chaser-mode-flag" class="btn" type="button" aria-pressed="false">Complementary Flag Test</button>
+                            </div>
+
+                            <button id="btn-chaser-truth" class="btn-truth" type="button" aria-pressed="false">
+                                <span>Reveal Truth: Freeze &amp; Inspect Gray</span>
+                            </button>
+                        </div>
+
+                        <div class="control-row" id="chaser-ring-controls">
+                            <div class="btn-group" role="group" aria-label="Disc Color">
+                                <button class="btn active" data-chaser-hue="lilac" type="button" aria-pressed="true">Lilac</button>
+                                <button class="btn" data-chaser-hue="cyan" type="button" aria-pressed="false">Cyan</button>
+                                <button class="btn" data-chaser-hue="yellow" type="button" aria-pressed="false">Yellow</button>
+                            </div>
+
+                            <label class="slider-item" for="slider-chaser-speed">
+                                <span>Step Interval:</span>
+                                <input id="slider-chaser-speed" type="range" min="40" max="220" value="115">
+                                <span id="val-chaser-speed" class="val-pill">115ms</span>
+                            </label>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="bio-card">
+                    <div>
+                        <span class="bio-locus-tag">Anatomical Locus: S, M, L Cones &amp; Opponent Ganglion Channels</span>
+                        <h2 class="bio-heading">Why Your Eye Does This: Cone Fatigue</h2>
+                    </div>
+
+                    <p class="bio-text">
+                        Human color vision relies on three cone photoreceptor types—<strong>S (blue)</strong>, <strong>M (green)</strong>, and <strong>L (red)</strong>—wired into opponent channels: <em>Red vs. Green</em> and <em>Blue vs. Yellow</em>.
+                    </p>
+
+                    <div class="data-table-wrap">
+                        <table class="a11y-table">
+                            <caption>Opponent-Process Afterimage Predictions</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Inducing Disc Color</th>
+                                    <th scope="col">Fatigued Cones</th>
+                                    <th scope="col">Illusory Afterimage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Lilac (Magenta)</strong></td>
+                                    <td>L (Red) + S (Blue)</td>
+                                    <td><strong>Emerald Green</strong> (M-cone rebound)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Cyan</strong></td>
+                                    <td>M (Green) + S (Blue)</td>
+                                    <td><strong>Warm Coral-Red</strong> (L-cone rebound)</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Yellow</strong></td>
+                                    <td>L (Red) + M (Green)</td>
+                                    <td><strong>Deep Royal Blue</strong> (S-cone rebound)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bio-callout">
+                        <strong>Where does the green dot come from?</strong> When each lilac disc briefly turns off to reveal neutral gray (#BFBFBF), the fatigued L (red) and S (blue) cones under-fire compared to fresh <strong>M (green)</strong> cones—sending a burst of <em>"bright green!"</em> signal to your brain.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================================================================
+             EXPERIMENT 3: ADELSON'S CHECKER SHADOW & SIMULTANEOUS CONTRAST
+             ================================================================= -->
+        <section id="panel-shadow" class="lab-panel" aria-labelledby="title-shadow">
+            <div class="exp-header">
+                <div class="exp-kicker">Experiment 3 of 6 &middot; Cortical Brightness Constancy</div>
+                <h1 id="title-shadow" class="exp-title">Adelson&rsquo;s Checker Shadow Illusion</h1>
+                <p class="exp-instruction">Square <strong>A</strong> looks dark charcoal and Square <strong>B</strong> looks bright off-white—yet they are printed with the <strong>exact same shade of gray</strong>. Use the proof buttons or sample pixels to verify.</p>
+            </div>
+
+            <div class="lab-grid">
+                <div class="card">
+                    <div class="specimen-stage" style="background: #ffffff;">
+                        <canvas id="canvas-shadow" class="specimen-canvas" width="640" height="440" role="img" aria-label="Adelson Checker Shadow Illusion showing a green cylinder casting a soft diagonal shadow across a checkerboard. Square A outside the shadow and Square B inside the shadow both have identical pixel values RGB(120, 120, 120)"></canvas>
+                    </div>
+
+                    <fieldset class="controls-panel">
+                        <legend>Brightness Constancy Verification Tools</legend>
+                        <div class="control-row">
+                            <button id="btn-shadow-bridge" class="btn-truth" type="button" aria-pressed="false">
+                                <span>Proof 1: Connect A &amp; B with Bridge Bars</span>
+                            </button>
+                            <button id="btn-shadow-mask" class="btn-truth" type="button" aria-pressed="false">
+                                <span>Proof 2: Mask Everything Except A &amp; B</span>
+                            </button>
+                        </div>
+
+                        <div class="rgb-readout-bar" id="shadow-rgb-bar">
+                            <span>
+                                <span class="swatch-preview" style="background:#787878;" aria-hidden="true"></span>
+                                Square A: <strong>RGB(120, 120, 120)</strong>
+                            </span>
+                            <span>
+                                <span class="swatch-preview" style="background:#787878;" aria-hidden="true"></span>
+                                Square B: <strong>RGB(120, 120, 120)</strong>
+                            </span>
+                            <span id="cursor-rgb-readout" style="color:#7dd3fc;">Tap or hover canvas to sample RGB</span>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="bio-card">
+                    <div>
+                        <span class="bio-locus-tag">Anatomical Locus: Primary &amp; Extrastriate Visual Cortex (V1 &ndash; V4)</span>
+                        <h2 class="bio-heading">Why Your Eye Does This: Brightness Constancy</h2>
+                    </div>
+
+                    <p class="bio-text">
+                        In the real world, lighting changes constantly as clouds pass or shadows fall across objects. If your brain behaved like a camera light meter, a white piece of paper in the shade would look like black coal.
+                    </p>
+
+                    <div class="data-table-wrap">
+                        <table class="a11y-table">
+                            <caption>Physical Pixel Values vs. Cortical Perception</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Tile</th>
+                                    <th scope="col">Actual RGB</th>
+                                    <th scope="col">Visual Context</th>
+                                    <th scope="col">Perceived Shade</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>Square A</strong></td>
+                                    <td><code>RGB(120, 120, 120)</code></td>
+                                    <td>Full light, bright neighbors</td>
+                                    <td>Dark charcoal tile</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Square B</strong></td>
+                                    <td><code>RGB(120, 120, 120)</code></td>
+                                    <td>In cylinder shadow, dark neighbors</td>
+                                    <td>Light off-white tile</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bio-callout">
+                        <strong>Your brain&rsquo;s unconscious calculation:</strong><br>
+                        1. Square <strong>B</strong> sits inside a soft shadow cast by the green cylinder and is surrounded by dark neighbors &rarr; cortex boosts its perceived brightness.<br>
+                        2. Square <strong>A</strong> sits in full light surrounded by bright tiles &rarr; cortex discounts the bright light and perceives it as dark.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================================================================
+             EXPERIMENT 4: TROXLER'S FADING & BLIND SPOT FILL-IN
+             ================================================================= -->
+        <section id="panel-troxler" class="lab-panel" aria-labelledby="title-troxler">
+            <div class="exp-header">
+                <div class="exp-kicker">Experiment 4 of 6 &middot; Neural Adaptation &amp; Cortical Interpolation</div>
+                <h1 id="title-troxler" class="exp-title">Troxler&rsquo;s Fading &amp; Optic Disc Blind Spot Fill-In</h1>
+                <p class="exp-instruction">Explore two ways your visual system edits out missing or unchanging sensory signals—and why your eyes make tiny involuntary tremors every second.</p>
+            </div>
+
+            <div class="lab-grid">
+                <div class="card">
+                    <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.55rem;">
+                        <strong style="font-size:0.9rem;">Part A: Troxler&rsquo;s Fading (Stare at Center Dot for 10s)</strong>
+                        <button id="btn-troxler-jiggle" class="btn" type="button">Simulate Microsaccade Jiggle</button>
+                    </div>
+
+                    <div class="specimen-stage" style="background: #d4d4d8;">
+                        <canvas id="canvas-troxler" class="specimen-canvas" width="640" height="270" role="img" aria-label="Troxler fading stimulus with six soft pastel blurred clouds surrounding a central black fixation dot on a gray background"></canvas>
+                    </div>
+
+                    <fieldset class="controls-panel" style="margin-top: 0.9rem;">
+                        <legend>Part B: Blind Spot Vanishing &amp; Cortical Fill-In</legend>
+                        <div class="control-row">
+                            <p style="font-size:0.82rem; color:var(--slate-800);">
+                                Cover your <strong>left eye</strong>, stare steadily at the <strong>+</strong> with your right eye, and move the slider (or move closer to the screen) until the red dot vanishes. Then toggle the striped background!
+                            </p>
+                        </div>
+
+                        <div id="blindspot-box" class="blindspot-box" role="img" aria-label="Blind spot test strip with a black fixation cross on the left at 16 percent and a movable red target dot on the right">
+                            <span class="bs-cross" aria-hidden="true">+</span>
+                            <div id="bs-target" class="bs-target" style="left: 72%;"></div>
+                        </div>
+
+                        <div class="control-row">
+                            <label class="slider-item" for="slider-bs-pos">
+                                <span>Dot Horizontal Position:</span>
+                                <input id="slider-bs-pos" type="range" min="36" max="92" value="72">
+                                <span id="val-bs-pos" class="val-pill">72%</span>
+                            </label>
+
+                            <button id="btn-bs-stripes" class="btn-truth" type="button" aria-pressed="false">
+                                <span>Toggle Striped Background (See Fill-In)</span>
+                            </button>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="bio-card">
+                    <div>
+                        <span class="bio-locus-tag">Anatomical Locus: Optic Disc &amp; Primary Visual Cortex (V1)</span>
+                        <h2 class="bio-heading">Why Your Eye Does This: Filtering Static Noise</h2>
+                    </div>
+
+                    <p class="bio-text">
+                        <strong>1. Why Troxler&rsquo;s Fading Happens:</strong> Neurons in your visual system are built to detect <em>change</em>, not constant stimulation. When an image stays perfectly motionless on your peripheral retina (like soft, blurred clouds), sensory neurons stop firing—and the brain fills the area with the surrounding gray background.
+                    </p>
+
+                    <p class="bio-text">
+                        <strong>2. Why You Don&rsquo;t See Your Own Retinal Blood Vessels:</strong> Blood vessels sit in front of your photoreceptors, casting constant shadows! Because they move with your eyeball, your brain adapts them out—unless a doctor shines a moving penlight from the side during an eye exam.
+                    </p>
+
+                    <div class="bio-callout">
+                        <strong>3. Cortical Interpolation Across the Blind Spot:</strong> Where the optic nerve exits your eye, there are zero rods or cones. When the striped background is enabled, V1 neurons spanning the edges of your blind spot infer continuity and <strong>paint a continuous stripe</strong> right across the gap!
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================================================================
+             EXPERIMENT 5: CAFE WALL & MULLER-LYER ILLUSIONS
+             ================================================================= -->
+        <section id="panel-geom" class="lab-panel" aria-labelledby="title-geom">
+            <div class="exp-header">
+                <div class="exp-kicker">Experiment 5 of 6 &middot; V1 Orientation Cells &amp; Depth Cues</div>
+                <h1 id="title-geom" class="exp-title">Caf&eacute; Wall &amp; M&uuml;ller-Lyer Geometric Illusions</h1>
+                <p class="exp-instruction">Explore how high-contrast edges and 3D depth cues distort our perception of straight lines and equal lengths.</p>
+            </div>
+
+            <div class="lab-grid">
+                <div class="card">
+                    <div class="specimen-stage" style="background: #ffffff;">
+                        <canvas id="canvas-geom" class="specimen-canvas" width="640" height="440" role="img" aria-label="Geometric optical illusion canvas showing offset rows of black and white tiles separated by straight horizontal gray mortar lines that appear tilted"></canvas>
+                    </div>
+
+                    <fieldset class="controls-panel">
+                        <legend>Geometric Illusion Controls</legend>
+                        <div class="control-row">
+                            <div class="btn-group">
+                                <button id="btn-geom-cafe" class="btn active" type="button" aria-pressed="true">Caf&eacute; Wall Illusion</button>
+                                <button id="btn-geom-muller" class="btn" type="button" aria-pressed="false">M&uuml;ller-Lyer Length Test</button>
+                            </div>
+
+                            <button id="btn-geom-truth" class="btn-truth" type="button" aria-pressed="false">
+                                <span>Reveal Truth: Overlay Parallel Rulers</span>
+                            </button>
+                        </div>
+
+                        <div class="control-row" id="controls-cafe">
+                            <label class="slider-item" for="slider-cafe-mortar">
+                                <span>Mortar Brightness (Try 0 or 255):</span>
+                                <input id="slider-cafe-mortar" type="range" min="0" max="255" value="128">
+                                <span id="val-cafe-mortar" class="val-pill">128</span>
+                            </label>
+                        </div>
+
+                        <div class="control-row" id="controls-muller" style="display:none;">
+                            <label class="slider-item" for="slider-muller-len">
+                                <span>Match Bottom Line to Top (260px):</span>
+                                <input id="slider-muller-len" type="range" min="150" max="370" value="220">
+                                <span id="val-muller-len" class="val-pill">220px</span>
+                            </label>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="bio-card">
+                    <div>
+                        <span class="bio-locus-tag" id="geom-locus-tag">Anatomical Locus: V1 Orientation-Selective Simple Cells</span>
+                        <h2 class="bio-heading" id="geom-bio-title">Why Your Eye Does This: Irradiation &amp; Edge Tilt</h2>
+                    </div>
+
+                    <p class="bio-text" id="geom-bio-p1">
+                        In the <strong>Caf&eacute; Wall Illusion</strong> (discovered on a tiled caf&eacute; wall in Bristol, UK), every horizontal mortar line is 100% straight and parallel. However, bright white tiles appear slightly larger to the eye than dark black tiles (the <em>irradiation illusion</em>).
+                    </p>
+
+                    <p class="bio-text" id="geom-bio-p2">
+                        Where a white tile sits opposite a black tile across a <strong>mid-gray mortar line</strong>, V1 orientation-selective neurons link the corners diagonally, creating tiny local wedges that make the entire row appear sloped!
+                    </p>
+
+                    <div class="bio-callout" id="geom-bio-callout">
+                        <strong>Try the Mortar Slider:</strong> Slide the mortar brightness to pure black (0) or pure white (255). Because the mortar now merges with one set of tiles, the diagonal corner contrast disappears and the lines snap back to level!
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================================================================
+             EXPERIMENT 6: WATERFALL ILLUSION & PERIPHERAL DRIFT
+             ================================================================= -->
+        <section id="panel-motion" class="lab-panel" aria-labelledby="title-motion">
+            <div class="exp-header">
+                <div class="exp-kicker">Experiment 6 of 6 &middot; Direction-Selective MT/V5 Neurons</div>
+                <h1 id="title-motion" class="exp-title">Motion Aftereffect (&ldquo;Waterfall Illusion&rdquo;) &amp; Peripheral Drift</h1>
+                <p class="exp-instruction">Stare at the center dot of the moving spiral for <strong>12 seconds</strong>, then click <strong>Stop Motion</strong>—stationary patterns will appear to expand or contract!</p>
+            </div>
+
+            <div class="lab-grid">
+                <div class="card">
+                    <div class="specimen-stage" style="background: #0f172a;">
+                        <canvas id="canvas-motion" class="specimen-canvas" width="640" height="440" role="img" aria-label="High-contrast rotating Archimedean spiral with a central red fixation dot used to induce the motion aftereffect"></canvas>
+                    </div>
+
+                    <fieldset class="controls-panel">
+                        <legend>Motion Detector Controls</legend>
+                        <div class="control-row">
+                            <div class="btn-group">
+                                <button id="btn-motion-spiral" class="btn active" type="button" aria-pressed="true">Motion Aftereffect Spiral</button>
+                                <button id="btn-motion-drift" class="btn" type="button" aria-pressed="false">Static Peripheral Drift Rings</button>
+                            </div>
+
+                            <button id="btn-motion-toggle" class="btn-truth" type="button" aria-pressed="false">
+                                <span id="motion-toggle-label">Stop Motion (Trigger Aftereffect!)</span>
+                            </button>
+                        </div>
+
+                        <div class="control-row" id="motion-spiral-controls">
+                            <div class="btn-group">
+                                <button id="btn-dir-in" class="btn active" type="button" aria-pressed="true">Contract Inward</button>
+                                <button id="btn-dir-out" class="btn" type="button" aria-pressed="false">Expand Outward</button>
+                            </div>
+                            <span id="motion-timer-badge" style="font-size:0.8rem; font-weight:800; color:var(--accent-blue-dark);">
+                                Fixation Timer: 0.0s (Stare at center dot!)
+                            </span>
+                        </div>
+                    </fieldset>
+                </div>
+
+                <div class="bio-card">
+                    <div>
+                        <span class="bio-locus-tag">Anatomical Locus: Visual Area MT / V5 Motion Detectors</span>
+                        <h2 class="bio-heading">Why Your Eye Does This: Opponent Motion Fatigue</h2>
+                    </div>
+
+                    <p class="bio-text">
+                        In cortical area <strong>MT (V5)</strong>, specialized neurons respond selectively to specific directions of motion—for example, inward contraction versus outward expansion—and mutually inhibit each other in balanced pairs.
+                    </p>
+
+                    <p class="bio-text">
+                        When you stare at continuous inward motion for 10&ndash;15 seconds, the inward-selective neurons become fatigued and reduce their baseline firing rate. The instant the spiral stops, the rested <strong>outward-selective neurons</strong> fire stronger than the fatigued inward ones—causing a completely still pattern to appear to expand!
+                    </p>
+
+                    <div class="bio-callout">
+                        <strong>What about Static Peripheral Drift?</strong> Switch to <em>Static Peripheral Drift Rings</em> and scan your eyes around the image. Nothing on screen is moving! Asymmetric luminance steps (Black &rarr; Blue &rarr; White &rarr; Yellow) trigger tiny timing delays in motion neurons during rapid eye movements (saccades).
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- =================================================================
+             VISUAL PATHWAY REFERENCE MAP
+             ================================================================= -->
+        <section id="panel-pathway" class="lab-panel" aria-labelledby="title-pathway">
+            <div class="exp-header">
+                <div class="exp-kicker">Neurobiology Overview &middot; Eye to Cortex</div>
+                <h1 id="title-pathway" class="exp-title">How Your Eye &amp; Brain Process Sight</h1>
+                <p class="exp-instruction">Optical illusions aren&rsquo;t &ldquo;bugs&rdquo;—they reveal the four biological processing stages your visual system uses to turn photons into a fast, meaningful 3D model of the world.</p>
+            </div>
+
+            <div class="card">
+                <svg viewBox="0 0 920 270" role="img" aria-label="Anatomical flow diagram showing photons entering the cornea and lens onto the retina, traveling through the optic nerve and LGN thalamus relay to cortical areas V1, V2-V4, and MT/V5" style="width:100%; height:auto; display:block; background:#fcfdfe; border-radius:12px; border:1px solid var(--border-subtle);">
+                    <line x1="25" y1="115" x2="115" y2="115" stroke="#b45309" stroke-width="2.5" stroke-dasharray="6 4"/>
+                    <line x1="25" y1="155" x2="115" y2="155" stroke="#b45309" stroke-width="2.5" stroke-dasharray="6 4"/>
+                    <line x1="115" y1="115" x2="215" y2="135" stroke="#b45309" stroke-width="2.5"/>
+                    <line x1="115" y1="155" x2="215" y2="135" stroke="#b45309" stroke-width="2.5"/>
+                    <text x="24" y="100" font-size="11" font-weight="800" fill="#92400e">1. PHOTONS</text>
+
+                    <circle cx="155" cy="135" r="64" fill="#eff6ff" stroke="#0f172a" stroke-width="4"/>
+                    <path d="M 96,105 C 74,120 74,150 96,165" fill="#bae6fd" stroke="#1d4ed8" stroke-width="3.5"/>
+                    <ellipse cx="114" cy="135" rx="11" ry="26" fill="#7dd3fc" stroke="#1d4ed8" stroke-width="2"/>
+                    <path d="M 155,75 A 60,60 0 0,1 155,195" fill="none" stroke="#be123c" stroke-width="7" stroke-linecap="round"/>
+                    <text x="155" y="222" text-anchor="middle" font-size="11" font-weight="800" fill="#0f172a">Retina (Rods, Cones &amp;</text>
+                    <text x="155" y="236" text-anchor="middle" font-size="11" font-weight="800" fill="#0f172a">Ganglion Cells)</text>
+
+                    <path d="M 218,135 L 365,135" stroke="#b45309" stroke-width="6" stroke-linecap="round"/>
+                    <circle cx="385" cy="135" r="24" fill="#fef3c7" stroke="#b45309" stroke-width="3"/>
+                    <text x="385" y="139" text-anchor="middle" font-size="11" font-weight="900" fill="#78350f">LGN</text>
+                    <text x="385" y="180" text-anchor="middle" font-size="11" font-weight="800" fill="#0f172a">Thalamus Relay</text>
+                    <text x="385" y="194" text-anchor="middle" font-size="9.5" fill="#334155">(Filters &amp; routes signals)</text>
+
+                    <path d="M 410,135 C 470,135 500,90 565,90" fill="none" stroke="#1d4ed8" stroke-width="4"/>
+                    <path d="M 410,135 C 470,135 500,180 565,180" fill="none" stroke="#6d28d9" stroke-width="4"/>
+
+                    <rect x="565" y="42" width="325" height="186" rx="22" fill="#f1f5f9" stroke="#334155" stroke-width="3"/>
+                    <text x="727" y="68" text-anchor="middle" font-size="12" font-weight="900" fill="#0f172a">VISUAL CORTEX (OCCIPITAL &amp; PARIETAL)</text>
+
+                    <rect x="585" y="84" width="125" height="58" rx="10" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+                    <text x="647" y="106" text-anchor="middle" font-size="11" font-weight="800" fill="#1e3a8a">Area V1</text>
+                    <text x="647" y="122" text-anchor="middle" font-size="9.5" fill="#1e3a8a">Edges, Orientation &amp;</text>
+                    <text x="647" y="134" text-anchor="middle" font-size="9.5" fill="#1e3a8a">Blind-Spot Fill-In</text>
+
+                    <rect x="740" y="84" width="130" height="58" rx="10" fill="#ccfbf1" stroke="#0f766e" stroke-width="2"/>
+                    <text x="805" y="106" text-anchor="middle" font-size="11" font-weight="800" fill="#115e59">Areas V2 &ndash; V4</text>
+                    <text x="805" y="122" text-anchor="middle" font-size="9.5" fill="#115e59">Color &amp; Brightness</text>
+                    <text x="805" y="134" text-anchor="middle" font-size="9.5" fill="#115e59">Constancy (Shadows)</text>
+
+                    <rect x="645" y="156" width="165" height="54" rx="10" fill="#ede9fe" stroke="#6d28d9" stroke-width="2"/>
+                    <text x="727" y="177" text-anchor="middle" font-size="11" font-weight="800" fill="#4c1d95">Area MT / V5</text>
+                    <text x="727" y="193" text-anchor="middle" font-size="9.5" fill="#4c1d95">Direction-Selective Motion</text>
+                </svg>
+
+                <div class="pathway-stages-grid">
+                    <button class="pathway-step-card" type="button" data-jump="panel-hermann">
+                        <div class="pathway-step-num">Stage 1 &middot; Retina</div>
+                        <strong style="font-size:0.92rem; color:var(--slate-950);">Photoreceptors &amp; Ganglion Cells</strong>
+                        <p style="font-size:0.82rem; color:var(--slate-800); margin-top:0.3rem;">
+                            Rods and S/M/L cones convert light into neural impulses. Center-surround ganglion cells sharpen edges via lateral inhibition (<strong>Open Exp. 1</strong>).
+                        </p>
+                    </button>
+
+                    <button class="pathway-step-card" type="button" data-jump="panel-troxler">
+                        <div class="pathway-step-num">Stage 2 &middot; Optic Nerve</div>
+                        <strong style="font-size:0.92rem; color:var(--slate-950);">Optic Disc &amp; Adaptation</strong>
+                        <p style="font-size:0.82rem; color:var(--slate-800); margin-top:0.3rem;">
+                            Axons exit at the blind spot, while microsaccades keep retinal neurons from adapting out stationary scenes (<strong>Open Exp. 4</strong>).
+                        </p>
+                    </button>
+
+                    <button class="pathway-step-card" type="button" data-jump="panel-geom">
+                        <div class="pathway-step-num">Stage 3 &middot; Area V1 &ndash; V4</div>
+                        <strong style="font-size:0.92rem; color:var(--slate-950);">Edges, Color &amp; Shadows</strong>
+                        <p style="font-size:0.82rem; color:var(--slate-800); margin-top:0.3rem;">
+                            V1 detects line angles and fills gaps, while V4 discounts shadows to keep colors constant (<strong>Open Exp. 3 &amp; 5</strong>).
+                        </p>
+                    </button>
+
+                    <button class="pathway-step-card" type="button" data-jump="panel-motion">
+                        <div class="pathway-step-num">Stage 4 &middot; Area MT / V5</div>
+                        <strong style="font-size:0.92rem; color:var(--slate-950);">Motion &amp; Speed Integration</strong>
+                        <p style="font-size:0.82rem; color:var(--slate-800); margin-top:0.3rem;">
+                            Opponent direction-selective neurons compute motion vectors across space and time (<strong>Open Exp. 6</strong>).
+                        </p>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        /**
+         * PerceptionLab — Mobile-First, WCAG 2.1 AA Accessible Optical Illusions Engine
+         */
+
+        // =====================================================================
+        // GLOBAL ACCESSIBILITY, NAVIGATION & ANIMATION LIFECYCLE
+        // =====================================================================
+        const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const srAnnouncer = document.getElementById('sr-announcer');
+        const illusionSelect = document.getElementById('illusionSelect');
+        const btnPrevExp = document.getElementById('btn-prev-exp');
+        const btnNextExp = document.getElementById('btn-next-exp');
+        const labPanels = document.querySelectorAll('.lab-panel');
+
+        const PANEL_ORDER = [
+            'panel-hermann',
+            'panel-chaser',
+            'panel-shadow',
+            'panel-troxler',
+            'panel-geom',
+            'panel-motion',
+            'panel-pathway'
+        ];
+
+        const PANEL_TITLES = {
+            'panel-hermann': 'Experiment 1: Hermann Grid and Scintillating Grid',
+            'panel-chaser': 'Experiment 2: Lilac Chaser and Chromatic Afterimages',
+            'panel-shadow': 'Experiment 3: Adelson Checker Shadow Illusion',
+            'panel-troxler': 'Experiment 4: Troxler Fading and Blind Spot Fill-In',
+            'panel-geom': 'Experiment 5: Cafe Wall and Muller-Lyer Geometric Illusions',
+            'panel-motion': 'Experiment 6: Motion Aftereffect Spiral and Static Peripheral Drift',
+            'panel-pathway': 'Visual Pathway Map: How Your Eye and Brain Process Sight'
+        };
+
+        let activePanelId = 'panel-hermann';
+        let chaserRafId = null;
+        let motionRafId = null;
+        let troxlerRafId = null;
+
+        function announceStatus(message) {
+            if (!srAnnouncer) return;
+            srAnnouncer.textContent = '';
+            setTimeout(() => {
+                srAnnouncer.textContent = message;
+            }, 30);
+        }
+
+        function stopAllLoops() {
+            if (chaserRafId) {
+                cancelAnimationFrame(chaserRafId);
+                chaserRafId = null;
+            }
+            if (motionRafId) {
+                cancelAnimationFrame(motionRafId);
+                motionRafId = null;
+            }
+            if (troxlerRafId) {
+                cancelAnimationFrame(troxlerRafId);
+                troxlerRafId = null;
+            }
+        }
+
+        function switchLabPanel(panelId, announce = true) {
+            stopAllLoops();
+            activePanelId = panelId;
+
+            if (illusionSelect.value !== panelId) {
+                illusionSelect.value = panelId;
+            }
+
+            labPanels.forEach(panel => {
+                panel.classList.toggle('active', panel.id === panelId);
+            });
+
+            if (panelId === 'panel-hermann') renderHermannGrid();
+            if (panelId === 'panel-chaser') startChaserLoop();
+            if (panelId === 'panel-shadow') renderCheckerShadow();
+            if (panelId === 'panel-troxler') startTroxlerLoop();
+            if (panelId === 'panel-geom') renderGeometricIllusion();
+            if (panelId === 'panel-motion') startMotionLoop();
+
+            if (announce && PANEL_TITLES[panelId]) {
+                announceStatus(`Loaded ${PANEL_TITLES[panelId]}`);
+            }
+        }
+
+        illusionSelect.addEventListener('change', (e) => {
+            switchLabPanel(e.target.value, true);
+        });
+
+        btnPrevExp.addEventListener('click', () => {
+            const idx = PANEL_ORDER.indexOf(activePanelId);
+            const prevIdx = (idx - 1 + PANEL_ORDER.length) % PANEL_ORDER.length;
+            switchLabPanel(PANEL_ORDER[prevIdx], true);
+        });
+
+        btnNextExp.addEventListener('click', () => {
+            const idx = PANEL_ORDER.indexOf(activePanelId);
+            const nextIdx = (idx + 1) % PANEL_ORDER.length;
+            switchLabPanel(PANEL_ORDER[nextIdx], true);
+        });
+
+        document.querySelectorAll('.pathway-step-card[data-jump]').forEach(card => {
+            card.addEventListener('click', () => switchLabPanel(card.dataset.jump, true));
+        });
+
+        // =====================================================================
+        // EXPERIMENT 1: HERMANN GRID & SCINTILLATING GRID
+        // =====================================================================
+        const canvasHermann = document.getElementById('canvas-hermann');
+        const ctxHermann = canvasHermann.getContext('2d');
+
+        const hermannState = {
+            scintillating: false,
+            isolateTruth: false,
+            spacing: 68,
+            contrast: 100
+        };
+
+        function renderHermannGrid() {
+            const w = canvasHermann.width;
+            const h = canvasHermann.height;
+            const step = hermannState.spacing;
+            const streetW = Math.max(10, Math.round(step * 0.22));
+            const squareSize = step - streetW;
+
+            const streetGray = hermannState.scintillating ? 130 : 255;
+            const lum = Math.round(255 * (1 - hermannState.contrast / 100));
+
+            ctxHermann.fillStyle = `rgb(${streetGray}, ${streetGray}, ${streetGray})`;
+            ctxHermann.fillRect(0, 0, w, h);
+
+            ctxHermann.fillStyle = `rgb(${lum}, ${lum}, ${lum})`;
+            const offsetX = Math.floor((w % step) / 2);
+            const offsetY = Math.floor((h % step) / 2);
+
+            for (let y = offsetY - step; y < h + step; y += step) {
+                for (let x = offsetX - step; x < w + step; x += step) {
+                    ctxHermann.fillRect(x, y, squareSize, squareSize);
+                }
+            }
+
+            if (hermannState.scintillating) {
+                const dotR = streetW * 0.68;
+                ctxHermann.fillStyle = '#ffffff';
+                for (let y = offsetY - streetW / 2; y < h + step; y += step) {
+                    for (let x = offsetX - streetW / 2; x < w + step; x += step) {
+                        ctxHermann.beginPath();
+                        ctxHermann.arc(x, y, dotR, 0, Math.PI * 2);
+                        ctxHermann.fill();
+                    }
+                }
+            }
+
+            if (hermannState.isolateTruth) {
+                const targetCol = Math.floor((w / 2 - offsetX) / step);
+                const targetRow = Math.floor((h / 2 - offsetY) / step);
+                const cx = offsetX + targetCol * step - streetW / 2;
+                const cy = offsetY + targetRow * step - streetW / 2;
+                const holeR = step * 0.72;
+
+                ctxHermann.save();
+                ctxHermann.fillStyle = 'rgba(15, 23, 42, 0.94)';
+                ctxHermann.beginPath();
+                ctxHermann.rect(0, 0, w, h);
+                ctxHermann.arc(cx, cy, holeR, 0, Math.PI * 2, true);
+                ctxHermann.fill();
+
+                ctxHermann.strokeStyle = '#38bdf8';
+                ctxHermann.lineWidth = 3;
+                ctxHermann.beginPath();
+                ctxHermann.arc(cx, cy, holeR, 0, Math.PI * 2);
+                ctxHermann.stroke();
+
+                ctxHermann.fillStyle = '#ffffff';
+                ctxHermann.font = '700 13px sans-serif';
+                ctxHermann.textAlign = 'center';
+                ctxHermann.fillText('Isolated Intersection: Pure solid white — no gray dot exists!', w / 2, cy + holeR + 28);
+                ctxHermann.restore();
+            }
+        }
+
+        document.getElementById('btn-grid-classic').addEventListener('click', (e) => {
+            hermannState.scintillating = false;
+            e.currentTarget.classList.add('active');
+            e.currentTarget.setAttribute('aria-pressed', 'true');
+            const scintBtn = document.getElementById('btn-grid-scint');
+            scintBtn.classList.remove('active');
+            scintBtn.setAttribute('aria-pressed', 'false');
+            renderHermannGrid();
+            announceStatus('Switched to Classic Hermann Grid');
+        });
+
+        document.getElementById('btn-grid-scint').addEventListener('click', (e) => {
+            hermannState.scintillating = true;
+            e.currentTarget.classList.add('active');
+            e.currentTarget.setAttribute('aria-pressed', 'true');
+            const classicBtn = document.getElementById('btn-grid-classic');
+            classicBtn.classList.remove('active');
+            classicBtn.setAttribute('aria-pressed', 'false');
+            renderHermannGrid();
+            announceStatus('Switched to Scintillating Grid with white intersection discs');
+        });
+
+        document.getElementById('btn-hermann-truth').addEventListener('click', (e) => {
+            hermannState.isolateTruth = !hermannState.isolateTruth;
+            const btn = e.currentTarget;
+            btn.classList.toggle('active', hermannState.isolateTruth);
+            btn.setAttribute('aria-pressed', hermannState.isolateTruth ? 'true' : 'false');
+            btn.querySelector('span').textContent = hermannState.isolateTruth
+                ? 'Truth Revealed (Restore Full Grid)'
+                : 'Reveal Truth: Isolate 1 Intersection';
+            renderHermannGrid();
+            announceStatus(hermannState.isolateTruth
+                ? 'Isolated one intersection showing pure uniform white with no gray spot'
+                : 'Restored full Hermann grid');
+        });
+
+        document.getElementById('slider-hermann-size').addEventListener('input', (e) => {
+            hermannState.spacing = Number(e.target.value);
+            document.getElementById('val-hermann-size').textContent = `${hermannState.spacing}px`;
+            renderHermannGrid();
+        });
+
+        document.getElementById('slider-hermann-contrast').addEventListener('input', (e) => {
+            hermannState.contrast = Number(e.target.value);
+            document.getElementById('val-hermann-contrast').textContent = `${hermannState.contrast}%`;
+            renderHermannGrid();
+        });
+
+        function updateReceptiveFieldDiagram(isIntersection) {
+            const interBtn = document.getElementById('btn-rf-inter');
+            const corrBtn = document.getElementById('btn-rf-corridor');
+            interBtn.classList.toggle('active', isIntersection);
+            interBtn.setAttribute('aria-pressed', isIntersection ? 'true' : 'false');
+            corrBtn.classList.toggle('active', !isIntersection);
+            corrBtn.setAttribute('aria-pressed', !isIntersection ? 'true' : 'false');
+
+            const streetV = document.getElementById('rf-street-v');
+            const inhLeft = document.getElementById('rf-inh-left');
+            const inhRight = document.getElementById('rf-inh-right');
+            const line2 = document.getElementById('rf-math-line2');
+            const total = document.getElementById('rf-math-total');
+            const note = document.getElementById('rf-math-note');
+
+            if (isIntersection) {
+                streetV.setAttribute('opacity', '1');
+                inhLeft.textContent = '\u221220';
+                inhRight.textContent = '\u221220';
+                document.getElementById('rf-inh-top').textContent = '\u221220';
+                document.getElementById('rf-inh-bot').textContent = '\u221220';
+                line2.textContent = 'Surround Inhibition: \u221280 (4 white arms)';
+                total.textContent = 'Net Signal = +20 (Looks Darker!)';
+                note.textContent = '4 bright arms inhibit the center strongly.';
+                announceStatus('Receptive field at intersection: +100 center minus 80 surround equals +20 net firing');
+            } else {
+                streetV.setAttribute('opacity', '0');
+                inhLeft.textContent = '\u221220';
+                inhRight.textContent = '\u221220';
+                document.getElementById('rf-inh-top').textContent = '0';
+                document.getElementById('rf-inh-bot').textContent = '0';
+                line2.textContent = 'Surround Inhibition: \u221240 (2 white arms)';
+                total.textContent = 'Net Signal = +60 (Looks Bright White!)';
+                note.textContent = 'Black squares above/below add zero inhibition.';
+                announceStatus('Receptive field in corridor: +100 center minus 40 surround equals +60 net firing');
+            }
+        }
+
+        document.getElementById('btn-rf-inter').addEventListener('click', () => updateReceptiveFieldDiagram(true));
+        document.getElementById('btn-rf-corridor').addEventListener('click', () => updateReceptiveFieldDiagram(false));
+
+        // =====================================================================
+        // EXPERIMENT 2: LILAC CHASER & CHROMATIC AFTERIMAGES
+        // =====================================================================
+        const canvasChaser = document.getElementById('canvas-chaser');
+        const ctxChaser = canvasChaser.getContext('2d');
+
+        const chaserState = {
+            mode: 'ring',
+            hue: 'lilac',
+            speedMs: 115,
+            pausedTruth: prefersReducedMotion,
+            gapIndex: 0,
+            lastStepTime: 0,
+            flagCycleStart: 0
+        };
+
+        const CHASER_HUES = {
+            lilac: { r: 216, g: 132, b: 224, afterName: 'Emerald Green' },
+            cyan: { r: 95, g: 215, b: 228, afterName: 'Warm Coral-Red' },
+            yellow: { r: 232, g: 215, b: 85, afterName: 'Deep Royal Blue' }
+        };
+
+        function syncChaserTruthButton() {
+            const btn = document.getElementById('btn-chaser-truth');
+            btn.classList.toggle('active', chaserState.pausedTruth);
+            btn.setAttribute('aria-pressed', chaserState.pausedTruth ? 'true' : 'false');
+            btn.querySelector('span').textContent = chaserState.pausedTruth
+                ? 'Play / Resume Chaser Animation'
+                : 'Reveal Truth: Freeze & Inspect Gray';
+        }
+
+        function drawChaserFrame(timestamp) {
+            if (activePanelId !== 'panel-chaser') return;
+
+            const w = canvasChaser.width;
+            const h = canvasChaser.height;
+            const cx = w / 2;
+            const cy = h / 2;
+
+            ctxChaser.fillStyle = '#bfbfbf';
+            ctxChaser.fillRect(0, 0, w, h);
+
+            if (chaserState.mode === 'ring') {
+                if (!chaserState.pausedTruth && timestamp - chaserState.lastStepTime >= chaserState.speedMs) {
+                    chaserState.gapIndex = (chaserState.gapIndex + 1) % 12;
+                    chaserState.lastStepTime = timestamp;
+                }
+
+                const ringR = 148;
+                const discR = 30;
+                const col = CHASER_HUES[chaserState.hue];
+
+                for (let i = 0; i < 12; i++) {
+                    if (!chaserState.pausedTruth && i === chaserState.gapIndex) continue;
+
+                    const angle = (i / 12) * Math.PI * 2 - Math.PI / 2;
+                    const dx = cx + Math.cos(angle) * ringR;
+                    const dy = cy + Math.sin(angle) * ringR;
+
+                    const grad = ctxChaser.createRadialGradient(dx, dy, discR * 0.15, dx, dy, discR);
+                    grad.addColorStop(0, `rgba(${col.r}, ${col.g}, ${col.b}, 0.92)`);
+                    grad.addColorStop(0.65, `rgba(${col.r}, ${col.g}, ${col.b}, 0.52)`);
+                    grad.addColorStop(1, `rgba(${col.r}, ${col.g}, ${col.b}, 0)`);
+
+                    ctxChaser.fillStyle = grad;
+                    ctxChaser.beginPath();
+                    ctxChaser.arc(dx, dy, discR, 0, Math.PI * 2);
+                    ctxChaser.fill();
+                }
+
+                if (chaserState.pausedTruth) {
+                    ctxChaser.fillStyle = '#0f172a';
+                    ctxChaser.font = '700 13px sans-serif';
+                    ctxChaser.textAlign = 'center';
+                    ctxChaser.fillText(`Paused: No ${col.afterName} disc exists — background is 100% neutral gray (#BFBFBF)`, cx, h - 22);
+                }
+            } else {
+                if (!chaserState.flagCycleStart) chaserState.flagCycleStart = timestamp;
+                const elapsed = ((timestamp - chaserState.flagCycleStart) / 1000) % 18;
+                const showBlank = chaserState.pausedTruth || elapsed >= 12;
+
+                if (!showBlank) {
+                    ctxChaser.fillStyle = '#00d4d8';
+                    ctxChaser.fillRect(cx - 170, cy - 105, 340, 210);
+                    ctxChaser.fillStyle = '#111111';
+                    ctxChaser.fillRect(cx - 170, cy - 35, 340, 70);
+                    ctxChaser.fillStyle = '#facc15';
+                    ctxChaser.fillRect(cx - 170, cy - 105, 130, 105);
+
+                    const rem = Math.ceil(12 - elapsed);
+                    ctxChaser.fillStyle = '#0f172a';
+                    ctxChaser.font = '700 13px sans-serif';
+                    ctxChaser.textAlign = 'center';
+                    ctxChaser.fillText(`Stare steadily at the center + cross... White screen in ${rem}s`, cx, h - 22);
+                } else {
+                    ctxChaser.fillStyle = '#ffffff';
+                    ctxChaser.fillRect(0, 0, w, h);
+                    ctxChaser.fillStyle = '#0f172a';
+                    ctxChaser.font = '700 13px sans-serif';
+                    ctxChaser.textAlign = 'center';
+                    ctxChaser.fillText('Keep staring at the + cross to see the Red, White & Blue afterimage!', cx, h - 22);
+                }
+            }
+
+            ctxChaser.strokeStyle = '#0f172a';
+            ctxChaser.lineWidth = 2.5;
+            ctxChaser.beginPath();
+            ctxChaser.moveTo(cx - 9, cy);
+            ctxChaser.lineTo(cx + 9, cy);
+            ctxChaser.moveTo(cx, cy - 9);
+            ctxChaser.lineTo(cx, cy + 9);
+            ctxChaser.stroke();
+
+            chaserRafId = requestAnimationFrame(drawChaserFrame);
+        }
+
+        function startChaserLoop() {
+            syncChaserTruthButton();
+            chaserState.lastStepTime = performance.now();
+            chaserState.flagCycleStart = performance.now();
+            chaserRafId = requestAnimationFrame(drawChaserFrame);
+        }
+
+        document.getElementById('btn-chaser-mode-ring').addEventListener('click', (e) => {
+            chaserState.mode = 'ring';
+            e.currentTarget.classList.add('active');
+            e.currentTarget.setAttribute('aria-pressed', 'true');
+            const flagBtn = document.getElementById('btn-chaser-mode-flag');
+            flagBtn.classList.remove('active');
+            flagBtn.setAttribute('aria-pressed', 'false');
+            document.getElementById('chaser-ring-controls').style.display = 'flex';
+            announceStatus('Switched to Lilac Chaser Ring');
+        });
+
+        document.getElementById('btn-chaser-mode-flag').addEventListener('click', (e) => {
+            chaserState.mode = 'flag';
+            chaserState.flagCycleStart = performance.now();
+            e.currentTarget.classList.add('active');
+            e.currentTarget.setAttribute('aria-pressed', 'true');
+            const ringBtn = document.getElementById('btn-chaser-mode-ring');
+            ringBtn.classList.remove('active');
+            ringBtn.setAttribute('aria-pressed', 'false');
+            document.getElementById('chaser-ring-controls').style.display = 'none';
+            announceStatus('Switched to Complementary Flag Afterimage Test');
+        });
+
+        document.querySelectorAll('[data-chaser-hue]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                chaserState.hue = btn.dataset.chaserHue;
+                document.querySelectorAll('[data-chaser-hue]').forEach(b => {
+                    const isSel = b === btn;
+                    b.classList.toggle('active', isSel);
+                    b.setAttribute('aria-pressed', isSel ? 'true' : 'false');
+                });
+                announceStatus(`Disc color set to ${chaserState.hue}; expected afterimage is ${CHASER_HUES[chaserState.hue].afterName}`);
+            });
+        });
+
+        document.getElementById('slider-chaser-speed').addEventListener('input', (e) => {
+            chaserState.speedMs = Number(e.target.value);
+            document.getElementById('val-chaser-speed').textContent = `${chaserState.speedMs}ms`;
+        });
+
+        document.getElementById('btn-chaser-truth').addEventListener('click', () => {
+            chaserState.pausedTruth = !chaserState.pausedTruth;
+            syncChaserTruthButton();
+            announceStatus(chaserState.pausedTruth
+                ? 'Animation paused: all 12 discs are visible on pure neutral gray #BFBFBF'
+                : 'Resumed chaser animation');
+        });
+
+        // =====================================================================
+        // EXPERIMENT 3: ADELSON'S CHECKER SHADOW ILLUSION
+        // =====================================================================
+        const canvasShadow = document.getElementById('canvas-shadow');
+        const ctxShadow = canvasShadow.getContext('2d', { willReadFrequently: true });
+
+        const shadowState = {
+            showBridge: false,
+            maskOthers: false
+        };
+
+        function boardToScreen(u, v) {
+            const originX = 305;
+            const originY = 122;
+            const x = originX + (u - v) * 44;
+            const y = originY + (u + v) * 23;
+            return { x, y };
+        }
+
+        function drawTilePolygon(ctx, u, v, fillStyle) {
+            const p0 = boardToScreen(u, v);
+            const p1 = boardToScreen(u + 1, v);
+            const p2 = boardToScreen(u + 1, v + 1);
+            const p3 = boardToScreen(u, v + 1);
+
+            ctx.fillStyle = fillStyle;
+            ctx.beginPath();
+            ctx.moveTo(p0.x, p0.y);
+            ctx.lineTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.lineTo(p3.x, p3.y);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function renderCheckerShadow() {
+            const w = canvasShadow.width;
+            const h = canvasShadow.height;
+
+            ctxShadow.fillStyle = '#ffffff';
+            ctxShadow.fillRect(0, 0, w, h);
+
+            const TARGET_GRAY = 'rgb(120, 120, 120)';
+            const LIT_LIGHT_GRAY = 'rgb(236, 236, 236)';
+            const SHADED_DARK_GRAY = 'rgb(58, 58, 58)';
+
+            const isSqA = (u, v) => (u === 1 && v === 1);
+            const isSqB = (u, v) => (u === 2 && v === 2);
+
+            if (!shadowState.maskOthers) {
+                for (let v = 0; v < 5; v++) {
+                    for (let u = 0; u < 5; u++) {
+                        const isLightTile = (u + v) % 2 === 0;
+                        const inShadow = (u >= 2 && v >= 1 && v <= 3) || (u === 3 && v >= 1);
+
+                        let fill;
+                        if (isSqA(u, v) || isSqB(u, v)) {
+                            fill = TARGET_GRAY;
+                        } else if (isLightTile) {
+                            fill = inShadow ? TARGET_GRAY : LIT_LIGHT_GRAY;
+                        } else {
+                            fill = inShadow ? SHADED_DARK_GRAY : TARGET_GRAY;
+                        }
+                        drawTilePolygon(ctxShadow, u, v, fill);
+                    }
+                }
+
+                ctxShadow.save();
+                const shadGrad = ctxShadow.createRadialGradient(345, 235, 18, 345, 235, 155);
+                shadGrad.addColorStop(0, 'rgba(30, 35, 42, 0.22)');
+                shadGrad.addColorStop(0.65, 'rgba(30, 35, 42, 0.12)');
+                shadGrad.addColorStop(1, 'rgba(30, 35, 42, 0)');
+                ctxShadow.fillStyle = shadGrad;
+                ctxShadow.beginPath();
+                ctxShadow.ellipse(345, 235, 160, 82, 0.35, 0, Math.PI * 2);
+                ctxShadow.fill();
+                ctxShadow.restore();
+
+                drawTilePolygon(ctxShadow, 1, 1, TARGET_GRAY);
+                drawTilePolygon(ctxShadow, 2, 2, TARGET_GRAY);
+
+                const cylBase = boardToScreen(3.55, 0.95);
+                const cylR = 46;
+                const cylH = 148;
+
+                const cylGrad = ctxShadow.createLinearGradient(cylBase.x - cylR, 0, cylBase.x + cylR, 0);
+                cylGrad.addColorStop(0, '#4ade80');
+                cylGrad.addColorStop(0.35, '#22c55e');
+                cylGrad.addColorStop(0.85, '#15803d');
+                cylGrad.addColorStop(1, '#166534');
+
+                ctxShadow.fillStyle = cylGrad;
+                ctxShadow.beginPath();
+                ctxShadow.moveTo(cylBase.x - cylR, cylBase.y - cylH);
+                ctxShadow.lineTo(cylBase.x - cylR, cylBase.y);
+                ctxShadow.ellipse(cylBase.x, cylBase.y, cylR, 19, 0, Math.PI, 0, true);
+                ctxShadow.lineTo(cylBase.x + cylR, cylBase.y - cylH);
+                ctxShadow.closePath();
+                ctxShadow.fill();
+
+                ctxShadow.fillStyle = '#86efac';
+                ctxShadow.strokeStyle = '#16a34a';
+                ctxShadow.lineWidth = 2;
+                ctxShadow.beginPath();
+                ctxShadow.ellipse(cylBase.x, cylBase.y - cylH, cylR, 19, 0, 0, Math.PI * 2);
+                ctxShadow.fill();
+                ctxShadow.stroke();
+            } else {
+                drawTilePolygon(ctxShadow, 1, 1, TARGET_GRAY);
+                drawTilePolygon(ctxShadow, 2, 2, TARGET_GRAY);
+            }
+
+            if (shadowState.showBridge) {
+                const cA = boardToScreen(1.5, 1.5);
+                const cB = boardToScreen(2.5, 2.5);
+
+                ctxShadow.save();
+                ctxShadow.strokeStyle = TARGET_GRAY;
+                ctxShadow.lineWidth = 24;
+                ctxShadow.lineCap = 'round';
+                ctxShadow.beginPath();
+                ctxShadow.moveTo(cA.x - 16, cA.y + 8);
+                ctxShadow.lineTo(cB.x - 16, cB.y + 8);
+                ctxShadow.moveTo(cA.x + 16, cA.y - 8);
+                ctxShadow.lineTo(cB.x + 16, cB.y - 8);
+                ctxShadow.stroke();
+                ctxShadow.restore();
+            }
+
+            const posA = boardToScreen(1.5, 1.5);
+            const posB = boardToScreen(2.5, 2.5);
+
+            ctxShadow.font = '800 18px sans-serif';
+            ctxShadow.textAlign = 'center';
+            ctxShadow.textBaseline = 'middle';
+            ctxShadow.fillStyle = '#ffffff';
+            ctxShadow.fillText('A', posA.x, posA.y);
+            ctxShadow.fillText('B', posB.x, posB.y);
+        }
+
+        document.getElementById('btn-shadow-bridge').addEventListener('click', (e) => {
+            shadowState.showBridge = !shadowState.showBridge;
+            const btn = e.currentTarget;
+            btn.classList.toggle('active', shadowState.showBridge);
+            btn.setAttribute('aria-pressed', shadowState.showBridge ? 'true' : 'false');
+            renderCheckerShadow();
+            announceStatus(shadowState.showBridge
+                ? 'Added solid RGB(120, 120, 120) bridge bars connecting Square A and Square B with no visible seam'
+                : 'Removed bridge bars');
+        });
+
+        document.getElementById('btn-shadow-mask').addEventListener('click', (e) => {
+            shadowState.maskOthers = !shadowState.maskOthers;
+            const btn = e.currentTarget;
+            btn.classList.toggle('active', shadowState.maskOthers);
+            btn.setAttribute('aria-pressed', shadowState.maskOthers ? 'true' : 'false');
+            renderCheckerShadow();
+            announceStatus(shadowState.maskOthers
+                ? 'Masked surrounding tiles: Squares A and B now visibly appear identical'
+                : 'Restored full checkerboard and cylinder shadow context');
+        });
+
+        function sampleShadowCanvasPixel(clientX, clientY) {
+            const rect = canvasShadow.getBoundingClientRect();
+            const sx = Math.floor(((clientX - rect.left) / rect.width) * canvasShadow.width);
+            const sy = Math.floor(((clientY - rect.top) / rect.height) * canvasShadow.height);
+            if (sx >= 0 && sy >= 0 && sx < canvasShadow.width && sy < canvasShadow.height) {
+                const pixel = ctxShadow.getImageData(sx, sy, 1, 1).data;
+                document.getElementById('cursor-rgb-readout').textContent =
+                    `Sampled: RGB(${pixel[0]}, ${pixel[1]}, ${pixel[2]})`;
+            }
+        }
+
+        canvasShadow.addEventListener('mousemove', (e) => sampleShadowCanvasPixel(e.clientX, e.clientY));
+        canvasShadow.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 0) {
+                sampleShadowCanvasPixel(e.touches[0].clientX, e.touches[0].clientY);
+            }
+        }, { passive: true });
+
+        // =====================================================================
+        // EXPERIMENT 4: TROXLER'S FADING & BLIND SPOT FILL-IN
+        // =====================================================================
+        const canvasTroxler = document.getElementById('canvas-troxler');
+        const ctxTroxler = canvasTroxler.getContext('2d');
+
+        let troxlerJiggleUntil = 0;
+
+        function drawTroxlerFrame(timestamp) {
+            if (activePanelId !== 'panel-troxler') return;
+
+            const w = canvasTroxler.width;
+            const h = canvasTroxler.height;
+            const cx = w / 2;
+            const cy = h / 2;
+
+            ctxTroxler.fillStyle = '#d4d4d8';
+            ctxTroxler.fillRect(0, 0, w, h);
+
+            let jx = 0;
+            let jy = 0;
+            if (timestamp < troxlerJiggleUntil) {
+                jx = Math.sin(timestamp * 0.08) * 16;
+                jy = Math.cos(timestamp * 0.06) * 8;
+            }
+
+            const blobs = [
+                { x: cx - 155 + jx, y: cy - 52 + jy, r: 68, color: '244, 114, 182' },
+                { x: cx + 155 + jx, y: cy - 52 + jy, r: 68, color: '56, 189, 248' },
+                { x: cx - 155 + jx, y: cy + 56 + jy, r: 68, color: '74, 222, 128' },
+                { x: cx + 155 + jx, y: cy + 56 + jy, r: 68, color: '250, 204, 21' },
+                { x: cx + jx, y: cy - 78 + jy, r: 58, color: '192, 132, 252' },
+                { x: cx + jx, y: cy + 78 + jy, r: 58, color: '251, 146, 60' }
+            ];
+
+            blobs.forEach(b => {
+                const grad = ctxTroxler.createRadialGradient(b.x, b.y, 4, b.x, b.y, b.r);
+                grad.addColorStop(0, `rgba(${b.color}, 0.42)`);
+                grad.addColorStop(0.55, `rgba(${b.color}, 0.22)`);
+                grad.addColorStop(1, `rgba(${b.color}, 0)`);
+                ctxTroxler.fillStyle = grad;
+                ctxTroxler.beginPath();
+                ctxTroxler.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+                ctxTroxler.fill();
+            });
+
+            ctxTroxler.fillStyle = '#0f172a';
+            ctxTroxler.beginPath();
+            ctxTroxler.arc(cx, cy, 5, 0, Math.PI * 2);
+            ctxTroxler.fill();
+
+            troxlerRafId = requestAnimationFrame(drawTroxlerFrame);
+        }
+
+        function startTroxlerLoop() {
+            troxlerRafId = requestAnimationFrame(drawTroxlerFrame);
+        }
+
+        document.getElementById('btn-troxler-jiggle').addEventListener('click', () => {
+            troxlerJiggleUntil = performance.now() + 900;
+            announceStatus('Simulated microsaccade jiggle: faded peripheral clouds immediately reappear');
+        });
+
+        const bsBox = document.getElementById('blindspot-box');
+        const bsTarget = document.getElementById('bs-target');
+        const sliderBsPos = document.getElementById('slider-bs-pos');
+        const valBsPos = document.getElementById('val-bs-pos');
+
+        sliderBsPos.addEventListener('input', () => {
+            bsTarget.style.left = `${sliderBsPos.value}%`;
+            valBsPos.textContent = `${sliderBsPos.value}%`;
+        });
+
+        document.getElementById('btn-bs-stripes').addEventListener('click', (e) => {
+            const btn = e.currentTarget;
+            const isStriped = bsBox.classList.toggle('striped');
+            btn.classList.toggle('active', isStriped);
+            btn.setAttribute('aria-pressed', isStriped ? 'true' : 'false');
+            announceStatus(isStriped
+                ? 'Enabled horizontal striped background behind blind spot target'
+                : 'Switched to solid white background behind blind spot target');
+        });
+
+        // =====================================================================
+        // EXPERIMENT 5: CAFE WALL & MULLER-LYER ILLUSIONS
+        // =====================================================================
+        const canvasGeom = document.getElementById('canvas-geom');
+        const ctxGeom = canvasGeom.getContext('2d');
+
+        const geomState = {
+            subMode: 'cafe',
+            mortarLum: 128,
+            mullerBottomLen: 220,
+            revealRulers: false
+        };
+
+        function renderGeometricIllusion() {
+            const w = canvasGeom.width;
+            const h = canvasGeom.height;
+
+            ctxGeom.fillStyle = '#ffffff';
+            ctxGeom.fillRect(0, 0, w, h);
+
+            if (geomState.subMode === 'cafe') {
+                const rows = 9;
+                const rowH = Math.floor((h - 40) / rows);
+                const tileW = 58;
+                const mortarH = 3;
+                const offsets = [0, 18, 36, 18, 0, 18, 36, 18, 0];
+
+                for (let r = 0; r < rows; r++) {
+                    const y = 20 + r * rowH;
+                    const shift = offsets[r % offsets.length];
+
+                    for (let x = -tileW * 2 + shift; x < w + tileW; x += tileW) {
+                        const colIdx = Math.floor((x - shift) / tileW);
+                        ctxGeom.fillStyle = (colIdx % 2 === 0) ? '#0f172a' : '#ffffff';
+                        ctxGeom.fillRect(x, y, tileW, rowH - mortarH);
+                    }
+
+                    const m = geomState.mortarLum;
+                    ctxGeom.fillStyle = `rgb(${m}, ${m}, ${m})`;
+                    ctxGeom.fillRect(0, y + rowH - mortarH, w, mortarH);
+                }
+
+                if (geomState.revealRulers) {
+                    ctxGeom.strokeStyle = '#0284c7';
+                    ctxGeom.lineWidth = 2.5;
+                    for (let r = 0; r <= rows; r++) {
+                        const ly = 20 + r * rowH - mortarH / 2;
+                        ctxGeom.beginPath();
+                        ctxGeom.moveTo(0, ly);
+                        ctxGeom.lineTo(w, ly);
+                        ctxGeom.stroke();
+                    }
+                }
+            } else {
+                const topLen = 260;
+                const botLen = geomState.mullerBottomLen;
+                const cx = w / 2;
+                const topY = 145;
+                const botY = 290;
+                const finLen = 36;
+                const finAngle = Math.PI / 4;
+
+                ctxGeom.strokeStyle = '#0f172a';
+                ctxGeom.lineWidth = 4.5;
+                ctxGeom.lineCap = 'round';
+
+                const tL = cx - topLen / 2;
+                const tR = cx + topLen / 2;
+                ctxGeom.beginPath();
+                ctxGeom.moveTo(tL, topY);
+                ctxGeom.lineTo(tR, topY);
+                ctxGeom.moveTo(tL, topY);
+                ctxGeom.lineTo(tL - Math.cos(finAngle) * finLen, topY - Math.sin(finAngle) * finLen);
+                ctxGeom.moveTo(tL, topY);
+                ctxGeom.lineTo(tL - Math.cos(finAngle) * finLen, topY + Math.sin(finAngle) * finLen);
+                ctxGeom.moveTo(tR, topY);
+                ctxGeom.lineTo(tR + Math.cos(finAngle) * finLen, topY - Math.sin(finAngle) * finLen);
+                ctxGeom.moveTo(tR, topY);
+                ctxGeom.lineTo(tR + Math.cos(finAngle) * finLen, topY + Math.sin(finAngle) * finLen);
+                ctxGeom.stroke();
+
+                const bL = cx - botLen / 2;
+                const bR = cx + botLen / 2;
+                ctxGeom.strokeStyle = '#1d4ed8';
+                ctxGeom.beginPath();
+                ctxGeom.moveTo(bL, botY);
+                ctxGeom.lineTo(bR, botY);
+                ctxGeom.moveTo(bL, botY);
+                ctxGeom.lineTo(bL + Math.cos(finAngle) * finLen, botY - Math.sin(finAngle) * finLen);
+                ctxGeom.moveTo(bL, botY);
+                ctxGeom.lineTo(bL + Math.cos(finAngle) * finLen, botY + Math.sin(finAngle) * finLen);
+                ctxGeom.moveTo(bR, botY);
+                ctxGeom.lineTo(bR - Math.cos(finAngle) * finLen, botY - Math.sin(finAngle) * finLen);
+                ctxGeom.moveTo(bR, botY);
+                ctxGeom.lineTo(bR - Math.cos(finAngle) * finLen, botY + Math.sin(finAngle) * finLen);
+                ctxGeom.stroke();
+
+                if (geomState.revealRulers) {
+                    ctxGeom.save();
+                    ctxGeom.strokeStyle = '#be123c';
+                    ctxGeom.lineWidth = 2.5;
+                    ctxGeom.setLineDash([6, 4]);
+                    ctxGeom.beginPath();
+                    ctxGeom.moveTo(tL, 85);
+                    ctxGeom.lineTo(tL, 355);
+                    ctxGeom.moveTo(tR, 85);
+                    ctxGeom.lineTo(tR, 355);
+                    ctxGeom.stroke();
+                    ctxGeom.restore();
+
+                    const diff = botLen - topLen;
+                    const pct = ((diff / topLen) * 100).toFixed(1);
+                    const verdict = diff === 0
+                        ? 'Exact Match! (0% Error)'
+                        : `Your bottom shaft is ${Math.abs(diff)}px (${Math.abs(pct)}%) ${diff > 0 ? 'LONGER' : 'SHORTER'} than the 260px top shaft!`;
+
+                    ctxGeom.fillStyle = '#0f172a';
+                    ctxGeom.font = '700 13.5px sans-serif';
+                    ctxGeom.textAlign = 'center';
+                    ctxGeom.fillText(verdict, cx, 395);
+                }
+            }
+        }
+
+        document.getElementById('btn-geom-cafe').addEventListener('click', (e) => {
+            geomState.subMode = 'cafe';
+            e.currentTarget.classList.add('active');
+            e.currentTarget.setAttribute('aria-pressed', 'true');
+            const mullerBtn = document.getElementById('btn-geom-muller');
+            mullerBtn.classList.remove('active');
+            mullerBtn.setAttribute('aria-pressed', 'false');
+            document.getElementById('controls-cafe').style.display = 'flex';
+            document.getElementById('controls-muller').style.display = 'none';
+
+            document.getElementById('geom-locus-tag').textContent = 'Anatomical Locus: V1 Orientation-Selective Simple Cells';
+            document.getElementById('geom-bio-title').textContent = 'Why Your Eye Does This: Irradiation & Edge Tilt';
+            document.getElementById('geom-bio-p1').innerHTML = 'In the <strong>Caf&eacute; Wall Illusion</strong>, every horizontal mortar line is 100% straight and parallel. However, bright white tiles appear slightly larger to the eye than dark black tiles (the <em>irradiation illusion</em>).';
+            document.getElementById('geom-bio-p2').innerHTML = 'Where a white tile sits opposite a black tile across a <strong>mid-gray mortar line</strong>, V1 orientation-selective neurons link the corners diagonally, creating local wedges that tilt the row.';
+            document.getElementById('geom-bio-callout').innerHTML = '<strong>Try the Mortar Slider:</strong> Slide mortar brightness to pure black (0) or pure white (255)—the diagonal corner contrast vanishes and the lines snap level!';
+            renderGeometricIllusion();
+            announceStatus('Switched to Cafe Wall Illusion');
+        });
+
+        document.getElementById('btn-geom-muller').addEventListener('click', (e) => {
+            geomState.subMode = 'muller';
+            e.currentTarget.classList.add('active');
+            e.currentTarget.setAttribute('aria-pressed', 'true');
+            const cafeBtn = document.getElementById('btn-geom-cafe');
+            cafeBtn.classList.remove('active');
+            cafeBtn.setAttribute('aria-pressed', 'false');
+            document.getElementById('controls-cafe').style.display = 'none';
+            document.getElementById('controls-muller').style.display = 'flex';
+
+            document.getElementById('geom-locus-tag').textContent = 'Anatomical Locus: Parietal & Extrastriate Size-Constancy Circuits';
+            document.getElementById('geom-bio-title').textContent = 'Why Your Eye Does This: Misapplied 3D Depth Cues';
+            document.getElementById('geom-bio-p1').innerHTML = 'In the <strong>M&uuml;ller-Lyer Illusion</strong>, inward-pointing fins (&gt;&mdash;&lt;) resemble the far inside corner of a room, while outward arrowhead fins (&lt;&mdash;&gt;) resemble the near outside corner of a building.';
+            document.getElementById('geom-bio-p2').innerHTML = 'Because your brain automatically scales perceived size by estimated distance (<em>size constancy</em>), it interprets the &ldquo;farther&rdquo; shaft as physically longer—leading most people to stretch the bottom line 15&ndash;25% too long!';
+            document.getElementById('geom-bio-callout').innerHTML = '<strong>Test Yourself:</strong> Adjust the bottom line slider until both horizontal shafts look equal, then click <strong>Reveal Truth</strong> to measure your perceptual error.';
+            renderGeometricIllusion();
+            announceStatus('Switched to Muller-Lyer Length Matching Test');
+        });
+
+        document.getElementById('slider-cafe-mortar').addEventListener('input', (e) => {
+            geomState.mortarLum = Number(e.target.value);
+            document.getElementById('val-cafe-mortar').textContent = geomState.mortarLum;
+            renderGeometricIllusion();
+        });
+
+        document.getElementById('slider-muller-len').addEventListener('input', (e) => {
+            geomState.mullerBottomLen = Number(e.target.value);
+            document.getElementById('val-muller-len').textContent = `${geomState.mullerBottomLen}px`;
+            renderGeometricIllusion();
+        });
+
+        document.getElementById('btn-geom-truth').addEventListener('click', (e) => {
+            geomState.revealRulers = !geomState.revealRulers;
+            const btn = e.currentTarget;
+            btn.classList.toggle('active', geomState.revealRulers);
+            btn.setAttribute('aria-pressed', geomState.revealRulers ? 'true' : 'false');
+            btn.querySelector('span').textContent = geomState.revealRulers
+                ? 'Hide Alignment Rulers'
+                : 'Reveal Truth: Overlay Parallel Rulers';
+            renderGeometricIllusion();
+            if (geomState.revealRulers && geomState.subMode === 'muller') {
+                const diff = geomState.mullerBottomLen - 260;
+                announceStatus(`Alignment rulers shown: bottom line is ${geomState.mullerBottomLen} pixels compared to 260 pixels top line`);
+            } else {
+                announceStatus(geomState.revealRulers ? 'Overlaid parallel alignment rulers' : 'Hid alignment rulers');
+            }
+        });
+
+        // =====================================================================
+        // EXPERIMENT 6: WATERFALL ILLUSION & STATIC PERIPHERAL DRIFT
+        // =====================================================================
+        const canvasMotion = document.getElementById('canvas-motion');
+        const ctxMotion = canvasMotion.getContext('2d');
+
+        const motionState = {
+            mode: 'spiral',
+            spinning: !prefersReducedMotion,
+            direction: -1,
+            phase: 0,
+            spinStartTime: 0
+        };
+
+        function syncMotionToggleButton() {
+            const btn = document.getElementById('btn-motion-toggle');
+            const label = document.getElementById('motion-toggle-label');
+            const timerBadge = document.getElementById('motion-timer-badge');
+            if (motionState.spinning) {
+                label.textContent = 'Stop Motion (Trigger Aftereffect!)';
+                btn.classList.remove('active');
+                btn.setAttribute('aria-pressed', 'false');
+            } else {
+                label.textContent = 'Start / Restart Spiral Motion';
+                btn.classList.add('active');
+                btn.setAttribute('aria-pressed', 'true');
+                timerBadge.textContent = 'Stopped — Stare at center dot!';
+            }
+        }
+
+        function drawMotionFrame(timestamp) {
+            if (activePanelId !== 'panel-motion') return;
+
+            const w = canvasMotion.width;
+            const h = canvasMotion.height;
+            const cx = w / 2;
+            const cy = h / 2;
+
+            if (motionState.mode === 'spiral') {
+                ctxMotion.fillStyle = '#0f172a';
+                ctxMotion.fillRect(0, 0, w, h);
+
+                if (motionState.spinning) {
+                    motionState.phase += 0.085 * motionState.direction;
+                    const sec = ((timestamp - motionState.spinStartTime) / 1000).toFixed(1);
+                    document.getElementById('motion-timer-badge').textContent =
+                        `Fixation Timer: ${sec}s ${sec >= 10 ? '(Ready! Click Stop Motion!)' : '(Stare at center dot!)'}`;
+                }
+
+                ctxMotion.save();
+                ctxMotion.beginPath();
+                ctxMotion.arc(cx, cy, 195, 0, Math.PI * 2);
+                ctxMotion.clip();
+
+                const arms = 4;
+                const maxR = 210;
+                const stepR = 4;
+
+                for (let arm = 0; arm < arms; arm++) {
+                    const baseAngle = (arm / arms) * Math.PI * 2 + motionState.phase;
+                    ctxMotion.fillStyle = (arm % 2 === 0) ? '#f8fafc' : '#0f172a';
+                    ctxMotion.beginPath();
+                    ctxMotion.moveTo(cx, cy);
+
+                    for (let r = 0; r <= maxR; r += stepR) {
+                        const a = baseAngle + r * 0.048;
+                        ctxMotion.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+                    }
+                    for (let r = maxR; r >= 0; r -= stepR) {
+                        const a = baseAngle + Math.PI / arms + r * 0.048;
+                        ctxMotion.lineTo(cx + Math.cos(a) * r, cy + Math.sin(a) * r);
+                    }
+                    ctxMotion.closePath();
+                    ctxMotion.fill();
+                }
+                ctxMotion.restore();
+
+                ctxMotion.fillStyle = '#e11d48';
+                ctxMotion.beginPath();
+                ctxMotion.arc(cx, cy, 8, 0, Math.PI * 2);
+                ctxMotion.fill();
+                ctxMotion.fillStyle = '#ffffff';
+                ctxMotion.beginPath();
+                ctxMotion.arc(cx, cy, 2.5, 0, Math.PI * 2);
+                ctxMotion.fill();
+
+                if (!motionState.spinning) {
+                    ctxMotion.fillStyle = 'rgba(15, 23, 42, 0.9)';
+                    ctxMotion.fillRect(cx - 220, h - 36, 440, 26);
+                    ctxMotion.fillStyle = '#7dd3fc';
+                    ctxMotion.font = '700 12.5px sans-serif';
+                    ctxMotion.textAlign = 'center';
+                    ctxMotion.fillText('MOTION STOPPED: Keep staring at the red dot — watch it expand/contract!', cx, h - 19);
+                }
+            } else {
+                ctxMotion.fillStyle = '#cbd5e1';
+                ctxMotion.fillRect(0, 0, w, h);
+
+                const wheels = [
+                    { x: 175, y: 145, dir: 1 },
+                    { x: 465, y: 145, dir: -1 },
+                    { x: 175, y: 315, dir: -1 },
+                    { x: 465, y: 315, dir: 1 }
+                ];
+
+                const palette = ['#090d16', '#2563eb', '#ffffff', '#facc15'];
+
+                wheels.forEach(wh => {
+                    const rings = [88, 66, 46, 28];
+                    rings.forEach((r, rIdx) => {
+                        const segs = 24;
+                        const twist = rIdx * 0.14 * wh.dir;
+                        for (let s = 0; s < segs; s++) {
+                            const a0 = (s / segs) * Math.PI * 2 + twist;
+                            const a1 = ((s + 1) / segs) * Math.PI * 2 + twist;
+                            const colorIdx = (wh.dir === 1 ? s : (segs - s)) % 4;
+                            ctxMotion.fillStyle = palette[colorIdx];
+                            ctxMotion.beginPath();
+                            ctxMotion.moveTo(wh.x, wh.y);
+                            ctxMotion.arc(wh.x, wh.y, r, a0, a1);
+                            ctxMotion.closePath();
+                            ctxMotion.fill();
+                        }
+                    });
+                    ctxMotion.fillStyle = '#0f172a';
+                    ctxMotion.beginPath();
+                    ctxMotion.arc(wh.x, wh.y, 12, 0, Math.PI * 2);
+                    ctxMotion.fill();
+                });
+
+                ctxMotion.fillStyle = '#be123c';
+                ctxMotion.beginPath();
+                ctxMotion.arc(cx, cy, 7, 0, Math.PI * 2);
+                ctxMotion.fill();
+
+                ctxMotion.fillStyle = '#0f172a';
+                ctxMotion.font = '700 12.5px sans-serif';
+                ctxMotion.textAlign = 'center';
+                ctxMotion.fillText('100% STATIC IMAGE: Scan your eyes around to see wheels turn; stare at red dot to freeze!', cx, h - 14);
+            }
+
+            motionRafId = requestAnimationFrame(drawMotionFrame);
+        }
+
+        function startMotionLoop() {
+            syncMotionToggleButton();
+            motionState.spinStartTime = performance.now();
+            motionRafId = requestAnimationFrame(drawMotionFrame);
+        }
+
+        document.getElementById('btn-motion-spiral').addEventListener('click', (e) => {
+            motionState.mode = 'spiral';
+            motionState.spinning = !prefersReducedMotion;
+            motionState.spinStartTime = performance.now();
+            e.currentTarget.classList.add('active');
+            e.currentTarget.setAttribute('aria-pressed', 'true');
+            const driftBtn = document.getElementById('btn-motion-drift');
+            driftBtn.classList.remove('active');
+            driftBtn.setAttribute('aria-pressed', 'false');
+            document.getElementById('motion-spiral-controls').style.display = 'flex';
+            document.getElementById('btn-motion-toggle').style.display = 'inline-flex';
+            syncMotionToggleButton();
+            announceStatus('Switched to Motion Aftereffect Spiral');
+        });
+
+        document.getElementById('btn-motion-drift').addEventListener('click', (e) => {
+            motionState.mode = 'drift';
+            e.currentTarget.classList.add('active');
+            e.currentTarget.setAttribute('aria-pressed', 'true');
+            const spiralBtn = document.getElementById('btn-motion-spiral');
+            spiralBtn.classList.remove('active');
+            spiralBtn.setAttribute('aria-pressed', 'false');
+            document.getElementById('motion-spiral-controls').style.display = 'none';
+            document.getElementById('btn-motion-toggle').style.display = 'none';
+            announceStatus('Switched to Static Peripheral Drift Rings: completely stationary image');
+        });
+
+        document.getElementById('btn-motion-toggle').addEventListener('click', () => {
+            motionState.spinning = !motionState.spinning;
+            if (motionState.spinning) {
+                motionState.spinStartTime = performance.now();
+            }
+            syncMotionToggleButton();
+            announceStatus(motionState.spinning
+                ? 'Spiral motion started'
+                : 'Spiral motion stopped: observe apparent illusory motion in the opposite direction');
+        });
+
+        document.getElementById('btn-dir-in').addEventListener('click', (e) => {
+            motionState.direction = -1;
+            motionState.spinStartTime = performance.now();
+            e.currentTarget.classList.add('active');
+            e.currentTarget.setAttribute('aria-pressed', 'true');
+            const outBtn = document.getElementById('btn-dir-out');
+            outBtn.classList.remove('active');
+            outBtn.setAttribute('aria-pressed', 'false');
+            announceStatus('Spiral direction set to contract inward');
+        });
+
+        document.getElementById('btn-dir-out').addEventListener('click', (e) => {
+            motionState.direction = 1;
+            motionState.spinStartTime = performance.now();
+            e.currentTarget.classList.add('active');
+            e.currentTarget.setAttribute('aria-pressed', 'true');
+            const inBtn = document.getElementById('btn-dir-in');
+            inBtn.classList.remove('active');
+            inBtn.setAttribute('aria-pressed', 'false');
+            announceStatus('Spiral direction set to expand outward');
+        });
+
+        // Initialize on Load
+        window.addEventListener('DOMContentLoaded', () => {
+            if (prefersReducedMotion) {
+                document.getElementById('reduced-motion-banner').classList.add('visible');
+            }
+            renderHermannGrid();
+        });
+    </script>
+</body>
+</html>
