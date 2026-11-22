@@ -1,0 +1,1775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nervous System: Signal, Structure & Synapse Studio</title>
+  <!-- Google Fonts: Fraunces for headers, Plus Jakarta Sans & Inter for crisp UI -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            serif: ['Fraunces', 'Georgia', 'serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            canvas: '#FAF8F5',
+            surface: '#FFFFFF',
+            stoneBorder: '#E6E1D8',
+            tealPrimary: '#0F6E6E',
+            tealSoft: '#E6F3F3',
+            amberIon: '#D97706',
+            amberSoft: '#FEF3C7',
+            indigoIon: '#4338CA',
+            indigoSoft: '#E0E7FF',
+            coralChem: '#DC2626',
+            coralSoft: '#FEE2E2',
+            ink: '#1E293B',
+            muted: '#64748B'
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #FAF8F5;
+      color: #1E293B;
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .studio-card {
+      background: #FFFFFF;
+      border: 1px solid #E6E1D8;
+      border-radius: 1rem;
+      box-shadow: 0 2px 10px rgba(30, 41, 59, 0.03);
+    }
+    .tab-btn {
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .tab-btn-active {
+      background-color: #0F6E6E;
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(15, 110, 110, 0.22);
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.75; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.06); }
+    }
+    .animate-pulse-soft {
+      animation: pulseGlow 2.2s infinite ease-in-out;
+    }
+    @keyframes dashFlow {
+      to { stroke-dashoffset: -24; }
+    }
+    .animate-flow {
+      stroke-dasharray: 6 6;
+      animation: dashFlow 0.8s linear infinite;
+    }
+    /* Custom scrollbar for subtle polish */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #FAF8F5; }
+    ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Top Navigation & Studio Header -->
+  <header class="bg-white border-b border-stoneBorder sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-tealPrimary flex items-center justify-center text-white shadow-sm shrink-0">
+          <!-- Custom SVG Neuron Emblem -->
+          <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="8" cy="12" r="3" fill="currentColor" fill-opacity="0.25"/>
+            <path d="M5 10L2 7M5 14L2 17M8 9L6 4M11 12H20M20 12L22 9M20 12L22 15" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full bg-tealSoft text-tealPrimary font-semibold">Introductory Biology Studio</span>
+          </div>
+          <h1 class="font-serif text-xl sm:text-2xl font-bold text-ink tracking-tight leading-tight">
+            Nervous System: Signal, Structure &amp; Synapse
+          </h1>
+        </div>
+      </div>
+
+      <!-- 3-Tab Navigation -->
+      <nav class="flex flex-wrap sm:flex-nowrap bg-canvas p-1 rounded-xl border border-stoneBorder gap-1" aria-label="Studio Modules">
+        <button id="tab-btn-1" onclick="switchTab(1)" class="tab-btn tab-btn-active flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-center gap-2">
+          <span class="w-5 h-5 rounded-full bg-white/20 text-[11px] flex items-center justify-center font-mono">1</span>
+          <span>Neuron &amp; Cell Types</span>
+        </button>
+        <button id="tab-btn-2" onclick="switchTab(2)" class="tab-btn text-slate-600 hover:text-ink flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-center gap-2">
+          <span class="w-5 h-5 rounded-full bg-slate-200/70 text-slate-700 text-[11px] flex items-center justify-center font-mono">2</span>
+          <span>Action Potential</span>
+        </button>
+        <button id="tab-btn-3" onclick="switchTab(3)" class="tab-btn text-slate-600 hover:text-ink flex-1 sm:flex-initial px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center justify-center gap-2">
+          <span class="w-5 h-5 rounded-full bg-slate-200/70 text-slate-700 text-[11px] flex items-center justify-center font-mono">3</span>
+          <span>Synapse &amp; Pathways</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Causal Bridge Strip: Connects all 3 levels visually -->
+    <div class="bg-[#F4F1EA] border-t border-stoneBorder/70 px-4 py-1.5 text-xs text-slate-600">
+      <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2 overflow-x-auto py-0.5">
+          <span class="font-semibold text-tealPrimary whitespace-nowrap">Causal Chain:</span>
+          <span class="px-2 py-0.5 rounded bg-white border border-stoneBorder whitespace-nowrap">1. Dendrites receive input</span>
+          <span>→</span>
+          <span class="px-2 py-0.5 rounded bg-amberSoft/70 border border-amber-200 text-amber-900 whitespace-nowrap">2. Axon fires electrical AP (Na⁺/K⁺)</span>
+          <span>→</span>
+          <span class="px-2 py-0.5 rounded bg-coralSoft/70 border border-red-200 text-red-900 whitespace-nowrap">3. Synapse releases neurotransmitters</span>
+          <span>→</span>
+          <span class="px-2 py-0.5 rounded bg-indigoSoft/70 border border-indigo-200 text-indigo-900 whitespace-nowrap">4. Circuit triggers effector response</span>
+        </div>
+        <span class="hidden xl:inline text-[11px] text-muted">Click any structure, ion gate, or pathway node to inspect mechanism</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- =====================================================================
+         TAB 1: NEURON ANATOMY & CELL TYPES (STRUCTURE <-> FUNCTION)
+         ===================================================================== -->
+    <section id="tab-panel-1" class="space-y-6">
+      <!-- Top Row: Interactive Neuron + Glia Canvas & Inspector/Matching Panel -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left 8 Cols: Interactive SVG Diagram -->
+        <div class="lg:col-span-8 studio-card p-5 flex flex-col">
+          <div class="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-stoneBorder">
+            <div>
+              <h2 class="font-serif text-lg sm:text-xl font-bold text-ink">Neuron Structure &amp; Glial Support Cells</h2>
+              <p class="text-xs sm:text-sm text-muted">Connect physical anatomy to signal direction and glial insulation.</p>
+            </div>
+            <!-- Explore vs Diagram Matching Mode Toggle -->
+            <div class="inline-flex rounded-xl bg-canvas p-1 border border-stoneBorder">
+              <button id="t1-mode-explore" onclick="setT1Mode('explore')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-tealPrimary text-white shadow-sm transition">
+                Explore Anatomy
+              </button>
+              <button id="t1-mode-match" onclick="setT1Mode('match')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-ink transition flex items-center gap-1.5">
+                <span>Diagram Matching (1–6)</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- SVG Canvas -->
+          <div class="relative my-3 bg-[#FCFBF9] rounded-xl border border-stoneBorder/80 p-2 sm:p-4 overflow-hidden">
+            <svg id="neuron-svg" viewBox="0 0 820 430" class="w-full h-auto select-none">
+              <defs>
+                <radialGradient id="somaGrad" cx="40%" cy="40%" r="60%">
+                  <stop offset="0%" stop-color="#E6F3F3"/>
+                  <stop offset="70%" stop-color="#B8DFDF"/>
+                  <stop offset="100%" stop-color="#76BABA"/>
+                </radialGradient>
+                <linearGradient id="myelinGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                  <stop offset="0%" stop-color="#FDE68A"/>
+                  <stop offset="50%" stop-color="#F59E0B"/>
+                  <stop offset="100%" stop-color="#B45309"/>
+                </linearGradient>
+                <marker id="arrowTeal" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#0F6E6E"/>
+                </marker>
+              </defs>
+
+              <!-- Background Region Divider: CNS vs PNS Support Glia -->
+              <rect x="14" y="14" width="380" height="34" rx="8" fill="#E0E7FF" fill-opacity="0.55"/>
+              <text x="26" y="35" font-size="11" font-weight="700" fill="#4338CA" font-family="Inter, sans-serif">RECEIVING &amp; INTEGRATION ZONE (Soma / CNS)</text>
+
+              <rect x="410" y="14" width="396" height="34" rx="8" fill="#FEF3C7" fill-opacity="0.65"/>
+              <text x="424" y="35" font-size="11" font-weight="700" fill="#B45309" font-family="Inter, sans-serif">CONDUCTING &amp; TRANSMITTING ZONE (Axon / PNS or CNS)</text>
+
+              <!-- Signal Direction Banner -->
+              <line x1="160" y1="395" x2="660" y2="395" stroke="#0F6E6E" stroke-width="2.5" marker-end="url(#arrowTeal)" class="animate-flow"/>
+              <rect x="295" y="382" width="230" height="24" rx="12" fill="#FFFFFF" stroke="#0F6E6E" stroke-width="1.2"/>
+              <text x="410" y="398" text-anchor="middle" font-size="11" font-weight="700" fill="#0F6E6E" font-family="Inter, sans-serif">ONE-WAY ELECTRICAL SIGNAL FLOW</text>
+
+              <!-- 2: DENDRITES (Branching tree on left) -->
+              <g id="part-2" onclick="selectT1Part(2)" class="cursor-pointer group">
+                <path d="M165 185 C135 165, 110 130, 82 105 M112 135 C95 135, 78 145, 62 142 M132 155 C128 125, 138 100, 128 78" stroke="#0F6E6E" stroke-width="5" stroke-linecap="round" fill="none"/>
+                <path d="M155 205 C118 205, 88 192, 54 198 M95 198 C80 182, 65 174, 48 175 M85 200 C72 215, 58 225, 42 224" stroke="#0F6E6E" stroke-width="5" stroke-linecap="round" fill="none"/>
+                <path d="M168 230 C135 252, 112 285, 84 312 M115 280 C95 278, 76 268, 58 272 M135 255 C132 285, 142 312, 134 335" stroke="#0F6E6E" stroke-width="5" stroke-linecap="round" fill="none"/>
+                <path d="M195 162 C192 128, 205 98, 195 72 M198 118 C215 104, 228 92, 242 88" stroke="#0F6E6E" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+                <path d="M198 252 C195 285, 208 315, 198 340 M200 296 C218 310, 232 322, 246 325" stroke="#0F6E6E" stroke-width="4.5" stroke-linecap="round" fill="none"/>
+                <!-- Invisible wider hit target -->
+                <circle cx="105" cy="205" r="72" fill="transparent"/>
+              </g>
+
+              <!-- 5: AXON (Core fiber extending from Axon Hillock to Terminals) -->
+              <g id="part-5" onclick="selectT1Part(5)" class="cursor-pointer">
+                <!-- Axon Hillock funnel -->
+                <path d="M242 188 Q272 198 295 199 L635 199 L635 215 L295 215 Q272 216 242 226 Z" fill="#5EEAD4" stroke="#0F6E6E" stroke-width="2"/>
+                <text x="275" y="176" text-anchor="middle" font-size="10" font-weight="600" fill="#0F6E6E" font-family="Inter, sans-serif">Axon Hillock</text>
+                <line x1="275" y1="180" x2="275" y2="195" stroke="#0F6E6E" stroke-width="1.2" stroke-dasharray="2 2"/>
+              </g>
+
+              <!-- 1: CELL BODY / SOMA -->
+              <g id="part-1" onclick="selectT1Part(1)" class="cursor-pointer">
+                <path d="M162 182 C175 155, 215 152, 238 178 C252 194, 252 220, 238 236 C215 262, 175 258, 162 232 C152 214, 152 198, 162 182 Z" fill="url(#somaGrad)" stroke="#0F6E6E" stroke-width="2.5"/>
+              </g>
+
+              <!-- 6: NUCLEUS -->
+              <g id="part-6" onclick="selectT1Part(6)" class="cursor-pointer">
+                <circle cx="200" cy="207" r="21" fill="#4338CA" fill-opacity="0.85" stroke="#312E81" stroke-width="2"/>
+                <circle cx="194" cy="201" r="6" fill="#A5B4FC" fill-opacity="0.7"/>
+              </g>
+
+              <!-- 3: MYELIN SHEATH (Schwann cells / Oligodendrocytes) & Nodes of Ranvier -->
+              <g id="part-3" onclick="selectT1Part(3)" class="cursor-pointer">
+                <!-- Segment 1 -->
+                <rect x="308" y="185" width="68" height="44" rx="14" fill="url(#myelinGrad)" stroke="#92400E" stroke-width="1.8"/>
+                <ellipse cx="342" cy="193" rx="8" ry="4" fill="#78350F" fill-opacity="0.55"/>
+                <!-- Segment 2 -->
+                <rect x="394" y="185" width="68" height="44" rx="14" fill="url(#myelinGrad)" stroke="#92400E" stroke-width="1.8"/>
+                <ellipse cx="428" cy="193" rx="8" ry="4" fill="#78350F" fill-opacity="0.55"/>
+                <!-- Segment 3 -->
+                <rect x="480" y="185" width="68" height="44" rx="14" fill="url(#myelinGrad)" stroke="#92400E" stroke-width="1.8"/>
+                <ellipse cx="514" cy="193" rx="8" ry="4" fill="#78350F" fill-opacity="0.55"/>
+                <!-- Segment 4 -->
+                <rect x="566" y="185" width="62" height="44" rx="14" fill="url(#myelinGrad)" stroke="#92400E" stroke-width="1.8"/>
+                <ellipse cx="597" cy="193" rx="8" ry="4" fill="#78350F" fill-opacity="0.55"/>
+
+                <!-- Node of Ranvier callout -->
+                <text x="385" y="253" text-anchor="middle" font-size="10" font-weight="600" fill="#B45309" font-family="Inter, sans-serif">Nodes of Ranvier (Na⁺/K⁺ channels)</text>
+                <path d="M385 240 L385 220 M471 240 L471 220" stroke="#B45309" stroke-width="1.2" stroke-dasharray="2 2"/>
+              </g>
+
+              <!-- 4: AXON TERMINALS / SYNAPTIC BOUTONS -->
+              <g id="part-4" onclick="selectT1Part(4)" class="cursor-pointer">
+                <path d="M635 203 C665 188, 690 155, 725 138" stroke="#0F6E6E" stroke-width="4" stroke-linecap="round" fill="none"/>
+                <path d="M685 166 C705 166, 725 174, 745 172" stroke="#0F6E6E" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                <path d="M635 207 C675 207, 710 207, 752 207" stroke="#0F6E6E" stroke-width="4" stroke-linecap="round" fill="none"/>
+                <path d="M635 211 C665 228, 690 260, 725 278" stroke="#0F6E6E" stroke-width="4" stroke-linecap="round" fill="none"/>
+                <path d="M685 248 C705 248, 725 240, 745 242" stroke="#0F6E6E" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                <!-- Synaptic Terminal Boutons -->
+                <circle cx="728" cy="136" r="8" fill="#DC2626" stroke="#FFFFFF" stroke-width="2"/>
+                <circle cx="748" cy="172" r="8" fill="#DC2626" stroke="#FFFFFF" stroke-width="2"/>
+                <circle cx="756" cy="207" r="8" fill="#DC2626" stroke="#FFFFFF" stroke-width="2"/>
+                <circle cx="748" cy="242" r="8" fill="#DC2626" stroke="#FFFFFF" stroke-width="2"/>
+                <circle cx="728" cy="279" r="8" fill="#DC2626" stroke="#FFFFFF" stroke-width="2"/>
+                <circle cx="725" cy="207" r="52" fill="transparent"/>
+              </g>
+
+              <!-- Glial Cell Mini-Badges at Bottom Left/Right -->
+              <g id="part-glia" onclick="selectT1Part(7)" class="cursor-pointer">
+                <rect x="22" y="346" width="235" height="30" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.2"/>
+                <circle cx="38" cy="361" r="7" fill="#4338CA" fill-opacity="0.2" stroke="#4338CA" stroke-width="1.5"/>
+                <text x="52" y="365" font-size="11" font-weight="600" fill="#1E293B" font-family="Inter, sans-serif">Click to inspect Glial Support Cells</text>
+              </g>
+
+              <!-- NUMBERED PINS (1 to 6 matching Study Guide exactly!) -->
+              <!-- Pin 1: Cell Body -->
+              <g id="pin-1" onclick="handleT1PinClick(1)" class="cursor-pointer" transform="translate(172, 162)">
+                <line x1="12" y1="12" x2="24" y2="28" stroke="#1E293B" stroke-width="1.5"/>
+                <circle cx="0" cy="0" r="15" fill="#FFFFFF" stroke="#0F6E6E" stroke-width="2.5"/>
+                <text x="0" y="4.5" text-anchor="middle" font-size="13" font-weight="700" fill="#0F6E6E" font-family="JetBrains Mono, monospace">1</text>
+              </g>
+
+              <!-- Pin 2: Dendrite -->
+              <g id="pin-2" onclick="handleT1PinClick(2)" class="cursor-pointer" transform="translate(95, 86)">
+                <line x1="0" y1="14" x2="0" y2="28" stroke="#1E293B" stroke-width="1.5"/>
+                <circle cx="0" cy="0" r="15" fill="#FFFFFF" stroke="#0F6E6E" stroke-width="2.5"/>
+                <text x="0" y="4.5" text-anchor="middle" font-size="13" font-weight="700" fill="#0F6E6E" font-family="JetBrains Mono, monospace">2</text>
+              </g>
+
+              <!-- Pin 3: Myelin Sheath -->
+              <g id="pin-3" onclick="handleT1PinClick(3)" class="cursor-pointer" transform="translate(428, 146)">
+                <line x1="0" y1="15" x2="0" y2="38" stroke="#1E293B" stroke-width="1.5"/>
+                <circle cx="0" cy="0" r="15" fill="#FFFFFF" stroke="#D97706" stroke-width="2.5"/>
+                <text x="0" y="4.5" text-anchor="middle" font-size="13" font-weight="700" fill="#B45309" font-family="JetBrains Mono, monospace">3</text>
+              </g>
+
+              <!-- Pin 4: Axon Terminal -->
+              <g id="pin-4" onclick="handleT1PinClick(4)" class="cursor-pointer" transform="translate(765, 118)">
+                <line x1="-10" y1="10" x2="-28" y2="18" stroke="#1E293B" stroke-width="1.5"/>
+                <circle cx="0" cy="0" r="15" fill="#FFFFFF" stroke="#DC2626" stroke-width="2.5"/>
+                <text x="0" y="4.5" text-anchor="middle" font-size="13" font-weight="700" fill="#DC2626" font-family="JetBrains Mono, monospace">4</text>
+              </g>
+
+              <!-- Pin 5: Axon -->
+              <g id="pin-5" onclick="handleT1PinClick(5)" class="cursor-pointer" transform="translate(557, 268)">
+                <line x1="0" y1="-15" x2="0" y2="-52" stroke="#1E293B" stroke-width="1.5"/>
+                <circle cx="0" cy="0" r="15" fill="#FFFFFF" stroke="#0F6E6E" stroke-width="2.5"/>
+                <text x="0" y="4.5" text-anchor="middle" font-size="13" font-weight="700" fill="#0F6E6E" font-family="JetBrains Mono, monospace">5</text>
+              </g>
+
+              <!-- Pin 6: Nucleus -->
+              <g id="pin-6" onclick="handleT1PinClick(6)" class="cursor-pointer" transform="translate(222, 266)">
+                <line x1="-8" y1="-12" x2="-18" y2="-42" stroke="#1E293B" stroke-width="1.5"/>
+                <circle cx="0" cy="0" r="15" fill="#FFFFFF" stroke="#4338CA" stroke-width="2.5"/>
+                <text x="0" y="4.5" text-anchor="middle" font-size="13" font-weight="700" fill="#4338CA" font-family="JetBrains Mono, monospace">6</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Quick Structure Pills Bar -->
+          <div class="flex flex-wrap items-center gap-1.5 pt-1">
+            <span class="text-xs font-semibold text-muted mr-1">Jump to structure:</span>
+            <button onclick="selectT1Part(2)" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-canvas hover:bg-tealSoft text-ink border border-stoneBorder transition">2. Dendrite</button>
+            <button onclick="selectT1Part(1)" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-canvas hover:bg-tealSoft text-ink border border-stoneBorder transition">1. Cell Body</button>
+            <button onclick="selectT1Part(6)" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-canvas hover:bg-tealSoft text-ink border border-stoneBorder transition">6. Nucleus</button>
+            <button onclick="selectT1Part(5)" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-canvas hover:bg-tealSoft text-ink border border-stoneBorder transition">5. Axon</button>
+            <button onclick="selectT1Part(3)" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-canvas hover:bg-amberSoft text-ink border border-stoneBorder transition">3. Myelin Sheath</button>
+            <button onclick="selectT1Part(4)" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-canvas hover:bg-coralSoft text-ink border border-stoneBorder transition">4. Axon Terminal</button>
+            <button onclick="selectT1Part(7)" class="px-2.5 py-1 rounded-lg text-xs font-medium bg-indigoSoft/60 hover:bg-indigoSoft text-indigoIon border border-indigo-200 transition">Glial Cells</button>
+          </div>
+        </div>
+
+        <!-- Right 4 Cols: Dynamic Structure Inspector OR Diagram Matching Panel -->
+        <div class="lg:col-span-4 studio-card p-5 flex flex-col justify-between">
+          <!-- EXPLORE INSPECTOR -->
+          <div id="t1-explore-panel" class="space-y-4">
+            <div class="flex items-center justify-between">
+              <span id="t1-part-badge" class="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-tealSoft text-tealPrimary">STRUCTURE #2</span>
+              <span id="t1-part-zone" class="text-xs font-medium text-muted">Input Zone</span>
+            </div>
+            <div>
+              <h3 id="t1-part-title" class="font-serif text-xl font-bold text-ink">Dendrites</h3>
+              <p id="t1-part-role" class="text-sm font-medium text-tealPrimary mt-0.5">Receive incoming chemical signals from upstream neurons</p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-canvas border border-stoneBorder space-y-2 text-xs sm:text-sm leading-relaxed text-slate-700">
+              <p id="t1-part-desc">
+                Highly branched extensions projecting from the cell body. Their large surface area houses neurotransmitter receptors that convert chemical signals back into small graded electrical currents flowing toward the soma.
+              </p>
+            </div>
+            <div class="p-3.5 rounded-xl bg-amberSoft/40 border border-amber-200/80 space-y-1">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-amber-900">How It Connects to Firing &amp; Synapses</div>
+              <p id="t1-part-bridge" class="text-xs text-amber-950 leading-relaxed">
+                If enough excitatory signals arrive at the dendrites simultaneously, the depolarization reaches the <strong>Axon Hillock</strong> and crosses threshold (-55 mV) to launch an all-or-nothing Action Potential.
+              </p>
+            </div>
+          </div>
+
+          <!-- DIAGRAM MATCHING PANEL (Hidden in Explore Mode) -->
+          <div id="t1-match-panel" class="hidden space-y-4">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-amberSoft text-amber-900">STUDY GUIDE CHECK</span>
+              <span id="t1-match-score" class="text-xs font-mono font-bold text-tealPrimary">0 / 6 Matched</span>
+            </div>
+            <div>
+              <h3 class="font-serif text-lg font-bold text-ink">Label the Neuron (1–6)</h3>
+              <p class="text-xs text-muted mt-0.5">1. Select a term chip below, then 2. Click its numbered pin (1–6) on the neuron diagram.</p>
+            </div>
+
+            <!-- Term Chips -->
+            <div id="t1-chips-container" class="grid grid-cols-2 gap-2">
+              <!-- Populated by JS -->
+            </div>
+
+            <div id="t1-match-feedback" class="p-3 rounded-xl bg-canvas border border-stoneBorder text-xs text-slate-700 min-h-[54px] flex items-center">
+              Select a term chip to begin matching the Study Guide diagram.
+            </div>
+
+            <div class="flex items-center gap-2 pt-2">
+              <button onclick="resetT1Matching()" class="w-full py-2 px-3 rounded-xl border border-stoneBorder text-xs font-semibold text-slate-700 hover:bg-canvas transition">
+                Reset Matching
+              </button>
+            </div>
+          </div>
+
+          <!-- Glial Cells Quick Reference Footer -->
+          <div class="mt-5 pt-4 border-t border-stoneBorder">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-muted mb-2">CNS vs. PNS Myelinating Glia</div>
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="p-2.5 rounded-lg bg-indigoSoft/50 border border-indigo-200/70">
+                <div class="font-bold text-indigoIon">Oligodendrocytes</div>
+                <div class="text-[11px] text-slate-600 mt-0.5">Myelinate axons in <strong>CNS</strong> (Brain &amp; Spinal Cord)</div>
+              </div>
+              <div class="p-2.5 rounded-lg bg-amberSoft/50 border border-amber-200/70">
+                <div class="font-bold text-amber-900">Schwann Cells</div>
+                <div class="text-[11px] text-slate-600 mt-0.5">Myelinate axons in <strong>PNS</strong> (Peripheral Nerves)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Row: Saltatory Conduction Comparator + 3 Functional Cell Types -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Saltatory vs Continuous Conduction Simulator (7 Cols) -->
+        <div class="lg:col-span-7 studio-card p-5 space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <span class="text-[11px] font-mono uppercase tracking-wider text-amberIon font-bold">Structure → Speed &amp; ATP Efficiency</span>
+              <h3 class="font-serif text-lg font-bold text-ink">Myelinated vs. Unmyelinated Axon Conduction</h3>
+            </div>
+            <button onclick="triggerConductionRace()" class="px-4 py-2 rounded-xl bg-tealPrimary hover:bg-teal-800 text-white text-xs font-semibold shadow-sm transition flex items-center gap-1.5">
+              <span>▶ Fire Both Axons</span>
+            </button>
+          </div>
+
+          <!-- Animated SVG Race Track -->
+          <div class="bg-[#FCFBF9] rounded-xl border border-stoneBorder p-3">
+            <svg viewBox="0 0 680 185" class="w-full h-auto">
+              <!-- Track 1: Myelinated Axon -->
+              <text x="12" y="22" font-size="11" font-weight="700" fill="#0F6E6E" font-family="Inter, sans-serif">A. Myelinated Axon (Saltatory Conduction — Jumps Node to Node)</text>
+              <line x1="20" y1="52" x2="650" y2="52" stroke="#99F6E4" stroke-width="10" stroke-linecap="round"/>
+              <!-- Myelin Blocks -->
+              <rect x="45" y="38" width="110" height="28" rx="9" fill="#F59E0B" stroke="#92400E" stroke-width="1.5"/>
+              <rect x="180" y="38" width="110" height="28" rx="9" fill="#F59E0B" stroke="#92400E" stroke-width="1.5"/>
+              <rect x="315" y="38" width="110" height="28" rx="9" fill="#F59E0B" stroke="#92400E" stroke-width="1.5"/>
+              <rect x="450" y="38" width="110" height="28" rx="9" fill="#F59E0B" stroke="#92400E" stroke-width="1.5"/>
+              <!-- Saltatory Jump Arcs -->
+              <path d="M167 35 Q235 12 302 35" fill="none" stroke="#D97706" stroke-width="1.5" stroke-dasharray="3 3"/>
+              <path d="M302 35 Q370 12 437 35" fill="none" stroke="#D97706" stroke-width="1.5" stroke-dasharray="3 3"/>
+              <path d="M437 35 Q505 12 572 35" fill="none" stroke="#D97706" stroke-width="1.5" stroke-dasharray="3 3"/>
+              <!-- Moving AP Pulse Myelinated -->
+              <circle id="race-myelin-pulse" cx="25" cy="52" r="10" fill="#DC2626" stroke="#FFFFFF" stroke-width="2.5"/>
+              <text id="race-myelin-status" x="655" y="56" text-anchor="end" font-size="11" font-mono font-bold fill="#0F6E6E">Ready</text>
+
+              <!-- Divider -->
+              <line x1="12" y1="92" x2="668" y2="92" stroke="#E6E1D8" stroke-width="1"/>
+
+              <!-- Track 2: Unmyelinated Axon -->
+              <text x="12" y="116" font-size="11" font-weight="700" fill="#4338CA" font-family="Inter, sans-serif">B. Unmyelinated Axon (Continuous Conduction — Depolarizes Every Patch)</text>
+              <rect x="20" y="136" width="630" height="14" rx="7" fill="#E0E7FF" stroke="#4338CA" stroke-width="1.5"/>
+              <!-- Tiny Na+ channel ticks all along -->
+              <g stroke="#4338CA" stroke-width="1.5" opacity="0.5">
+                <line x1="50" y1="133" x2="50" y2="153"/><line x1="90" y1="133" x2="90" y2="153"/>
+                <line x1="130" y1="133" x2="130" y2="153"/><line x1="170" y1="133" x2="170" y2="153"/>
+                <line x1="210" y1="133" x2="210" y2="153"/><line x1="250" y1="133" x2="250" y2="153"/>
+                <line x1="290" y1="133" x2="290" y2="153"/><line x1="330" y1="133" x2="330" y2="153"/>
+                <line x1="370" y1="133" x2="370" y2="153"/><line x1="410" y1="133" x2="410" y2="153"/>
+                <line x1="450" y1="133" x2="450" y2="153"/><line x1="490" y1="133" x2="490" y2="153"/>
+                <line x1="530" y1="133" x2="530" y2="153"/><line x1="570" y1="133" x2="570" y2="153"/>
+              </g>
+              <!-- Moving AP Pulse Unmyelinated -->
+              <circle id="race-unmyelin-pulse" cx="25" cy="143" r="10" fill="#4338CA" stroke="#FFFFFF" stroke-width="2.5"/>
+              <text id="race-unmyelin-status" x="655" y="172" text-anchor="end" font-size="11" font-mono font-bold fill="#4338CA">Ready</text>
+            </svg>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 text-xs">
+            <div class="p-3 rounded-xl bg-tealSoft/50 border border-teal-200">
+              <div class="font-bold text-tealPrimary">Speed Advantage (up to 120 m/s)</div>
+              <p class="text-slate-700 mt-1">Myelin prevents ion leakage; voltage-gated Na⁺ channels cluster exclusively at <strong>Nodes of Ranvier</strong>, so current leaps rapidly between nodes.</p>
+            </div>
+            <div class="p-3 rounded-xl bg-amberSoft/50 border border-amber-200">
+              <div class="font-bold text-amber-900">Metabolic ATP Savings</div>
+              <p class="text-slate-700 mt-1">Because Na⁺ only enters at tiny nodes rather than the entire axon membrane, <strong>Na⁺/K⁺ pumps</strong> spend far less ATP restoring resting gradients.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3 Functional Neuron Types Connector (5 Cols) -->
+        <div class="lg:col-span-5 studio-card p-5 flex flex-col justify-between space-y-4">
+          <div>
+            <span class="text-[11px] font-mono uppercase tracking-wider text-indigoIon font-bold">Functional Classification</span>
+            <h3 class="font-serif text-lg font-bold text-ink">How the 3 Neuron Types Wire Together</h3>
+            <p class="text-xs text-muted mt-0.5">Click each neuron class to see how its anatomy fits its circuit role.</p>
+          </div>
+
+          <!-- Interactive 3-Node Pipeline -->
+          <div class="space-y-2.5">
+            <button onclick="selectNeuronClass('sensory')" id="btn-class-sensory" class="w-full text-left p-3 rounded-xl border-2 border-tealPrimary bg-tealSoft/40 transition flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-tealPrimary">1. Sensory Neuron (Afferent — PNS → CNS)</div>
+                <div class="text-[11px] text-slate-600">Detects stimuli (skin, tendon stretch) and carries impulses inward</div>
+              </div>
+              <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-white text-tealPrimary border border-teal-200">Afferent</span>
+            </button>
+
+            <button onclick="selectNeuronClass('inter')" id="btn-class-inter" class="w-full text-left p-3 rounded-xl border border-stoneBorder bg-canvas hover:bg-indigoSoft/30 transition flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-indigoIon">2. Interneuron (Relay — Entirely inside CNS)</div>
+                <div class="text-[11px] text-slate-600">Integrates &amp; processes signals in spinal cord or brain</div>
+              </div>
+              <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-white text-indigoIon border border-indigo-200">CNS Only</span>
+            </button>
+
+            <button onclick="selectNeuronClass('motor')" id="btn-class-motor" class="w-full text-left p-3 rounded-xl border border-stoneBorder bg-canvas hover:bg-coralSoft/30 transition flex items-center justify-between">
+              <div>
+                <div class="text-xs font-bold text-coralChem">3. Motor Neuron (Efferent — CNS → PNS)</div>
+                <div class="text-[11px] text-slate-600">Carries commands outward to effectors (muscles &amp; glands)</div>
+              </div>
+              <span class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-white text-coralChem border border-red-200">Efferent</span>
+            </button>
+          </div>
+
+          <div id="neuron-class-detail" class="p-3.5 rounded-xl bg-white border border-stoneBorder text-xs text-slate-700 leading-relaxed">
+            <strong class="text-tealPrimary">Structure ↔ Role (Sensory):</strong> Often <em>pseudounipolar</em> with a long peripheral axon extending from a sensory receptor (e.g., thermoreceptor or stretch receptor) to its cell body in the dorsal root ganglion, delivering rapid input into the spinal cord.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 2: ACTION POTENTIAL & VOLTAGE-GATED CHANNELS (ELECTRICAL FIRING)
+         ===================================================================== -->
+    <section id="tab-panel-2" class="hidden space-y-6">
+      
+      <!-- Top Control & Stimulus Tester Bar -->
+      <div class="studio-card p-5">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-4 border-b border-stoneBorder">
+          <div>
+            <h2 class="font-serif text-lg sm:text-xl font-bold text-ink">Action Potential &amp; Voltage-Gated Ion Channels</h2>
+            <p class="text-xs sm:text-sm text-muted">Step through each membrane phase or test stimulus intensity to observe the All-or-Nothing Principle.</p>
+          </div>
+          <!-- Mode Toggle: Lab vs Graph Matching -->
+          <div class="inline-flex rounded-xl bg-canvas p-1 border border-stoneBorder self-start">
+            <button id="t2-mode-explore" onclick="setT2Mode('explore')" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-tealPrimary text-white shadow-sm transition">
+              Channel &amp; Voltage Lab
+            </button>
+            <button id="t2-mode-match" onclick="setT2Mode('match')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-ink transition">
+              Phase Matching Challenge
+            </button>
+          </div>
+        </div>
+
+        <!-- Phase Scrubber + Stimulus Strength Buttons -->
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-4 pt-4 items-center">
+          <!-- 5 Phase Buttons -->
+          <div class="md:col-span-7 flex flex-wrap gap-1.5">
+            <button onclick="setAPPhase(0)" id="ap-phase-btn-0" class="ap-phase-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-white shadow-sm">
+              1. Resting (-70 mV)
+            </button>
+            <button onclick="setAPPhase(1)" id="ap-phase-btn-1" class="ap-phase-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-canvas text-slate-700 border border-stoneBorder hover:bg-amberSoft/50">
+              2. Threshold (-55 mV)
+            </button>
+            <button onclick="setAPPhase(2)" id="ap-phase-btn-2" class="ap-phase-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-canvas text-slate-700 border border-stoneBorder hover:bg-amberSoft/50">
+              3. Depolarization (+40 mV)
+            </button>
+            <button onclick="setAPPhase(3)" id="ap-phase-btn-3" class="ap-phase-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-canvas text-slate-700 border border-stoneBorder hover:bg-indigoSoft/50">
+              4. Repolarization
+            </button>
+            <button onclick="setAPPhase(4)" id="ap-phase-btn-4" class="ap-phase-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-canvas text-slate-700 border border-stoneBorder hover:bg-coralSoft/50">
+              5. Hyperpolarization (-80 mV)
+            </button>
+          </div>
+
+          <!-- Stimulus Strength Simulator -->
+          <div class="md:col-span-5 flex flex-wrap items-center md:justify-end gap-2">
+            <span class="text-xs font-semibold text-muted">Test Stimulus:</span>
+            <button onclick="runStimulusTest('weak')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 transition">
+              Weak (-62 mV)
+            </button>
+            <button onclick="runStimulusTest('threshold')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amberSoft hover:bg-amber-200 text-amber-900 border border-amber-300 transition">
+              Threshold (-55 mV)
+            </button>
+            <button onclick="runStimulusTest('strong')" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-tealSoft hover:bg-teal-200 text-tealPrimary border border-teal-300 transition">
+              Strong Stimulus!
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dual Synchronized View: Voltage Graph (Left) + Axon Membrane Cross-Section (Right) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left 6 Cols: Membrane Potential Graph (mV vs msec) -->
+        <div class="lg:col-span-6 studio-card p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono font-bold uppercase tracking-wider text-tealPrimary">Electrophysiology Trace</span>
+            <span id="ap-mv-readout" class="font-mono text-sm font-bold px-2.5 py-0.5 rounded-lg bg-slate-100 text-ink">-70 mV (Resting)</span>
+          </div>
+
+          <div class="bg-[#FCFBF9] rounded-xl border border-stoneBorder p-3">
+            <svg id="ap-graph-svg" viewBox="0 0 500 320" class="w-full h-auto select-none">
+              <!-- Axes -->
+              <line x1="65" y1="25" x2="65" y2="275" stroke="#64748B" stroke-width="2"/>
+              <line x1="65" y1="275" x2="475" y2="275" stroke="#64748B" stroke-width="2"/>
+
+              <!-- Y-axis Labels & Grid -->
+              <text x="55" y="45" text-anchor="end" font-size="11" font-mono fill="#475569">+40</text>
+              <line x1="65" y1="41" x2="475" y2="41" stroke="#E2E8F0" stroke-dasharray="3 3"/>
+
+              <text x="55" y="105" text-anchor="end" font-size="11" font-mono fill="#475569">0</text>
+              <line x1="65" y1="101" x2="475" y2="101" stroke="#CBD5E1" stroke-width="1.2"/>
+
+              <text x="55" y="185" text-anchor="end" font-size="11" font-mono font-bold fill="#D97706">-55</text>
+              <line x1="65" y1="181" x2="475" y2="181" stroke="#D97706" stroke-width="1.5" stroke-dasharray="5 4"/>
+              <text x="470" y="175" text-anchor="end" font-size="10" font-weight="700" fill="#B45309">Threshold Potential (-55 mV)</text>
+
+              <text x="55" y="210" text-anchor="end" font-size="11" font-mono fill="#475569">-70</text>
+              <line x1="65" y1="206" x2="475" y2="206" stroke="#94A3B8" stroke-dasharray="3 3"/>
+              <text x="125" y="222" text-anchor="middle" font-size="10" font-weight="600" fill="#64748B">Resting (-70 mV)</text>
+
+              <text x="55" y="250" text-anchor="end" font-size="11" font-mono fill="#475569">-80</text>
+
+              <!-- Axis Titles -->
+              <text x="20" y="150" text-anchor="middle" transform="rotate(-90 20 150)" font-size="12" font-weight="700" fill="#1E293B">Membrane Potential (mV)</text>
+              <text x="270" y="305" text-anchor="middle" font-size="12" font-weight="700" fill="#1E293B">Time (milliseconds)</text>
+
+              <!-- Sub-threshold failed stimulus trace (shown when weak stimulus tested) -->
+              <path id="ap-failed-curve" d="M 65 206 L 135 206 Q 155 190 175 206 L 230 206" fill="none" stroke="#94A3B8" stroke-width="3" stroke-dasharray="4 3" opacity="0"/>
+
+              <!-- Main Action Potential Curve Segments -->
+              <!-- Resting -->
+              <path d="M 65 206 L 135 206" fill="none" stroke="#64748B" stroke-width="4" stroke-linecap="round"/>
+              <!-- Depolarization (Amber) -->
+              <path d="M 135 206 Q 160 204 175 181 Q 195 110 215 41" fill="none" stroke="#D97706" stroke-width="4.5" stroke-linecap="round"/>
+              <!-- Repolarization (Indigo) -->
+              <path d="M 215 41 Q 238 115 262 206" fill="none" stroke="#4338CA" stroke-width="4.5" stroke-linecap="round"/>
+              <!-- Hyperpolarization & Recovery (Coral) -->
+              <path d="M 262 206 Q 285 245 315 235 Q 350 212 390 206 L 465 206" fill="none" stroke="#DC2626" stroke-width="4" stroke-linecap="round"/>
+
+              <!-- Phase Region Annotations -->
+              <text x="155" y="112" text-anchor="end" font-size="11" font-weight="700" fill="#B45309">1. Depolarization</text>
+              <text x="155" y="125" text-anchor="end" font-size="10" fill="#92400E">(Na⁺ influx)</text>
+
+              <text x="262" y="112" text-anchor="start" font-size="11" font-weight="700" fill="#4338CA">2. Repolarization</text>
+              <text x="262" y="125" text-anchor="start" font-size="10" fill="#3730A3">(K⁺ efflux)</text>
+
+              <text x="315" y="262" text-anchor="middle" font-size="11" font-weight="700" fill="#DC2626">3. Hyperpolarization</text>
+
+              <!-- Interactive Marker Dot on Curve -->
+              <g id="ap-curve-marker" transform="translate(100, 206)">
+                <circle cx="0" cy="0" r="11" fill="#0F6E6E" fill-opacity="0.22" class="animate-pulse-soft"/>
+                <circle cx="0" cy="0" r="6" fill="#0F6E6E" stroke="#FFFFFF" stroke-width="2"/>
+              </g>
+
+              <!-- Matching Pins for Graph Mode -->
+              <g id="t2-pin-A" onclick="handleT2PinClick('A')" class="hidden cursor-pointer" transform="translate(100, 192)">
+                <circle cx="0" cy="0" r="14" fill="#FFFFFF" stroke="#0F6E6E" stroke-width="2.5"/>
+                <text x="0" y="4" text-anchor="middle" font-size="12" font-weight="700" fill="#0F6E6E" font-family="JetBrains Mono, monospace">A</text>
+              </g>
+              <g id="t2-pin-B" onclick="handleT2PinClick('B')" class="hidden cursor-pointer" transform="translate(195, 95)">
+                <circle cx="0" cy="0" r="14" fill="#FFFFFF" stroke="#D97706" stroke-width="2.5"/>
+                <text x="0" y="4" text-anchor="middle" font-size="12" font-weight="700" fill="#B45309" font-family="JetBrains Mono, monospace">B</text>
+              </g>
+              <g id="t2-pin-C" onclick="handleT2PinClick('C')" class="hidden cursor-pointer" transform="translate(242, 95)">
+                <circle cx="0" cy="0" r="14" fill="#FFFFFF" stroke="#4338CA" stroke-width="2.5"/>
+                <text x="0" y="4" text-anchor="middle" font-size="12" font-weight="700" fill="#4338CA" font-family="JetBrains Mono, monospace">C</text>
+              </g>
+              <g id="t2-pin-D" onclick="handleT2PinClick('D')" class="hidden cursor-pointer" transform="translate(300, 238)">
+                <circle cx="0" cy="0" r="14" fill="#FFFFFF" stroke="#DC2626" stroke-width="2.5"/>
+                <text x="0" y="4" text-anchor="middle" font-size="12" font-weight="700" fill="#DC2626" font-family="JetBrains Mono, monospace">D</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Stimulus Feedback Banner -->
+          <div id="stimulus-feedback-box" class="mt-3 p-3 rounded-xl bg-tealSoft/50 border border-teal-200 text-xs text-slate-800 leading-relaxed">
+            <strong>All-or-Nothing Principle:</strong> Click <em>Weak</em>, <em>Threshold</em>, or <em>Strong Stimulus</em> above to see why stimulus intensity does <strong>not</strong> change spike amplitude (+40 mV)—instead, stronger stimuli trigger <em>higher firing frequency</em> after the refractory period.
+          </div>
+        </div>
+
+        <!-- Right 6 Cols: Zoomed Axon Membrane & Channel States SVG -->
+        <div class="lg:col-span-6 studio-card p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-mono font-bold uppercase tracking-wider text-amberIon">Axon Plasma Membrane Cross-Section</span>
+            <span id="channel-state-summary" class="text-xs font-semibold text-muted">Na⁺ Closed | K⁺ Closed</span>
+          </div>
+
+          <!-- Membrane SVG -->
+          <div class="bg-[#FCFBF9] rounded-xl border border-stoneBorder p-3">
+            <svg viewBox="0 0 500 280" class="w-full h-auto select-none">
+              <!-- Extracellular Fluid (Top) -->
+              <rect x="10" y="10" width="480" height="95" rx="10" fill="#E0F2FE" fill-opacity="0.55"/>
+              <text x="22" y="30" font-size="11" font-weight="700" fill="#0369A1">EXTRACELLULAR FLUID (High [Na⁺] outside)</text>
+              <!-- Outside Polarity Signs -->
+              <text id="polarity-out" x="475" y="30" text-anchor="end" font-size="13" font-mono font-bold fill="#0369A1">+ + + + + +</text>
+
+              <!-- Cytoplasm / Intracellular Fluid (Bottom) -->
+              <rect x="10" y="175" width="480" height="95" rx="10" fill="#FEF3C7" fill-opacity="0.45"/>
+              <text x="22" y="258" font-size="11" font-weight="700" fill="#92400E">CYTOPLASM / INSIDE AXON (High [K⁺] inside)</text>
+              <!-- Inside Polarity Signs -->
+              <text id="polarity-in" x="475" y="258" text-anchor="end" font-size="13" font-mono font-bold fill="#4338CA">- - - - - -</text>
+
+              <!-- Phospholipid Bilayer Band -->
+              <rect x="10" y="105" width="480" height="70" fill="#F1E8D9" stroke="#D6CBB8" stroke-width="1.5"/>
+              <text x="250" y="144" text-anchor="middle" font-size="10" font-weight="600" fill="#8C7A5B" opacity="0.75">PHOSPHOLIPID BILAYER</text>
+
+              <!-- 1. VOLTAGE-GATED Na+ CHANNEL (Left, x=115) -->
+              <g transform="translate(115, 140)">
+                <text x="0" y="-52" text-anchor="middle" font-size="11" font-weight="700" fill="#B45309">Voltage-Gated Na⁺</text>
+                <!-- Left & Right Protein Subunits -->
+                <rect x="-32" y="-42" width="22" height="84" rx="9" fill="#F59E0B" stroke="#92400E" stroke-width="1.8"/>
+                <rect x="10" y="-42" width="22" height="84" rx="9" fill="#F59E0B" stroke="#92400E" stroke-width="1.8"/>
+                <!-- Activation Gate (Middle Bar - rotates open during depolarization) -->
+                <rect id="na-activation-gate" x="-10" y="-6" width="20" height="10" rx="3" fill="#78350F"/>
+                <!-- Ball-and-Chain Inactivation Gate (Plugs bottom during Repolarization!) -->
+                <path id="na-inactivation-chain" d="M -20 42 Q -22 62 -6 62" fill="none" stroke="#78350F" stroke-width="2.5"/>
+                <circle id="na-inactivation-ball" cx="-4" cy="62" r="9" fill="#DC2626" stroke="#7F1D1D" stroke-width="1.5"/>
+                <!-- Na+ Influx Arrow (visible when Open) -->
+                <g id="na-influx-arrow" opacity="0">
+                  <line x1="0" y1="-65" x2="0" y2="65" stroke="#D97706" stroke-width="4" class="animate-flow"/>
+                  <polygon points="-7,58 7,58 0,72" fill="#D97706"/>
+                  <circle cx="0" cy="-22" r="8" fill="#D97706"/><text x="0" y="-19" text-anchor="middle" font-size="8" font-weight="700" fill="#FFF">Na⁺</text>
+                </g>
+                <text id="na-gate-label" x="0" y="88" text-anchor="middle" font-size="10" font-mono font-weight="700" fill="#92400E">CLOSED</text>
+              </g>
+
+              <!-- 2. VOLTAGE-GATED K+ CHANNEL (Middle, x=255) -->
+              <g transform="translate(255, 140)">
+                <text x="0" y="-52" text-anchor="middle" font-size="11" font-weight="700" fill="#4338CA">Voltage-Gated K⁺</text>
+                <rect x="-32" y="-42" width="22" height="84" rx="9" fill="#6366F1" stroke="#312E81" stroke-width="1.8"/>
+                <rect x="10" y="-42" width="22" height="84" rx="9" fill="#6366F1" stroke="#312E81" stroke-width="1.8"/>
+                <!-- K+ Gate -->
+                <rect id="k-gate" x="-10" y="22" width="20" height="10" rx="3" fill="#312E81"/>
+                <!-- K+ Efflux Arrow (visible when Open) -->
+                <g id="k-efflux-arrow" opacity="0">
+                  <line x1="0" y1="65" x2="0" y2="-65" stroke="#4338CA" stroke-width="4" class="animate-flow"/>
+                  <polygon points="-7,-58 7,-58 0,-72" fill="#4338CA"/>
+                  <circle cx="0" cy="18" r="8" fill="#4338CA"/><text x="0" y="21" text-anchor="middle" font-size="8" font-weight="700" fill="#FFF">K⁺</text>
+                </g>
+                <text id="k-gate-label" x="0" y="88" text-anchor="middle" font-size="10" font-mono font-weight="700" fill="#312E81">CLOSED</text>
+              </g>
+
+              <!-- 3. Na+/K+ ATPase PUMP (Right, x=395) -->
+              <g transform="translate(395, 140)">
+                <text x="0" y="-52" text-anchor="middle" font-size="11" font-weight="700" fill="#0F6E6E">Na⁺/K⁺ Pump (ATP)</text>
+                <rect x="-34" y="-42" width="68" height="84" rx="16" fill="#0F6E6E" stroke="#115E59" stroke-width="1.8"/>
+                <text x="0" y="-12" text-anchor="middle" font-size="9.5" font-weight="700" fill="#FEF3C7">3 Na⁺ OUT ↑</text>
+                <text x="0" y="6" text-anchor="middle" font-size="9.5" font-weight="700" fill="#E0E7FF">2 K⁺ IN ↓</text>
+                <rect x="-22" y="18" width="44" height="16" rx="4" fill="#FDE68A"/>
+                <text x="0" y="29" text-anchor="middle" font-size="9" font-mono font-weight="700" fill="#78350F">uses ATP</text>
+                <text x="0" y="88" text-anchor="middle" font-size="10" font-mono font-weight="600" fill="#0F6E6E">MAINTAINS GRADIENT</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Explore Explanation vs Phase Matching Box -->
+          <div id="t2-explore-box" class="mt-3 p-3.5 rounded-xl bg-canvas border border-stoneBorder space-y-1.5">
+            <div class="flex items-center justify-between">
+              <h4 id="t2-phase-title" class="font-serif text-base font-bold text-ink">1. Resting Potential (-70 mV)</h4>
+              <span id="t2-phase-badge" class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-200 text-slate-800 font-semibold">Polarized</span>
+            </div>
+            <p id="t2-phase-desc" class="text-xs text-slate-700 leading-relaxed">
+              Both voltage-gated Na⁺ and K⁺ channels are closed. The Na⁺/K⁺ pump exports 3 Na⁺ for every 2 K⁺ imported, and K⁺ leak channels allow slow K⁺ exit—leaving the inside of the axon negative (-70 mV) relative to the outside.
+            </p>
+          </div>
+
+          <!-- Tab 2 Matching Mode Panel -->
+          <div id="t2-match-box" class="hidden mt-3 p-3.5 rounded-xl bg-amberSoft/35 border border-amber-200 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-amber-950">Match Phases (A–D) on the Action Potential Graph:</span>
+              <span id="t2-match-score" class="text-xs font-mono font-bold text-tealPrimary">0 / 4 Matched</span>
+            </div>
+            <div id="t2-chips-container" class="grid grid-cols-2 gap-1.5"></div>
+            <div id="t2-match-feedback" class="text-xs text-slate-700">Click a phase chip, then click its letter pin (A–D) on the graph to the left.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =====================================================================
+         TAB 3: THE SYNAPSE & WHOLE-BODY PATHWAYS (ELECTRICAL -> CHEMICAL -> ELECTRICAL)
+         ===================================================================== -->
+    <section id="tab-panel-3" class="hidden space-y-6">
+      
+      <!-- Top Row: Interactive Chemical Synapse & Drug Perturbation Lab -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left 7 Cols: Synapse SVG Canvas -->
+        <div class="lg:col-span-7 studio-card p-5 flex flex-col justify-between">
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-stoneBorder">
+            <div>
+              <h2 class="font-serif text-lg sm:text-xl font-bold text-ink">The Chemical Synapse: Electrical → Chemical → Electrical</h2>
+              <p class="text-xs text-muted">Trace how an axon's electrical spike converts into neurotransmitter release across the synaptic cleft.</p>
+            </div>
+            <div class="inline-flex rounded-xl bg-canvas p-1 border border-stoneBorder">
+              <button id="t3-mode-explore" onclick="setT3Mode('explore')" class="px-3 py-1 rounded-lg text-xs font-semibold bg-tealPrimary text-white shadow-sm">
+                Simulate Steps
+              </button>
+              <button id="t3-mode-match" onclick="setT3Mode('match')" class="px-3 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-ink">
+                Label Synapse
+              </button>
+            </div>
+          </div>
+
+          <!-- Custom Synapse SVG -->
+          <div class="my-3 bg-[#FCFBF9] rounded-xl border border-stoneBorder p-3">
+            <svg viewBox="0 0 640 330" class="w-full h-auto select-none">
+              <defs>
+                <linearGradient id="preTermGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#CCFBF1"/>
+                  <stop offset="100%" stop-color="#99F6E4"/>
+                </linearGradient>
+                <linearGradient id="postTermGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#FDE68A"/>
+                  <stop offset="100%" stop-color="#FEF3C7"/>
+                </linearGradient>
+              </defs>
+
+              <!-- Zone Labels -->
+              <text x="150" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#0F6E6E">PRESYNAPTIC AXON TERMINAL</text>
+              <text x="365" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#DC2626">SYNAPTIC CLEFT</text>
+              <text x="525" y="22" text-anchor="middle" font-size="11" font-weight="700" fill="#B45309">POSTSYNAPTIC CELL</text>
+
+              <!-- Presynaptic Axon Terminal Bulb -->
+              <path d="M 20 115 L 140 115 C 210 115, 235 55, 290 55 C 325 55, 335 105, 335 165 C 335 225, 325 275, 290 275 C 235 275, 210 215, 140 215 L 20 215 Z" fill="url(#preTermGrad)" stroke="#0F6E6E" stroke-width="2.5"/>
+
+              <!-- Arriving Electrical Action Potential Wave -->
+              <g id="syn-ap-wave" opacity="1">
+                <path d="M 35 165 L 65 165 L 75 135 L 88 185 L 98 165 L 145 165" fill="none" stroke="#D97706" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <text x="85" y="125" text-anchor="middle" font-size="10" font-weight="700" fill="#B45309">1. Arriving AP Wave</text>
+              </g>
+
+              <!-- Mitochondrion inside Presynaptic Terminal (supplies ATP for vesicle recycling/synthesis) -->
+              <g transform="translate(175, 140)">
+                <ellipse cx="0" cy="0" rx="34" ry="16" fill="#FCA5A5" stroke="#B91C1C" stroke-width="1.8"/>
+                <path d="M -24 0 Q -16 -9 -8 0 Q 0 9 8 0 Q 16 -9 24 0" fill="none" stroke="#991B1B" stroke-width="1.8"/>
+                <text x="0" y="-21" text-anchor="middle" font-size="9.5" font-weight="700" fill="#991B1B">Mitochondrion (ATP)</text>
+              </g>
+
+              <!-- Voltage-Gated Ca2+ Channel on Presynaptic Membrane -->
+              <g transform="translate(295, 78)">
+                <rect x="-12" y="-8" width="24" height="16" rx="4" fill="#4338CA" stroke="#FFFFFF" stroke-width="1.5"/>
+                <text x="-45" y="-12" font-size="9.5" font-weight="700" fill="#4338CA">Ca²⁺ Channel</text>
+                <g id="syn-ca-ions" opacity="0.25">
+                  <circle cx="22" cy="-16" r="5" fill="#4338CA"/>
+                  <circle cx="10" cy="-6" r="5" fill="#4338CA"/>
+                  <circle cx="-6" cy="14" r="5" fill="#4338CA"/>
+                </g>
+              </g>
+
+              <!-- Neurotransmitter Vesicles -->
+              <g id="syn-vesicles">
+                <!-- Vesicle 1 (Stored) -->
+                <circle cx="235" cy="175" r="18" fill="#FFFFFF" stroke="#DC2626" stroke-width="2"/>
+                <circle cx="230" cy="172" r="3" fill="#DC2626"/><circle cx="240" cy="171" r="3" fill="#DC2626"/>
+                <circle cx="235" cy="181" r="3" fill="#DC2626"/><circle cx="228" cy="179" r="3" fill="#DC2626"/>
+
+                <!-- Vesicle 2 (Docking/Fusing) -->
+                <circle id="vesicle-dock" cx="292" cy="135" r="18" fill="#FFFFFF" stroke="#DC2626" stroke-width="2"/>
+                <circle cx="288" cy="132" r="3" fill="#DC2626"/><circle cx="296" cy="138" r="3" fill="#DC2626"/>
+
+                <!-- Vesicle 3 (Lower) -->
+                <circle cx="285" cy="215" r="18" fill="#FFFFFF" stroke="#DC2626" stroke-width="2"/>
+                <circle cx="281" cy="212" r="3" fill="#DC2626"/><circle cx="290" cy="218" r="3" fill="#DC2626"/>
+              </g>
+
+              <!-- Neurotransmitter Molecules in Synaptic Cleft -->
+              <g id="syn-nt-cleft" opacity="0.3">
+                <circle cx="352" cy="125" r="4.5" fill="#DC2626"/>
+                <circle cx="368" cy="145" r="4.5" fill="#DC2626"/>
+                <circle cx="356" cy="168" r="4.5" fill="#DC2626"/>
+                <circle cx="374" cy="188" r="4.5" fill="#DC2626"/>
+                <circle cx="355" cy="212" r="4.5" fill="#DC2626"/>
+                <circle cx="382" cy="132" r="4.5" fill="#DC2626"/>
+                <circle cx="382" cy="204" r="4.5" fill="#DC2626"/>
+              </g>
+
+              <!-- Postsynaptic Receiving Cell Membrane -->
+              <path d="M 620 65 L 445 65 C 405 65, 395 110, 395 165 C 395 220, 405 265, 445 265 L 620 265 Z" fill="url(#postTermGrad)" stroke="#D97706" stroke-width="2.5"/>
+
+              <!-- Ligand-Gated Neurotransmitter Receptors on Postsynaptic Membrane -->
+              <g id="syn-receptors">
+                <!-- Receptor 1 -->
+                <rect x="387" y="118" width="18" height="18" rx="4" fill="#7C3AED" stroke="#FFFFFF" stroke-width="1.5"/>
+                <!-- Receptor 2 -->
+                <rect x="387" y="158" width="18" height="18" rx="4" fill="#7C3AED" stroke="#FFFFFF" stroke-width="1.5"/>
+                <!-- Receptor 3 -->
+                <rect x="387" y="198" width="18" height="18" rx="4" fill="#7C3AED" stroke="#FFFFFF" stroke-width="1.5"/>
+              </g>
+
+              <!-- Postsynaptic Na+ Influx & New Electrical Impulse -->
+              <g id="syn-post-impulse" opacity="0.25">
+                <line x1="415" y1="167" x2="585" y2="167" stroke="#0F6E6E" stroke-width="3.5" class="animate-flow"/>
+                <polygon points="582,160 596,167 582,174" fill="#0F6E6E"/>
+                <text x="505" y="152" text-anchor="middle" font-size="10.5" font-weight="700" fill="#0F6E6E">5. New Electrical Impulse!</text>
+                <text x="505" y="185" text-anchor="middle" font-size="9.5" fill="#0F6E6E">(Na⁺ enters postsynaptic cell)</text>
+              </g>
+
+              <!-- Drug Perturbation Overlay Badge -->
+              <g id="syn-drug-badge" class="hidden">
+                <rect x="255" y="286" width="230" height="28" rx="8" fill="#FEE2E2" stroke="#DC2626" stroke-width="1.5"/>
+                <text id="syn-drug-badge-text" x="370" y="304" text-anchor="middle" font-size="11" font-weight="700" fill="#991B1B">PERTURBATION ACTIVE</text>
+              </g>
+
+              <!-- Synapse Matching Mode Pins (1-5) -->
+              <g id="t3-pin-1" onclick="handleT3PinClick(1)" class="hidden cursor-pointer" transform="translate(120, 195)">
+                <circle cx="0" cy="0" r="14" fill="#FFFFFF" stroke="#0F6E6E" stroke-width="2.5"/>
+                <text x="0" y="4" text-anchor="middle" font-size="12" font-weight="700" fill="#0F6E6E" font-family="JetBrains Mono, monospace">1</text>
+              </g>
+              <g id="t3-pin-2" onclick="handleT3PinClick(2)" class="hidden cursor-pointer" transform="translate(175, 140)">
+                <circle cx="0" cy="0" r="14" fill="#FFFFFF" stroke="#B91C1C" stroke-width="2.5"/>
+                <text x="0" y="4" text-anchor="middle" font-size="12" font-weight="700" fill="#B91C1C" font-family="JetBrains Mono, monospace">2</text>
+              </g>
+              <g id="t3-pin-3" onclick="handleT3PinClick(3)" class="hidden cursor-pointer" transform="translate(235, 175)">
+                <circle cx="0" cy="0" r="14" fill="#FFFFFF" stroke="#DC2626" stroke-width="2.5"/>
+                <text x="0" y="4" text-anchor="middle" font-size="12" font-weight="700" fill="#DC2626" font-family="JetBrains Mono, monospace">3</text>
+              </g>
+              <g id="t3-pin-4" onclick="handleT3PinClick(4)" class="hidden cursor-pointer" transform="translate(362, 92)">
+                <circle cx="0" cy="0" r="14" fill="#FFFFFF" stroke="#4338CA" stroke-width="2.5"/>
+                <text x="0" y="4" text-anchor="middle" font-size="12" font-weight="700" fill="#4338CA" font-family="JetBrains Mono, monospace">4</text>
+              </g>
+              <g id="t3-pin-5" onclick="handleT3PinClick(5)" class="hidden cursor-pointer" transform="translate(425, 127)">
+                <circle cx="0" cy="0" r="14" fill="#FFFFFF" stroke="#7C3AED" stroke-width="2.5"/>
+                <text x="0" y="4" text-anchor="middle" font-size="12" font-weight="700" fill="#7C3AED" font-family="JetBrains Mono, monospace">5</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Causal Step Selector -->
+          <div class="grid grid-cols-5 gap-1.5">
+            <button onclick="setSynapseStep(1)" id="syn-step-btn-1" class="syn-step-btn py-2 px-1.5 rounded-lg text-[11px] font-semibold bg-tealPrimary text-white text-center">1. AP Arrives</button>
+            <button onclick="setSynapseStep(2)" id="syn-step-btn-2" class="syn-step-btn py-2 px-1.5 rounded-lg text-[11px] font-semibold bg-canvas text-slate-700 border border-stoneBorder text-center">2. Ca²⁺ Influx</button>
+            <button onclick="setSynapseStep(3)" id="syn-step-btn-3" class="syn-step-btn py-2 px-1.5 rounded-lg text-[11px] font-semibold bg-canvas text-slate-700 border border-stoneBorder text-center">3. Exocytosis</button>
+            <button onclick="setSynapseStep(4)" id="syn-step-btn-4" class="syn-step-btn py-2 px-1.5 rounded-lg text-[11px] font-semibold bg-canvas text-slate-700 border border-stoneBorder text-center">4. Binding</button>
+            <button onclick="setSynapseStep(5)" id="syn-step-btn-5" class="syn-step-btn py-2 px-1.5 rounded-lg text-[11px] font-semibold bg-canvas text-slate-700 border border-stoneBorder text-center">5. New AP</button>
+          </div>
+        </div>
+
+        <!-- Right 5 Cols: Step Causality, Drug Sandbox & Why Chemical? -->
+        <div class="lg:col-span-5 studio-card p-5 flex flex-col justify-between space-y-4">
+          
+          <!-- Explore Mode Content -->
+          <div id="t3-explore-panel" class="space-y-4">
+            <div class="p-3.5 rounded-xl bg-canvas border border-stoneBorder space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span id="syn-step-tag" class="text-[11px] font-mono font-bold uppercase text-tealPrimary">STEP 1 OF 5 • ELECTRICAL</span>
+                <span class="text-[11px] text-muted">Signal Conversion</span>
+              </div>
+              <h3 id="syn-step-title" class="font-serif text-base font-bold text-ink">Action Potential Reaches Synaptic Terminal</h3>
+              <p id="syn-step-desc" class="text-xs text-slate-700 leading-relaxed">
+                Depolarization travels down the axon to the presynaptic terminal bouton, triggering voltage-gated Ca²⁺ channels in the terminal membrane to open.
+              </p>
+            </div>
+
+            <!-- Neurotransmitter Perturbation Sandbox -->
+            <div class="space-y-2">
+              <div class="text-xs font-bold text-ink flex items-center justify-between">
+                <span>Test Synaptic Perturbations (What if...)</span>
+                <span class="text-[11px] font-mono text-coralChem">Causal Reasoning</span>
+              </div>
+              <div class="grid grid-cols-2 gap-1.5">
+                <button onclick="setSynapseDrug('normal')" id="drug-btn-normal" class="drug-btn p-2 rounded-lg text-xs font-semibold bg-tealSoft text-tealPrimary border border-teal-300 text-left">
+                  Normal Synapse
+                </button>
+                <button onclick="setSynapseDrug('cablock')" id="drug-btn-cablock" class="drug-btn p-2 rounded-lg text-xs font-semibold bg-canvas text-slate-700 border border-stoneBorder hover:bg-coralSoft/40 text-left">
+                  Block Ca²⁺ Channels
+                </button>
+                <button onclick="setSynapseDrug('antagonist')" id="drug-btn-antagonist" class="drug-btn p-2 rounded-lg text-xs font-semibold bg-canvas text-slate-700 border border-stoneBorder hover:bg-coralSoft/40 text-left">
+                  Receptor Blocker
+                </button>
+                <button onclick="setSynapseDrug('inhibitor')" id="drug-btn-inhibitor" class="drug-btn p-2 rounded-lg text-xs font-semibold bg-canvas text-slate-700 border border-stoneBorder hover:bg-amberSoft/40 text-left">
+                  Block NT Breakdown
+                </button>
+              </div>
+              <div id="syn-drug-explanation" class="p-3 rounded-xl bg-tealSoft/30 border border-teal-200/80 text-xs text-slate-700 leading-relaxed">
+                <strong>Normal Transmission:</strong> Electrical AP → Ca²⁺ influx → neurotransmitter exocytosis → receptor binding → postsynaptic Na⁺ influx → new electrical impulse.
+              </div>
+            </div>
+
+            <!-- Study Guide Big Question Box -->
+            <div class="p-3.5 rounded-xl bg-indigoSoft/45 border border-indigo-200 space-y-1">
+              <div class="text-[11px] font-bold uppercase tracking-wider text-indigoIon">Why Switch from Electrical to Chemical at a Synapse?</div>
+              <p class="text-xs text-slate-700 leading-relaxed">
+                Chemical synapses allow <strong>signal integration</strong> (summing excitatory + inhibitory inputs), <strong>gain/amplification</strong>, <strong>one-way directionality</strong>, and <strong>modulation</strong> (learning, drugs, and autonomic control)—whereas direct electrical wires would blindly fire every connected cell.
+              </p>
+            </div>
+          </div>
+
+          <!-- Synapse Matching Mode Panel -->
+          <div id="t3-match-panel" class="hidden space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-coralSoft text-coralChem">SYNAPSE ANATOMY CHECK</span>
+              <span id="t3-match-score" class="text-xs font-mono font-bold text-tealPrimary">0 / 5 Matched</span>
+            </div>
+            <p class="text-xs text-muted">Select a synapse component chip, then click its numbered pin (1–5) on the diagram.</p>
+            <div id="t3-chips-container" class="grid grid-cols-1 gap-1.5"></div>
+            <div id="t3-match-feedback" class="p-3 rounded-xl bg-canvas border border-stoneBorder text-xs text-slate-700">
+              Select a term chip above to label the synaptic cleft diagram.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Row: Whole-Body Circuit Comparator (Reflex Arc vs Intentional High Five) -->
+      <div class="studio-card p-5 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-stoneBorder">
+          <div>
+            <span class="text-[11px] font-mono uppercase tracking-wider text-indigoIon font-bold">Systemic Integration (CNS &amp; PNS)</span>
+            <h3 class="font-serif text-lg sm:text-xl font-bold text-ink">Compare Neural Circuits: Reflex Arc vs. Intentional Movement</h3>
+          </div>
+          <div class="inline-flex rounded-xl bg-canvas p-1 border border-stoneBorder self-start">
+            <button id="circuit-btn-reflex" onclick="setCircuitMode('reflex')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-coralChem text-white shadow-sm transition">
+              Patellar Reflex Arc (Involuntary)
+            </button>
+            <button id="circuit-btn-highfive" onclick="setCircuitMode('highfive')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-ink transition">
+              Intentional High Five (Voluntary)
+            </button>
+          </div>
+        </div>
+
+        <!-- Pathway Flow Cards -->
+        <div id="circuit-steps-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <!-- Populated dynamically by JS -->
+        </div>
+
+        <div id="circuit-takeaway" class="p-3.5 rounded-xl bg-amberSoft/40 border border-amber-200 text-xs text-slate-800 leading-relaxed">
+          <!-- Populated dynamically by JS -->
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+    // =========================================================================
+    // STATE MANAGEMENT & PEDAGOGICAL DATA
+    // =========================================================================
+    const state = {
+      activeTab: 1,
+      // Tab 1
+      t1Mode: 'explore',
+      t1SelectedPart: 2,
+      t1SelectedChip: null,
+      t1Matched: {}, // { pinId: true }
+      // Tab 2
+      t2Mode: 'explore',
+      apPhase: 0,
+      t2SelectedChip: null,
+      t2Matched: {},
+      // Tab 3
+      t3Mode: 'explore',
+      synStep: 1,
+      synDrug: 'normal',
+      t3SelectedChip: null,
+      t3Matched: {},
+      circuitMode: 'reflex'
+    };
+
+    // Tab 1 Anatomy Dictionary (Matches Study Guide 1-6 + Glia)
+    const t1Parts = {
+      1: {
+        badge: 'STRUCTURE #1',
+        zone: 'Integration Center (Soma)',
+        title: 'Cell Body (Soma)',
+        role: 'Integrates incoming signals and maintains metabolic life of the neuron',
+        desc: 'Contains the nucleus, mitochondria, and ribosomes needed to synthesize proteins and neurotransmitters. All graded potentials arriving from the dendrites sum together here before reaching the axon hillock.',
+        bridge: 'If summed excitatory depolarization reaches -55 mV at the Axon Hillock, voltage-gated Na⁺ channels burst open to fire an action potential down Structure #5 (Axon).'
+      },
+      2: {
+        badge: 'STRUCTURE #2',
+        zone: 'Input Zone',
+        title: 'Dendrites',
+        role: 'Receive incoming chemical signals from upstream neurons',
+        desc: 'Highly branched extensions projecting from the cell body. Their large surface area is studded with neurotransmitter receptors that convert chemical signals into graded electrical currents flowing toward the soma.',
+        bridge: 'Dendrites represent the postsynaptic receiving side of a synapse—turning chemical neurotransmitters back into electrical membrane changes.'
+      },
+      3: {
+        badge: 'STRUCTURE #3',
+        zone: 'Glial Insulation',
+        title: 'Myelin Sheath',
+        role: 'Fat-rich glial wrapping that insulates the axon for rapid saltatory conduction',
+        desc: 'Formed by Schwann cells in the Peripheral Nervous System (PNS) and Oligodendrocytes in the Central Nervous System (CNS). Prevents ion leakage across the membrane so electrical current jumps rapidly from one Node of Ranvier to the next.',
+        bridge: 'Dramatically increases conduction speed and reduces the ATP needed by Na⁺/K⁺ pumps to restore ion gradients after firing.'
+      },
+      4: {
+        badge: 'STRUCTURE #4',
+        zone: 'Output / Synaptic Zone',
+        title: 'Axon Terminals (Synaptic Boutons)',
+        role: 'Convert the arriving electrical action potential into chemical neurotransmitter release',
+        desc: 'Branched distal tips of the axon packed with synaptic vesicles (containing neurotransmitters like acetylcholine) and mitochondria. Depolarization opens voltage-gated Ca²⁺ channels here, triggering exocytosis into the synaptic cleft.',
+        bridge: 'Forms the presynaptic half of the synapse—passing the message across the cleft to the next neuron, muscle fiber, or gland.'
+      },
+      5: {
+        badge: 'STRUCTURE #5',
+        zone: 'Conducting Zone',
+        title: 'Axon',
+        role: 'Conducts the all-or-nothing electrical action potential away from the cell body',
+        desc: 'A single long projection emerging from the axon hillock. Its membrane is equipped with voltage-gated Na⁺ and K⁺ channels that regenerate the +40 mV action potential without losing strength over long distances (up to 1 meter in human motor neurons!).',
+        bridge: 'Bundles of axons wrapped in connective tissue form a peripheral nerve in the PNS or a neural tract in the CNS.'
+      },
+      6: {
+        badge: 'STRUCTURE #6',
+        zone: 'Control Organelle',
+        title: 'Nucleus',
+        role: 'Houses DNA and regulates gene expression for neuron structure & enzymes',
+        desc: 'Located inside the cell body (soma). Directs transcription of mRNA for building ion channels, neurotransmitter-synthesizing enzymes, and membrane receptors.',
+        bridge: 'Because axons and terminals lack a nucleus, proteins synthesized here must be transported down the axon to sustain synaptic signaling.'
+      },
+      7: {
+        badge: 'SUPPORT CELLS',
+        zone: 'CNS & PNS Glia',
+        title: 'Glial Cells (Neuroglia)',
+        role: 'Support, insulate, nourish, and protect neurons',
+        desc: 'Outnumber neurons and perform essential roles: Oligodendrocytes (CNS) and Schwann cells (PNS) build myelin sheaths; Astrocytes regulate extracellular ions and blood-brain barrier nutrients; Microglia act as immune defenders; Ependymal cells circulate cerebrospinal fluid.',
+        bridge: 'Without glial myelination and ion buffering, neurons would fire slowly, leak current, and exhaust their ATP reserves.'
+      }
+    };
+
+    const t1ChipsList = [
+      { id: 1, label: 'Cell Body (Soma)' },
+      { id: 2, label: 'Dendrite' },
+      { id: 3, label: 'Myelin Sheath' },
+      { id: 4, label: 'Axon Terminal' },
+      { id: 5, label: 'Axon' },
+      { id: 6, label: 'Nucleus' }
+    ];
+
+    // Tab 2 Action Potential Phases
+    const apPhases = [
+      {
+        title: '1. Resting Potential (-70 mV)',
+        badge: 'Polarized',
+        mvText: '-70 mV (Resting)',
+        markerX: 100, markerY: 206,
+        naState: 'CLOSED', kState: 'CLOSED',
+        naOpen: false, naInactivated: false, kOpen: false,
+        polOut: '+ + + + + +', polIn: '- - - - - -',
+        summary: 'Na⁺ Closed | K⁺ Closed',
+        desc: 'Both voltage-gated Na⁺ and K⁺ channels are closed. The Na⁺/K⁺ pump exports 3 Na⁺ for every 2 K⁺ imported, and K⁺ leak channels allow slow K⁺ exit—leaving the inside of the axon negative (-70 mV) relative to the outside.'
+      },
+      {
+        title: '2. Threshold Potential (-55 mV)',
+        badge: 'Trigger Point',
+        mvText: '-55 mV (Threshold)',
+        markerX: 175, markerY: 181,
+        naState: 'OPENING', kState: 'CLOSED',
+        naOpen: true, naInactivated: false, kOpen: false,
+        polOut: '+ + + + +', polIn: '- - - -',
+        summary: 'Na⁺ Opening | K⁺ Closed',
+        desc: 'An excitatory stimulus depolarizes the axon hillock from -70 mV up to -55 mV. Reaching threshold triggers a positive-feedback cascade: all nearby voltage-gated Na⁺ activation gates snap open!'
+      },
+      {
+        title: '3. Depolarization Phase (+40 mV)',
+        badge: 'Na⁺ Influx',
+        mvText: '+40 mV (Peak Spike)',
+        markerX: 215, markerY: 41,
+        naState: 'OPEN (Na⁺ IN)', kState: 'CLOSED',
+        naOpen: true, naInactivated: false, kOpen: false,
+        polOut: '- - - - - -', polIn: '+ + + + + +',
+        summary: 'Na⁺ OPEN | K⁺ Closed',
+        desc: 'Positively charged Na⁺ ions rush rapidly into the cytoplasm down their electrochemical gradient. The membrane polarity reverses—becoming briefly positive (+40 mV) inside relative to outside.'
+      },
+      {
+        title: '4. Repolarization Phase',
+        badge: 'K⁺ Efflux & Refractory',
+        mvText: '-20 mV (Falling)',
+        markerX: 242, markerY: 130,
+        naState: 'INACTIVATED', kState: 'OPEN (K⁺ OUT)',
+        naOpen: false, naInactivated: true, kOpen: true,
+        polOut: '+ + + + + +', polIn: '- - - - - -',
+        summary: 'Na⁺ Inactivated | K⁺ OPEN',
+        desc: 'Near +40 mV, the ball-and-chain inactivation gate plugs the voltage-gated Na⁺ channel (causing the Refractory Period), while slow voltage-gated K⁺ channels open. K⁺ rushes out of the cell, restoring negative internal voltage.'
+      },
+      {
+        title: '5. Hyperpolarization Phase (-80 mV)',
+        badge: 'Undershoot',
+        mvText: '-80 mV (Hyperpolarized)',
+        markerX: 300, markerY: 238,
+        naState: 'CLOSED (Reset)', kState: 'CLOSING SLOWLY',
+        naOpen: false, naInactivated: false, kOpen: true,
+        polOut: '+ + + + + +', polIn: '- - - - - - -',
+        summary: 'Na⁺ Reset | K⁺ Closing',
+        desc: 'Voltage-gated K⁺ channels close slowly, allowing extra K⁺ to exit so the membrane briefly undershoots resting potential (down to ~ -80 mV). The Na⁺/K⁺ pump and leak channels then restore the -70 mV resting baseline.'
+      }
+    ];
+
+    const t2ChipsList = [
+      { id: 'A', label: 'Resting Potential (-70 mV)' },
+      { id: 'B', label: 'Depolarization (Na⁺ Influx)' },
+      { id: 'C', label: 'Repolarization (K⁺ Efflux)' },
+      { id: 'D', label: 'Hyperpolarization (-80 mV)' }
+    ];
+
+    // Tab 3 Synapse Steps & Drug Perturbations
+    const synSteps = {
+      1: {
+        tag: 'STEP 1 OF 5 • ELECTRICAL SIGNAL',
+        title: 'Action Potential Arrives at Presynaptic Terminal',
+        desc: 'The wave of Na⁺-driven depolarization travels down the axon into the synaptic terminal bouton, changing the terminal membrane voltage.',
+        caOp: 0.25, cleftOp: 0.2, postOp: 0.2, vesX: 292, vesY: 135
+      },
+      2: {
+        tag: 'STEP 2 OF 5 • ION TRIGGER',
+        title: 'Voltage-Gated Ca²⁺ Channels Open',
+        desc: 'Membrane depolarization opens voltage-gated Ca²⁺ channels in the presynaptic terminal. Ca²⁺ rushes into the terminal, signaling neurotransmitter vesicles to move toward the membrane.',
+        caOp: 1, cleftOp: 0.3, postOp: 0.2, vesX: 306, vesY: 135
+      },
+      3: {
+        tag: 'STEP 3 OF 5 • CHEMICAL RELEASE',
+        title: 'Exocytosis of Neurotransmitters into Cleft',
+        desc: 'Ca²⁺ triggers synaptic vesicles to fuse with the presynaptic membrane, releasing neurotransmitter molecules (e.g., acetylcholine) into the fluid-filled synaptic cleft.',
+        caOp: 0.85, cleftOp: 1, postOp: 0.3, vesX: 318, vesY: 135
+      },
+      4: {
+        tag: 'STEP 4 OF 5 • RECEPTOR BINDING',
+        title: 'Neurotransmitters Bind Postsynaptic Receptors',
+        desc: 'Neurotransmitters diffuse across the narrow synaptic cleft and bind specifically to ligand-gated ion channel receptors on the postsynaptic receiving cell.',
+        caOp: 0.4, cleftOp: 1, postOp: 0.65, vesX: 318, vesY: 135
+      },
+      5: {
+        tag: 'STEP 5 OF 5 • NEW ELECTRICAL SIGNAL',
+        title: 'Postsynaptic Ion Channels Open → New Impulse',
+        desc: 'Receptor binding opens ligand-gated Na⁺ channels on the postsynaptic cell. Na⁺ rushes in, depolarizing the receiving cell toward threshold to spark a new electrical impulse—while enzymes/reuptake clear the cleft.',
+        caOp: 0.25, cleftOp: 0.6, postOp: 1, vesX: 292, vesY: 135
+      }
+    };
+
+    const synDrugs = {
+      normal: {
+        badge: '',
+        text: '<strong>Normal Transmission:</strong> Electrical AP → Ca²⁺ influx → neurotransmitter exocytosis → receptor binding → postsynaptic Na⁺ influx → new electrical impulse.'
+      },
+      cablock: {
+        badge: 'Ca²⁺ CHANNELS BLOCKED',
+        text: '<strong>Ca²⁺ Channel Blocker:</strong> Even though the electrical action potential reaches the presynaptic terminal, Ca²⁺ cannot enter. Vesicles fail to fuse, <em>no neurotransmitter is released</em>, and the postsynaptic cell stays silent.'
+      },
+      antagonist: {
+        badge: 'POSTSYNAPTIC RECEPTORS BLOCKED',
+        text: '<strong>Receptor Antagonist (Blocker):</strong> Neurotransmitters are released normally into the cleft, but the blocker occupies the postsynaptic receptors. Ligand-gated Na⁺ channels stay closed, blocking the new electrical impulse.'
+      },
+      inhibitor: {
+        badge: 'NT CLEARANCE / BREAKDOWN BLOCKED',
+        text: '<strong>Reuptake / Breakdown Inhibitor:</strong> Neurotransmitters remain trapped in the synaptic cleft much longer, repeatedly binding postsynaptic receptors and causing prolonged, amplified firing in the receiving cell.'
+      }
+    };
+
+    const t3ChipsList = [
+      { id: 1, label: '1. Synaptic Terminal' },
+      { id: 2, label: '2. Mitochondrion' },
+      { id: 3, label: '3. Neurotransmitter Vesicles' },
+      { id: 4, label: '4. Synaptic Cleft' },
+      { id: 5, label: '5. Neurotransmitter Receptors' }
+    ];
+
+    // =========================================================================
+    // NAVIGATION LOGIC
+    // =========================================================================
+    function switchTab(tabNum) {
+      state.activeTab = tabNum;
+      [1, 2, 3].forEach(n => {
+        const panel = document.getElementById(`tab-panel-${n}`);
+        const btn = document.getElementById(`tab-btn-${n}`);
+        if (n === tabNum) {
+          panel.classList.remove('hidden');
+          btn.classList.add('tab-btn-active');
+          btn.classList.remove('text-slate-600');
+        } else {
+          panel.classList.add('hidden');
+          btn.classList.remove('tab-btn-active');
+          btn.classList.add('text-slate-600');
+        }
+      });
+    }
+
+    // =========================================================================
+    // TAB 1 FUNCTIONS: EXPLORE, DIAGRAM MATCHING, RACE, NEURON CLASSES
+    // =========================================================================
+    function setT1Mode(mode) {
+      state.t1Mode = mode;
+      const expBtn = document.getElementById('t1-mode-explore');
+      const matBtn = document.getElementById('t1-mode-match');
+      const expPanel = document.getElementById('t1-explore-panel');
+      const matPanel = document.getElementById('t1-match-panel');
+
+      if (mode === 'explore') {
+        expBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-tealPrimary text-white shadow-sm transition';
+        matBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-ink transition';
+        expPanel.classList.remove('hidden');
+        matPanel.classList.add('hidden');
+        resetPinVisualsT1();
+      } else {
+        matBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-amberIon text-white shadow-sm transition';
+        expBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-ink transition';
+        expPanel.classList.add('hidden');
+        matPanel.classList.remove('hidden');
+        renderT1Chips();
+      }
+    }
+
+    function selectT1Part(partId) {
+      if (state.t1Mode === 'match') {
+        if (partId >= 1 && partId <= 6) handleT1PinClick(partId);
+        return;
+      }
+      state.t1SelectedPart = partId;
+      const info = t1Parts[partId];
+      if (!info) return;
+      document.getElementById('t1-part-badge').textContent = info.badge;
+      document.getElementById('t1-part-zone').textContent = info.zone;
+      document.getElementById('t1-part-title').textContent = info.title;
+      document.getElementById('t1-part-role').textContent = info.role;
+      document.getElementById('t1-part-desc').textContent = info.desc;
+      document.getElementById('t1-part-bridge').innerHTML = info.bridge;
+    }
+
+    function renderT1Chips() {
+      const container = document.getElementById('t1-chips-container');
+      container.innerHTML = '';
+      t1ChipsList.forEach(chip => {
+        const isMatched = !!state.t1Matched[chip.id];
+        const isSelected = state.t1SelectedChip === chip.id;
+        const btn = document.createElement('button');
+        btn.disabled = isMatched;
+        btn.onclick = () => {
+          state.t1SelectedChip = chip.id;
+          renderT1Chips();
+          document.getElementById('t1-match-feedback').innerHTML = `Selected <strong>${chip.label}</strong>. Now click the matching numbered pin (1–6) on the neuron diagram!`;
+        };
+        btn.className = `px-2.5 py-2 rounded-xl text-xs font-semibold border text-left transition flex items-center justify-between ${
+          isMatched
+            ? 'bg-tealSoft/70 border-teal-300 text-tealPrimary opacity-75 cursor-default'
+            : isSelected
+            ? 'bg-amberSoft border-amberIon text-amber-950 ring-2 ring-amberIon/40'
+            : 'bg-white border-stoneBorder text-slate-700 hover:bg-canvas'
+        }`;
+        btn.innerHTML = `<span>${chip.label}</span>${isMatched ? '<span>✓</span>' : ''}`;
+        container.appendChild(btn);
+      });
+      const count = Object.keys(state.t1Matched).length;
+      document.getElementById('t1-match-score').textContent = `${count} / 6 Matched`;
+    }
+
+    function handleT1PinClick(pinId) {
+      if (state.t1Mode !== 'match') {
+        selectT1Part(pinId);
+        return;
+      }
+      const fb = document.getElementById('t1-match-feedback');
+      if (!state.t1SelectedChip) {
+        fb.innerHTML = `First click a term chip on the right, then click pin <strong>#${pinId}</strong>.`;
+        return;
+      }
+      if (state.t1SelectedChip === pinId) {
+        state.t1Matched[pinId] = true;
+        const pinCircle = document.querySelector(`#pin-${pinId} circle`);
+        const pinText = document.querySelector(`#pin-${pinId} text`);
+        if (pinCircle) { pinCircle.setAttribute('fill', '#0F6E6E'); pinCircle.setAttribute('stroke', '#0F6E6E'); }
+        if (pinText) { pinText.setAttribute('fill', '#FFFFFF'); }
+        fb.innerHTML = `<span class="text-tealPrimary font-bold">Correct!</span> Pin #${pinId} is the <strong>${t1Parts[pinId].title}</strong> — ${t1Parts[pinId].role}.`;
+        state.t1SelectedChip = null;
+        renderT1Chips();
+        if (Object.keys(state.t1Matched).length === 6) {
+          fb.innerHTML = `<span class="text-tealPrimary font-bold">All 6 Structures Matched!</span> You have mastered the Study Guide neuron diagram.`;
+        }
+      } else {
+        const chosenName = t1ChipsList.find(c => c.id === state.t1SelectedChip)?.label;
+        fb.innerHTML = `<span class="text-coralChem font-bold">Not quite:</span> Pin #${pinId} is not ${chosenName}. Look at where signal input, integration, insulation, and output occur.`;
+      }
+    }
+
+    function resetPinVisualsT1() {
+      const colors = { 1: '#0F6E6E', 2: '#0F6E6E', 3: '#D97706', 4: '#DC2626', 5: '#0F6E6E', 6: '#4338CA' };
+      [1, 2, 3, 4, 5, 6].forEach(id => {
+        const c = document.querySelector(`#pin-${id} circle`);
+        const t = document.querySelector(`#pin-${id} text`);
+        if (c) { c.setAttribute('fill', '#FFFFFF'); c.setAttribute('stroke', colors[id]); }
+        if (t) { t.setAttribute('fill', colors[id]); }
+      });
+    }
+
+    function resetT1Matching() {
+      state.t1Matched = {};
+      state.t1SelectedChip = null;
+      resetPinVisualsT1();
+      renderT1Chips();
+      document.getElementById('t1-match-feedback').textContent = 'Select a term chip to begin matching the Study Guide diagram.';
+    }
+
+    // Saltatory Conduction Race Animation
+    let raceAnimId = null;
+    function triggerConductionRace() {
+      if (raceAnimId) cancelAnimationFrame(raceAnimId);
+      const mPulse = document.getElementById('race-myelin-pulse');
+      const uPulse = document.getElementById('race-unmyelin-pulse');
+      const mStatus = document.getElementById('race-myelin-status');
+      const uStatus = document.getElementById('race-unmyelin-status');
+
+      let start = null;
+      const myelinDuration = 950;   // Fast saltatory jump
+      const unmyelinDuration = 2900; // Slow continuous wave
+      // Node positions for jumping effect
+      const nodes = [32, 167, 302, 437, 572, 635];
+
+      function step(ts) {
+        if (!start) start = ts;
+        const elapsed = ts - start;
+
+        // Myelinated jump progress
+        const mProg = Math.min(elapsed / myelinDuration, 1);
+        const nodeIdx = Math.min(Math.floor(mProg * (nodes.length - 1)), nodes.length - 1);
+        const mX = mProg >= 1 ? 635 : nodes[nodeIdx];
+        mPulse.setAttribute('cx', mX);
+        mStatus.textContent = mProg >= 1 ? 'Arrived! (1.2 ms • Low ATP)' : 'Jumping Nodes...';
+
+        // Unmyelinated smooth crawl progress
+        const uProg = Math.min(elapsed / unmyelinDuration, 1);
+        const uX = 25 + uProg * 610;
+        uPulse.setAttribute('cx', uX);
+        uStatus.textContent = uProg >= 1 ? 'Arrived (3.8 ms • High ATP)' : 'Depolarizing continuously...';
+
+        if (uProg < 1) {
+          raceAnimId = requestAnimationFrame(step);
+        }
+      }
+      raceAnimId = requestAnimationFrame(step);
+    }
+
+    // 3 Functional Neuron Classes Selector
+    function selectNeuronClass(cls) {
+      const classes = ['sensory', 'inter', 'motor'];
+      const styles = {
+        sensory: 'border-2 border-tealPrimary bg-tealSoft/40',
+        inter: 'border-2 border-indigoIon bg-indigoSoft/40',
+        motor: 'border-2 border-coralChem bg-coralSoft/40'
+      };
+      classes.forEach(c => {
+        const btn = document.getElementById(`btn-class-${c}`);
+        btn.className = `w-full text-left p-3 rounded-xl transition flex items-center justify-between ${
+          c === cls ? styles[c] : 'border border-stoneBorder bg-canvas hover:bg-white'
+        }`;
+      });
+
+      const details = {
+        sensory: '<strong class="text-tealPrimary">Structure ↔ Role (Sensory / Afferent):</strong> Often <em>pseudounipolar</em> with a long peripheral axon extending from a sensory receptor (e.g., skin thermoreceptor or tendon stretch receptor) to its cell body in the dorsal root ganglion, delivering rapid input into the spinal cord.',
+        inter: '<strong class="text-indigoIon">Structure ↔ Role (Interneuron / Relay):</strong> Typically <em>multipolar</em> with dense, compact dendritic trees located 100% inside the CNS (brain &amp; spinal cord). Connects sensory inputs to motor outputs and performs complex decision-making.',
+        motor: '<strong class="text-coralChem">Structure ↔ Role (Motor / Efferent):</strong> <em>Multipolar</em> with its cell body in the CNS (ventral horn of spinal cord or brainstem) and a long myelinated axon extending out through the PNS to release acetylcholine onto skeletal muscles or autonomic effectors.'
+      };
+      document.getElementById('neuron-class-detail').innerHTML = details[cls];
+    }
+
+    // =========================================================================
+    // TAB 2 FUNCTIONS: ACTION POTENTIAL PHASES, STIMULUS TESTER, GRAPH MATCHING
+    // =========================================================================
+    function setT2Mode(mode) {
+      state.t2Mode = mode;
+      const expBtn = document.getElementById('t2-mode-explore');
+      const matBtn = document.getElementById('t2-mode-match');
+      const expBox = document.getElementById('t2-explore-box');
+      const matBox = document.getElementById('t2-match-box');
+      const pins = ['A', 'B', 'C', 'D'];
+
+      if (mode === 'explore') {
+        expBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-tealPrimary text-white shadow-sm transition';
+        matBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-ink transition';
+        expBox.classList.remove('hidden');
+        matBox.classList.add('hidden');
+        pins.forEach(p => document.getElementById(`t2-pin-${p}`).classList.add('hidden'));
+      } else {
+        matBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-amberIon text-white shadow-sm transition';
+        expBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-ink transition';
+        expBox.classList.add('hidden');
+        matBox.classList.remove('hidden');
+        pins.forEach(p => document.getElementById(`t2-pin-${p}`).classList.remove('hidden'));
+        renderT2Chips();
+      }
+    }
+
+    function setAPPhase(idx) {
+      state.apPhase = idx;
+      const p = apPhases[idx];
+
+      // Update phase button highlights
+      [0, 1, 2, 3, 4].forEach(i => {
+        const b = document.getElementById(`ap-phase-btn-${i}`);
+        if (i === idx) {
+          b.className = 'ap-phase-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-tealPrimary text-white shadow-sm';
+        } else {
+          b.className = 'ap-phase-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-canvas text-slate-700 border border-stoneBorder hover:bg-white';
+        }
+      });
+
+      // Move graph marker & update readouts
+      document.getElementById('ap-curve-marker').setAttribute('transform', `translate(${p.markerX}, ${p.markerY})`);
+      document.getElementById('ap-mv-readout').textContent = p.mvText;
+      document.getElementById('channel-state-summary').textContent = p.summary;
+      document.getElementById('t2-phase-title').textContent = p.title;
+      document.getElementById('t2-phase-badge').textContent = p.badge;
+      document.getElementById('t2-phase-desc').textContent = p.desc;
+
+      // Update Membrane SVG Gates & Polarity
+      document.getElementById('polarity-out').textContent = p.polOut;
+      document.getElementById('polarity-in').textContent = p.polIn;
+      document.getElementById('na-gate-label').textContent = p.naState;
+      document.getElementById('k-gate-label').textContent = p.kState;
+
+      // Na+ Activation Gate visual
+      const naAct = document.getElementById('na-activation-gate');
+      naAct.setAttribute('opacity', p.naOpen ? '0.15' : '1');
+
+      // Na+ Ball-and-Chain Inactivation Gate visual
+      const naBall = document.getElementById('na-inactivation-ball');
+      const naChain = document.getElementById('na-inactivation-chain');
+      if (p.naInactivated) {
+        naBall.setAttribute('cx', '0');
+        naBall.setAttribute('cy', '34');
+        naChain.setAttribute('d', 'M -20 42 Q -12 34 0 34');
+      } else {
+        naBall.setAttribute('cx', '-4');
+        naBall.setAttribute('cy', '62');
+        naChain.setAttribute('d', 'M -20 42 Q -22 62 -6 62');
+      }
+
+      // Ion Flow Arrows
+      document.getElementById('na-influx-arrow').setAttribute('opacity', (p.naOpen && !p.naInactivated) ? '1' : '0');
+      document.getElementById('k-efflux-arrow').setAttribute('opacity', p.kOpen ? '1' : '0');
+      document.getElementById('k-gate').setAttribute('opacity', p.kOpen ? '0.15' : '1');
+    }
+
+    function runStimulusTest(strength) {
+      const fb = document.getElementById('stimulus-feedback-box');
+      const failedCurve = document.getElementById('ap-failed-curve');
+
+      if (strength === 'weak') {
+        failedCurve.setAttribute('opacity', '1');
+        setAPPhase(0);
+        document.getElementById('ap-curve-marker').setAttribute('transform', 'translate(155, 196)');
+        document.getElementById('ap-mv-readout').textContent = '-62 mV (Sub-threshold!)';
+        fb.className = 'mt-3 p-3 rounded-xl bg-slate-100 border border-slate-300 text-xs text-slate-800 leading-relaxed';
+        fb.innerHTML = '<strong>Sub-Threshold Stimulus (-62 mV):</strong> Too few Na⁺ channels opened to reach the -55 mV threshold. The graded depolarization fizzles out back to -70 mV—<strong>no action potential fires</strong> (All-or-Nothing).';
+      } else if (strength === 'threshold') {
+        failedCurve.setAttribute('opacity', '0');
+        setAPPhase(2);
+        fb.className = 'mt-3 p-3 rounded-xl bg-amberSoft/60 border border-amber-300 text-xs text-amber-950 leading-relaxed';
+        fb.innerHTML = '<strong>Threshold Reached (-55 mV):</strong> Voltage-gated Na⁺ channels snap open in a positive-feedback loop, driving membrane potential all the way to <strong>+40 mV</strong>.';
+      } else {
+        failedCurve.setAttribute('opacity', '0');
+        setAPPhase(2);
+        fb.className = 'mt-3 p-3 rounded-xl bg-tealSoft/70 border border-teal-300 text-xs text-teal-950 leading-relaxed';
+        fb.innerHTML = '<strong>Strong Stimulus → Same +40 mV Peak!</strong> Notice the action potential height does <em>not</em> get taller than +40 mV. Instead, the nervous system encodes stronger stimuli by firing <strong>more action potentials per second</strong> (higher frequency) as soon as the refractory period ends.';
+      }
+    }
+
+    function renderT2Chips() {
+      const container = document.getElementById('t2-chips-container');
+      container.innerHTML = '';
+      t2ChipsList.forEach(chip => {
+        const isMatched = !!state.t2Matched[chip.id];
+        const isSelected = state.t2SelectedChip === chip.id;
+        const btn = document.createElement('button');
+        btn.disabled = isMatched;
+        btn.onclick = () => {
+          state.t2SelectedChip = chip.id;
+          renderT2Chips();
+          document.getElementById('t2-match-feedback').innerHTML = `Selected <strong>${chip.label}</strong>. Now click pin A, B, C, or D on the graph!`;
+        };
+        btn.className = `px-2.5 py-1.5 rounded-lg text-[11px] font-semibold border text-left transition flex items-center justify-between ${
+          isMatched
+            ? 'bg-tealSoft/70 border-teal-300 text-tealPrimary opacity-75'
+            : isSelected
+            ? 'bg-amberSoft border-amberIon text-amber-950 ring-2 ring-amberIon/40'
+            : 'bg-white border-stoneBorder text-slate-700 hover:bg-canvas'
+        }`;
+        btn.innerHTML = `<span>${chip.label}</span>${isMatched ? '<span>✓</span>' : ''}`;
+        container.appendChild(btn);
+      });
+      document.getElementById('t2-match-score').textContent = `${Object.keys(state.t2Matched).length} / 4 Matched`;
+    }
+
+    function handleT2PinClick(pinLetter) {
+      if (state.t2Mode !== 'match') return;
+      const fb = document.getElementById('t2-match-feedback');
+      if (!state.t2SelectedChip) {
+        fb.textContent = 'Select a phase chip first, then click its letter pin on the graph.';
+        return;
+      }
+      if (state.t2SelectedChip === pinLetter) {
+        state.t2Matched[pinLetter] = true;
+        const c = document.querySelector(`#t2-pin-${pinLetter} circle`);
+        const t = document.querySelector(`#t2-pin-${pinLetter} text`);
+        if (c) { c.setAttribute('fill', '#0F6E6E'); c.setAttribute('stroke', '#0F6E6E'); }
+        if (t) { t.setAttribute('fill', '#FFFFFF'); }
+        const matchedObj = t2ChipsList.find(x => x.id === pinLetter);
+        fb.innerHTML = `<span class="text-tealPrimary font-bold">Correct!</span> Pin ${pinLetter} is <strong>${matchedObj.label}</strong>.`;
+        state.t2SelectedChip = null;
+        renderT2Chips();
+      } else {
+        fb.innerHTML = `<span class="text-coralChem font-bold">Try again:</span> Check the voltage direction (rising = Na⁺ influx, falling = K⁺ efflux).`;
+      }
+    }
+
+    // =========================================================================
+    // TAB 3 FUNCTIONS: SYNAPSE STEPS, PERTURBATIONS, MATCHING & CIRCUITS
+    // =========================================================================
+    function setT3Mode(mode) {
+      state.t3Mode = mode;
+      const expBtn = document.getElementById('t3-mode-explore');
+      const matBtn = document.getElementById('t3-mode-match');
+      const expPanel = document.getElementById('t3-explore-panel');
+      const matPanel = document.getElementById('t3-match-panel');
+      const pins = [1, 2, 3, 4, 5];
+
+      if (mode === 'explore') {
+        expBtn.className = 'px-3 py-1 rounded-lg text-xs font-semibold bg-tealPrimary text-white shadow-sm';
+        matBtn.className = 'px-3 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-ink';
+        expPanel.classList.remove('hidden');
+        matPanel.classList.add('hidden');
+        pins.forEach(p => document.getElementById(`t3-pin-${p}`).classList.add('hidden'));
+      } else {
+        matBtn.className = 'px-3 py-1 rounded-lg text-xs font-semibold bg-coralChem text-white shadow-sm';
+        expBtn.className = 'px-3 py-1 rounded-lg text-xs font-semibold text-slate-600 hover:text-ink';
+        expPanel.classList.add('hidden');
+        matPanel.classList.remove('hidden');
+        pins.forEach(p => document.getElementById(`t3-pin-${p}`).classList.remove('hidden'));
+        renderT3Chips();
+      }
+    }
+
+    function setSynapseStep(stepNum) {
+      state.synStep = stepNum;
+      [1, 2, 3, 4, 5].forEach(n => {
+        const b = document.getElementById(`syn-step-btn-${n}`);
+        if (n === stepNum) {
+          b.className = 'syn-step-btn py-2 px-1.5 rounded-lg text-[11px] font-semibold bg-tealPrimary text-white text-center shadow-sm';
+        } else {
+          b.className = 'syn-step-btn py-2 px-1.5 rounded-lg text-[11px] font-semibold bg-canvas text-slate-700 border border-stoneBorder text-center hover:bg-white';
+        }
+      });
+
+      const s = synSteps[stepNum];
+      document.getElementById('syn-step-tag').textContent = s.tag;
+      document.getElementById('syn-step-title').textContent = s.title;
+      document.getElementById('syn-step-desc').textContent = s.desc;
+
+      // Apply drug override visuals if active
+      let caOp = s.caOp;
+      let cleftOp = s.cleftOp;
+      let postOp = s.postOp;
+      if (state.synDrug === 'cablock') {
+        caOp = 0.08; cleftOp = 0.08; postOp = 0.08;
+      } else if (state.synDrug === 'antagonist') {
+        postOp = 0.08;
+      } else if (state.synDrug === 'inhibitor') {
+        cleftOp = 1; postOp = 1;
+      }
+
+      document.getElementById('syn-ca-ions').setAttribute('opacity', caOp);
+      document.getElementById('syn-nt-cleft').setAttribute('opacity', cleftOp);
+      document.getElementById('syn-post-impulse').setAttribute('opacity', postOp);
+      document.getElementById('vesicle-dock').setAttribute('cx', state.synDrug === 'cablock' ? 292 : s.vesX);
+    }
+
+    function setSynapseDrug(drugKey) {
+      state.synDrug = drugKey;
+      ['normal', 'cablock', 'antagonist', 'inhibitor'].forEach(k => {
+        const b = document.getElementById(`drug-btn-${k}`);
+        if (k === drugKey) {
+          b.className = 'drug-btn p-2 rounded-lg text-xs font-semibold bg-coralSoft text-coralChem border border-red-300 text-left shadow-sm';
+        } else {
+          b.className = 'drug-btn p-2 rounded-lg text-xs font-semibold bg-canvas text-slate-700 border border-stoneBorder hover:bg-white text-left';
+        }
+      });
+
+      const d = synDrugs[drugKey];
+      document.getElementById('syn-drug-explanation').innerHTML = d.text;
+      const badge = document.getElementById('syn-drug-badge');
+      if (d.badge) {
+        badge.classList.remove('hidden');
+        document.getElementById('syn-drug-badge-text').textContent = d.badge;
+      } else {
+        badge.classList.add('hidden');
+      }
+      setSynapseStep(state.synStep);
+    }
+
+    function renderT3Chips() {
+      const container = document.getElementById('t3-chips-container');
+      container.innerHTML = '';
+      t3ChipsList.forEach(chip => {
+        const isMatched = !!state.t3Matched[chip.id];
+        const isSelected = state.t3SelectedChip === chip.id;
+        const btn = document.createElement('button');
+        btn.disabled = isMatched;
+        btn.onclick = () => {
+          state.t3SelectedChip = chip.id;
+          renderT3Chips();
+          document.getElementById('t3-match-feedback').innerHTML = `Selected <strong>${chip.label}</strong>. Now click its numbered pin (1–5) on the synapse diagram!`;
+        };
+        btn.className = `px-3 py-1.5 rounded-lg text-xs font-semibold border text-left transition flex items-center justify-between ${
+          isMatched
+            ? 'bg-tealSoft/70 border-teal-300 text-tealPrimary opacity-75'
+            : isSelected
+            ? 'bg-coralSoft border-coralChem text-red-950 ring-2 ring-coralChem/30'
+            : 'bg-white border-stoneBorder text-slate-700 hover:bg-canvas'
+        }`;
+        btn.innerHTML = `<span>${chip.label}</span>${isMatched ? '<span>✓</span>' : ''}`;
+        container.appendChild(btn);
+      });
+      document.getElementById('t3-match-score').textContent = `${Object.keys(state.t3Matched).length} / 5 Matched`;
+    }
+
+    function handleT3PinClick(pinId) {
+      if (state.t3Mode !== 'match') return;
+      const fb = document.getElementById('t3-match-feedback');
+      if (!state.t3SelectedChip) {
+        fb.textContent = 'Select a synapse term chip first, then click its numbered pin.';
+        return;
+      }
+      if (state.t3SelectedChip === pinId) {
+        state.t3Matched[pinId] = true;
+        const c = document.querySelector(`#t3-pin-${pinId} circle`);
+        const t = document.querySelector(`#t3-pin-${pinId} text`);
+        if (c) { c.setAttribute('fill', '#0F6E6E'); c.setAttribute('stroke', '#0F6E6E'); }
+        if (t) { t.setAttribute('fill', '#FFFFFF'); }
+        const matchedObj = t3ChipsList.find(x => x.id === pinId);
+        fb.innerHTML = `<span class="text-tealPrimary font-bold">Correct!</span> Matched <strong>${matchedObj.label}</strong>.`;
+        state.t3SelectedChip = null;
+        renderT3Chips();
+      } else {
+        fb.innerHTML = `<span class="text-coralChem font-bold">Not quite:</span> Look at whether the structure is inside the presynaptic terminal, across the gap, or on the receiving cell.`;
+      }
+    }
+
+    // Whole-Body Circuit Comparator (Reflex Arc vs Intentional High Five)
+    function setCircuitMode(mode) {
+      state.circuitMode = mode;
+      const refBtn = document.getElementById('circuit-btn-reflex');
+      const hfBtn = document.getElementById('circuit-btn-highfive');
+
+      if (mode === 'reflex') {
+        refBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-coralChem text-white shadow-sm transition';
+        hfBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-ink transition';
+      } else {
+        hfBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-indigoIon text-white shadow-sm transition';
+        refBtn.className = 'px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-ink transition';
+      }
+
+      const data = {
+        reflex: {
+          steps: [
+            { step: '1. Stimulus & Receptor', loc: 'PNS • Patellar Tendon', desc: 'Reflex hammer taps tendon, stretching quadriceps muscle receptors above threshold (-55 mV).' },
+            { step: '2. Sensory (Afferent) Neuron', loc: 'PNS → Dorsal Root', desc: 'Myelinated sensory axon fires rapid saltatory action potentials into the spinal cord.' },
+            { step: '3. Spinal Cord Integration', loc: 'CNS • Interneuron', desc: 'Synapses directly onto spinal cord neurons—completely bypassing the brain for maximum speed!' },
+            { step: '4. Motor (Efferent) Neuron', loc: 'Ventral Root → PNS', desc: 'Somatic motor neuron conducts action potentials outward to the thigh muscle.' },
+            { step: '5. Effector Response', loc: 'Neuromuscular Synapse', desc: 'Axon terminal releases acetylcholine (ACh) onto quadriceps muscle → lower leg kicks forward.' }
+          ],
+          takeaway: '<strong>Key Exam Comparison (Reflex Arc):</strong> A reflex arc <strong>bypasses the brain</strong> for protective speed—processing occurs entirely inside the spinal cord using a Sensory Neuron → Spinal Interneuron → Motor Neuron loop.'
+        },
+        highfive: {
+          steps: [
+            { step: '1. Conscious Decision', loc: 'CNS • Frontal Lobe', desc: 'Internal decision to greet a friend originates in the prefrontal cortex (no external tendon tap needed).' },
+            { step: '2. Motor Planning', loc: 'CNS • Motor Cortex', desc: 'Hand and wrist regions of the primary motor cortex generate upper motor neuron action potentials.' },
+            { step: '3. Timing & Coordination', loc: 'CNS • Cerebellum', desc: 'Cerebellum compares motor plan with sensory proprioception to ensure smooth, accurate hand trajectory.' },
+            { step: '4. Descending Tract & PNS', loc: 'Spinal Cord → Somatic Motor', desc: 'Signal descends spinal cord, synapses onto lower motor neurons, and exits via somatic PNS nerves.' },
+            { step: '5. Effector Response', loc: 'Arm Skeletal Muscles', desc: 'Acetylcholine released at neuromuscular synapses triggers arm & hand contraction → crisp high five!' }
+          ],
+          takeaway: '<strong>Key Exam Comparison (Intentional Movement):</strong> Voluntary actions like a high five require <strong>brain planning (Frontal Lobe / Motor Cortex)</strong> and <strong>fine coordination (Cerebellum)</strong> before descending through the spinal cord to somatic motor neurons.'
+        }
+      };
+
+      const selected = data[mode];
+      const grid = document.getElementById('circuit-steps-grid');
+      grid.innerHTML = selected.steps.map((s, idx) => `
+        <div class="p-3.5 rounded-xl bg-canvas border border-stoneBorder flex flex-col justify-between space-y-2">
+          <div>
+            <span class="text-[10px] font-mono font-bold uppercase px-2 py-0.5 rounded ${mode === 'reflex' ? 'bg-coralSoft text-coralChem' : 'bg-indigoSoft text-indigoIon'}">${s.loc}</span>
+            <h4 class="font-serif text-sm font-bold text-ink mt-2">${s.step}</h4>
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">${s.desc}</p>
+          </div>
+          <div class="text-[10px] font-mono text-muted pt-1 border-t border-stoneBorder/60">Node ${idx + 1} of 5</div>
+        </div>
+      `).join('');
+
+      document.getElementById('circuit-takeaway').innerHTML = selected.takeaway;
+    }
+
+    // Initialize default views on load
+    window.addEventListener('DOMContentLoaded', () => {
+      selectT1Part(2);
+      setAPPhase(0);
+      setSynapseStep(1);
+      setCircuitMode('reflex');
+    });
+  </script>
+</body>
+</html>
