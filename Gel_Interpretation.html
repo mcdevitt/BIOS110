@@ -1,0 +1,1817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIOS 110 Lab — Gel Electrophoresis: gDNA & PCR Gel Interpretation Guide</title>
+    <style>
+        :root {
+            --bg-page: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-subtle: #f8fafc;
+            --bg-header: #0f172a;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --text-light: #64748b;
+            --border-color: #cbd5e1;
+            --border-light: #e2e8f0;
+            --accent-teal: #0d9488;
+            --accent-teal-bg: #f0fdfa;
+            --accent-blue: #0284c7;
+            --accent-blue-bg: #f0f9ff;
+            --accent-amber: #d97706;
+            --accent-amber-bg: #fffbeb;
+            --accent-rose: #e11d48;
+            --accent-rose-bg: #fff1f2;
+            --accent-emerald: #059669;
+            --accent-emerald-bg: #ecfdf5;
+            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+            --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            line-height: 1.55;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Sticky Dark Slate Header */
+        .app-header {
+            background: linear-gradient(135deg, #090e1a 0%, #1e293b 100%);
+            color: #f8fafc;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            border-bottom: 1px solid #334155;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+        }
+
+        .header-inner {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0.85rem 1.25rem 0;
+        }
+
+        .header-top {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding-bottom: 0.85rem;
+        }
+
+        .brand-row {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .gel-icon-box {
+            width: 42px;
+            height: 42px;
+            border-radius: 11px;
+            background: linear-gradient(135deg, #06b6d4, #0d9488);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35);
+        }
+
+        .badge-strip {
+            display: flex;
+            align-items: center;
+            gap: 0.45rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .course-pill {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            background: rgba(34, 211, 238, 0.16);
+            color: #67e8f9;
+            border: 1px solid rgba(34, 211, 238, 0.35);
+            padding: 0.12rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .role-pill {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .app-title {
+            font-size: 1.12rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            color: #ffffff;
+        }
+
+        /* 3-Tab Navigation Bar */
+        .nav-tabs {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.4rem;
+        }
+
+        @media (max-width: 680px) {
+            .nav-tabs {
+                grid-template-columns: 1fr;
+                padding-bottom: 0.65rem;
+            }
+        }
+
+        .nav-tab {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid #334155;
+            border-bottom: none;
+            color: #cbd5e1;
+            padding: 0.65rem 0.9rem;
+            border-radius: 10px 10px 0 0;
+            font-size: 0.84rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.16s ease;
+        }
+
+        @media (max-width: 680px) {
+            .nav-tab {
+                border-bottom: 1px solid #334155;
+                border-radius: 8px;
+                text-align: left;
+            }
+        }
+
+        .nav-tab:hover {
+            background: #334155;
+            color: #ffffff;
+        }
+
+        .nav-tab.active {
+            background: var(--bg-page);
+            color: #0f172a;
+            border-color: var(--bg-page);
+            box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.12);
+        }
+
+        /* Main Container */
+        .main-wrap {
+            max-width: 1180px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 1.25rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .tab-view {
+            display: none;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .tab-view.active {
+            display: flex;
+        }
+
+        /* Card Component */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: 1.25rem;
+        }
+
+        .card-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding-bottom: 0.85rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .kicker {
+            font-family: ui-monospace, monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--accent-teal);
+            margin-bottom: 0.15rem;
+        }
+
+        .card-title {
+            font-size: 1.08rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .card-sub {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+
+        /* TA Workflow Callout */
+        .workflow-banner {
+            background: var(--accent-blue-bg);
+            border: 1px solid #bae6fd;
+            border-radius: var(--radius-md);
+            padding: 0.85rem 1rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            font-size: 0.84rem;
+            color: #0c4a6e;
+        }
+
+        .workflow-steps {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 700;
+        }
+
+        .step-pill {
+            background: #ffffff;
+            border: 1px solid #7dd3fc;
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.76rem;
+        }
+
+        /* TAB 1: TA GEL TANK SIMULATOR */
+        .sim-layout {
+            display: grid;
+            grid-template-columns: 1.25fr 1fr;
+            gap: 1.25rem;
+            align-items: start;
+        }
+
+        @media (max-width: 880px) {
+            .sim-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .gel-tank-box {
+            background: #0b1120;
+            border: 2px solid #334155;
+            border-radius: var(--radius-md);
+            padding: 0.9rem;
+            color: #f8fafc;
+            box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.65);
+        }
+
+        .electrode-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.4rem 0.75rem;
+            border-radius: 8px;
+            font-family: ui-monospace, monospace;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+        }
+
+        .cathode-bar {
+            background: #1e293b;
+            border: 1px solid #475569;
+            color: #e2e8f0;
+            margin-bottom: 0.55rem;
+        }
+
+        .anode-bar {
+            background: rgba(225, 29, 72, 0.2);
+            border: 1px solid #f43f5e;
+            color: #fda4af;
+            margin-top: 0.55rem;
+        }
+
+        .sim-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.9rem;
+        }
+
+        .btn {
+            padding: 0.55rem 0.95rem;
+            border-radius: 9px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-main);
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn:hover {
+            border-color: var(--accent-teal);
+            background: var(--bg-subtle);
+        }
+
+        .btn-primary {
+            background: var(--accent-teal);
+            border-color: var(--accent-teal);
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background: #0f766e;
+            border-color: #0f766e;
+        }
+
+        .btn-active {
+            background: #0f172a;
+            border-color: #0f172a;
+            color: #ffffff;
+        }
+
+        .sim-status-panel {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .timer-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            padding: 0.65rem 0.85rem;
+            border-radius: 8px;
+            font-family: ui-monospace, monospace;
+            font-size: 0.82rem;
+        }
+
+        .timer-row strong {
+            color: var(--accent-teal);
+        }
+
+        .lane-legend-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.55rem;
+        }
+
+        .lane-legend-list li {
+            background: var(--bg-card);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 0.65rem 0.8rem;
+            font-size: 0.83rem;
+            color: var(--text-muted);
+        }
+
+        .lane-legend-list li strong {
+            color: var(--text-main);
+            display: block;
+            margin-bottom: 0.15rem;
+        }
+
+        /* Expandable Worksheet Overview Cards */
+        .accordion-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+        }
+
+        .accordion-item {
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            background: var(--bg-subtle);
+            overflow: hidden;
+        }
+
+        .accordion-btn {
+            width: 100%;
+            text-align: left;
+            padding: 0.85rem 1rem;
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .accordion-btn:hover {
+            background: rgba(13, 148, 136, 0.06);
+        }
+
+        .accordion-body {
+            display: none;
+            padding: 0.85rem 1rem 1rem;
+            border-top: 1px solid var(--border-light);
+            background: var(--bg-card);
+            font-size: 0.86rem;
+            color: var(--text-muted);
+        }
+
+        .accordion-body.open {
+            display: block;
+        }
+
+        /* TAB 2: ACTIVITY D GELS EXPLORER */
+        .activity-d-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+        }
+
+        @media (max-width: 900px) {
+            .activity-d-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .gel-panel {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .gel-panel-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .gel-panel-title {
+            font-size: 0.96rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .gel-tag {
+            font-family: ui-monospace, monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 0.2rem 0.55rem;
+            border-radius: 6px;
+        }
+
+        .tag-gdna {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .tag-pcr {
+            background: #ccfbf1;
+            color: #115e59;
+        }
+
+        .uv-viewport {
+            background: #0d1117;
+            border: 2px solid #334155;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.65);
+        }
+
+        .uv-viewport svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .lane-hit {
+            cursor: pointer;
+            transition: fill 0.15s ease;
+        }
+
+        .lane-hit:hover {
+            fill: rgba(56, 189, 248, 0.12);
+        }
+
+        .well-selector-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.4rem;
+        }
+
+        .well-pill {
+            padding: 0.45rem 0.4rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-main);
+            font-size: 0.76rem;
+            font-weight: 700;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .well-pill:hover {
+            border-color: var(--accent-teal);
+        }
+
+        .well-pill.active {
+            background: var(--accent-teal);
+            border-color: var(--accent-teal);
+            color: #ffffff;
+        }
+
+        .diagnostic-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-teal);
+            border-radius: 8px;
+            padding: 0.85rem;
+            font-size: 0.84rem;
+        }
+
+        .diagnostic-box h4 {
+            font-size: 0.88rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.25rem;
+        }
+
+        .diagnostic-box p {
+            color: var(--text-muted);
+        }
+
+        /* Quick Diagnostic Check */
+        .quiz-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 900px) {
+            .quiz-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .quiz-card {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.95rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .quiz-q {
+            font-size: 0.86rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .quiz-opts {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .quiz-opt-btn {
+            text-align: left;
+            padding: 0.55rem 0.75rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-main);
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .quiz-opt-btn:hover {
+            border-color: var(--accent-blue);
+        }
+
+        .quiz-opt-btn.correct {
+            background: var(--accent-emerald-bg);
+            border-color: var(--accent-emerald);
+        }
+
+        .quiz-opt-btn.wrong {
+            background: var(--accent-rose-bg);
+            border-color: var(--accent-rose);
+        }
+
+        .quiz-fb {
+            display: none;
+            font-size: 0.79rem;
+            padding: 0.6rem 0.7rem;
+            border-radius: 8px;
+            line-height: 1.4;
+        }
+
+        .quiz-fb.show {
+            display: block;
+        }
+
+        .quiz-fb.ok {
+            background: var(--accent-emerald-bg);
+            border: 1px solid var(--accent-emerald);
+            color: #064e3b;
+        }
+
+        .quiz-fb.err {
+            background: var(--accent-rose-bg);
+            border: 1px solid var(--accent-rose);
+            color: #881337;
+        }
+
+        /* TAB 3: ACTIVITY F MY LAB RESULTS INTERPRETER */
+        .builder-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 780px) {
+            .builder-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .selector-group {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.95rem;
+        }
+
+        .selector-group label {
+            display: block;
+            font-size: 0.86rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.55rem;
+        }
+
+        .outcome-btn-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.45rem;
+        }
+
+        @media (max-width: 480px) {
+            .outcome-btn-list {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .outcome-btn {
+            padding: 0.6rem 0.7rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-main);
+            font-size: 0.79rem;
+            font-weight: 700;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .outcome-btn:hover {
+            border-color: var(--accent-teal);
+        }
+
+        .outcome-btn.active {
+            background: var(--accent-teal-bg);
+            border-color: var(--accent-teal);
+            box-shadow: 0 0 0 1px var(--accent-teal);
+            color: #0f766e;
+        }
+
+        .paired-preview-layout {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 1.25rem;
+            align-items: start;
+        }
+
+        @media (max-width: 880px) {
+            .paired-preview-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .reflection-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .ref-item {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.9rem 1rem;
+        }
+
+        .ref-q {
+            font-size: 0.84rem;
+            font-weight: 800;
+            color: var(--accent-teal);
+            margin-bottom: 0.3rem;
+        }
+
+        .ref-a {
+            font-size: 0.85rem;
+            color: var(--text-main);
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sticky Dark Slate Header -->
+    <header class="app-header">
+        <div class="header-inner">
+            <div class="header-top">
+                <div class="brand-row">
+                    <div class="gel-icon-box" aria-hidden="true">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="3"/>
+                            <line x1="7" y1="7" x2="10" y2="7"/>
+                            <line x1="14" y1="7" x2="17" y2="7"/>
+                            <line x1="7" y1="12" x2="10" y2="12"/>
+                            <line x1="14" y1="15" x2="17" y2="15"/>
+                            <line x1="7" y1="17" x2="10" y2="17"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="badge-strip">
+                            <span class="course-pill">BIOS 110 Lab</span>
+                            <span class="role-pill">Student Gel Loading &amp; Results Guide</span>
+                        </div>
+                        <h1 class="app-title">BIOS 110 Lab — gDNA &amp; PCR Gel Interpretation Guide</h1>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3-Tab Navigation Bar -->
+            <nav class="nav-tabs" role="tablist" aria-label="Worksheet Sections">
+                <button class="nav-tab active" role="tab" aria-selected="true" onclick="switchTab(1, this)">
+                    1. Overview &amp; Live Gel Run
+                </button>
+                <button class="nav-tab" role="tab" aria-selected="false" onclick="switchTab(2, this)">
+                    2. Activity D: gDNA vs. PCR Gels
+                </button>
+                <button class="nav-tab" role="tab" aria-selected="false" onclick="switchTab(3, this)">
+                    3. Activity F: My Lab Results
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-wrap">
+
+        <!-- ========================================================= -->
+        <!-- TAB 1: OVERVIEW & LIVE GEL RUN SIMULATION                 -->
+        <!-- ========================================================= -->
+        <section id="tab-1" class="tab-view active" aria-labelledby="tab1-heading">
+
+            <!-- TA Gel Workflow Context -->
+            <div class="workflow-banner">
+                <div>
+                    <strong>Today’s Lab Workflow:</strong> You micropipette your <strong>gDNA</strong> and <strong>PCR</strong> samples into the gel wells, and your <strong>TA runs the gel box</strong> so you can watch the bands separate and interpret your results.
+                </div>
+                <div class="workflow-steps">
+                    <span class="step-pill">1. Student Loads Wells</span>
+                    <span>→</span>
+                    <span class="step-pill">2. TA Runs Gel (100V)</span>
+                    <span>→</span>
+                    <span class="step-pill">3. UV Gel Imaging</span>
+                </div>
+            </div>
+
+            <!-- Interactive TA Gel Box Run Simulator -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="kicker">Interactive Simulation • Separation Physics</div>
+                        <h2 class="card-title" id="tab1-heading">TA Gel Box Run Simulator (Watch How DNA Separates)</h2>
+                        <p class="card-sub">Press <strong>Run / Pause TA Gel</strong> to watch negatively charged DNA migrate from the wells at the black cathode (<strong>−</strong>) toward the red anode (<strong>+</strong>).</p>
+                    </div>
+                </div>
+
+                <div class="sim-controls">
+                    <button class="btn btn-primary" id="sim-run-btn" onclick="toggleSimRun()">▶ Run TA Gel</button>
+                    <button class="btn" onclick="resetSim()">↺ Reset Wells</button>
+                    <button class="btn btn-active" id="sim-ruler-btn" onclick="toggleSimRuler()">📏 Base-Pair Ruler: ON</button>
+                </div>
+
+                <div class="sim-layout">
+                    <!-- Gel Tank Viewport -->
+                    <div class="gel-tank-box">
+                        <div class="electrode-bar cathode-bar">
+                            <span>⚫ CATHODE (−) • BLACK LEAD</span>
+                            <span>SAMPLES LOADED HERE</span>
+                        </div>
+
+                        <svg id="sim-gel-svg" viewBox="0 0 460 350" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Animated agarose gel electrophoresis tank showing DNA ladder, gDNA smear, and PCR band migrating toward the positive anode">
+                            <defs>
+                                <linearGradient id="tankGelGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#111827"/>
+                                    <stop offset="50%" stop-color="#162033"/>
+                                    <stop offset="100%" stop-color="#0f172a"/>
+                                </linearGradient>
+                                <linearGradient id="gdnaSmearGrad" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#fde047" stop-opacity="0.88"/>
+                                    <stop offset="35%" stop-color="#facc15" stop-opacity="0.48"/>
+                                    <stop offset="100%" stop-color="#eab308" stop-opacity="0.06"/>
+                                </linearGradient>
+                                <filter id="simGlow" x="-25%" y="-40%" width="150%" height="180%">
+                                    <feGaussianBlur stdDeviation="2.2" result="blur"/>
+                                    <feMerge>
+                                        <feMergeNode in="blur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            </defs>
+
+                            <!-- Agarose Slab -->
+                            <rect x="65" y="6" width="335" height="338" rx="8" fill="url(#tankGelGrad)" stroke="#334155" stroke-width="1.5"/>
+
+                            <!-- Subtle Agarose Pore Dots -->
+                            <g fill="#334155" opacity="0.35">
+                                <circle cx="110" cy="90" r="1.2"/><circle cx="150" cy="120" r="1.2"/><circle cx="210" cy="100" r="1.2"/>
+                                <circle cx="270" cy="140" r="1.2"/><circle cx="330" cy="110" r="1.2"/><circle cx="130" cy="210" r="1.2"/>
+                                <circle cx="195" cy="240" r="1.2"/><circle cx="285" cy="220" r="1.2"/><circle cx="350" cy="260" r="1.2"/>
+                            </g>
+
+                            <!-- Lane Dividers -->
+                            <line x1="175" y1="24" x2="175" y2="336" stroke="#334155" stroke-dasharray="3,4"/>
+                            <line x1="285" y1="24" x2="285" y2="336" stroke="#334155" stroke-dasharray="3,4"/>
+
+                            <!-- Lane Headers -->
+                            <text x="120" y="21" fill="#e2e8f0" font-family="ui-monospace, monospace" font-size="11" font-weight="700" text-anchor="middle">DNA Ladder</text>
+                            <text x="230" y="21" fill="#fde047" font-family="ui-monospace, monospace" font-size="11" font-weight="700" text-anchor="middle">gDNA Sample</text>
+                            <text x="340" y="21" fill="#5eead4" font-family="ui-monospace, monospace" font-size="11" font-weight="700" text-anchor="middle">PCR Product</text>
+
+                            <!-- Wells at Top (y = 30) -->
+                            <rect x="92" y="28" width="56" height="10" rx="2" fill="#030712" stroke="#64748b" stroke-width="1.4"/>
+                            <rect x="202" y="28" width="56" height="10" rx="2" fill="#030712" stroke="#64748b" stroke-width="1.4"/>
+                            <rect x="312" y="28" width="56" height="10" rx="2" fill="#030712" stroke="#64748b" stroke-width="1.4"/>
+
+                            <!-- Base-Pair Ruler on Left -->
+                            <g id="sim-ruler-group" font-family="ui-monospace, monospace" font-size="10" font-weight="700" fill="#94a3b8" text-anchor="end">
+                                <text x="58" y="64">4000 bp</text>
+                                <text x="58" y="96">2000 bp</text>
+                                <text x="58" y="130">1250 bp</text>
+                                <text x="58" y="168">800 bp</text>
+                                <text x="58" y="208">500 bp</text>
+                                <text x="58" y="246">300 bp</text>
+                                <text x="58" y="284">200 bp</text>
+                                <text x="58" y="324">100 bp</text>
+                            </g>
+
+                            <!-- Direction of Movement Arrow on Right -->
+                            <line x1="422" y1="36" x2="422" y2="318" stroke="#94a3b8" stroke-width="1.8" stroke-dasharray="5,4"/>
+                            <polygon points="417,315 427,315 422,326" fill="#94a3b8"/>
+                            <text x="438" y="180" fill="#cbd5e1" font-family="sans-serif" font-size="10" font-weight="700" text-anchor="middle" transform="rotate(90 438 180)">Direction of movement</text>
+
+                            <!-- Dynamic Ladder Bands (populated & animated via JS) -->
+                            <g id="sim-ladder-bands" filter="url(#simGlow)"></g>
+
+                            <!-- Dynamic gDNA Smear (animated via JS) -->
+                            <rect id="sim-gdna-smear" x="204" y="32" width="52" height="6" rx="2" fill="url(#gdnaSmearGrad)"/>
+
+                            <!-- Dynamic PCR Band (~600 bp -> target y = 192) -->
+                            <rect id="sim-pcr-band" x="314" y="32" width="52" height="6.5" rx="2" fill="#2dd4bf" filter="url(#simGlow)"/>
+
+                            <!-- Tracking Dye Front (Bromophenol Blue) -->
+                            <line id="sim-dye-front" x1="72" y1="35" x2="392" y2="35" stroke="#3b82f6" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.75"/>
+                        </svg>
+
+                        <div class="electrode-bar anode-bar">
+                            <span>🔴 ANODE (+) • RED LEAD</span>
+                            <span>DNA MIGRATES TOWARD (+)</span>
+                        </div>
+                    </div>
+
+                    <!-- Real-Time Interpretation Panel -->
+                    <div class="sim-status-panel">
+                        <div class="timer-row">
+                            <span>Run Progress: <strong id="sim-pct-text">0% (Loaded in Wells)</strong></span>
+                            <span>Voltage: <strong>100 V</strong></span>
+                        </div>
+
+                        <ul class="lane-legend-list">
+                            <li>
+                                <strong>Lane 1 — DNA Ladder (4000 bp to 100 bp):</strong>
+                                Contains DNA fragments of known sizes. Notice how smaller fragments (<strong>100–300 bp</strong>) weave rapidly through agarose pores toward the bottom, while large fragments (<strong>2000–4000 bp</strong>) stay near the top.
+                            </li>
+                            <li>
+                                <strong>Lane 2 — Genomic DNA (gDNA) Sample:</strong>
+                                Extracted chromosomal DNA is huge and sheared into many overlapping sizes during extraction, producing a <strong>continuous vertical smear</strong> rather than one single band.
+                            </li>
+                            <li>
+                                <strong>Lane 3 — PCR Product Sample (~600 bp):</strong>
+                                PCR copies only one specific target region of exact length (~600 bp), producing a <strong>single, sharp band</strong> located between the 500 bp and 800 bp ladder markers.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expandable Worksheet Overview Cards -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="kicker">Worksheet Section 1 • Overview Concepts</div>
+                        <h2 class="card-title">Overview — Why Are We Using Gel Electrophoresis Today?</h2>
+                        <p class="card-sub">Click each question below to reveal the key takeaway for your worksheet.</p>
+                    </div>
+                </div>
+
+                <div class="accordion-list">
+                    <div class="accordion-item">
+                        <button class="accordion-btn" onclick="toggleAccordion(this)">
+                            <span>1. We are running a gDNA gel to determine whether:</span>
+                            <span>▼</span>
+                        </button>
+                        <div class="accordion-body open">
+                            <strong>DNA extraction was successful</strong>—specifically whether genomic DNA (gDNA) is present in our sample, how much DNA was recovered (indicated by smear brightness/thickness), and whether the DNA is intact high-molecular-weight DNA or heavily degraded.
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-btn" onclick="toggleAccordion(this)">
+                            <span>2. We are running a PCR gel to determine whether:</span>
+                            <span>▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            <strong>PCR amplification successfully produced the expected target DNA fragment</strong> (a sharp band at ~600 bp), how strongly the target amplified, and whether our positive control worked while our negative control remained free of contamination.
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <button class="accordion-btn" onclick="toggleAccordion(this)">
+                            <span>3. How does gel electrophoresis separate DNA fragments, and why do smaller fragments travel farther than larger ones?</span>
+                            <span>▼</span>
+                        </button>
+                        <div class="accordion-body">
+                            DNA has a <strong>negatively charged phosphate backbone</strong>, so when an electric current is applied, DNA migrates through the gel from the negative cathode (−) toward the positive anode (+). The agarose gel forms a microscopic <strong>porous matrix (molecular sieve)</strong>: smaller DNA fragments slip through the pores with less friction and resistance, allowing them to travel faster and farther down the gel than larger fragments.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- TAB 2: ACTIVITY D — gDNA VS. PCR GEL EXPLORER             -->
+        <!-- ========================================================= -->
+        <section id="tab-2" class="tab-view" aria-labelledby="tab2-heading">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="kicker">Worksheet Section 2 • Activity D Reference Gels</div>
+                        <h2 class="card-title" id="tab2-heading">Activity D: Interpreting gDNA Smears vs. PCR Bands</h2>
+                        <p class="card-sub">Click any well (<strong>Well 1 – Well 4</strong>) on either gel below to inspect what smear or band brightness and thickness reveal.</p>
+                    </div>
+                </div>
+
+                <div class="activity-d-grid">
+
+                    <!-- LEFT PANEL: gDNA GEL -->
+                    <div class="gel-panel">
+                        <div class="gel-panel-head">
+                            <h3 class="gel-panel-title">Activity D Gel 1: Genomic DNA (gDNA)</h3>
+                            <span class="gel-tag tag-gdna">Extraction Check • Smears</span>
+                        </div>
+
+                        <div class="uv-viewport">
+                            <svg viewBox="0 0 420 330" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Activity D gDNA Gel showing DNA Ladder and Wells 1 through 4">
+                                <defs>
+                                    <linearGradient id="actDGelBg" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#1c1c1e"/>
+                                        <stop offset="50%" stop-color="#27272a"/>
+                                        <stop offset="100%" stop-color="#18181b"/>
+                                    </linearGradient>
+                                    <linearGradient id="smearWell1" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#ffffff" stop-opacity="0.88"/>
+                                        <stop offset="22%" stop-color="#e4e4e7" stop-opacity="0.68"/>
+                                        <stop offset="75%" stop-color="#d4d4d8" stop-opacity="0.34"/>
+                                        <stop offset="100%" stop-color="#a1a1aa" stop-opacity="0.06"/>
+                                    </linearGradient>
+                                    <linearGradient id="smearWell2" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#f4f4f5" stop-opacity="0.65"/>
+                                        <stop offset="22%" stop-color="#d4d4d8" stop-opacity="0.46"/>
+                                        <stop offset="75%" stop-color="#a1a1aa" stop-opacity="0.22"/>
+                                        <stop offset="100%" stop-color="#71717a" stop-opacity="0.04"/>
+                                    </linearGradient>
+                                    <linearGradient id="smearWell3" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stop-color="#e4e4e7" stop-opacity="0.30"/>
+                                        <stop offset="30%" stop-color="#a1a1aa" stop-opacity="0.20"/>
+                                        <stop offset="85%" stop-color="#71717a" stop-opacity="0.08"/>
+                                        <stop offset="100%" stop-color="#52525b" stop-opacity="0.02"/>
+                                    </linearGradient>
+                                </defs>
+
+                                <rect width="420" height="330" fill="url(#actDGelBg)"/>
+
+                                <!-- Column Headers -->
+                                <g font-family="sans-serif" font-size="11" font-weight="700" fill="#f8fafc" text-anchor="middle">
+                                    <text x="95" y="18">DNA</text><text x="95" y="31">Ladder</text>
+                                    <text x="158" y="18">Well</text><text x="158" y="31">1</text>
+                                    <text x="220" y="18">Well</text><text x="220" y="31">2</text>
+                                    <text x="282" y="18">Well</text><text x="282" y="31">3</text>
+                                    <text x="344" y="18">Well</text><text x="344" y="31">4</text>
+                                </g>
+
+                                <!-- Base Pair Labels -->
+                                <g font-family="ui-monospace, monospace" font-size="10.5" font-weight="700" fill="#e2e8f0" text-anchor="end">
+                                    <text x="62" y="66">4000 bp</text>
+                                    <text x="62" y="96">2000 bp</text>
+                                    <text x="62" y="128">1250 bp</text>
+                                    <text x="62" y="162">800 bp</text>
+                                    <text x="62" y="196">500 bp</text>
+                                    <text x="62" y="230">300 bp</text>
+                                    <text x="62" y="264">200 bp</text>
+                                    <text x="62" y="302">100 bp</text>
+                                </g>
+
+                                <!-- Wells -->
+                                <rect x="74" y="38" width="42" height="10" rx="2" fill="#09090b" stroke="#71717a"/>
+                                <rect x="137" y="38" width="42" height="10" rx="2" fill="#09090b" stroke="#71717a"/>
+                                <rect x="199" y="38" width="42" height="10" rx="2" fill="#09090b" stroke="#71717a"/>
+                                <rect x="261" y="38" width="42" height="10" rx="2" fill="#09090b" stroke="#71717a"/>
+                                <rect x="323" y="38" width="42" height="10" rx="2" fill="#09090b" stroke="#71717a"/>
+
+                                <!-- Ladder Bands -->
+                                <g fill="#ffffff">
+                                    <rect x="76" y="61" width="38" height="3.2" rx="1"/>
+                                    <rect x="76" y="91" width="38" height="3.2" rx="1"/>
+                                    <rect x="76" y="123" width="38" height="3.2" rx="1"/>
+                                    <rect x="76" y="157" width="38" height="3.2" rx="1"/>
+                                    <rect x="76" y="191" width="38" height="3.2" rx="1"/>
+                                    <rect x="76" y="225" width="38" height="3.2" rx="1"/>
+                                    <rect x="76" y="259" width="38" height="3.2" rx="1"/>
+                                    <rect x="76" y="297" width="38" height="3.2" rx="1"/>
+                                </g>
+
+                                <!-- Dashed Lane Dividers -->
+                                <g stroke="#d4d4d8" stroke-width="1.2" stroke-dasharray="5,4" opacity="0.55">
+                                    <line x1="127" y1="54" x2="127" y2="306"/>
+                                    <line x1="189" y1="54" x2="189" y2="306"/>
+                                    <line x1="251" y1="54" x2="251" y2="306"/>
+                                    <line x1="313" y1="54" x2="313" y2="306"/>
+                                    <line x1="375" y1="54" x2="375" y2="306"/>
+                                </g>
+
+                                <!-- gDNA Smears in Wells 1, 2, 3 (Well 4 Blank) -->
+                                <rect x="138" y="106" width="40" height="175" rx="4" fill="url(#smearWell1)"/>
+                                <rect x="200" y="110" width="40" height="168" rx="4" fill="url(#smearWell2)"/>
+                                <rect x="262" y="118" width="40" height="156" rx="4" fill="url(#smearWell3)"/>
+
+                                <!-- Selected Lane Highlight Box -->
+                                <rect id="gdna-highlight-box" x="132" y="36" width="52" height="272" rx="6" fill="rgba(250, 204, 21, 0.14)" stroke="#facc15" stroke-width="2"/>
+
+                                <!-- Interactive Clickable Hit Targets -->
+                                <rect class="lane-hit" x="132" y="36" width="52" height="272" fill="transparent" onclick="selectGdnaWell(1)"/>
+                                <rect class="lane-hit" x="194" y="36" width="52" height="272" fill="transparent" onclick="selectGdnaWell(2)"/>
+                                <rect class="lane-hit" x="256" y="36" width="52" height="272" fill="transparent" onclick="selectGdnaWell(3)"/>
+                                <rect class="lane-hit" x="318" y="36" width="52" height="272" fill="transparent" onclick="selectGdnaWell(4)"/>
+
+                                <!-- Direction of Movement Arrow -->
+                                <line x1="386" y1="56" x2="386" y2="296" stroke="#e2e8f0" stroke-width="1.6" stroke-dasharray="4,3"/>
+                                <polygon points="382,294 390,294 386,303" fill="#e2e8f0"/>
+                                <text x="404" y="180" fill="#e2e8f0" font-family="sans-serif" font-size="10" font-weight="700" text-anchor="middle" transform="rotate(90 404 180)">Direction of movement</text>
+                            </svg>
+                        </div>
+
+                        <div class="well-selector-row">
+                            <button class="well-pill active" id="gdna-pill-1" onclick="selectGdnaWell(1)">Well 1</button>
+                            <button class="well-pill" id="gdna-pill-2" onclick="selectGdnaWell(2)">Well 2</button>
+                            <button class="well-pill" id="gdna-pill-3" onclick="selectGdnaWell(3)">Well 3</button>
+                            <button class="well-pill" id="gdna-pill-4" onclick="selectGdnaWell(4)">Well 4</button>
+                        </div>
+
+                        <div class="diagnostic-box" id="gdna-diag-box">
+                            <h4>Well 1 — Bright, Thick gDNA Smear (High Yield)</h4>
+                            <p>A bright, wide smear concentrated near the upper/middle region (~1250–800+ bp) indicates a <strong>high concentration of extracted genomic DNA</strong>. The extraction worked very well, leaving plenty of template for PCR.</p>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT PANEL: PCR PRODUCT GEL -->
+                    <div class="gel-panel">
+                        <div class="gel-panel-head">
+                            <h3 class="gel-panel-title">Activity D Gel 2: PCR Product</h3>
+                            <span class="gel-tag tag-pcr">Target Amplification • ~600 bp</span>
+                        </div>
+
+                        <div class="uv-viewport">
+                            <svg viewBox="0 0 420 330" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Activity D PCR Gel showing DNA Ladder, Positive Control, Medium gDNA, Less gDNA, and No gDNA">
+                                <defs>
+                                    <filter id="pcrBandGlow" x="-25%" y="-50%" width="150%" height="200%">
+                                        <feGaussianBlur stdDeviation="2.2" result="blur"/>
+                                        <feMerge>
+                                            <feMergeNode in="blur"/>
+                                            <feMergeNode in="SourceGraphic"/>
+                                        </feMerge>
+                                    </filter>
+                                </defs>
+
+                                <rect width="420" height="330" fill="url(#actDGelBg)"/>
+
+                                <!-- Top Column Headers -->
+                                <g font-family="sans-serif" font-size="11" font-weight="700" fill="#f8fafc" text-anchor="middle">
+                                    <text x="95" y="18">DNA</text><text x="95" y="31">Ladder</text>
+                                    <text x="158" y="18">Well</text><text x="158" y="31">1</text>
+                                    <text x="220" y="18">Well</text><text x="220" y="31">2</text>
+                                    <text x="282" y="18">Well</text><text x="282" y="31">3</text>
+                                    <text x="344" y="18">Well</text><text x="344" y="31">4</text>
+                                </g>
+
+                                <!-- Base Pair Labels -->
+                                <g font-family="ui-monospace, monospace" font-size="10.5" font-weight="700" fill="#e2e8f0" text-anchor="end">
+                                    <text x="62" y="66">4000 bp</text>
+                                    <text x="62" y="96">2000 bp</text>
+                                    <text x="62" y="128">1250 bp</text>
+                                    <text x="62" y="162">800 bp</text>
+                                    <text x="62" y="196">500 bp</text>
+                                    <text x="62" y="230">300 bp</text>
+                                    <text x="62" y="264">200 bp</text>
+                                    <text x="62" y="294">100 bp</text>
+                                </g>
+
+                                <!-- Wells -->
+                                <rect x="74" y="38" width="42" height="10" rx="2" fill="#09090b" stroke="#71717a"/>
+                                <rect x="137" y="38" width="42" height="10" rx="2" fill="#09090b" stroke="#71717a"/>
+                                <rect x="199" y="38" width="42" height="10" rx="2" fill="#09090b" stroke="#71717a"/>
+                                <rect x="261" y="38" width="42" height="10" rx="2" fill="#09090b" stroke="#71717a"/>
+                                <rect x="323" y="38" width="42" height="10" rx="2" fill="#09090b" stroke="#71717a"/>
+
+                                <!-- Ladder Bands -->
+                                <g fill="#ffffff">
+                                    <rect x="76" y="61" width="38" height="3.2" rx="1"/>
+                                    <rect x="76" y="91" width="38" height="3.2" rx="1"/>
+                                    <rect x="76" y="123" width="38" height="3.2" rx="1"/>
+                                    <rect x="76" y="157" width="38" height="3.2" rx="1"/>
+                                    <rect x="76" y="191" width="38" height="3.2" rx="1"/>
+                                    <rect x="76" y="225" width="38" height="3.2" rx="1"/>
+                                    <rect x="76" y="259" width="38" height="3.2" rx="1"/>
+                                    <rect x="76" y="289" width="38" height="3.2" rx="1"/>
+                                </g>
+
+                                <!-- Dashed Lane Dividers -->
+                                <g stroke="#d4d4d8" stroke-width="1.2" stroke-dasharray="5,4" opacity="0.55">
+                                    <line x1="127" y1="54" x2="127" y2="294"/>
+                                    <line x1="189" y1="54" x2="189" y2="294"/>
+                                    <line x1="251" y1="54" x2="251" y2="294"/>
+                                    <line x1="313" y1="54" x2="313" y2="294"/>
+                                    <line x1="375" y1="54" x2="375" y2="294"/>
+                                </g>
+
+                                <!-- PCR Product Bands at ~600 bp (y = 176, between 800 bp [157] and 500 bp [191]) -->
+                                <!-- Well 1: Thick bright band -->
+                                <rect x="138" y="173.5" width="40" height="7" rx="1.5" fill="#f8fafc" filter="url(#pcrBandGlow)"/>
+                                <!-- Well 2: Moderate band -->
+                                <rect x="200" y="174.5" width="40" height="5" rx="1.5" fill="#d4d4d8" opacity="0.82"/>
+                                <!-- Well 3: Faint thin band -->
+                                <rect x="262" y="175.2" width="40" height="3.8" rx="1.5" fill="#a1a1aa" opacity="0.45"/>
+                                <!-- Well 4: Blank (No gDNA control) -->
+
+                                <!-- Bottom Worksheet Labels -->
+                                <g font-family="sans-serif" font-size="9.5" font-weight="700" fill="#cbd5e1" text-anchor="middle">
+                                    <text x="95" y="311">+</text><text x="95" y="323">Control</text>
+                                    <text x="158" y="311">More</text><text x="158" y="323">gDNA</text>
+                                    <text x="220" y="311">Med</text><text x="220" y="323">gDNA</text>
+                                    <text x="282" y="311">Less</text><text x="282" y="323">gDNA</text>
+                                    <text x="344" y="311">No</text><text x="344" y="323">gDNA</text>
+                                </g>
+
+                                <!-- Selected Lane Highlight Box -->
+                                <rect id="pcr-highlight-box" x="132" y="36" width="52" height="260" rx="6" fill="rgba(45, 212, 191, 0.14)" stroke="#2dd4bf" stroke-width="2"/>
+
+                                <!-- Interactive Clickable Hit Targets -->
+                                <rect class="lane-hit" x="132" y="36" width="52" height="260" fill="transparent" onclick="selectPcrWell(1)"/>
+                                <rect class="lane-hit" x="194" y="36" width="52" height="260" fill="transparent" onclick="selectPcrWell(2)"/>
+                                <rect class="lane-hit" x="256" y="36" width="52" height="260" fill="transparent" onclick="selectPcrWell(3)"/>
+                                <rect class="lane-hit" x="318" y="36" width="52" height="260" fill="transparent" onclick="selectPcrWell(4)"/>
+
+                                <!-- Direction of Movement Arrow -->
+                                <line x1="386" y1="56" x2="386" y2="284" stroke="#e2e8f0" stroke-width="1.6" stroke-dasharray="4,3"/>
+                                <polygon points="382,282 390,282 386,291" fill="#e2e8f0"/>
+                                <text x="404" y="172" fill="#e2e8f0" font-family="sans-serif" font-size="10" font-weight="700" text-anchor="middle" transform="rotate(90 404 172)">Direction of movement</text>
+                            </svg>
+                        </div>
+
+                        <div class="well-selector-row">
+                            <button class="well-pill active" id="pcr-pill-1" onclick="selectPcrWell(1)">Well 1</button>
+                            <button class="well-pill" id="pcr-pill-2" onclick="selectPcrWell(2)">Well 2</button>
+                            <button class="well-pill" id="pcr-pill-3" onclick="selectPcrWell(3)">Well 3</button>
+                            <button class="well-pill" id="pcr-pill-4" onclick="selectPcrWell(4)">Well 4</button>
+                        </div>
+
+                        <div class="diagnostic-box" id="pcr-diag-box">
+                            <h4>Well 1 (More gDNA / + Control) — Bright, Thick ~600 bp Band</h4>
+                            <p>A sharp, bright, thick band between <strong>500 bp and 800 bp</strong> (~600 bp) shows <strong>robust PCR amplification</strong>. Starting with abundant gDNA template produced millions of identical target amplicons.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Diagnostic Self-Check -->
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="kicker">Skill Check • Before Reading Your Own Gel</div>
+                        <h2 class="card-title">Quick Diagnostic Check (3 Practice Questions)</h2>
+                        <p class="card-sub">Test your ability to distinguish gDNA extraction smears from PCR product bands.</p>
+                    </div>
+                </div>
+
+                <div class="quiz-grid">
+                    <!-- Q1 -->
+                    <div class="quiz-card">
+                        <div class="quiz-q">1. Why does a successful gDNA lane look like a smear while a successful PCR lane looks like a single sharp band?</div>
+                        <div class="quiz-opts">
+                            <button class="quiz-opt-btn" onclick="checkDiagQuiz(1, true, this)">gDNA has many large, variably sheared fragments; PCR copies one exact target length.</button>
+                            <button class="quiz-opt-btn" onclick="checkDiagQuiz(1, false, this)">gDNA is positively charged, whereas PCR products are negatively charged.</button>
+                        </div>
+                        <div class="quiz-fb" id="qfb-1"></div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="quiz-card">
+                        <div class="quiz-q">2. In the Activity D PCR gel, why is Well 4 ("No gDNA") supposed to remain completely blank?</div>
+                        <div class="quiz-opts">
+                            <button class="quiz-opt-btn" onclick="checkDiagQuiz(2, false, this)">Because the TA forgot to turn on the power supply for Lane 4.</button>
+                            <button class="quiz-opt-btn" onclick="checkDiagQuiz(2, true, this)">It serves as a negative control confirming PCR reagents have no DNA contamination.</button>
+                        </div>
+                        <div class="quiz-fb" id="qfb-2"></div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="quiz-card">
+                        <div class="quiz-q">3. Your PCR band sits slightly above the 500 bp ladder band and below the 800 bp band. What is its approximate size?</div>
+                        <div class="quiz-opts">
+                            <button class="quiz-opt-btn" onclick="checkDiagQuiz(3, true, this)">~600–650 bp (expected target PCR amplicon size).</button>
+                            <button class="quiz-opt-btn" onclick="checkDiagQuiz(3, false, this)">~150 bp (smaller than the 200 bp marker).</button>
+                        </div>
+                        <div class="quiz-fb" id="qfb-3"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- TAB 3: ACTIVITY F — MY LAB RESULTS INTERPRETER            -->
+        <!-- ========================================================= -->
+        <section id="tab-3" class="tab-view" aria-labelledby="tab3-heading">
+            <div class="card">
+                <div class="card-header">
+                    <div>
+                        <div class="kicker">Worksheet Section 3 • Activity F Post-Run Reflection</div>
+                        <h2 class="card-title" id="tab3-heading">Activity F: My Lab Results Interpreter</h2>
+                        <p class="card-sub">Select what appeared in your group’s <strong>gDNA lane</strong> and <strong>PCR lane</strong> (or select if a tube was missing) to preview your gel and generate tailored explanations for all 5 Activity F worksheet prompts.</p>
+                    </div>
+                </div>
+
+                <!-- Scenario Selectors -->
+                <div class="builder-grid">
+                    <div class="selector-group">
+                        <label>Step 1: What happened with your gDNA sample?</label>
+                        <div class="outcome-btn-list" id="gdna-outcome-btns">
+                            <button class="outcome-btn active" onclick="setMyOutcome('gdna', 'bright', this)">Bright / Thick Smear</button>
+                            <button class="outcome-btn" onclick="setMyOutcome('gdna', 'faint', this)">Faint / Thin Smear</button>
+                            <button class="outcome-btn" onclick="setMyOutcome('gdna', 'blank', this)">Blank Lane (No Smear)</button>
+                            <button class="outcome-btn" onclick="setMyOutcome('gdna', 'missing', this)">gDNA Tube Missing / Not Loaded</button>
+                        </div>
+                    </div>
+
+                    <div class="selector-group">
+                        <label>Step 2: What happened with your PCR product sample?</label>
+                        <div class="outcome-btn-list" id="pcr-outcome-btns">
+                            <button class="outcome-btn active" onclick="setMyOutcome('pcr', 'bright', this)">Bright Sharp Band (~600 bp)</button>
+                            <button class="outcome-btn" onclick="setMyOutcome('pcr', 'faint', this)">Faint Sharp Band (~600 bp)</button>
+                            <button class="outcome-btn" onclick="setMyOutcome('pcr', 'blank', this)">Blank Lane (No Band)</button>
+                            <button class="outcome-btn" onclick="setMyOutcome('pcr', 'missing', this)">PCR Tube Missing / Not Loaded</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Paired Live Gel Preview + Tailored 5-Prompt Guide -->
+                <div class="paired-preview-layout">
+                    <!-- Custom Paired UV Gel Preview -->
+                    <div class="gel-panel">
+                        <div class="gel-panel-head">
+                            <h3 class="gel-panel-title">Your Group’s Gel Preview</h3>
+                            <span class="gel-tag tag-pcr">UV Image</span>
+                        </div>
+                        <div class="uv-viewport">
+                            <svg viewBox="0 0 320 310" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Custom preview of student gDNA and PCR gel lanes alongside DNA ladder">
+                                <rect width="320" height="310" fill="url(#actDGelBg)"/>
+
+                                <!-- Headers -->
+                                <g font-family="sans-serif" font-size="11" font-weight="700" fill="#f8fafc" text-anchor="middle">
+                                    <text x="102" y="22">Ladder</text>
+                                    <text x="184" y="22">My gDNA</text>
+                                    <text x="266" y="22">My PCR</text>
+                                </g>
+
+                                <!-- Ladder Size Labels -->
+                                <g font-family="ui-monospace, monospace" font-size="10" font-weight="700" fill="#cbd5e1" text-anchor="end">
+                                    <text x="64" y="60">4000 bp</text>
+                                    <text x="64" y="90">2000 bp</text>
+                                    <text x="64" y="122">1250 bp</text>
+                                    <text x="64" y="154">800 bp</text>
+                                    <text x="64" y="186">500 bp</text>
+                                    <text x="64" y="218">300 bp</text>
+                                    <text x="64" y="250">200 bp</text>
+                                    <text x="64" y="284">100 bp</text>
+                                </g>
+
+                                <!-- Wells -->
+                                <rect x="76" y="32" width="52" height="10" rx="2" fill="#09090b" stroke="#71717a"/>
+                                <rect x="158" y="32" width="52" height="10" rx="2" fill="#09090b" stroke="#71717a"/>
+                                <rect x="240" y="32" width="52" height="10" rx="2" fill="#09090b" stroke="#71717a"/>
+
+                                <!-- Ladder Bands -->
+                                <g fill="#ffffff">
+                                    <rect x="78" y="55" width="48" height="3.2" rx="1"/>
+                                    <rect x="78" y="85" width="48" height="3.2" rx="1"/>
+                                    <rect x="78" y="117" width="48" height="3.2" rx="1"/>
+                                    <rect x="78" y="149" width="48" height="3.2" rx="1"/>
+                                    <rect x="78" y="181" width="48" height="3.2" rx="1"/>
+                                    <rect x="78" y="213" width="48" height="3.2" rx="1"/>
+                                    <rect x="78" y="245" width="48" height="3.2" rx="1"/>
+                                    <rect x="78" y="279" width="48" height="3.2" rx="1"/>
+                                </g>
+
+                                <!-- Dynamic My gDNA Visual -->
+                                <g id="my-gdna-visual">
+                                    <rect x="160" y="96" width="48" height="170" rx="4" fill="url(#smearWell1)"/>
+                                </g>
+
+                                <!-- Dynamic My PCR Visual -->
+                                <g id="my-pcr-visual">
+                                    <rect x="242" y="164" width="48" height="7" rx="1.5" fill="#2dd4bf" filter="url(#pcrBandGlow)"/>
+                                </g>
+                            </svg>
+                        </div>
+                        <p class="card-sub" id="my-gel-summary-caption">Showing a <strong>bright gDNA smear</strong> paired with a <strong>bright ~600 bp PCR amplicon band</strong>.</p>
+                    </div>
+
+                    <!-- Tailored Answers for All 5 Activity F Questions -->
+                    <div class="reflection-cards">
+                        <div class="ref-item">
+                            <div class="ref-q">1. What does your gDNA band pattern indicate about the success of your DNA extraction? (Or explain why if your gDNA tube was missing.)</div>
+                            <div class="ref-a" id="actf-ans-1"></div>
+                        </div>
+
+                        <div class="ref-item">
+                            <div class="ref-q">2. What do your PCR gel results show about whether PCR worked for your sample? (Or explain why if your PCR tube was missing.)</div>
+                            <div class="ref-a" id="actf-ans-2"></div>
+                        </div>
+
+                        <div class="ref-item">
+                            <div class="ref-q">3. How do your gDNA and PCR gel results relate to each other? Do they tell a consistent story about the quality and quantity of your DNA?</div>
+                            <div class="ref-a" id="actf-ans-3"></div>
+                        </div>
+
+                        <div class="ref-item">
+                            <div class="ref-q">4. Even if your results look “bad,” which parts of your workflow might still have gone well?</div>
+                            <div class="ref-a" id="actf-ans-4"></div>
+                        </div>
+
+                        <div class="ref-item">
+                            <div class="ref-q">5. If you could repeat this experiment, what specific change would you make to improve your results (and why)?</div>
+                            <div class="ref-a" id="actf-ans-5"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        /* =========================================================
+           NAVIGATION & ACCORDION HELPERS
+           ========================================================= */
+        function switchTab(tabNum, btnEl) {
+            document.querySelectorAll('.nav-tab').forEach((tab, idx) => {
+                const isSelected = (idx + 1) === tabNum;
+                tab.classList.toggle('active', isSelected);
+                tab.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+            });
+
+            for (let i = 1; i <= 3; i++) {
+                const panel = document.getElementById(`tab-${i}`);
+                if (panel) {
+                    panel.classList.toggle('active', i === tabNum);
+                }
+            }
+        }
+
+        function toggleAccordion(btnEl) {
+            const body = btnEl.nextElementSibling;
+            const isOpen = body.classList.toggle('open');
+            const arrow = btnEl.querySelector('span:last-child');
+            if (arrow) {
+                arrow.textContent = isOpen ? '▲' : '▼';
+            }
+        }
+
+        /* =========================================================
+           TAB 1: TA GEL BOX RUN SIMULATOR
+           ========================================================= */
+        const LADDER_TARGETS = [
+            { bp: '4000 bp', targetY: 60 },
+            { bp: '2000 bp', targetY: 92 },
+            { bp: '1250 bp', targetY: 126 },
+            { bp: '800 bp',  targetY: 164 },
+            { bp: '500 bp',  targetY: 204 },
+            { bp: '300 bp',  targetY: 242 },
+            { bp: '200 bp',  targetY: 280 },
+            { bp: '100 bp',  targetY: 320 }
+        ];
+
+        const simState = {
+            progress: 0, // 0 to 1
+            running: false,
+            rafId: null,
+            rulerVisible: true
+        };
+
+        function initSimLadder() {
+            const container = document.getElementById('sim-ladder-bands');
+            if (!container) return;
+            container.innerHTML = '';
+            LADDER_TARGETS.forEach((item, idx) => {
+                const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                rect.setAttribute('id', `sim-lad-${idx}`);
+                rect.setAttribute('x', '94');
+                rect.setAttribute('y', '32');
+                rect.setAttribute('width', '52');
+                rect.setAttribute('height', '4');
+                rect.setAttribute('rx', '1.5');
+                rect.setAttribute('fill', '#f8fafc');
+                container.appendChild(rect);
+            });
+            renderSimFrame();
+        }
+
+        function renderSimFrame() {
+            const p = simState.progress;
+            const startY = 32;
+
+            // Update Ladder bands
+            LADDER_TARGETS.forEach((item, idx) => {
+                const rect = document.getElementById(`sim-lad-${idx}`);
+                if (rect) {
+                    const currentY = startY + (item.targetY - startY) * p;
+                    rect.setAttribute('y', currentY.toFixed(1));
+                }
+            });
+
+            // Update gDNA Smear (stretches from ~68 to ~270 as run progresses)
+            const gdnaRect = document.getElementById('sim-gdna-smear');
+            if (gdnaRect) {
+                const smearTop = startY + (68 - startY) * p;
+                const smearHeight = 6 + (195 * p);
+                gdnaRect.setAttribute('y', smearTop.toFixed(1));
+                gdnaRect.setAttribute('height', smearHeight.toFixed(1));
+            }
+
+            // Update PCR ~600 bp band (migrates to y = 188, between 800 bp [164] and 500 bp [204])
+            const pcrRect = document.getElementById('sim-pcr-band');
+            if (pcrRect) {
+                const pcrY = startY + (188 - startY) * p;
+                pcrRect.setAttribute('y', pcrY.toFixed(1));
+            }
+
+            // Update Loading Dye Front
+            const dyeLine = document.getElementById('sim-dye-front');
+            if (dyeLine) {
+                const dyeY = 35 + (295 * p);
+                dyeLine.setAttribute('y1', dyeY.toFixed(1));
+                dyeLine.setAttribute('y2', dyeY.toFixed(1));
+            }
+
+            // Update status label
+            const pct = Math.round(p * 100);
+            const statusText = document.getElementById('sim-pct-text');
+            if (statusText) {
+                if (pct === 0) {
+                    statusText.textContent = '0% (Loaded in Wells)';
+                } else if (pct < 100) {
+                    statusText.textContent = `${pct}% (TA Gel Running...)`;
+                } else {
+                    statusText.textContent = '100% (Run Complete • Ready for UV Imaging)';
+                }
+            }
+        }
+
+        function stepSim() {
+            if (!simState.running) return;
+            simState.progress += 0.0065;
+            if (simState.progress >= 1) {
+                simState.progress = 1;
+                simState.running = false;
+                document.getElementById('sim-run-btn').textContent = '▶ Run TA Gel';
+            }
+            renderSimFrame();
+            if (simState.running) {
+                simState.rafId = requestAnimationFrame(stepSim);
+            }
+        }
+
+        function toggleSimRun() {
+            const btn = document.getElementById('sim-run-btn');
+            if (simState.running) {
+                simState.running = false;
+                cancelAnimationFrame(simState.rafId);
+                btn.textContent = '▶ Resume TA Gel';
+            } else {
+                if (simState.progress >= 1) {
+                    simState.progress = 0;
+                }
+                simState.running = true;
+                btn.textContent = '⏸ Pause TA Gel';
+                simState.rafId = requestAnimationFrame(stepSim);
+            }
+        }
+
+        function resetSim() {
+            simState.running = false;
+            cancelAnimationFrame(simState.rafId);
+            simState.progress = 0;
+            document.getElementById('sim-run-btn').textContent = '▶ Run TA Gel';
+            renderSimFrame();
+        }
+
+        function toggleSimRuler() {
+            simState.rulerVisible = !simState.rulerVisible;
+            const btn = document.getElementById('sim-ruler-btn');
+            const ruler = document.getElementById('sim-ruler-group');
+            btn.textContent = `📏 Base-Pair Ruler: ${simState.rulerVisible ? 'ON' : 'OFF'}`;
+            btn.classList.toggle('btn-active', simState.rulerVisible);
+            if (ruler) {
+                ruler.style.display = simState.rulerVisible ? 'inline' : 'none';
+            }
+        }
+
+        /* =========================================================
+           TAB 2: ACTIVITY D INTERACTIVE EXPLORER & QUIZ
+           ========================================================= */
+        const GDNA_WELL_INFO = {
+            1: {
+                x: 132,
+                title: 'Well 1 — Bright, Thick gDNA Smear (High Extraction Yield)',
+                desc: 'A bright, thick vertical smear concentrated in the high-molecular-weight region indicates a <strong>high concentration of extracted genomic DNA</strong>. The extraction worked very well, providing abundant template for PCR.'
+            },
+            2: {
+                x: 194,
+                title: 'Well 2 — Moderate-Brightness gDNA Smear (Good Yield)',
+                desc: 'A clearly visible but slightly dimmer smear indicates a <strong>moderate amount of extracted gDNA</strong>. Extraction succeeded and still provides plenty of template copies for PCR amplification.'
+            },
+            3: {
+                x: 256,
+                title: 'Well 3 — Faint, Thin gDNA Smear (Low Yield)',
+                desc: 'A faint, narrow smear shows a <strong>low concentration of gDNA</strong>—some cells were lysed and DNA was recovered, but yield was lower (e.g., incomplete lysis or partial DNA loss during washes).'
+            },
+            4: {
+                x: 318,
+                title: 'Well 4 — Blank Lane / No Visible Smear',
+                desc: 'No visible fluorescence means <strong>no detectable gDNA was extracted</strong> (or the sample missed the well / washed out during loading). Note that PCR can occasionally still amplify trace invisible copies, though yield is very low.'
+            }
+        };
+
+        const PCR_WELL_INFO = {
+            1: {
+                x: 132,
+                title: 'Well 1 (More gDNA / + Control) — Bright, Thick ~600 bp Band',
+                desc: 'A sharp, bright, thick band between <strong>500 bp and 800 bp</strong> (~600 bp) shows <strong>strong PCR amplification</strong>. Abundant starting gDNA template yielded millions of identical target amplicons.'
+            },
+            2: {
+                x: 194,
+                title: 'Well 2 (Medium gDNA) — Moderate ~600 bp Band',
+                desc: 'A sharp band at the exact same ~600 bp migration position with moderate brightness confirms <strong>successful target amplification</strong> from a moderate starting amount of gDNA template.'
+            },
+            3: {
+                x: 256,
+                title: 'Well 3 (Less gDNA) — Faint ~600 bp Band',
+                desc: 'A thinner, dimmer band at ~600 bp shows <strong>PCR still worked</strong>, but because less starting gDNA template was added, fewer total PCR copies accumulated by the final cycle.'
+            },
+            4: {
+                x: 318,
+                title: 'Well 4 (No gDNA) — Blank Lane (Negative Control)',
+                desc: 'The complete absence of a band in the "No gDNA" lane confirms that <strong>PCR reagents (master mix, primers, water) are free of contaminating DNA</strong>, validating the positive results in Wells 1–3.'
+            }
+        };
+
+        function selectGdnaWell(wellNum) {
+            const info = GDNA_WELL_INFO[wellNum];
+            if (!info) return;
+            document.getElementById('gdna-highlight-box').setAttribute('x', info.x);
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`gdna-pill-${i}`).classList.toggle('active', i === wellNum);
+            }
+            document.getElementById('gdna-diag-box').innerHTML = `<h4>${info.title}</h4><p>${info.desc}</p>`;
+        }
+
+        function selectPcrWell(wellNum) {
+            const info = PCR_WELL_INFO[wellNum];
+            if (!info) return;
+            document.getElementById('pcr-highlight-box').setAttribute('x', info.x);
+            for (let i = 1; i <= 4; i++) {
+                document.getElementById(`pcr-pill-${i}`).classList.toggle('active', i === wellNum);
+            }
+            document.getElementById('pcr-diag-box').innerHTML = `<h4>${info.title}</h4><p>${info.desc}</p>`;
+        }
+
+        function checkDiagQuiz(qNum, isCorrect, btnEl) {
+            const card = btnEl.closest('.quiz-card');
+            card.querySelectorAll('.quiz-opt-btn').forEach(b => b.classList.remove('correct', 'wrong'));
+            btnEl.classList.add(isCorrect ? 'correct' : 'wrong');
+
+            const fb = document.getElementById(`qfb-${qNum}`);
+            fb.className = `quiz-fb show ${isCorrect ? 'ok' : 'err'}`;
+
+            const explanations = {
+                1: isCorrect
+                    ? 'Correct! Genomic DNA shears into a wide spectrum of large fragment sizes (a smear), whereas PCR amplifies one defined region between two primers (a single sharp band).'
+                    : 'Not quite—all DNA has a negatively charged phosphate backbone. The difference is fragment size diversity: gDNA contains many overlapping large fragment lengths (smear), while PCR amplifies one exact fragment size (sharp band).',
+                2: isCorrect
+                    ? 'Spot on! A negative control ("No gDNA") must stay blank to prove that bands in sample lanes came from your DNA template rather than reagent contamination.'
+                    : 'Not quite—Well 4 is loaded intentionally without gDNA as a negative control so we can verify there is no DNA contamination in the PCR reagents.',
+                3: isCorrect
+                    ? 'Correct! Because smaller fragments travel farther down toward the bottom, a band between 500 bp and 800 bp corresponds to ~600–650 bp.'
+                    : 'Check the ladder scale: 100–200 bp is near the very bottom of the gel, whereas the band between 500 bp and 800 bp is ~600–650 bp.'
+            };
+            fb.textContent = explanations[qNum];
+        }
+
+        /* =========================================================
+           TAB 3: ACTIVITY F MY LAB RESULTS INTERPRETER
+           ========================================================= */
+        const myLabState = {
+            gdna: 'bright',
+            pcr: 'bright'
+        };
+
+        function setMyOutcome(type, value, btnEl) {
+            myLabState[type] = value;
+            const containerId = type === 'gdna' ? 'gdna-outcome-btns' : 'pcr-outcome-btns';
+            document.querySelectorAll(`#${containerId} .outcome-btn`).forEach(b => b.classList.remove('active'));
+            btnEl.classList.add('active');
+            renderActivityF();
+        }
+
+        function renderActivityF() {
+            const { gdna, pcr } = myLabState;
+
+            // 1. Render SVG Preview for My gDNA
+            const gdnaVis = document.getElementById('my-gdna-visual');
+            if (gdna === 'bright') {
+                gdnaVis.innerHTML = `<rect x="160" y="96" width="48" height="170" rx="4" fill="url(#smearWell1)"/>`;
+            } else if (gdna === 'faint') {
+                gdnaVis.innerHTML = `<rect x="160" y="106" width="48" height="155" rx="4" fill="url(#smearWell3)"/>`;
+            } else if (gdna === 'blank') {
+                gdnaVis.innerHTML = `<text x="184" y="170" fill="#64748b" font-family="ui-monospace, monospace" font-size="9.5" text-anchor="middle">(No Smear)</text>`;
+            } else if (gdna === 'missing') {
+                gdnaVis.innerHTML = `
+                    <line x1="164" y1="60" x2="204" y2="260" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="4,4"/>
+                    <text x="184" y="158" fill="#fda4af" font-family="ui-monospace, monospace" font-size="9" font-weight="700" text-anchor="middle">TUBE MISSING</text>
+                    <text x="184" y="172" fill="#fda4af" font-family="ui-monospace, monospace" font-size="8.5" text-anchor="middle">(Not Loaded)</text>
+                `;
+            }
+
+            // 2. Render SVG Preview for My PCR
+            const pcrVis = document.getElementById('my-pcr-visual');
+            if (pcr === 'bright') {
+                pcrVis.innerHTML = `<rect x="242" y="164" width="48" height="7" rx="1.5" fill="#2dd4bf" filter="url(#pcrBandGlow)"/>`;
+            } else if (pcr === 'faint') {
+                pcrVis.innerHTML = `<rect x="242" y="165" width="48" height="4" rx="1.5" fill="#5eead4" opacity="0.48"/>`;
+            } else if (pcr === 'blank') {
+                pcrVis.innerHTML = `<text x="266" y="170" fill="#64748b" font-family="ui-monospace, monospace" font-size="9.5" text-anchor="middle">(No Band)</text>`;
+            } else if (pcr === 'missing') {
+                pcrVis.innerHTML = `
+                    <line x1="246" y1="60" x2="286" y2="260" stroke="#f43f5e" stroke-width="1.5" stroke-dasharray="4,4"/>
+                    <text x="266" y="158" fill="#fda4af" font-family="ui-monospace, monospace" font-size="9" font-weight="700" text-anchor="middle">TUBE MISSING</text>
+                    <text x="266" y="172" fill="#fda4af" font-family="ui-monospace, monospace" font-size="8.5" text-anchor="middle">(Not Loaded)</text>
+                `;
+            }
+
+            // 3. Populate Activity F Answer 1 (gDNA)
+            const ans1Map = {
+                bright: 'The bright, thick high-molecular-weight smear shows that our <strong>DNA extraction succeeded with high yield</strong>. We recovered abundant, intact genomic DNA from our cells.',
+                faint: 'The faint smear shows that our <strong>DNA extraction partially succeeded</strong>—genomic DNA was recovered, but at a lower concentration (low yield) due to incomplete cell lysis or minor DNA loss during purification.',
+                blank: 'The blank gDNA lane indicates <strong>no detectable genomic DNA was visualized</strong> on the gel—either the DNA concentration fell below the UV stain’s detection threshold or the sample was lost during extraction/well loading.',
+                missing: '<strong>Our gDNA tube was missing / not loaded into the well</strong>, so we cannot interpret this empty lane as a failed extraction. The absence of a band simply reflects that no sample was present in that lane.'
+            };
+            document.getElementById('actf-ans-1').innerHTML = ans1Map[gdna];
+
+            // 4. Populate Activity F Answer 2 (PCR)
+            const ans2Map = {
+                bright: 'The bright, sharp band at ~600 bp (between the 500 bp and 800 bp ladder markers) confirms that <strong>PCR worked very well</strong>, amplifying millions of copies of our specific target DNA sequence.',
+                faint: 'The faint, sharp band at ~600 bp shows that <strong>PCR worked and amplified the correct target sequence</strong>, though fewer total amplicon copies were produced (often due to low starting gDNA template).',
+                blank: 'The absence of a ~600 bp band shows that <strong>PCR did not produce detectable target product</strong>—likely because there was insufficient/degraded gDNA template, a missing PCR reagent (primers/polymerase), or PCR inhibitors.',
+                missing: '<strong>Our PCR tube was missing / not loaded into the well</strong>, so we should not interpret the empty lane as a failed PCR reaction—no amplified sample was loaded into that lane for electrophoresis.'
+            };
+            document.getElementById('actf-ans-2').innerHTML = ans2Map[pcr];
+
+            // 5. Populate Activity F Answer 3 (Relationship / Consistency)
+            let ans3 = '';
+            if (gdna === 'missing' || pcr === 'missing') {
+                ans3 = 'Because one of our tubes was missing and not loaded on the gel, we can only evaluate the loaded lane directly and rely on the class positive/negative controls to verify that the extraction/PCR chemistry and TA gel run worked properly.';
+            } else if ((gdna === 'bright' && pcr === 'bright') || (gdna === 'faint' && pcr === 'faint') || (gdna === 'blank' && pcr === 'blank')) {
+                ans3 = '<strong>Yes, they tell a consistent story:</strong> the yield observed in our gDNA extraction directly matches the amplification strength of our PCR product (abundant template yielded strong PCR amplification, or low/absent template yielded weak/absent amplification).';
+            } else if ((gdna === 'faint' || gdna === 'blank') && (pcr === 'bright' || pcr === 'faint')) {
+                ans3 = '<strong>Yes, they are biologically consistent even though they look different:</strong> because PCR exponentially amplifies even trace nanogram/picogram amounts of DNA, a tiny quantity of gDNA that was faint or invisible on the gDNA gel was still sufficient to serve as template for a successful PCR band.';
+            } else {
+                ans3 = '<strong>They show a discrepancy between extraction and amplification:</strong> we recovered visible gDNA during extraction, yet PCR failed to amplify the ~600 bp target—suggesting an issue during PCR setup (such as forgetting primers/master mix, carryover of extraction inhibitors, or degraded target regions).';
+            }
+            document.getElementById('actf-ans-3').innerHTML = ans3;
+
+            // 6. Populate Activity F Answer 4 (What Went Well)
+            document.getElementById('actf-ans-4').innerHTML =
+                'Even if a band is faint or missing, several key steps still went well: <strong>accurate micropipetting</strong> of small microliter volumes into the delicate agarose wells without puncturing the gel, proper mixing with dense loading dye so samples sank cleanly into the wells, functioning ladder/control lanes run by the TA, and proper lab organization/safety.';
+
+            // 7. Populate Activity F Answer 5 (Specific Improvement)
+            let ans5 = '';
+            if (gdna === 'faint' || gdna === 'blank') {
+                ans5 = 'To improve gDNA yield, I would <strong>vortex and incubate the cells thoroughly during lysis</strong> and <strong>pipette the supernatant carefully without disturbing the cell debris pellet</strong> (or ensure the ethanol wash evaporates completely), maximizing pure DNA recovery.';
+            } else if (pcr === 'faint' || pcr === 'blank') {
+                ans5 = 'To improve PCR amplification, I would <strong>keep all PCR reagents on ice</strong>, double-check with a checklist that <strong>primers, template gDNA, and Taq master mix</strong> were each added to the tube, and gently mix/spin down the reaction before thermal cycling.';
+            } else if (gdna === 'missing' || pcr === 'missing') {
+                ans5 = 'When repeating the experiment, I would <strong>label the top and side of every microcentrifuge tube clearly</strong> with group initials and sample type (`gDNA` vs. `PCR`) and store them in a dedicated rack so no tube is misplaced before gel loading.';
+            } else {
+                ans5 = 'To refine an already successful run, I would <strong>load a slightly smaller volume of PCR product (e.g., 5 µL instead of 10 µL)</strong> so the bright ~600 bp band appears ultra-crisp without overloading the lane, and verify precise volume measurement with a calibrated micropipette.';
+            }
+            document.getElementById('actf-ans-5').innerHTML = ans5;
+
+            // Update preview caption
+            const labelMap = {
+                bright: 'bright band/smear',
+                faint: 'faint band/smear',
+                blank: 'blank lane',
+                missing: 'missing tube (not loaded)'
+            };
+            document.getElementById('my-gel-summary-caption').innerHTML =
+                `Previewing: <strong>My gDNA (${labelMap[gdna]})</strong> + <strong>My PCR (${labelMap[pcr]})</strong>.`;
+        }
+
+        // Initialize on load
+        window.onload = function () {
+            initSimLadder();
+            renderActivityF();
+        };
+    </script>
+</body>
+</html>
