@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nephron Systems Studio: Homeostasis, Gradients &amp; Perturbations</title>
+  <!-- Load Tailwind CSS for responsive layout & clean clinical styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Load Google Font Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            cortex: '#FDF3E7',
+            medullaOuter: '#F8DFC2',
+            medullaInner: '#EBC396',
+            waterCyan: '#0284C7',
+            sodiumOrange: '#EA580C',
+            chlorideGreen: '#16A34A',
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* Custom animations and precision SVG styling for scientific illustrations */
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+
+    @keyframes pulseFlow {
+      0%, 100% { opacity: 0.95; transform: scale(1); }
+      50% { opacity: 0.55; transform: scale(1.04); }
+    }
+
+    @keyframes dashMove {
+      to { stroke-dashoffset: -24; }
+    }
+
+    .flow-arrow-active {
+      animation: pulseFlow 2s infinite ease-in-out;
+    }
+
+    .animated-dash {
+      stroke-dasharray: 6 6;
+      animation: dashMove 1.4s linear infinite;
+    }
+
+    .drop-zone-target {
+      transition: all 0.2s ease;
+    }
+    .drop-zone-target.drag-over {
+      filter: drop-shadow(0 0 10px rgba(2, 132, 199, 0.85));
+      transform: scale(1.04);
+    }
+
+    .module-card {
+      cursor: grab;
+      user-select: none;
+      touch-action: none;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .module-card:active {
+      cursor: grabbing;
+      transform: scale(0.98);
+    }
+
+    /* Custom range slider styling */
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      border-radius: 999px;
+      background: #cbd5e1;
+      outline: none;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #0f172a;
+      border: 3px solid #ffffff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Top Header & System Telemetry Status Bar -->
+  <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-30 border-b border-slate-700">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      <!-- Brand / Course Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-400/40 flex items-center justify-center shrink-0">
+          <!-- Nephron SVG Icon -->
+          <svg class="w-6 h-6 text-sky-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M5 7a4 4 0 1 0 4 4H12v7a3 3 0 0 0 6 0V5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="5" cy="7" r="2" fill="currentColor"/>
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-sky-500/20 text-sky-300 border border-sky-400/30">BIOS 110 Lab Studio</span>
+            <span class="text-xs text-slate-400 hidden sm:inline">Systems Physiology Perspective</span>
+          </div>
+          <h1 class="text-base sm:text-lg font-bold tracking-tight text-white">Nephron Systems Studio: Homeostasis, Gradients &amp; Perturbations</h1>
+        </div>
+      </div>
+
+      <!-- Live System Telemetry Bar -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-slate-800/90 p-2 rounded-xl border border-slate-700 text-xs">
+        <div class="px-2.5 py-1 rounded-lg bg-slate-900/70 border border-slate-700/70">
+          <div class="text-slate-400 text-[10px] uppercase font-semibold tracking-wider">Bowman's Filtrate</div>
+          <div id="tele-filtrate" class="font-bold text-amber-300 text-sm">300 mOsm/L</div>
+        </div>
+        <div class="px-2.5 py-1 rounded-lg bg-slate-900/70 border border-slate-700/70">
+          <div class="text-slate-400 text-[10px] uppercase font-semibold tracking-wider">Medullary Ceiling</div>
+          <div id="tele-medulla" class="font-bold text-orange-400 text-sm">1200 mOsm/L</div>
+        </div>
+        <div class="px-2.5 py-1 rounded-lg bg-slate-900/70 border border-slate-700/70">
+          <div class="text-slate-400 text-[10px] uppercase font-semibold tracking-wider">Final Urine Vol</div>
+          <div id="tele-volume" class="font-bold text-sky-400 text-sm">60 mL/hr</div>
+        </div>
+        <div class="px-2.5 py-1 rounded-lg bg-slate-900/70 border border-slate-700/70">
+          <div class="text-slate-400 text-[10px] uppercase font-semibold tracking-wider">Final Urine Osm</div>
+          <div id="tele-urine-osm" class="font-bold text-emerald-400 text-sm">650 mOsm/L</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4-Tab Navigation Bar -->
+    <nav class="bg-slate-800 border-t border-slate-700/80">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 flex overflow-x-auto no-scrollbar gap-1 py-1.5" role="tablist">
+        <button onclick="switchTab(1)" id="tab-btn-1" class="tab-btn active-tab px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all bg-sky-600 text-white shadow">
+          1. Systems Architecture &amp; Transport Builder
+        </button>
+        <button onclick="switchTab(2)" id="tab-btn-2" class="tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all text-slate-300 hover:bg-slate-700/70 hover:text-white">
+          2. Filtration Forces &amp; Cellular Transport Zoom
+        </button>
+        <button onclick="switchTab(3)" id="tab-btn-3" class="tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all text-slate-300 hover:bg-slate-700/70 hover:text-white">
+          3. Countercurrent Multiplier &amp; Hormone Control
+        </button>
+        <button onclick="switchTab(4)" id="tab-btn-4" class="tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all text-slate-300 hover:bg-slate-700/70 hover:text-white">
+          4. System Perturbation &amp; Clinical Sandbox
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Interactive Workspace -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+
+    <!-- ===================================================================== -->
+    <!-- TAB 1: SYSTEMS ARCHITECTURE & TRANSPORT BUILDER                       -->
+    <!-- ===================================================================== -->
+    <section id="tab-panel-1" class="tab-panel space-y-6">
+      <!-- Top Concept Banner -->
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-lg font-bold text-slate-900">Why "Dump Everything &amp; Reabsorb Selectively"?</h2>
+          <p class="text-sm text-slate-600 mt-1 max-w-3xl">
+            Filtering out thousands of distinct toxins individually would require thousands of bespoke molecular pumps. Instead, the mammalian nephron uses a <strong>two-stage systems design</strong>: bulk pressure-driven filtration at the glomerulus followed by coupled active/passive recovery along specialized segments spanning the <strong>Cortex (300 mOsm)</strong> and <strong>Medulla (up to 1200 mOsm)</strong>.
+          </p>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button onclick="resetBuilder()" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 transition">
+            Reset Diagram
+          </button>
+          <button onclick="completeAllBuilder()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-sky-600 hover:bg-sky-700 text-white shadow-sm transition">
+            Complete All (Lecture Demo)
+          </button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Left Column: Molecular Machinery Tray & Systems Explanation -->
+        <div class="lg:col-span-5 space-y-4">
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">Molecular &amp; Structural Tray</h3>
+              <span id="builder-progress" class="text-xs font-bold px-2.5 py-1 rounded-full bg-sky-100 text-sky-800">0 / 6 Installed</span>
+            </div>
+            <p class="text-xs text-slate-500 mb-3">
+              Drag each component onto its matching target zone on the nephron diagram (or click a card, then click its target zone on touch devices).
+            </p>
+
+            <!-- Draggable Cards Container -->
+            <div id="component-tray" class="space-y-2.5">
+              <!-- Cards injected by JS -->
+            </div>
+          </div>
+
+          <!-- Dynamic Systems Coupling Insight Box -->
+          <div id="builder-insight-box" class="bg-slate-900 text-white rounded-2xl p-5 shadow-md border border-slate-800">
+            <div class="flex items-center gap-2 text-sky-400 text-xs font-bold uppercase tracking-wider mb-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+              <span>Systems Coupling Engine</span>
+            </div>
+            <h4 id="builder-insight-title" class="font-bold text-base text-white">Install a module to trace how segments depend on one another</h4>
+            <p id="builder-insight-text" class="text-xs sm:text-sm text-slate-300 mt-1.5 leading-relaxed">
+              Notice how the nephron is physically arranged across two tissue zones: the isotonic <strong>Renal Cortex (300 mOsm/L)</strong> and the hypertonic <strong>Renal Medulla (400 &rarr; 1200 mOsm/L)</strong>. Without the Ascending Limb pumping salt into the medulla, neither the Descending Limb nor the Collecting Duct could passively reabsorb water!
+            </p>
+          </div>
+        </div>
+
+        <!-- Right Column: Interactive Full-Nephron SVG Diagram -->
+        <div class="lg:col-span-7 bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200">
+          <!-- Legend -->
+          <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-100 text-xs">
+            <div class="flex flex-wrap items-center gap-3">
+              <span class="inline-flex items-center gap-1.5 font-medium text-slate-700">
+                <span class="w-3 h-3 rounded-full bg-sky-500 inline-block"></span> Passive H<sub>2</sub>O
+              </span>
+              <span class="inline-flex items-center gap-1.5 font-medium text-slate-700">
+                <span class="w-3 h-3 rounded-full bg-orange-500 inline-block"></span> Active/Coupled Na<sup>+</sup>/Cl<sup>-</sup>
+              </span>
+              <span class="inline-flex items-center gap-1.5 font-medium text-slate-700">
+                <span class="w-3 h-3 rounded-full bg-purple-600 inline-block"></span> Secretion (H<sup>+</sup>, K<sup>+</sup>, Toxins)
+              </span>
+              <span class="inline-flex items-center gap-1.5 font-medium text-slate-700">
+                <span class="w-3 h-3 rounded-full bg-rose-500/40 border border-rose-600 inline-block"></span> Vasa Recta / Capillaries
+              </span>
+            </div>
+            <span class="text-[11px] text-slate-400 font-medium">Cortical vs. Medullary Zones</span>
+          </div>
+
+          <!-- SVG Canvas -->
+          <div class="w-full overflow-hidden rounded-xl border border-slate-200">
+            <svg id="nephron-builder-svg" viewBox="0 0 760 640" class="w-full h-auto block select-none">
+              <defs>
+                <!-- Medullary Gradient -->
+                <linearGradient id="medullaGrad" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#F9E2C4"/>
+                  <stop offset="50%" stop-color="#F2C894"/>
+                  <stop offset="100%" stop-color="#E4A868"/>
+                </linearGradient>
+                <!-- Arrowheads -->
+                <marker id="arrowWater" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#0284C7"/>
+                </marker>
+                <marker id="arrowSalt" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#EA580C"/>
+                </marker>
+                <marker id="arrowSecrete" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#9333EA"/>
+                </marker>
+              </defs>
+
+              <!-- Background Tissue Zones -->
+              <!-- Cortex (Top 250px) -->
+              <rect x="0" y="0" width="760" height="250" fill="#FDF6EC"/>
+              <!-- Outer Medulla (250 to 440) -->
+              <rect x="0" y="250" width="760" height="390" fill="url(#medullaGrad)"/>
+
+              <!-- Zone Divider Lines & Labels -->
+              <line x1="0" y1="250" x2="760" y2="250" stroke="#D97706" stroke-width="1.5" stroke-dasharray="6 4"/>
+              <line x1="0" y1="430" x2="760" y2="430" stroke="#B45309" stroke-width="1" stroke-dasharray="4 4" opacity="0.6"/>
+
+              <text x="16" y="28" font-size="13" font-weight="800" fill="#92400E" letter-spacing="0.06em">RENAL CORTEX</text>
+              <text x="16" y="46" font-size="11" font-weight="600" fill="#B45309">Isotonic Interstitium (~300 mOsm/L)</text>
+
+              <text x="16" y="274" font-size="13" font-weight="800" fill="#92400E" letter-spacing="0.06em">OUTER MEDULLA</text>
+              <text x="16" y="292" font-size="11" font-weight="600" fill="#92400E">Osmotic Gradient: 400 &rarr; 700 mOsm/L</text>
+
+              <text x="16" y="454" font-size="13" font-weight="800" fill="#78350F" letter-spacing="0.06em">INNER MEDULLA</text>
+              <text x="16" y="472" font-size="11" font-weight="600" fill="#78350F">Hypertonic Gradient: 900 &rarr; 1200 mOsm/L</text>
+
+              <!-- Interstitial Osmolarity Markers on Right Edge -->
+              <g font-size="11" font-weight="700" fill="#78350F" text-anchor="end">
+                <text x="744" y="235">300 mOsm</text>
+                <text x="744" y="310">500 mOsm</text>
+                <text x="744" y="390">700 mOsm</text>
+                <text x="744" y="490">900 mOsm</text>
+                <text x="744" y="595">1200 mOsm</text>
+              </g>
+
+              <!-- Vasa Recta Blood Vessel Background Loop (accompanying Loop of Henle) -->
+              <path d="M 165 130 L 245 130 L 245 585 C 245 612, 415 612, 415 585 L 415 170 L 520 170"
+                    fill="none" stroke="#FCA5A5" stroke-width="10" stroke-linecap="round" opacity="0.55"/>
+              <path d="M 165 130 L 245 130 L 245 585 C 245 612, 415 612, 415 585 L 415 170 L 520 170"
+                    fill="none" stroke="#DC2626" stroke-width="2" stroke-dasharray="5 5" opacity="0.7"/>
+              <text x="234" y="535" font-size="10" font-weight="700" fill="#991B1B" transform="rotate(-90 234 535)">Vasa Recta (Capillary Loop)</text>
+
+              <!-- Afferent & Efferent Arterioles -->
+              <path d="M 35 105 L 105 105" stroke="#DC2626" stroke-width="12" stroke-linecap="round"/>
+              <text x="32" y="92" font-size="10" font-weight="700" fill="#991B1B">Afferent Arteriole</text>
+              <path d="M 145 125 L 215 125" stroke="#EF4444" stroke-width="8" stroke-linecap="round"/>
+              <text x="155" y="144" font-size="10" font-weight="700" fill="#991B1B">Efferent</text>
+
+              <!-- NEPHRON TUBULE STRUCTURE -->
+              <!-- 1. Bowman's Capsule & Glomerular Tuft -->
+              <path d="M 135 72 C 85 72, 85 155, 135 155 L 175 155" fill="#FEF08A" fill-opacity="0.65" stroke="#D97706" stroke-width="4" stroke-linecap="round"/>
+              <!-- Glomerulus Capillary Ball -->
+              <circle cx="126" cy="113" r="24" fill="#EF4444" stroke="#991B1B" stroke-width="2.5"/>
+              <path d="M 112 110 Q 126 95 140 112 Q 125 128 113 115" fill="none" stroke="#FCA5A5" stroke-width="2.5"/>
+
+              <!-- 2. Proximal Convoluted Tubule (PCT) -->
+              <path d="M 175 155 C 200 155, 200 95, 230 95 C 260 95, 255 165, 285 165 C 310 165, 300 205, 300 250"
+                    fill="none" stroke="#FDE047" stroke-width="22" stroke-linecap="round"/>
+              <path d="M 175 155 C 200 155, 200 95, 230 95 C 260 95, 255 165, 285 165 C 310 165, 300 205, 300 250"
+                    fill="none" stroke="#CA8A04" stroke-width="2.5"/>
+
+              <!-- 3. Descending Limb of Loop of Henle (Thin) -->
+              <path d="M 300 250 L 300 565 C 300 595, 365 595, 365 565 L 365 430"
+                    fill="none" stroke="#FEF08A" stroke-width="14" stroke-linecap="round"/>
+              <path d="M 300 250 L 300 565 C 300 595, 365 595, 365 565 L 365 430"
+                    fill="none" stroke="#CA8A04" stroke-width="2.5"/>
+
+              <!-- 4. Thick Ascending Limb of Loop of Henle -->
+              <path d="M 365 430 L 365 215 C 365 180, 390 150, 415 150"
+                    fill="none" stroke="#FDE047" stroke-width="22" stroke-linecap="round"/>
+              <path d="M 365 430 L 365 215 C 365 180, 390 150, 415 150"
+                    fill="none" stroke="#CA8A04" stroke-width="2.5"/>
+
+              <!-- 5. Distal Convoluted Tubule (DCT) -->
+              <path d="M 415 150 C 440 150, 445 95, 480 95 C 515 95, 515 155, 550 155 L 590 155"
+                    fill="none" stroke="#FDE047" stroke-width="20" stroke-linecap="round"/>
+              <path d="M 415 150 C 440 150, 445 95, 480 95 C 515 95, 515 155, 550 155 L 590 155"
+                    fill="none" stroke="#CA8A04" stroke-width="2.5"/>
+
+              <!-- 6. Collecting Duct -->
+              <path d="M 590 115 L 590 610"
+                    fill="none" stroke="#FDE047" stroke-width="26" stroke-linecap="round"/>
+              <path d="M 590 115 L 590 610"
+                    fill="none" stroke="#CA8A04" stroke-width="2.5"/>
+              <!-- Side branches from other nephrons -->
+              <path d="M 565 220 L 590 235 M 615 310 L 590 325" stroke="#CA8A04" stroke-width="3" stroke-linecap="round"/>
+              <text x="590" y="630" font-size="11" font-weight="800" fill="#78350F" text-anchor="middle">To Renal Pelvis &amp; Ureter</text>
+
+              <!-- Segment Labels -->
+              <text x="126" y="60" font-size="11" font-weight="700" fill="#1E293B" text-anchor="middle">1. Glomerulus</text>
+              <text x="242" y="80" font-size="11" font-weight="700" fill="#1E293B" text-anchor="middle">2. Proximal Tubule</text>
+              <text x="255" y="365" font-size="11" font-weight="700" fill="#1E293B" text-anchor="end">3. Descending</text>
+              <text x="255" y="378" font-size="11" font-weight="700" fill="#1E293B" text-anchor="end">Loop of Henle</text>
+              <text x="415" y="340" font-size="11" font-weight="700" fill="#1E293B" text-anchor="start">4. Ascending</text>
+              <text x="415" y="353" font-size="11" font-weight="700" fill="#1E293B" text-anchor="start">Loop of Henle</text>
+              <text x="485" y="80" font-size="11" font-weight="700" fill="#1E293B" text-anchor="middle">5. Distal Tubule</text>
+              <text x="645" y="135" font-size="11" font-weight="700" fill="#1E293B" text-anchor="start">6. Collecting</text>
+              <text x="645" y="148" font-size="11" font-weight="700" fill="#1E293B" text-anchor="start">Duct</text>
+
+              <!-- DYNAMIC TRANSPORT ARROWS (Hidden until module installed) -->
+              <!-- Zone 1 Arrows: Glomerular Filtration -->
+              <g id="arrows-glomerulus" class="hidden flow-arrow-active">
+                <line x1="138" y1="105" x2="165" y2="105" stroke="#0284C7" stroke-width="3" marker-end="url(#arrowWater)"/>
+                <line x1="135" y1="125" x2="162" y2="132" stroke="#EA580C" stroke-width="3" marker-end="url(#arrowSalt)"/>
+                <rect x="82" y="162" width="110" height="20" rx="5" fill="#0F172A"/>
+                <text x="137" y="175" font-size="9.5" font-weight="700" fill="#38BDF8" text-anchor="middle">Bulk Filtrate (300 mOsm)</text>
+              </g>
+
+              <!-- Zone 2 Arrows: Proximal Tubule -->
+              <g id="arrows-pct" class="hidden flow-arrow-active">
+                <line x1="230" y1="115" x2="230" y2="152" stroke="#EA580C" stroke-width="3" marker-end="url(#arrowSalt)"/>
+                <line x1="265" y1="145" x2="265" y2="182" stroke="#0284C7" stroke-width="3" marker-end="url(#arrowWater)"/>
+                <line x1="285" y1="125" x2="285" y2="152" stroke="#9333EA" stroke-width="2.5" marker-end="url(#arrowSecrete)"/>
+                <rect x="195" y="186" width="128" height="32" rx="6" fill="#0F172A"/>
+                <text x="259" y="200" font-size="9" font-weight="700" fill="#FB923C" text-anchor="middle">Reabsorbs 65% NaCl &amp; H2O</text>
+                <text x="259" y="212" font-size="9" font-weight="700" fill="#4ADE80" text-anchor="middle">+ 100% Glucose/Vitamins</text>
+              </g>
+
+              <!-- Zone 3 Arrows: Descending Limb -->
+              <g id="arrows-descending" class="hidden flow-arrow-active">
+                <line x1="292" y1="310" x2="260" y2="310" stroke="#0284C7" stroke-width="3" marker-end="url(#arrowWater)"/>
+                <line x1="292" y1="400" x2="260" y2="400" stroke="#0284C7" stroke-width="3" marker-end="url(#arrowWater)"/>
+                <line x1="292" y1="490" x2="260" y2="490" stroke="#0284C7" stroke-width="3" marker-end="url(#arrowWater)"/>
+                <text x="253" y="420" font-size="10" font-weight="800" fill="#0369A1" text-anchor="end">H2O Exits</text>
+                <text x="332" y="575" font-size="10" font-weight="800" fill="#92400E" text-anchor="middle">1200</text>
+              </g>
+
+              <!-- Zone 4 Arrows: Ascending Limb -->
+              <g id="arrows-ascending" class="hidden flow-arrow-active">
+                <line x1="378" y1="460" x2="412" y2="460" stroke="#EA580C" stroke-width="3" marker-end="url(#arrowSalt)"/>
+                <line x1="378" y1="370" x2="412" y2="370" stroke="#EA580C" stroke-width="3" marker-end="url(#arrowSalt)"/>
+                <line x1="378" y1="280" x2="412" y2="280" stroke="#EA580C" stroke-width="3" marker-end="url(#arrowSalt)"/>
+                <text x="418" y="388" font-size="10" font-weight="800" fill="#C2410C" text-anchor="start">NaCl Pumped</text>
+                <text x="418" y="400" font-size="9" font-weight="700" fill="#991B1B" text-anchor="start">(H2O Blocked!)</text>
+              </g>
+
+              <!-- Zone 5 Arrows: Distal Tubule -->
+              <g id="arrows-dct" class="hidden flow-arrow-active">
+                <line x1="480" y1="110" x2="480" y2="142" stroke="#EA580C" stroke-width="3" marker-end="url(#arrowSalt)"/>
+                <line x1="510" y1="142" x2="510" y2="110" stroke="#9333EA" stroke-width="2.5" marker-end="url(#arrowSecrete)"/>
+                <rect x="435" y="162" width="115" height="22" rx="5" fill="#0F172A"/>
+                <text x="492" y="176" font-size="9" font-weight="700" fill="#E9D5FF" text-anchor="middle">pH &amp; K+/Na+ Fine-Tune</text>
+              </g>
+
+              <!-- Zone 6 Arrows: Collecting Duct -->
+              <g id="arrows-cd" class="hidden flow-arrow-active">
+                <line x1="604" y1="290" x2="642" y2="290" stroke="#EA580C" stroke-width="3" marker-end="url(#arrowSalt)"/>
+                <line x1="604" y1="380" x2="642" y2="380" stroke="#0284C7" stroke-width="3" marker-end="url(#arrowWater)"/>
+                <line x1="604" y1="470" x2="642" y2="470" stroke="#0284C7" stroke-width="3" marker-end="url(#arrowWater)"/>
+                <line x1="604" y1="540" x2="642" y2="540" stroke="#0284C7" stroke-width="3" marker-end="url(#arrowWater)"/>
+                <rect x="615" y="405" width="126" height="32" rx="6" fill="#0F172A"/>
+                <text x="678" y="419" font-size="9" font-weight="700" fill="#38BDF8" text-anchor="middle">ADH: Aquaporins (H2O)</text>
+                <text x="678" y="431" font-size="9" font-weight="700" fill="#FB923C" text-anchor="middle">Aldosterone: Na+ Reabs</text>
+              </g>
+
+              <!-- DROP ZONES ON NEPHRON -->
+              <g id="drop-zones-layer">
+                <!-- DZ 1: Glomerulus -->
+                <g class="drop-zone-target cursor-pointer" data-zone="glomerulus" onclick="handleZoneClick('glomerulus')">
+                  <circle id="dz-circle-glomerulus" cx="126" cy="113" r="30" fill="rgba(255,255,255,0.25)" stroke="#0284C7" stroke-width="2.5" stroke-dasharray="5 3"/>
+                  <text id="dz-label-glomerulus" x="126" y="117" font-size="10" font-weight="800" fill="#FFFFFF" text-anchor="middle">Drop #1</text>
+                </g>
+
+                <!-- DZ 2: PCT -->
+                <g class="drop-zone-target cursor-pointer" data-zone="pct" onclick="handleZoneClick('pct')">
+                  <rect id="dz-circle-pct" x="210" y="102" width="76" height="36" rx="12" fill="rgba(255,255,255,0.75)" stroke="#0284C7" stroke-width="2.5" stroke-dasharray="5 3"/>
+                  <text id="dz-label-pct" x="248" y="124" font-size="10" font-weight="800" fill="#0369A1" text-anchor="middle">Drop #2</text>
+                </g>
+
+                <!-- DZ 3: Descending Limb -->
+                <g class="drop-zone-target cursor-pointer" data-zone="descending" onclick="handleZoneClick('descending')">
+                  <rect id="dz-circle-descending" x="272" y="335" width="56" height="44" rx="10" fill="rgba(255,255,255,0.8)" stroke="#0284C7" stroke-width="2.5" stroke-dasharray="5 3"/>
+                  <text id="dz-label-descending" x="300" y="361" font-size="10" font-weight="800" fill="#0369A1" text-anchor="middle">Drop #3</text>
+                </g>
+
+                <!-- DZ 4: Ascending Limb -->
+                <g class="drop-zone-target cursor-pointer" data-zone="ascending" onclick="handleZoneClick('ascending')">
+                  <rect id="dz-circle-ascending" x="337" y="295" width="56" height="44" rx="10" fill="rgba(255,255,255,0.8)" stroke="#0284C7" stroke-width="2.5" stroke-dasharray="5 3"/>
+                  <text id="dz-label-ascending" x="365" y="321" font-size="10" font-weight="800" fill="#0369A1" text-anchor="middle">Drop #4</text>
+                </g>
+
+                <!-- DZ 5: Distal Tubule -->
+                <g class="drop-zone-target cursor-pointer" data-zone="dct" onclick="handleZoneClick('dct')">
+                  <rect id="dz-circle-dct" x="452" y="102" width="76" height="36" rx="12" fill="rgba(255,255,255,0.8)" stroke="#0284C7" stroke-width="2.5" stroke-dasharray="5 3"/>
+                  <text id="dz-label-dct" x="490" y="124" font-size="10" font-weight="800" fill="#0369A1" text-anchor="middle">Drop #5</text>
+                </g>
+
+                <!-- DZ 6: Collecting Duct -->
+                <g class="drop-zone-target cursor-pointer" data-zone="cd" onclick="handleZoneClick('cd')">
+                  <rect id="dz-circle-cd" x="562" y="315" width="56" height="48" rx="10" fill="rgba(255,255,255,0.85)" stroke="#0284C7" stroke-width="2.5" stroke-dasharray="5 3"/>
+                  <text id="dz-label-cd" x="590" y="343" font-size="10" font-weight="800" fill="#0369A1" text-anchor="middle">Drop #6</text>
+                </g>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: FILTRATION FORCES & CELLULAR TRANSPORT ZOOM                    -->
+    <!-- ===================================================================== -->
+    <section id="tab-panel-2" class="tab-panel hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- PART A: GLOMERULAR STARLING FORCES -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between space-y-4">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-rose-100 text-rose-800">Mechanism A &bull; Bulk Filtration</span>
+              <span id="nfp-badge" class="text-xs font-extrabold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800">Net Filtration: +17 mmHg</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mt-2">Glomerular Starling Forces &amp; Podocyte Barrier</h3>
+            <p class="text-xs text-slate-600 mt-1">
+              High arterial hydrostatic pressure (<strong>P<sub>GC</sub></strong>) forces water and small solutes across capillary fenestrations, basement membrane, and <strong>podocyte filtration slits</strong>, while blood proteins and capsular fluid oppose filtration.
+            </p>
+          </div>
+
+          <!-- Starling Forces Interactive SVG -->
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-2">
+            <svg viewBox="0 0 460 280" class="w-full h-auto block">
+              <!-- Bowman's Capsule Outer Wall -->
+              <path d="M 270 30 C 120 30, 120 250, 270 250 L 420 250 L 420 205 L 300 205 C 215 205, 215 75, 300 75 L 420 75 L 420 30 Z"
+                    fill="#FEF3C7" stroke="#D97706" stroke-width="3"/>
+              <text x="345" y="56" font-size="11" font-weight="700" fill="#92400E" text-anchor="middle">Bowman's Space</text>
+              <text x="355" y="232" font-size="11" font-weight="700" fill="#92400E" text-anchor="middle">To Proximal Tubule &rarr;</text>
+
+              <!-- Afferent Arteriole (Wide) -->
+              <path d="M 10 95 L 155 95" stroke="#DC2626" stroke-width="24" stroke-linecap="round"/>
+              <text x="72" y="76" font-size="10" font-weight="700" fill="#991B1B" text-anchor="middle">Afferent Arteriole</text>
+
+              <!-- Efferent Arteriole (Narrower -> builds pressure!) -->
+              <path d="M 155 185 L 10 185" stroke="#EF4444" stroke-width="14" stroke-linecap="round"/>
+              <text x="72" y="207" font-size="10" font-weight="700" fill="#991B1B" text-anchor="middle">Efferent (Narrower)</text>
+
+              <!-- Glomerular Capillary Loop -->
+              <path d="M 150 95 C 265 95, 265 185, 150 185" fill="none" stroke="#DC2626" stroke-width="32" stroke-linecap="round"/>
+              <path d="M 150 95 C 265 95, 265 185, 150 185" fill="none" stroke="#FCA5A5" stroke-width="20" stroke-linecap="round" opacity="0.4"/>
+
+              <!-- Podocyte Foot Processes wrapping capillary -->
+              <g fill="#7C3AED" stroke="#4C1D95" stroke-width="1">
+                <rect x="218" y="88" width="14" height="7" rx="3"/>
+                <rect x="234" y="102" width="14" height="7" rx="3" transform="rotate(35 234 102)"/>
+                <rect x="242" y="124" width="14" height="7" rx="3" transform="rotate(75 242 124)"/>
+                <rect x="238" y="148" width="14" height="7" rx="3" transform="rotate(110 238 148)"/>
+                <rect x="222" y="168" width="14" height="7" rx="3" transform="rotate(145 222 168)"/>
+              </g>
+              <text x="275" y="102" font-size="9.5" font-weight="700" fill="#5B21B6">Podocyte Slits</text>
+
+              <!-- Large Blood Proteins & RBCs retained inside capillary -->
+              <circle cx="175" cy="115" r="7" fill="#991B1B"/>
+              <circle cx="195" cy="155" r="7" fill="#991B1B"/>
+              <text x="172" y="140" font-size="9" font-weight="800" fill="#FFFFFF" text-anchor="middle">Proteins/RBCs</text>
+
+              <!-- FORCE ARROWS -->
+              <!-- 1. Glomerular Hydrostatic Pressure (Outward - Purple/Blue) -->
+              <line id="starling-arrow-pgc" x1="215" y1="138" x2="295" y2="138" stroke="#0284C7" stroke-width="6" marker-end="url(#arrowWater)"/>
+              <text id="starling-label-pgc" x="260" y="126" font-size="10" font-weight="800" fill="#0369A1">P_GC: 60 mmHg &rarr;</text>
+
+              <!-- 2. Blood Oncotic Pressure (Inward - Orange) -->
+              <line id="starling-arrow-pi" x1="295" y1="158" x2="232" y2="158" stroke="#EA580C" stroke-width="3.5" marker-end="url(#arrowSalt)"/>
+              <text id="starling-label-pi" x="302" y="161" font-size="9.5" font-weight="700" fill="#C2410C">&larr; &pi;_GC: 28 mmHg</text>
+
+              <!-- 3. Bowman's Capsule Pressure (Inward - Purple) -->
+              <line id="starling-arrow-pbs" x1="295" y1="176" x2="245" y2="176" stroke="#9333EA" stroke-width="2.5" marker-end="url(#arrowSecrete)"/>
+              <text id="starling-label-pbs" x="302" y="179" font-size="9.5" font-weight="700" fill="#7E22CE">&larr; P_BS: 15 mmHg</text>
+
+              <!-- Net Filtration Output Indicator -->
+              <rect x="315" y="115" width="132" height="34" rx="8" fill="#0F172A"/>
+              <text id="starling-net-svg" x="381" y="130" font-size="10" font-weight="800" fill="#4ADE80" text-anchor="middle">NFP = +17 mmHg</text>
+              <text id="starling-gfr-svg" x="381" y="142" font-size="9" font-weight="600" fill="#CBD5E1" text-anchor="middle">GFR: 125 mL/min</text>
+            </svg>
+          </div>
+
+          <!-- Starling Sliders -->
+          <div class="space-y-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200 text-xs">
+            <div>
+              <div class="flex justify-between font-semibold mb-1">
+                <span class="text-sky-800">Glomerular Hydrostatic Pressure (P<sub>GC</sub>)</span>
+                <span id="val-pgc" class="font-bold text-sky-700">60 mmHg</span>
+              </div>
+              <input id="slider-pgc" type="range" min="35" max="80" value="60" class="w-full" oninput="updateStarlingForces()" />
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <div class="flex justify-between font-semibold mb-1">
+                  <span class="text-orange-800">Blood Oncotic (&pi;<sub>GC</sub>)</span>
+                  <span id="val-pi" class="font-bold text-orange-700">28 mmHg</span>
+                </div>
+                <input id="slider-pi" type="range" min="18" max="40" value="28" class="w-full" oninput="updateStarlingForces()" />
+              </div>
+              <div>
+                <div class="flex justify-between font-semibold mb-1">
+                  <span class="text-purple-800">Capsular Pressure (P<sub>BS</sub>)</span>
+                  <span id="val-pbs" class="font-bold text-purple-700">15 mmHg</span>
+                </div>
+                <input id="slider-pbs" type="range" min="5" max="35" value="15" class="w-full" oninput="updateStarlingForces()" />
+              </div>
+            </div>
+            <p id="starling-explanation" class="text-[11px] text-slate-600 leading-relaxed pt-1 border-t border-slate-200">
+              <strong>Systems Link:</strong> Because the efferent arteriole has a narrower diameter than the afferent arteriole, blood pressure stays elevated (~60 mmHg) across the entire glomerulus, overcoming oncotic and capsular resistance (+17 mmHg net outward pressure).
+            </p>
+          </div>
+        </div>
+
+        <!-- PART B: PROXIMAL TUBULE EPITHELIAL CELL TRANSPORT ZOOM -->
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 flex flex-col justify-between space-y-4">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-amber-100 text-amber-800">Mechanism B &bull; Coupled Recovery</span>
+              <button id="atp-toggle-btn" onclick="toggleCellularATP()" class="text-xs font-bold px-3 py-1 rounded-full bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 transition">
+                ATP Energy: ON (Active)
+              </button>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900 mt-2">Proximal Tubule Cell: Secondary Active Transport</h3>
+            <p class="text-xs text-slate-600 mt-1">
+              How does the proximal tubule recover 100% of filtered glucose and vitamins? Click the 3 steps below—or shut off <strong>ATP</strong>—to see how the basolateral <strong>Na<sup>+</sup>/K<sup>+</sup> ATPase</strong> powers the entire apical brush border.
+            </p>
+          </div>
+
+          <!-- Proximal Epithelial Cell SVG -->
+          <div class="rounded-xl border border-slate-200 bg-slate-50 p-2">
+            <svg viewBox="0 0 460 280" class="w-full h-auto block">
+              <!-- Zone 1: Tubule Lumen (Top) -->
+              <rect x="10" y="10" width="440" height="58" rx="8" fill="#FEF9C3"/>
+              <text x="24" y="28" font-size="10" font-weight="800" fill="#854D0E">PROXIMAL TUBULE LUMEN (Filtrate: High [Na+], Glucose, Vitamins, H2O)</text>
+
+              <!-- Zone 2: Epithelial Cell with Apical Microvilli -->
+              <path d="M 30 85
+                       Q 42 62, 54 85 Q 66 62, 78 85 Q 90 62, 102 85 Q 114 62, 126 85
+                       Q 138 62, 150 85 Q 162 62, 174 85 Q 186 62, 198 85 Q 210 62, 222 85
+                       Q 234 62, 246 85 Q 258 62, 270 85 Q 282 62, 294 85 Q 306 62, 318 85
+                       Q 330 62, 342 85 Q 354 62, 366 85 Q 378 62, 390 85 Q 402 62, 414 85
+                       L 430 85 L 430 205 L 30 205 Z"
+                    fill="#F3E8FF" stroke="#7E22CE" stroke-width="2.5"/>
+              <text x="418" y="105" font-size="9.5" font-weight="700" fill="#6B21A8" text-anchor="end">Apical Microvilli (High Surface Area)</text>
+              <text x="418" y="195" font-size="9.5" font-weight="700" fill="#6B21A8" text-anchor="end">Basolateral Membrane</text>
+
+              <!-- Intracellular [Na+] Status Box -->
+              <rect id="cell-na-box" x="45" y="122" width="135" height="36" rx="8" fill="#0F172A"/>
+              <text id="cell-na-title" x="112" y="137" font-size="10" font-weight="800" fill="#38BDF8" text-anchor="middle">Intracellular [Na+]: LOW</text>
+              <text id="cell-na-sub" x="112" y="150" font-size="8.5" font-weight="600" fill="#CBD5E1" text-anchor="middle">Steep inward gradient maintained</text>
+
+              <!-- Zone 3: Peritubular Capillary (Bottom) -->
+              <rect x="10" y="220" width="440" height="50" rx="8" fill="#FEE2E2" stroke="#DC2626" stroke-width="2"/>
+              <text x="230" y="250" font-size="11" font-weight="800" fill="#991B1B" text-anchor="middle">PERITUBULAR CAPILLARY BLOOD (Reabsorbed Nutrients &amp; Water)</text>
+
+              <!-- TRANSPORTERS & ARROWS -->
+              <!-- Step 1: Basolateral Na+/K+ ATPase -->
+              <g id="cell-step-1">
+                <circle cx="235" cy="205" r="14" fill="#EA580C" stroke="#FFFFFF" stroke-width="2"/>
+                <text x="235" y="208" font-size="8" font-weight="800" fill="#FFFFFF" text-anchor="middle">ATP</text>
+                <line x1="228" y1="175" x2="228" y2="232" stroke="#EA580C" stroke-width="3" marker-end="url(#arrowSalt)"/>
+                <text x="215" y="172" font-size="9" font-weight="800" fill="#C2410C" text-anchor="end">3 Na+ out</text>
+                <line x1="244" y1="230" x2="244" y2="177" stroke="#9333EA" stroke-width="2.5" marker-end="url(#arrowSecrete)"/>
+                <text x="254" y="172" font-size="9" font-weight="800" fill="#7E22CE" text-anchor="start">2 K+ in</text>
+              </g>
+
+              <!-- Step 2: Apical Na+/Glucose & Na+/Vitamin Symporters -->
+              <g id="cell-step-2">
+                <!-- Symporter 1: Na+ / Glucose -->
+                <ellipse cx="145" cy="76" rx="14" ry="8" fill="#16A34A" stroke="#FFFFFF" stroke-width="1.5"/>
+                <line x1="138" y1="45" x2="138" y2="108" stroke="#EA580C" stroke-width="3" marker-end="url(#arrowSalt)"/>
+                <line x1="152" y1="45" x2="152" y2="108" stroke="#16A34A" stroke-width="3"/>
+                <text x="145" y="40" font-size="9" font-weight="800" fill="#15803D" text-anchor="middle">Na+ + Glucose</text>
+
+                <!-- Facilitated GLUT exit to capillary -->
+                <rect x="136" y="198" width="18" height="14" rx="3" fill="#16A34A"/>
+                <line x1="145" y1="168" x2="145" y2="234" stroke="#16A34A" stroke-width="3"/>
+                <text x="145" y="264" font-size="8.5" font-weight="700" fill="#15803D" text-anchor="middle">Glucose &rarr; Blood</text>
+
+                <!-- Symporter 2: Na+ / Vitamins & Amino Acids -->
+                <ellipse cx="315" cy="76" rx="14" ry="8" fill="#0284C7" stroke="#FFFFFF" stroke-width="1.5"/>
+                <line x1="308" y1="45" x2="308" y2="108" stroke="#EA580C" stroke-width="3" marker-end="url(#arrowSalt)"/>
+                <line x1="322" y1="45" x2="322" y2="108" stroke="#0284C7" stroke-width="3" marker-end="url(#arrowWater)"/>
+                <text x="315" y="40" font-size="9" font-weight="800" fill="#0369A1" text-anchor="middle">Na+ + Vitamins</text>
+              </g>
+
+              <!-- Step 3: Osmotic Water Follow -->
+              <g id="cell-step-3">
+                <line x1="385" y1="52" x2="385" y2="234" stroke="#0284C7" stroke-width="3.5" stroke-dasharray="5 3" marker-end="url(#arrowWater)"/>
+                <rect x="342" y="130" width="84" height="28" rx="6" fill="#0284C7"/>
+                <text x="384" y="143" font-size="9" font-weight="800" fill="#FFFFFF" text-anchor="middle">Osmotic H2O</text>
+                <text x="384" y="153" font-size="8" font-weight="600" fill="#E0F2FE" text-anchor="middle">Follows Solutes</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Step-by-Step Interactive Controls -->
+          <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2.5 text-xs">
+            <div class="grid grid-cols-3 gap-2">
+              <button onclick="highlightCellStep(1)" id="btn-cell-step-1" class="cell-step-btn py-1.5 px-2 rounded-lg font-bold bg-orange-600 text-white shadow-sm">
+                Step 1: Na+/K+ Pump
+              </button>
+              <button onclick="highlightCellStep(2)" id="btn-cell-step-2" class="cell-step-btn py-1.5 px-2 rounded-lg font-bold bg-white text-slate-700 border border-slate-300 hover:bg-slate-100">
+                Step 2: Symporters
+              </button>
+              <button onclick="highlightCellStep(3)" id="btn-cell-step-3" class="cell-step-btn py-1.5 px-2 rounded-lg font-bold bg-white text-slate-700 border border-slate-300 hover:bg-slate-100">
+                Step 3: Osmotic H2O
+              </button>
+            </div>
+            <p id="cell-step-explanation" class="text-[11px] text-slate-700 leading-relaxed pt-1 border-t border-slate-200">
+              <strong>Step 1 (Primary Active Transport):</strong> Basolateral Na<sup>+</sup>/K<sup>+</sup> ATPase hydrolyzes ATP to pump 3 Na<sup>+</sup> out into the blood and 2 K<sup>+</sup> in, keeping intracellular [Na<sup>+</sup>] very low.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 3: COUNTERCURRENT MULTIPLIER & HORMONE CONTROL                    -->
+    <!-- ===================================================================== -->
+    <section id="tab-panel-3" class="tab-panel hidden space-y-6">
+      <!-- Scenario Preset Bar -->
+      <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">Countercurrent Multiplier &amp; Endocrine Fine-Tuning</h2>
+            <p class="text-xs text-slate-600 mt-0.5">
+              Select a physiological challenge or adjust <strong>ADH</strong> and <strong>Aldosterone</strong> directly to see how the Loop of Henle gradient and Collecting Duct membrane channels cooperate.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="applyHormonePreset('normal')" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 transition">
+              Normal Hydration
+            </button>
+            <button onclick="applyHormonePreset('dehydrated')" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 transition">
+              24-Hour Dehydration
+            </button>
+            <button onclick="applyHormonePreset('overhydrated')" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-sky-100 hover:bg-sky-200 text-sky-900 border border-sky-300 transition">
+              After Drinking 2L Water
+            </button>
+            <button onclick="applyHormonePreset('lowbp')" class="preset-btn px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-100 hover:bg-rose-200 text-rose-900 border border-rose-300 transition">
+              Low Blood Pressure / Volume
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Left Column: Hormone Sliders, Principal Cell Membrane Zoom & Urine Output -->
+        <div class="lg:col-span-5 space-y-4">
+          <!-- Sliders Card -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4">
+            <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">Endocrine Signal Controls</h3>
+
+            <div>
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-sky-800">Blood ADH (Antidiuretic Hormone)</span>
+                <span id="val-adh" class="px-2 py-0.5 rounded bg-sky-100 text-sky-800">50% (Moderate)</span>
+              </div>
+              <input id="slider-adh" type="range" min="0" max="100" value="50" class="w-full" oninput="updateHormoneSimulation()" />
+              <p class="text-[11px] text-slate-500 mt-1">Triggered by high blood osmolarity (osmoreceptors). Inserts <strong>Aquaporin-2</strong> water channels into Collecting Duct.</p>
+            </div>
+
+            <div class="pt-2 border-t border-slate-100">
+              <div class="flex justify-between text-xs font-bold mb-1">
+                <span class="text-orange-800">Blood Aldosterone (RAAS Pathway)</span>
+                <span id="val-aldo" class="px-2 py-0.5 rounded bg-orange-100 text-orange-800">40% (Moderate)</span>
+              </div>
+              <input id="slider-aldo" type="range" min="0" max="100" value="40" class="w-full" oninput="updateHormoneSimulation()" />
+              <p class="text-[11px] text-slate-500 mt-1">Triggered by low blood pressure/volume. Upregulates apical <strong>ENaC Na<sup>+</sup> channels</strong> &amp; basolateral Na<sup>+</sup>/K<sup>+</sup> pumps.</p>
+            </div>
+          </div>
+
+          <!-- Collecting Duct Principal Cell Membrane Zoom -->
+          <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 mb-2">Inset Zoom: Collecting Duct Principal Cell</h3>
+            <svg viewBox="0 0 380 165" class="w-full h-auto rounded-xl border border-slate-200 bg-slate-50">
+              <!-- Lumen -->
+              <rect x="0" y="0" width="130" height="165" fill="#FEF9C3"/>
+              <text x="65" y="18" font-size="10" font-weight="800" fill="#854D0E" text-anchor="middle">DUCT LUMEN</text>
+
+              <!-- Apical Membrane Bilayer -->
+              <rect x="130" y="0" width="14" height="165" fill="#FACC15" stroke="#CA8A04" stroke-width="1.5"/>
+
+              <!-- Principal Cell Interior -->
+              <rect x="144" y="0" width="146" height="165" fill="#F8FAFC"/>
+              <text x="217" y="18" font-size="10" font-weight="800" fill="#334155" text-anchor="middle">PRINCIPAL CELL</text>
+
+              <!-- Medullary Interstitium / Blood -->
+              <rect x="290" y="0" width="90" height="165" fill="#F2C894"/>
+              <text x="335" y="18" font-size="9.5" font-weight="800" fill="#78350F" text-anchor="middle">SALTY MEDULLA</text>
+              <text x="335" y="31" font-size="9" font-weight="700" fill="#92400E" text-anchor="middle">(1200 mOsm)</text>
+
+              <!-- Dynamic Aquaporin Channels (Controlled by ADH) -->
+              <g id="inset-aquaporins">
+                <rect x="126" y="42" width="22" height="12" rx="4" fill="#0284C7" stroke="#FFFFFF" stroke-width="1.5"/>
+                <line x1="95" y1="48" x2="180" y2="48" stroke="#0284C7" stroke-width="3" marker-end="url(#arrowWater)"/>
+                <text x="65" y="51" font-size="9" font-weight="800" fill="#0369A1" text-anchor="middle">H2O &rarr; Aquaporin</text>
+
+                <rect x="126" y="75" width="22" height="12" rx="4" fill="#0284C7" stroke="#FFFFFF" stroke-width="1.5"/>
+                <line x1="95" y1="81" x2="180" y2="81" stroke="#0284C7" stroke-width="3" marker-end="url(#arrowWater)"/>
+              </g>
+
+              <!-- Basolateral Constitutive Aquaporin exit -->
+              <line x1="210" y1="65" x2="318" y2="65" stroke="#0284C7" stroke-width="3" stroke-dasharray="4 3" marker-end="url(#arrowWater)"/>
+
+              <!-- Dynamic Aldosterone Na+ Channels & Pumps -->
+              <g id="inset-enac">
+                <rect x="126" y="118" width="22" height="12" rx="4" fill="#EA580C" stroke="#FFFFFF" stroke-width="1.5"/>
+                <line x1="95" y1="124" x2="180" y2="124" stroke="#EA580C" stroke-width="3" marker-end="url(#arrowSalt)"/>
+                <text x="65" y="127" font-size="9" font-weight="800" fill="#C2410C" text-anchor="middle">Na+ &rarr; ENaC</text>
+
+                <circle cx="290" cy="124" r="10" fill="#EA580C" stroke="#FFFFFF" stroke-width="1.5"/>
+                <line x1="245" y1="124" x2="325" y2="124" stroke="#EA580C" stroke-width="3" marker-end="url(#arrowSalt)"/>
+              </g>
+            </svg>
+          </div>
+
+          <!-- Clinical Urine Color & Hydration Chart Card -->
+          <div class="bg-slate-900 text-white rounded-2xl p-4 shadow-md border border-slate-800 flex items-center justify-between gap-4">
+            <div>
+              <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Clinical Urine Output &amp; Hydration Scale</div>
+              <div id="urine-status-label" class="text-base font-extrabold text-amber-300 mt-0.5">Level 4: Mildly Concentrated</div>
+              <div id="urine-metrics-sub" class="text-xs text-slate-300 mt-1">Volume: 60 mL/hr &bull; Osmolarity: 650 mOsm/L</div>
+            </div>
+            <div class="flex flex-col items-center shrink-0">
+              <div id="urine-swatch" class="w-14 h-14 rounded-2xl border-2 border-white/30 shadow-inner transition-colors duration-300" style="background-color: #EAB308;"></div>
+              <span id="urine-scale-num" class="text-[10px] font-bold text-slate-300 mt-1">Scale 4 / 8</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Countercurrent Multiplier & Collecting Duct SVG -->
+        <div class="lg:col-span-7 bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+          <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
+            <h3 class="text-sm font-bold text-slate-900">Countercurrent Multiplier &amp; Medullary Osmotic Gradient</h3>
+            <span class="text-xs font-semibold text-amber-800 bg-amber-100 px-2.5 py-0.5 rounded-full">Single Effect &times; Countercurrent Flow</span>
+          </div>
+
+          <svg viewBox="0 0 640 500" class="w-full h-auto rounded-xl border border-slate-200 select-none">
+            <defs>
+              <linearGradient id="ccMedulla" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#FDE68A"/>
+                <stop offset="50%" stop-color="#F59E0B" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#D97706" stop-opacity="0.55"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Cortex & Medulla Backgrounds -->
+            <rect x="0" y="0" width="640" height="125" fill="#FDF6EC"/>
+            <rect x="0" y="125" width="640" height="375" fill="url(#ccMedulla)"/>
+            <line x1="0" y1="125" x2="640" y2="125" stroke="#B45309" stroke-width="1.5" stroke-dasharray="6 4"/>
+
+            <text x="16" y="25" font-size="12" font-weight="800" fill="#92400E">CORTEX (300 mOsm/L)</text>
+            <text x="16" y="148" font-size="12" font-weight="800" fill="#78350F">MEDULLA (Hypertonic Gradient)</text>
+
+            <!-- Interstitial Osmolarity Column (Center) -->
+            <g font-size="12" font-weight="800" fill="#78350F" text-anchor="middle">
+              <rect x="212" y="145" width="68" height="24" rx="6" fill="rgba(255,255,255,0.75)"/>
+              <text x="246" y="161">400 mOsm</text>
+
+              <rect x="212" y="230" width="68" height="24" rx="6" fill="rgba(255,255,255,0.75)"/>
+              <text x="246" y="246">700 mOsm</text>
+
+              <rect x="212" y="315" width="68" height="24" rx="6" fill="rgba(255,255,255,0.75)"/>
+              <text x="246" y="331">950 mOsm</text>
+
+              <rect x="206" y="405" width="80" height="26" rx="6" fill="#78350F"/>
+              <text x="246" y="422" fill="#FEF3C7">1200 mOsm</text>
+            </g>
+
+            <!-- LOOP OF HENLE U-TUBE -->
+            <!-- Descending Limb -->
+            <path d="M 140 50 L 140 420 C 140 465, 350 465, 350 420 L 350 320"
+                  fill="none" stroke="#FEF08A" stroke-width="34" stroke-linecap="round"/>
+            <path d="M 140 50 L 140 420 C 140 465, 350 465, 350 420 L 350 320"
+                  fill="none" stroke="#CA8A04" stroke-width="3"/>
+
+            <!-- Thick Ascending Limb (Water Impermeable) -->
+            <path d="M 350 320 L 350 85 L 495 85"
+                  fill="none" stroke="#FDE047" stroke-width="40" stroke-linecap="round"/>
+            <path d="M 350 320 L 350 85 L 495 85"
+                  fill="none" stroke="#92400E" stroke-width="3.5"/>
+
+            <!-- Collecting Duct -->
+            <path d="M 495 85 L 495 465"
+                  fill="none" stroke="#FDE047" stroke-width="44" stroke-linecap="round"/>
+            <path d="M 495 85 L 495 465"
+                  fill="none" stroke="#CA8A04" stroke-width="3"/>
+
+            <!-- Filtrate Osmolarity Numbers inside Loop -->
+            <g font-size="11" font-weight="800" fill="#1E293B" text-anchor="middle">
+              <text x="140" y="75">300</text>
+              <text x="140" y="161">400</text>
+              <text x="140" y="246">700</text>
+              <text x="140" y="331">950</text>
+              <text x="246" y="458">1200</text>
+
+              <!-- Ascending Limb becoming dilute! -->
+              <text x="350" y="331">950</text>
+              <text x="350" y="246">600</text>
+              <text x="350" y="161">300</text>
+              <text x="350" y="92" fill="#0369A1">100 (Dilute!)</text>
+            </g>
+
+            <!-- Passive H2O Exit Arrows (Descending Limb) -->
+            <g class="flow-arrow-active">
+              <line x1="160" y1="160" x2="205" y2="160" stroke="#0284C7" stroke-width="3" marker-end="url(#arrowWater)"/>
+              <line x1="160" y1="245" x2="205" y2="245" stroke="#0284C7" stroke-width="3" marker-end="url(#arrowWater)"/>
+              <line x1="160" y1="330" x2="205" y2="330" stroke="#0284C7" stroke-width="3" marker-end="url(#arrowWater)"/>
+              <text x="112" y="245" font-size="10" font-weight="800" fill="#0369A1" text-anchor="end">Aquaporins</text>
+              <text x="112" y="258" font-size="9.5" font-weight="700" fill="#0369A1" text-anchor="end">(H2O Out)</text>
+            </g>
+
+            <!-- Active NaCl Pump Arrows (Ascending Limb) -->
+            <g class="flow-arrow-active">
+              <line x1="328" y1="160" x2="285" y2="160" stroke="#EA580C" stroke-width="3" marker-end="url(#arrowSalt)"/>
+              <line x1="328" y1="245" x2="285" y2="245" stroke="#EA580C" stroke-width="3" marker-end="url(#arrowSalt)"/>
+              <line x1="328" y1="330" x2="285" y2="330" stroke="#EA580C" stroke-width="3" marker-end="url(#arrowSalt)"/>
+              <text x="378" y="215" font-size="10" font-weight="800" fill="#C2410C">Active NaCl</text>
+              <text x="378" y="228" font-size="9.5" font-weight="700" fill="#991B1B">H2O Impermeable</text>
+            </g>
+
+            <!-- Dynamic Collecting Duct Transport Arrows -->
+            <g id="cc-cd-salt-arrows">
+              <line x1="470" y1="155" x2="430" y2="155" stroke="#EA580C" stroke-width="3" marker-end="url(#arrowSalt)"/>
+              <text x="424" y="158" font-size="9.5" font-weight="800" fill="#C2410C" text-anchor="end">Na+ (Aldo)</text>
+            </g>
+
+            <g id="cc-cd-water-arrows">
+              <line x1="520" y1="220" x2="570" y2="220" stroke="#0284C7" stroke-width="3.5" marker-end="url(#arrowWater)"/>
+              <line x1="520" y1="300" x2="570" y2="300" stroke="#0284C7" stroke-width="3.5" marker-end="url(#arrowWater)"/>
+              <line x1="520" y1="380" x2="570" y2="380" stroke="#0284C7" stroke-width="3.5" marker-end="url(#arrowWater)"/>
+              <text x="576" y="304" font-size="10" font-weight="800" fill="#0369A1">H2O (ADH)</text>
+            </g>
+
+            <!-- Final Urine Badge at Bottom of Collecting Duct -->
+            <rect x="435" y="458" width="120" height="34" rx="8" fill="#0F172A"/>
+            <text id="cc-final-urine-text" x="495" y="479" font-size="11" font-weight="800" fill="#38BDF8" text-anchor="middle">Urine: 650 mOsm</text>
+          </svg>
+
+          <p id="hormone-systems-narrative" class="text-xs text-slate-600 mt-3 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <strong>Normal Hydration State:</strong> The Ascending Limb pumps NaCl out into the medulla without water, leaving dilute fluid (100 mOsm) entering the Distal Tubule. Moderate ADH opens enough aquaporins in the Collecting Duct to concentrate urine to ~650 mOsm/L.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 4: SYSTEM PERTURBATION & CLINICAL SANDBOX                         -->
+    <!-- ===================================================================== -->
+    <section id="tab-panel-4" class="tab-panel hidden space-y-6">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-purple-100 text-purple-800">Exam Synthesis &amp; Clinical Reasoning</span>
+            <h2 class="text-lg font-bold text-slate-900 mt-1">System Perturbation &amp; Causal Cascade Sandbox</h2>
+            <p class="text-xs sm:text-sm text-slate-600 mt-0.5">
+              Select a physiological perturbation, drug, or mutation below to trace how disrupting one transport mechanism cascades across the entire nephron system.
+            </p>
+          </div>
+          <button onclick="selectPerturbation('none')" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 shrink-0">
+            Restore Healthy Baseline
+          </button>
+        </div>
+
+        <!-- 5 Perturbation Selector Cards -->
+        <div id="perturbation-buttons" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mt-4">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+
+      <!-- Causal Chain Flowchart & Visual System Impact -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Left 7 Cols: 4-Step Causal Cascade Flowchart -->
+        <div class="lg:col-span-7 bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 id="pert-title" class="text-base font-extrabold text-slate-900">Baseline Healthy Nephron</h3>
+            <span id="pert-tag" class="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">Homeostasis Intact</span>
+          </div>
+
+          <!-- 4-Step Causal Chain Cards -->
+          <div class="space-y-3">
+            <!-- Step 1 -->
+            <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200">
+              <div class="text-[11px] font-extrabold uppercase tracking-wider text-rose-700">1. Primary Molecular / Environmental Disruption</div>
+              <p id="causal-step-1" class="text-xs sm:text-sm font-medium text-slate-800 mt-1">
+                All nephron segments, transporters, and osmotic gradients are operating normally.
+              </p>
+            </div>
+
+            <div class="flex justify-center text-slate-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200">
+              <div class="text-[11px] font-extrabold uppercase tracking-wider text-amber-800">2. Immediate Gradient &amp; Filtrate Effect</div>
+              <p id="causal-step-2" class="text-xs sm:text-sm font-medium text-slate-800 mt-1">
+                Proximal tubule reabsorbs 65% of filtrate isosmotically; Loop of Henle maintains a 300 &rarr; 1200 mOsm/L corticomedullary salt gradient.
+              </p>
+            </div>
+
+            <div class="flex justify-center text-slate-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+            </div>
+
+            <!-- Step 3 -->
+            <div class="p-3.5 rounded-xl bg-sky-50 border border-sky-200">
+              <div class="text-[11px] font-extrabold uppercase tracking-wider text-sky-800">3. Downstream Nephron Segment Impact</div>
+              <p id="causal-step-3" class="text-xs sm:text-sm font-medium text-slate-800 mt-1">
+                Distal tubule and collecting duct respond normally to ADH and Aldosterone, fine-tuning water and salt recovery.
+              </p>
+            </div>
+
+            <div class="flex justify-center text-slate-400">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+            </div>
+
+            <!-- Step 4 -->
+            <div class="p-3.5 rounded-xl bg-slate-900 text-white border border-slate-700">
+              <div class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400">4. Final Urine &amp; Systemic Homeostasis Outcome</div>
+              <p id="causal-step-4" class="text-xs sm:text-sm font-medium text-slate-200 mt-1">
+                Balanced water and electrolyte excretion (~60 mL/hr at ~650 mOsm/L), preserving blood volume, blood pressure, and cellular osmolarity.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 5 Cols: Visual Nephron Status Schematic & Exam Takeaway -->
+        <div class="lg:col-span-5 bg-white rounded-2xl p-5 shadow-sm border border-slate-200 space-y-4">
+          <h3 class="text-sm font-bold uppercase tracking-wider text-slate-800">Live Perturbation Schematic</h3>
+
+          <svg viewBox="0 0 380 340" class="w-full h-auto rounded-xl border border-slate-200">
+            <!-- Cortex & Medulla -->
+            <rect x="0" y="0" width="380" height="95" fill="#FDF6EC"/>
+            <rect id="pert-medulla-bg" x="0" y="95" width="380" height="245" fill="#F2C894"/>
+            <line x1="0" y1="95" x2="380" y2="95" stroke="#B45309" stroke-width="1" stroke-dasharray="5 3"/>
+
+            <!-- Medulla Osmolarity Readout -->
+            <rect x="12" y="295" width="135" height="32" rx="8" fill="#0F172A"/>
+            <text id="pert-svg-medulla" x="79" y="315" font-size="11" font-weight="800" fill="#FBBF24" text-anchor="middle">Medulla: 1200 mOsm</text>
+
+            <!-- Simplified Nephron Schematic -->
+            <!-- Glomerulus -->
+            <circle cx="52" cy="52" r="18" fill="#EF4444" stroke="#991B1B" stroke-width="2"/>
+            <!-- PCT -->
+            <path d="M 70 52 L 135 52 L 135 95" fill="none" stroke="#FDE047" stroke-width="16" stroke-linecap="round"/>
+            <path d="M 70 52 L 135 52 L 135 95" fill="none" stroke="#CA8A04" stroke-width="2"/>
+            <!-- Descending Limb -->
+            <path d="M 135 95 L 135 260 C 135 285, 205 285, 205 260 L 205 180" fill="none" stroke="#FEF08A" stroke-width="14"/>
+            <path d="M 135 95 L 135 260 C 135 285, 205 285, 205 260 L 205 180" fill="none" stroke="#CA8A04" stroke-width="2"/>
+            <!-- Ascending Limb -->
+            <path d="M 205 180 L 205 52 L 295 52" fill="none" stroke="#FDE047" stroke-width="18" stroke-linecap="round"/>
+            <path d="M 205 180 L 205 52 L 295 52" fill="none" stroke="#92400E" stroke-width="2.5"/>
+            <!-- Collecting Duct -->
+            <path d="M 295 52 L 295 310" fill="none" stroke="#FDE047" stroke-width="22" stroke-linecap="round"/>
+            <path d="M 295 52 L 295 310" fill="none" stroke="#CA8A04" stroke-width="2"/>
+
+            <!-- Disruption Alert Marker Badge on SVG -->
+            <g id="pert-alert-marker" class="hidden">
+              <circle cx="135" cy="175" r="16" fill="#DC2626" stroke="#FFFFFF" stroke-width="2.5"/>
+              <text x="135" y="180" font-size="14" font-weight="900" fill="#FFFFFF" text-anchor="middle">!</text>
+            </g>
+
+            <!-- Segment Status Labels -->
+            <g font-size="9.5" font-weight="800" fill="#1E293B">
+              <text x="102" y="38" text-anchor="middle">PCT</text>
+              <text x="122" y="175" text-anchor="end">Desc. Limb</text>
+              <text x="220" y="145" text-anchor="start">Asc. Limb</text>
+              <text x="312" y="175" text-anchor="start">Collecting Duct</text>
+            </g>
+
+            <!-- Urine Output Readout -->
+            <rect x="215" y="295" width="152" height="32" rx="8" fill="#0F172A"/>
+            <text id="pert-svg-urine" x="291" y="315" font-size="11" font-weight="800" fill="#38BDF8" text-anchor="middle">Urine: 60 mL/hr | 650</text>
+          </svg>
+
+          <!-- Comparative Physiology / Exam Note -->
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-3.5 text-xs text-amber-950 leading-relaxed">
+            <div class="font-extrabold uppercase tracking-wider text-[10px] text-amber-800 mb-1">Key Systems Principle</div>
+            <p id="pert-exam-note">
+              Water reabsorption in the nephron is <strong>always passive</strong> (via osmosis through aquaporins). Therefore, it requires two simultaneous conditions: (1) an <strong>external osmotic gradient</strong> built by active salt pumping, and (2) <strong>membrane permeability</strong> (aquaporins).
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-4 px-6 text-center text-xs text-slate-500">
+    BIOS 110 Interactive Physiology Module &bull; Nephron Systems Studio: Integrating Membrane Transport, Gradients &amp; Homeostasis
+  </footer>
+
+  <!-- ======================================================================= -->
+  <!-- JAVASCRIPT APPLICATION LOGIC                                            -->
+  <!-- ======================================================================= -->
+  <script>
+    // -------------------------------------------------------------------------
+    // 1. TAB NAVIGATION CONTROLLER
+    // -------------------------------------------------------------------------
+    function switchTab(tabIndex) {
+      document.querySelectorAll('.tab-panel').forEach((panel, idx) => {
+        if (idx + 1 === tabIndex) {
+          panel.classList.remove('hidden');
+        } else {
+          panel.classList.add('hidden');
+        }
+      });
+
+      document.querySelectorAll('.tab-btn').forEach((btn, idx) => {
+        if (idx + 1 === tabIndex) {
+          btn.classList.add('bg-sky-600', 'text-white', 'shadow');
+          btn.classList.remove('text-slate-300', 'hover:bg-slate-700/70');
+        } else {
+          btn.classList.remove('bg-sky-600', 'text-white', 'shadow');
+          btn.classList.add('text-slate-300', 'hover:bg-slate-700/70');
+        }
+      });
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. TAB 1: SYSTEMS ARCHITECTURE & TRANSPORT BUILDER
+    // -------------------------------------------------------------------------
+    const builderModules = [
+      {
+        id: 'glomerulus',
+        num: 1,
+        title: 'Podocytes & Filtration Slits',
+        subtitle: 'Size-selective barrier under high arterial pressure',
+        badgeColor: 'bg-rose-100 text-rose-800',
+        insightTitle: 'Step 1: Bulk Filtration in the Glomerulus (Cortex)',
+        insightText: 'High blood pressure in the glomerulus forces water, ions, glucose, amino acids, and urea through capillary fenestrations and podocyte filtration slits into Bowman’s capsule (~300 mOsm/L), while retaining large proteins and blood cells. This solves the engineering problem of removing diverse wastes without needing thousands of specific waste pumps.'
+      },
+      {
+        id: 'pct',
+        num: 2,
+        title: 'Basolateral Na+/K+ ATPase + Microvilli',
+        subtitle: 'Powers bulk nutrient, salt & water recovery',
+        badgeColor: 'bg-amber-100 text-amber-800',
+        insightTitle: 'Step 2: Mass Recovery in the Proximal Tubule (Cortex)',
+        insightText: 'Dense apical microvilli maximize surface area while basolateral Na+/K+ pumps create a steep inward Na+ gradient. Apical symporters harness this gradient to reclaim 100% of filtered glucose and vitamins plus ~65% of NaCl and water isosmotically, leaving waste products (urea) behind.'
+      },
+      {
+        id: 'descending',
+        num: 3,
+        title: 'Constitutive Aquaporins',
+        subtitle: 'Passive water exit into salty medulla',
+        badgeColor: 'bg-sky-100 text-sky-800',
+        insightTitle: 'Step 3: Concentrating Filtrate in Descending Loop of Henle',
+        insightText: 'The descending limb is packed with always-open aquaporin water channels but lacks salt transporters. As filtrate plunges into the hypertonic medulla (up to 1200 mOsm/L), water exits passively by osmosis—concentrating the internal filtrate to 1200 mOsm/L at the hairpin turn.'
+      },
+      {
+        id: 'ascending',
+        num: 4,
+        title: 'Active NaCl Pumps + Water-Impermeable Wall',
+        subtitle: 'Builds the 1200 mOsm medullary salt gradient',
+        badgeColor: 'bg-orange-100 text-orange-800',
+        insightTitle: 'Step 4: The Engine of Concentration — Ascending Loop of Henle',
+        insightText: 'Crucial Systems Link: The thick ascending limb actively pumps Na+ and Cl- out into the medulla while remaining completely impermeable to water! This single effect builds the salty medullary gradient that powers water reabsorption in BOTH the descending limb and the collecting duct, while delivering dilute fluid (~100 mOsm/L) to the distal tubule.'
+      },
+      {
+        id: 'dct',
+        num: 5,
+        title: 'Selective Ion Pumps (Na+/K+/H+)',
+        subtitle: 'Active pH & electrolyte fine-tuning',
+        badgeColor: 'bg-purple-100 text-purple-800',
+        insightTitle: 'Step 5: Precision Electrolyte & pH Homeostasis in Distal Tubule',
+        insightText: 'Because filtrate entering the distal tubule has low solute concentrations, passive diffusion is insufficient. Mitochondria-rich distal cells use active transport to reabsorb remaining Na+/Ca2+ and secrete H+ or K+, regulating blood pH and potassium balance.'
+      },
+      {
+        id: 'cd',
+        num: 6,
+        title: 'Hormone-Regulated Channels (ADH/Aldosterone)',
+        subtitle: 'Variable final water & salt recovery',
+        badgeColor: 'bg-emerald-100 text-emerald-800',
+        insightTitle: 'Step 6: Final Homeostatic Control in the Collecting Duct',
+        insightText: 'The collecting duct descends back through the 1200 mOsm medullary gradient created by the Loop of Henle. Aldosterone inserts Na+ channels to defend blood pressure, while ADH inserts Aquaporin-2 channels to reclaim water—producing either dilute (100 mOsm) or concentrated (1200 mOsm) urine.'
+      }
+    ];
+
+    let installedZones = new Set();
+    let selectedCardId = null;
+
+    function initBuilder() {
+      const tray = document.getElementById('component-tray');
+      tray.innerHTML = '';
+
+      builderModules.forEach(mod => {
+        const isInstalled = installedZones.has(mod.id);
+        const card = document.createElement('div');
+        card.id = `card-${mod.id}`;
+        card.draggable = !isInstalled;
+        card.className = `module-card p-3 rounded-xl border text-left transition ${
+          isInstalled
+            ? 'bg-emerald-50 border-emerald-300 opacity-65 cursor-default'
+            : selectedCardId === mod.id
+              ? 'bg-sky-50 border-sky-500 ring-2 ring-sky-400'
+              : 'bg-slate-50 hover:bg-white border-slate-200 hover:border-sky-400 shadow-xs'
+        }`;
+
+        card.innerHTML = `
+          <div class="flex items-center justify-between gap-2">
+            <span class="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded ${mod.badgeColor}">Module #${mod.num}</span>
+            <span class="text-[11px] font-bold ${isInstalled ? 'text-emerald-700' : 'text-slate-400'}">
+              ${isInstalled ? '✓ Installed' : 'Drag or Tap'}
+            </span>
+          </div>
+          <div class="font-bold text-xs sm:text-sm text-slate-900 mt-1">${mod.title}</div>
+          <div class="text-[11px] text-slate-500">${mod.subtitle}</div>
+        `;
+
+        if (!isInstalled) {
+          card.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', mod.id);
+            selectedCardId = mod.id;
+          });
+          card.addEventListener('click', () => {
+            selectedCardId = (selectedCardId === mod.id) ? null : mod.id;
+            initBuilder();
+          });
+        } else {
+          card.addEventListener('click', () => showModuleInsight(mod));
+        }
+
+        tray.appendChild(card);
+      });
+
+      // Attach dragover / drop listeners to SVG drop zones
+      document.querySelectorAll('.drop-zone-target').forEach(zoneEl => {
+        const zoneId = zoneEl.getAttribute('data-zone');
+        zoneEl.ondragover = (e) => {
+          e.preventDefault();
+          zoneEl.classList.add('drag-over');
+        };
+        zoneEl.ondragleave = () => {
+          zoneEl.classList.remove('drag-over');
+        };
+        zoneEl.ondrop = (e) => {
+          e.preventDefault();
+          zoneEl.classList.remove('drag-over');
+          const draggedId = e.dataTransfer.getData('text/plain') || selectedCardId;
+          attemptInstallModule(draggedId, zoneId);
+        };
+      });
+
+      document.getElementById('builder-progress').textContent = `${installedZones.size} / 6 Installed`;
+    }
+
+    function handleZoneClick(zoneId) {
+      if (selectedCardId) {
+        attemptInstallModule(selectedCardId, zoneId);
+      } else if (installedZones.has(zoneId)) {
+        const mod = builderModules.find(m => m.id === zoneId);
+        if (mod) showModuleInsight(mod);
+      }
+    }
+
+    function attemptInstallModule(moduleId, targetZoneId) {
+      if (!moduleId) return;
+      const mod = builderModules.find(m => m.id === moduleId);
+      if (!mod) return;
+
+      if (moduleId === targetZoneId) {
+        installedZones.add(moduleId);
+        selectedCardId = null;
+
+        // Reveal arrows & mark drop zone complete
+        const arrows = document.getElementById(`arrows-${moduleId}`);
+        if (arrows) arrows.classList.remove('hidden');
+
+        const dzShape = document.getElementById(`dz-circle-${moduleId}`);
+        const dzLabel = document.getElementById(`dz-label-${moduleId}`);
+        if (dzShape) {
+          dzShape.setAttribute('fill', 'rgba(16, 185, 129, 0.25)');
+          dzShape.setAttribute('stroke', '#059669');
+          dzShape.removeAttribute('stroke-dasharray');
+        }
+        if (dzLabel) {
+          dzLabel.textContent = `✓ #${mod.num}`;
+          dzLabel.setAttribute('fill', '#065F46');
+        }
+
+        showModuleInsight(mod);
+        initBuilder();
+      } else {
+        // Gentle feedback in insight box without using alert()
+        document.getElementById('builder-insight-title').textContent = `Mismatch: "${mod.title}" belongs elsewhere`;
+        document.getElementById('builder-insight-text').textContent =
+          `Think about where "${mod.subtitle.toLowerCase()}" is needed along the nephron. Check the Cortex vs. Medulla environment and try another target zone!`;
+      }
+    }
+
+    function showModuleInsight(mod) {
+      document.getElementById('builder-insight-title').textContent = mod.insightTitle;
+      document.getElementById('builder-insight-text').textContent = mod.insightText;
+    }
+
+    function completeAllBuilder() {
+      builderModules.forEach(mod => {
+        installedZones.add(mod.id);
+        const arrows = document.getElementById(`arrows-${mod.id}`);
+        if (arrows) arrows.classList.remove('hidden');
+        const dzShape = document.getElementById(`dz-circle-${mod.id}`);
+        const dzLabel = document.getElementById(`dz-label-${mod.id}`);
+        if (dzShape) {
+          dzShape.setAttribute('fill', 'rgba(16, 185, 129, 0.25)');
+          dzShape.setAttribute('stroke', '#059669');
+          dzShape.removeAttribute('stroke-dasharray');
+        }
+        if (dzLabel) {
+          dzLabel.textContent = `✓ #${mod.num}`;
+          dzLabel.setAttribute('fill', '#065F46');
+        }
+      });
+      selectedCardId = null;
+      initBuilder();
+      document.getElementById('builder-insight-title').textContent = 'Full Nephron System Assembled!';
+      document.getElementById('builder-insight-text').textContent =
+        'All 6 functional modules are active. Notice the complete systems loop: Glomerular filtration dumps small solutes -> Proximal tubule reclaims bulk nutrients -> Ascending limb pumps NaCl without water to build the 1200 mOsm medullary gradient -> Descending limb & Collecting duct harness that gradient for passive water conservation.';
+    }
+
+    function resetBuilder() {
+      installedZones.clear();
+      selectedCardId = null;
+      builderModules.forEach(mod => {
+        const arrows = document.getElementById(`arrows-${mod.id}`);
+        if (arrows) arrows.classList.add('hidden');
+        const dzShape = document.getElementById(`dz-circle-${mod.id}`);
+        const dzLabel = document.getElementById(`dz-label-${mod.id}`);
+        if (dzShape) {
+          dzShape.setAttribute('fill', mod.id === 'glomerulus' ? 'rgba(255,255,255,0.25)' : 'rgba(255,255,255,0.8)');
+          dzShape.setAttribute('stroke', '#0284C7');
+          dzShape.setAttribute('stroke-dasharray', '5 3');
+        }
+        if (dzLabel) {
+          dzLabel.textContent = `Drop #${mod.num}`;
+          dzLabel.setAttribute('fill', mod.id === 'glomerulus' ? '#FFFFFF' : '#0369A1');
+        }
+      });
+      initBuilder();
+      document.getElementById('builder-insight-title').textContent = 'Install a module to trace how segments depend on one another';
+      document.getElementById('builder-insight-text').textContent =
+        'Drag any module from the left tray onto its matching anatomical zone on the nephron diagram.';
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. TAB 2: STARLING FORCES & CELLULAR TRANSPORT ZOOM
+    // -------------------------------------------------------------------------
+    function updateStarlingForces() {
+      const pgc = parseInt(document.getElementById('slider-pgc').value, 10);
+      const pi = parseInt(document.getElementById('slider-pi').value, 10);
+      const pbs = parseInt(document.getElementById('slider-pbs').value, 10);
+
+      const nfp = pgc - pi - pbs;
+      const gfr = Math.max(0, Math.round((nfp / 17) * 125));
+
+      document.getElementById('val-pgc').textContent = `${pgc} mmHg`;
+      document.getElementById('val-pi').textContent = `${pi} mmHg`;
+      document.getElementById('val-pbs').textContent = `${pbs} mmHg`;
+
+      const badge = document.getElementById('nfp-badge');
+      badge.textContent = `Net Filtration: ${nfp >= 0 ? '+' : ''}${nfp} mmHg`;
+      if (nfp > 5) {
+        badge.className = 'text-xs font-extrabold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800';
+      } else if (nfp > 0) {
+        badge.className = 'text-xs font-extrabold px-3 py-1 rounded-full bg-amber-100 text-amber-800';
+      } else {
+        badge.className = 'text-xs font-extrabold px-3 py-1 rounded-full bg-rose-100 text-rose-800';
+      }
+
+      // Update SVG arrows & labels
+      document.getElementById('starling-label-pgc').textContent = `P_GC: ${pgc} mmHg →`;
+      document.getElementById('starling-label-pi').textContent = `← π_GC: ${pi} mmHg`;
+      document.getElementById('starling-label-pbs').textContent = `← P_BS: ${pbs} mmHg`;
+
+      document.getElementById('starling-arrow-pgc').setAttribute('stroke-width', Math.max(2, (pgc - 30) / 7));
+      document.getElementById('starling-arrow-pi').setAttribute('stroke-width', Math.max(2, pi / 8));
+      document.getElementById('starling-arrow-pbs').setAttribute('stroke-width', Math.max(1.5, pbs / 7));
+
+      const netSvg = document.getElementById('starling-net-svg');
+      netSvg.textContent = `NFP = ${nfp >= 0 ? '+' : ''}${nfp} mmHg`;
+      netSvg.setAttribute('fill', nfp > 0 ? '#4ADE80' : '#F87171');
+      document.getElementById('starling-gfr-svg').textContent = `GFR: ${gfr} mL/min`;
+
+      const exp = document.getElementById('starling-explanation');
+      if (nfp <= 0) {
+        exp.innerHTML = `<strong class="text-rose-700">Filtration Halted (Acute Kidney Injury Risk):</strong> Outward P<sub>GC</sub> (${pgc} mmHg) is too low to overcome opposing oncotic (${pi} mmHg) and capsular (${pbs} mmHg) pressures. No filtrate enters the nephron.`;
+      } else if (nfp < 10) {
+        exp.innerHTML = `<strong class="text-amber-700">Reduced Filtration Pressure (+${nfp} mmHg):</strong> GFR drops to ${gfr} mL/min. The body would activate RAAS (constricting the efferent arteriole) to restore P<sub>GC</sub>.`;
+      } else {
+        exp.innerHTML = `<strong>Healthy Bulk Filtration (+${nfp} mmHg):</strong> High arterial pressure overcomes opposing oncotic (${pi} mmHg) and capsular (${pbs} mmHg) forces, driving ${gfr} mL/min of plasma filtrate across podocyte slits.`;
+      }
+    }
+
+    let cellularATPEnabled = true;
+    const cellStepTexts = {
+      1: '<strong>Step 1 (Primary Active Transport):</strong> Basolateral Na<sup>+</sup>/K<sup>+</sup> ATPase hydrolyzes ATP to pump 3 Na<sup>+</sup> out into the blood and 2 K<sup>+</sup> in, keeping intracellular [Na<sup>+</sup>] very low.',
+      2: '<strong>Step 2 (Secondary Active Symport):</strong> Na<sup>+</sup> rushes down its electrochemical gradient across the apical microvilli, pulling Glucose and Vitamins uphill into the cell via SGLT/Na<sup>+</sup> symporters before they exit via facilitated diffusion.',
+      3: '<strong>Step 3 (Osmotic Water Coupling):</strong> Because solutes (Na<sup>+</sup>, Cl<sup>-</sup>, glucose) move from the lumen into the peritubular blood, water follows passively by osmosis (~65% of filtered water reclaimed here).'
+    };
+
+    function highlightCellStep(stepNum) {
+      document.querySelectorAll('.cell-step-btn').forEach((btn, idx) => {
+        if (idx + 1 === stepNum) {
+          btn.className = 'cell-step-btn py-1.5 px-2 rounded-lg font-bold bg-orange-600 text-white shadow-sm';
+        } else {
+          btn.className = 'cell-step-btn py-1.5 px-2 rounded-lg font-bold bg-white text-slate-700 border border-slate-300 hover:bg-slate-100';
+        }
+      });
+      if (cellularATPEnabled) {
+        document.getElementById('cell-step-explanation').innerHTML = cellStepTexts[stepNum];
+      }
+    }
+
+    function toggleCellularATP() {
+      cellularATPEnabled = !cellularATPEnabled;
+      const btn = document.getElementById('atp-toggle-btn');
+      const s1 = document.getElementById('cell-step-1');
+      const s2 = document.getElementById('cell-step-2');
+      const s3 = document.getElementById('cell-step-3');
+      const naTitle = document.getElementById('cell-na-title');
+      const naSub = document.getElementById('cell-na-sub');
+
+      if (cellularATPEnabled) {
+        btn.textContent = 'ATP Energy: ON (Active)';
+        btn.className = 'text-xs font-bold px-3 py-1 rounded-full bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 transition';
+        s1.style.opacity = '1';
+        s2.style.opacity = '1';
+        s3.style.opacity = '1';
+        naTitle.textContent = 'Intracellular [Na+]: LOW';
+        naTitle.setAttribute('fill', '#38BDF8');
+        naSub.textContent = 'Steep inward gradient maintained';
+        highlightCellStep(1);
+      } else {
+        btn.textContent = 'ATP Energy: OFF (Gradient Collapsed)';
+        btn.className = 'text-xs font-bold px-3 py-1 rounded-full bg-rose-600 text-white shadow-sm hover:bg-rose-700 transition';
+        s1.style.opacity = '0.2';
+        s2.style.opacity = '0.2';
+        s3.style.opacity = '0.2';
+        naTitle.textContent = 'Intracellular [Na+]: HIGH';
+        naTitle.setAttribute('fill', '#F87171');
+        naSub.textContent = 'Gradient lost — symporters stall!';
+        document.getElementById('cell-step-explanation').innerHTML =
+          '<strong class="text-rose-700">Systems Failure (ATP Inhibited):</strong> Without ATP, the basolateral Na<sup>+</sup>/K<sup>+</sup> pump stops. Intracellular [Na<sup>+</sup>] rises until it equals the lumen, collapsing the driving force for apical Na<sup>+</sup>/Glucose symporters. Glucose remains in the filtrate and spills into the urine (glucosuria)!';
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 4. TAB 3: COUNTERCURRENT MULTIPLIER & HORMONE CONTROL
+    // -------------------------------------------------------------------------
+    function applyHormonePreset(preset) {
+      const adhSlider = document.getElementById('slider-adh');
+      const aldoSlider = document.getElementById('slider-aldo');
+
+      if (preset === 'normal') {
+        adhSlider.value = 50;
+        aldoSlider.value = 40;
+      } else if (preset === 'dehydrated') {
+        adhSlider.value = 98;
+        aldoSlider.value = 85;
+      } else if (preset === 'overhydrated') {
+        adhSlider.value = 5;
+        aldoSlider.value = 10;
+      } else if (preset === 'lowbp') {
+        adhSlider.value = 80;
+        aldoSlider.value = 98;
+      }
+      updateHormoneSimulation();
+    }
+
+    function updateHormoneSimulation() {
+      const adh = parseInt(document.getElementById('slider-adh').value, 10);
+      const aldo = parseInt(document.getElementById('slider-aldo').value, 10);
+
+      document.getElementById('val-adh').textContent = `${adh}% (${adh > 70 ? 'High' : adh < 25 ? 'Low' : 'Moderate'})`;
+      document.getElementById('val-aldo').textContent = `${aldo}% (${aldo > 70 ? 'High' : aldo < 25 ? 'Low' : 'Moderate'})`;
+
+      // Calculate physiological Urine Osmolarity (100 to 1200 mOsm/L) & Urine Volume (20 to 450 mL/hr)
+      const urineOsm = Math.round(100 + (adh / 100) * 1100);
+      const baseVol = 450 - (adh / 100) * 425;
+      const aldoFactor = 1 - (aldo / 100) * 0.25;
+      const urineVol = Math.max(18, Math.round(baseVol * aldoFactor));
+
+      // Update Global Telemetry Bar
+      document.getElementById('tele-medulla').textContent = '1200 mOsm/L';
+      document.getElementById('tele-volume').textContent = `${urineVol} mL/hr`;
+      document.getElementById('tele-urine-osm').textContent = `${urineOsm} mOsm/L`;
+
+      // Update SVG Aquaporin & ENaC opacity
+      document.getElementById('inset-aquaporins').style.opacity = Math.max(0.12, adh / 100);
+      document.getElementById('cc-cd-water-arrows').style.opacity = Math.max(0.12, adh / 100);
+
+      document.getElementById('inset-enac').style.opacity = Math.max(0.15, aldo / 100);
+      document.getElementById('cc-cd-salt-arrows').style.opacity = Math.max(0.15, aldo / 100);
+
+      document.getElementById('cc-final-urine-text').textContent = `Urine: ${urineOsm} mOsm`;
+
+      // Update 1-8 Clinical Urine Color Chart
+      const scaleNum = Math.min(8, Math.max(1, Math.ceil((urineOsm / 1200) * 8)));
+      const urineColors = [
+        '#FEFCE8', // 1: Very Hydrated
+        '#FEF9C3', // 2: Hydrated
+        '#FEF08A', // 3: Well Hydrated
+        '#FDE047', // 4: Normal
+        '#EAB308', // 5: Mildly Dehydrated
+        '#CA8A04', // 6: Dehydrated
+        '#A16207', // 7: Very Dehydrated
+        '#854D0E'  // 8: Severely Dehydrated
+      ];
+      const statusLabels = [
+        'Level 1: Overhydrated (Very Dilute)',
+        'Level 2: Well Hydrated (Dilute)',
+        'Level 3: Hydrated',
+        'Level 4: Balanced Hydration',
+        'Level 5: Mildly Dehydrated',
+        'Level 6: Dehydrated (Conserving H2O)',
+        'Level 7: Very Dehydrated',
+        'Level 8: Max Water Conservation'
+      ];
+
+      document.getElementById('urine-swatch').style.backgroundColor = urineColors[scaleNum - 1];
+      document.getElementById('urine-scale-num').textContent = `Scale ${scaleNum} / 8`;
+      document.getElementById('urine-status-label').textContent = statusLabels[scaleNum - 1];
+      document.getElementById('urine-metrics-sub').textContent = `Volume: ${urineVol} mL/hr • Osmolarity: ${urineOsm} mOsm/L`;
+
+      // Update Systems Narrative
+      const narrative = document.getElementById('hormone-systems-narrative');
+      if (adh > 75) {
+        narrative.innerHTML = `<strong>High ADH Water Conservation (${urineOsm} mOsm/L):</strong> Abundant Aquaporin-2 channels insert into the Collecting Duct apical membrane. As filtrate passes through the 1200 mOsm/L salty medulla built by the Loop of Henle, water rushes out into the vasa recta, yielding a small volume (${urineVol} mL/hr) of dark, concentrated urine.`;
+      } else if (adh < 25) {
+        narrative.innerHTML = `<strong>Low ADH Diuresis (${urineOsm} mOsm/L):</strong> Without ADH, aquaporins are endocytosed and the Collecting Duct wall remains water-tight. Even though the medulla is still 1200 mOsm/L, water cannot exit—excreting a large volume (${urineVol} mL/hr) of pale, dilute urine.`;
+      } else {
+        narrative.innerHTML = `<strong>Balanced Fine-Tuning (${urineOsm} mOsm/L):</strong> The Ascending Limb maintains the 1200 mOsm/L medullary gradient while moderate ADH (${adh}%) and Aldosterone (${aldo}%) fine-tune water and Na<sup>+</sup> recovery to match daily intake.`;
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. TAB 4: SYSTEM PERTURBATION & CLINICAL SANDBOX
+    // -------------------------------------------------------------------------
+    const perturbations = [
+      {
+        id: 'block_desc',
+        shortTitle: '1. Block Descending Aquaporins',
+        badge: 'Drug Perturbation',
+        title: 'Drug: Block Water Reabsorption in Descending Loop of Henle',
+        tag: 'Higher Dilute Urine Output',
+        tagClass: 'bg-sky-100 text-sky-800',
+        medullaReadout: 'Medulla: ~950 mOsm',
+        urineReadout: 'Urine: 185 mL/hr | 240',
+        teleMedulla: '950 mOsm/L',
+        teleVol: '185 mL/hr',
+        teleOsm: '240 mOsm/L',
+        markerX: 135,
+        markerY: 175,
+        showMarker: true,
+        step1: 'A drug blocks constitutive aquaporin channels in the descending limb of the Loop of Henle.',
+        step2: 'Water stays trapped inside the descending limb rather than exiting into the salty medulla. Consequently, a larger, more dilute volume of filtrate reaches the hairpin turn and enters the ascending limb.',
+        step3: 'Because the ascending limb receives a high-volume, dilute load and pumps NaCl out, fluid entering the distal tubule and collecting duct has larger volume and reduced medullary driving force.',
+        step4: 'Less total water is removed from the filtrate → Higher urine volume (185 mL/hr) and lower urine osmolarity (240 mOsm/L) compared to untreated individuals.',
+        examNote: 'Exam Check: Blocking descending limb aquaporins decreases water removal, increases filtrate volume entering the ascending limb, and increases final urine production (All of the above!).'
+      },
+      {
+        id: 'asc_permeable',
+        shortTitle: '2. Water-Permeable Ascending Limb',
+        badge: 'Channel Mutation',
+        title: 'Mutation: Ascending Limb Becomes Permeable to Water',
+        tag: 'Medullary Gradient Collapse',
+        tagClass: 'bg-rose-100 text-rose-800',
+        medullaReadout: 'Medulla: 300 mOsm!',
+        urineReadout: 'Urine: 380 mL/hr | 300',
+        teleMedulla: '300 mOsm/L',
+        teleVol: '380 mL/hr',
+        teleOsm: '300 mOsm/L',
+        markerX: 205,
+        markerY: 145,
+        showMarker: true,
+        step1: 'A genetic mutation inserts water channels into the normally water-impermeable thick ascending limb of the Loop of Henle.',
+        step2: 'Every time Na+ and Cl- are pumped out into the medulla, water immediately follows by osmosis! The countercurrent multiplier fails, and the medullary salt gradient collapses from 1200 mOsm/L down to isotonic 300 mOsm/L.',
+        step3: 'Even if the body is dehydrated and secretes maximum ADH to open collecting duct aquaporins, there is NO osmotic gradient in the medulla to pull water out of the collecting duct.',
+        step4: 'The kidney completely loses its ability to concentrate urine above blood osmolarity (~300 mOsm/L), causing massive polyuria (380 mL/hr) and rapid dehydration.',
+        examNote: 'Why must the ascending limb be water-impermeable? Separation of salt pumping from water movement is the entire foundation of the corticomedullary osmotic gradient!'
+      },
+      {
+        id: 'seawater',
+        shortTitle: '3. Drink Only Seawater (~2000 mOsm)',
+        badge: 'Osmotic Limit',
+        title: 'Extreme Challenge: Drinking Only Seawater (~2000 mOsm/L)',
+        tag: 'Kidney Ceiling Exceeded',
+        tagClass: 'bg-amber-100 text-amber-900',
+        medullaReadout: 'Medulla: 1200 mOsm (Max)',
+        urineReadout: 'Urine: 1200 mOsm (Net Loss)',
+        teleMedulla: '1200 mOsm/L',
+        teleVol: '95 mL/hr (Net -H2O)',
+        teleOsm: '1200 mOsm/L',
+        markerX: 295,
+        markerY: 225,
+        showMarker: true,
+        step1: 'A stranded sailor drinks 1 Liter of seawater containing ~2000 mOsm of dissolved salt (nearly 7x saltier than human blood at 300 mOsm/L).',
+        step2: 'Blood osmolarity spikes, triggering maximum ADH and Aldosterone release. The human Loop of Henle and Collecting Duct work at their absolute physiological ceiling (~1200 mOsm/L).',
+        step3: 'Because human kidneys can only excrete urine at 1200 mOsm/L, excreting the 2000 mOsm of ingested salt requires ~1.67 Liters of urine water—670 mL MORE water than was consumed!',
+        step4: 'Severe net dehydration, cellular shrinkage, and fatal kidney failure. (By contrast, marine birds like gulls possess nasal salt glands that actively excrete hyper-concentrated brine and excrete nitrogen as water-saving uric acid paste.)',
+        examNote: 'Human renal ceiling = ~1200 mOsm/L (4x blood). Whenever ingested fluid exceeds 1200 mOsm/L, excreting the solute load forces a net loss of body water.'
+      },
+      {
+        id: 'ouabain',
+        shortTitle: '4. Inhibit Na+/K+ ATPase',
+        badge: 'Toxin / Pump Block',
+        title: 'Toxin: Inhibit Basolateral Na+/K+ ATPase Pumps',
+        tag: 'System-Wide Transport Failure',
+        tagClass: 'bg-purple-100 text-purple-800',
+        medullaReadout: 'Medulla: ~350 mOsm',
+        urineReadout: 'Urine: 420 mL/hr + Glucose',
+        teleMedulla: '350 mOsm/L',
+        teleVol: '420 mL/hr',
+        teleOsm: '310 mOsm/L',
+        markerX: 135,
+        markerY: 52,
+        showMarker: true,
+        step1: 'A cardiac glycoside toxin (like ouabain) inhibits basolateral Na+/K+ ATPase pumps across nephron epithelial cells.',
+        step2: 'In the Proximal Tubule, intracellular [Na+] rises, eliminating the gradient for apical Na+/Glucose and Na+/Vitamin symporters. Meanwhile, the Ascending Limb cannot pump NaCl into the medulla.',
+        step3: 'Unreabsorbed glucose and NaCl remain in the lumen, osmotically holding water inside the tubule (osmotic diuresis), while the medullary gradient dissipates.',
+        step4: 'Glucosuria (glucose in urine), severe natriuresis (salt wasting), and high-volume fluid loss.',
+        examNote: 'Nearly all solute recovery in the nephron—even "secondary" glucose transport—ultimately runs on ATP hydrolyzed by the basolateral Na+/K+ ATPase!'
+      },
+      {
+        id: 'adh_block',
+        shortTitle: '5. Block ADH Receptors',
+        badge: 'Diabetes Insipidus',
+        title: 'Pathology: Collecting Duct ADH Receptor Blockade',
+        tag: 'Gradient Intact, Gate Closed',
+        tagClass: 'bg-indigo-100 text-indigo-800',
+        medullaReadout: 'Medulla: 1200 mOsm (Intact)',
+        urineReadout: 'Urine: 440 mL/hr | 100',
+        teleMedulla: '1200 mOsm/L',
+        teleVol: '440 mL/hr',
+        teleOsm: '100 mOsm/L',
+        markerX: 295,
+        markerY: 165,
+        showMarker: true,
+        step1: 'Nephrogenic Diabetes Insipidus: V2 receptors on Collecting Duct principal cells fail to respond to circulating ADH.',
+        step2: 'The Loop of Henle still functions normally, maintaining a full 1200 mOsm/L corticomedullary osmotic gradient and delivering dilute 100 mOsm/L fluid into the collecting duct.',
+        step3: 'Without ADH signaling, intracellular vesicles containing Aquaporin-2 never fuse with the apical membrane. The collecting duct remains completely impermeable to water.',
+        step4: 'Dilute 100 mOsm/L filtrate passes straight through unchanged → Massive excretion of dilute urine (up to 10+ L/day) and intense thirst.',
+        examNote: 'Compare Perturbation #2 vs #5: Both produce large volumes of dilute urine, but in #2 the medullary gradient is gone, whereas in #5 the gradient is intact (1200 mOsm) and only the final aquaporin gate is missing!'
+      }
+    ];
+
+    let activePerturbationId = 'none';
+
+    function initPerturbations() {
+      const container = document.getElementById('perturbation-buttons');
+      container.innerHTML = '';
+
+      perturbations.forEach(p => {
+        const isSelected = activePerturbationId === p.id;
+        const btn = document.createElement('button');
+        btn.onclick = () => selectPerturbation(p.id);
+        btn.className = `p-3 rounded-xl border text-left transition flex flex-col justify-between ${
+          isSelected
+            ? 'bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-sky-400'
+            : 'bg-slate-50 hover:bg-white text-slate-800 border-slate-200 hover:border-sky-400'
+        }`;
+        btn.innerHTML = `
+          <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded w-fit ${
+            isSelected ? 'bg-sky-500/20 text-sky-300' : 'bg-slate-200 text-slate-700'
+          }">${p.badge}</span>
+          <span class="font-bold text-xs mt-2 leading-snug">${p.shortTitle}</span>
+        `;
+        container.appendChild(btn);
+      });
+    }
+
+    function selectPerturbation(id) {
+      activePerturbationId = id;
+      initPerturbations();
+
+      const marker = document.getElementById('pert-alert-marker');
+      const medBg = document.getElementById('pert-medulla-bg');
+
+      if (id === 'none') {
+        document.getElementById('pert-title').textContent = 'Baseline Healthy Nephron';
+        const tag = document.getElementById('pert-tag');
+        tag.textContent = 'Homeostasis Intact';
+        tag.className = 'text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800';
+
+        document.getElementById('causal-step-1').textContent = 'All nephron segments, transporters, and osmotic gradients are operating normally.';
+        document.getElementById('causal-step-2').textContent = 'Proximal tubule reabsorbs 65% of filtrate isosmotically; Loop of Henle maintains a 300 → 1200 mOsm/L corticomedullary salt gradient.';
+        document.getElementById('causal-step-3').textContent = 'Distal tubule and collecting duct respond normally to ADH and Aldosterone, fine-tuning water and salt recovery.';
+        document.getElementById('causal-step-4').textContent = 'Balanced water and electrolyte excretion (~60 mL/hr at ~650 mOsm/L), preserving blood volume, blood pressure, and cellular osmolarity.';
+        document.getElementById('pert-exam-note').innerHTML = 'Water reabsorption in the nephron is <strong>always passive</strong> (via osmosis through aquaporins). Therefore, it requires two simultaneous conditions: (1) an <strong>external osmotic gradient</strong> built by active salt pumping, and (2) <strong>membrane permeability</strong> (aquaporins).';
+
+        document.getElementById('pert-svg-medulla').textContent = 'Medulla: 1200 mOsm';
+        document.getElementById('pert-svg-urine').textContent = 'Urine: 60 mL/hr | 650';
+        medBg.setAttribute('fill', '#F2C894');
+        marker.classList.add('hidden');
+
+        document.getElementById('tele-medulla').textContent = '1200 mOsm/L';
+        document.getElementById('tele-volume').textContent = '60 mL/hr';
+        document.getElementById('tele-urine-osm').textContent = '650 mOsm/L';
+        return;
+      }
+
+      const p = perturbations.find(item => item.id === id);
+      if (!p) return;
+
+      document.getElementById('pert-title').textContent = p.title;
+      const tag = document.getElementById('pert-tag');
+      tag.textContent = p.tag;
+      tag.className = `text-xs font-bold px-2.5 py-1 rounded-full ${p.tagClass}`;
+
+      document.getElementById('causal-step-1').textContent = p.step1;
+      document.getElementById('causal-step-2').textContent = p.step2;
+      document.getElementById('causal-step-3').textContent = p.step3;
+      document.getElementById('causal-step-4').textContent = p.step4;
+      document.getElementById('pert-exam-note').textContent = p.examNote;
+
+      document.getElementById('pert-svg-medulla').textContent = p.medullaReadout;
+      document.getElementById('pert-svg-urine').textContent = p.urineReadout;
+
+      // Visually fade medullary color if gradient collapses
+      if (id === 'asc_permeable' || id === 'ouabain') {
+        medBg.setAttribute('fill', '#FDF6EC');
+      } else {
+        medBg.setAttribute('fill', '#F2C894');
+      }
+
+      if (p.showMarker) {
+        marker.classList.remove('hidden');
+        marker.setAttribute('transform', `translate(${p.markerX - 135}, ${p.markerY - 175})`);
+      }
+
+      document.getElementById('tele-medulla').textContent = p.teleMedulla;
+      document.getElementById('tele-volume').textContent = p.teleVol;
+      document.getElementById('tele-urine-osm').textContent = p.teleOsm;
+    }
+
+    // -------------------------------------------------------------------------
+    // INITIALIZATION ON LOAD
+    // -------------------------------------------------------------------------
+    window.addEventListener('DOMContentLoaded', () => {
+      initBuilder();
+      updateStarlingForces();
+      updateHormoneSimulation();
+      initPerturbations();
+    });
+  </script>
+</body>
+</html>
