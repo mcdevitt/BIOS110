@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BIOS 110 Lab — Spin-Column DNA Extraction Bench &amp; Worksheet Guide</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col selection:bg-emerald-500 selection:text-slate-950">
+
+  <!-- Top Hero Banner -->
+  <header class="bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 border-b border-slate-800 px-4 sm:px-6 py-5">
+    <div class="max-w-6xl mx-auto">
+      <div class="flex flex-wrap items-center gap-2 mb-2">
+        <span class="font-mono text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+          BIOS 110 Molecular Lab
+        </span>
+        <span class="font-mono text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+          Spin-Column gDNA Extraction
+        </span>
+      </div>
+      <h1 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white">
+        Spin-Column DNA Extraction Bench &amp; Worksheet Guide
+      </h1>
+      <p class="text-slate-300 text-xs sm:text-sm max-w-3xl mt-1.5 leading-relaxed">
+        Interactive benchtop simulator, P1000 micropipette &amp; Bio-Rad 16K centrifuge safety guide, and complete worksheet reference for isolating genomic DNA (gDNA) from probiotic bacteria.
+      </p>
+    </div>
+  </header>
+
+  <!-- Sticky Navigation Tabs -->
+  <nav class="sticky top-0 z-40 bg-slate-950/95 backdrop-blur border-b border-slate-800 px-4 sm:px-6 py-2.5 shadow-lg" role="tablist" aria-label="Lab Guide Tabs">
+    <div class="max-w-6xl mx-auto flex gap-2 overflow-x-auto">
+      <button id="nav-btn-bench" role="tab" aria-selected="true" onclick="switchTab('bench')"
+        class="nav-tab-btn bg-emerald-500 text-slate-950 border border-emerald-400 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl whitespace-nowrap transition shadow-sm">
+        1. Interactive Spin-Column Bench
+      </button>
+      <button id="nav-btn-worksheet" role="tab" aria-selected="false" onclick="switchTab('worksheet')"
+        class="nav-tab-btn bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-700 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl whitespace-nowrap transition">
+        2. Worksheet Concepts &amp; Membrane Check
+      </button>
+      <button id="nav-btn-notes" role="tab" aria-selected="false" onclick="switchTab('notes')"
+        class="nav-tab-btn bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-700 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl whitespace-nowrap transition">
+        3. Lab Notes &amp; Troubleshooting (Parts 3–8)
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content Container -->
+  <main class="max-w-6xl w-full mx-auto px-4 sm:px-6 py-6 flex-1 space-y-6">
+
+    <!-- ===================================================================== -->
+    <!-- TAB 1: INTERACTIVE SPIN-COLUMN BENCH                                  -->
+    <!-- ===================================================================== -->
+    <section id="panel-bench" class="space-y-6">
+
+      <!-- Card 1: Color-Coded Reagents & Spin Columns Strip -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-slate-800">
+          <div>
+            <h2 class="text-base sm:text-lg font-extrabold text-white">Color-Coded Reagents &amp; Spin Columns</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Match each cap color, volume, and tube role before beginning your extraction.</p>
+          </div>
+          <span class="text-xs font-bold bg-amber-500/15 text-amber-300 border border-amber-500/40 px-3 py-1.5 rounded-xl">
+            Sharpie Rule: Write initials on spin-column LIDS only (ethanol dissolves side ink)
+          </span>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <!-- Lysis Buffer A -->
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 flex items-center gap-3">
+            <span class="w-5 h-5 rounded-full bg-orange-500 border-2 border-orange-300/60 shrink-0"></span>
+            <div>
+              <div class="text-xs font-extrabold text-white">Lysis Buffer A</div>
+              <div class="text-[11px] font-mono text-orange-300">Orange Cap • 600 µL</div>
+            </div>
+          </div>
+
+          <!-- Lysis Buffer B -->
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 flex items-center gap-3">
+            <span class="w-5 h-5 rounded-full bg-slate-900 border-2 border-slate-400 shrink-0"></span>
+            <div>
+              <div class="text-xs font-extrabold text-white">Lysis Buffer B</div>
+              <div class="text-[11px] font-mono text-slate-300">Black Cap • 600 µL</div>
+            </div>
+          </div>
+
+          <!-- 1st Wash Buffer -->
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 flex items-center gap-3">
+            <span class="w-5 h-5 rounded-full bg-blue-500 border-2 border-blue-300/60 shrink-0"></span>
+            <div>
+              <div class="text-xs font-extrabold text-white">1st Wash Buffer</div>
+              <div class="text-[11px] font-mono text-blue-300">Blue Cap • 200 µL</div>
+            </div>
+          </div>
+
+          <!-- 2nd Wash Buffer -->
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 flex items-center gap-3">
+            <span class="w-5 h-5 rounded-full bg-slate-400 border-2 border-slate-200/70 shrink-0"></span>
+            <div>
+              <div class="text-xs font-extrabold text-white">2nd Wash Buffer</div>
+              <div class="text-[11px] font-mono text-slate-300">Gray Cap • 500 µL</div>
+            </div>
+          </div>
+
+          <!-- Elution Buffer -->
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 flex items-center gap-3">
+            <span class="w-5 h-5 rounded-full bg-pink-500 border-2 border-pink-300/60 shrink-0"></span>
+            <div>
+              <div class="text-xs font-extrabold text-white">Elution Buffer</div>
+              <div class="text-[11px] font-mono text-pink-300">Pink Cap • 20 µL (Black Pipette)</div>
+            </div>
+          </div>
+
+          <!-- Bead Filter Spin Column -->
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 flex items-center gap-3">
+            <span class="w-5 h-5 rounded-full bg-gradient-to-br from-rose-500 via-rose-500 to-white border-2 border-rose-300/60 shrink-0"></span>
+            <div>
+              <div class="text-xs font-extrabold text-white">Bead Filter Column</div>
+              <div class="text-[11px] font-mono text-rose-300">Red/White • Debris removal</div>
+            </div>
+          </div>
+
+          <!-- DNA Spin Column -->
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 flex items-center gap-3">
+            <span class="w-5 h-5 rounded-full bg-white border-2 border-slate-400 shrink-0"></span>
+            <div>
+              <div class="text-xs font-extrabold text-white">DNA Spin Column</div>
+              <div class="text-[11px] font-mono text-emerald-300">All-White • Silica membrane</div>
+            </div>
+          </div>
+
+          <!-- Final gDNA Tube -->
+          <div class="bg-slate-950/80 border border-slate-800 rounded-xl p-3 flex items-center gap-3">
+            <span class="w-5 h-5 rounded-full bg-yellow-400 border-2 border-yellow-200 shrink-0"></span>
+            <div>
+              <div class="text-xs font-extrabold text-white">Final gDNA Tube</div>
+              <div class="text-[11px] font-mono text-yellow-300">Yellow 1.5 mL • Keep flow-through!</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Grid: 5-Stage Simulator (Left) + P1000 Dial & Bio-Rad 16K Checklist (Right) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- Left 7 Cols: 5-Stage Molecular & Bench Simulator -->
+        <div class="lg:col-span-7 bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl space-y-4">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="text-base sm:text-lg font-extrabold text-white">5-Stage Molecular &amp; Bench Simulator</h2>
+              <p class="text-xs text-slate-400 mt-0.5">Select each stage to track where your DNA is and verify speeds, volumes, and waste rules.</p>
+            </div>
+            <div class="flex gap-1.5">
+              <button onclick="prevStage()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-200 transition">
+                ← Prev
+              </button>
+              <button onclick="nextStage()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-slate-950 transition">
+                Next →
+              </button>
+            </div>
+          </div>
+
+          <!-- 5 Stage Buttons -->
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2">
+            <button id="stage-btn-0" onclick="selectStage(0)" class="stage-btn p-2.5 rounded-xl bg-emerald-950 border-2 border-emerald-400 text-emerald-100 text-xs font-bold text-center transition">
+              1. Cell Lysis
+            </button>
+            <button id="stage-btn-1" onclick="selectStage(1)" class="stage-btn p-2.5 rounded-xl bg-slate-800 border border-slate-700 hover:border-slate-500 text-slate-300 text-xs font-bold text-center transition">
+              2. DNA Binding
+            </button>
+            <button id="stage-btn-2" onclick="selectStage(2)" class="stage-btn p-2.5 rounded-xl bg-slate-800 border border-slate-700 hover:border-slate-500 text-slate-300 text-xs font-bold text-center transition">
+              3. Washing
+            </button>
+            <button id="stage-btn-3" onclick="selectStage(3)" class="stage-btn p-2.5 rounded-xl bg-slate-800 border border-slate-700 hover:border-slate-500 text-slate-300 text-xs font-bold text-center transition">
+              4. Elution
+            </button>
+            <button id="stage-btn-4" onclick="selectStage(4)" class="stage-btn col-span-2 sm:col-span-1 p-2.5 rounded-xl bg-slate-800 border border-slate-700 hover:border-slate-500 text-slate-300 text-xs font-bold text-center transition">
+              5. Pure gDNA
+            </button>
+          </div>
+
+          <!-- Custom SVG Diagram Box -->
+          <div id="stage-svg-box" class="bg-slate-950 border border-slate-800 rounded-xl p-3 overflow-hidden">
+            <!-- Populated via JS -->
+          </div>
+
+          <!-- Detailed Steps & Warning Banner -->
+          <div id="stage-details-box" class="bg-slate-800/80 border-l-4 border-emerald-400 rounded-xl p-4 space-y-2.5">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- Right 5 Cols: P1000 Pipette Dial Simulator + Bio-Rad 16K Centrifuge Safety -->
+        <div class="lg:col-span-5 space-y-6">
+
+          <!-- Blue P1000 Micropipette 3-Digit Dial Simulator -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <h2 class="text-base font-extrabold text-white">Blue P1000 Micropipette Dial Simulator</h2>
+              <span class="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/40">
+                100–1000 µL
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">
+              Valid range: <strong class="text-slate-200">100 µL [0|1|0]</strong> to <strong class="text-slate-200">1000 µL [1|0|0]</strong>. Never twist past limits, and always hang upright!
+            </p>
+
+            <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+              <div id="pip-step-label" class="text-center text-xs font-bold text-cyan-300 mb-3">
+                Step 3 Supernatant Transfer: 400 µL
+              </div>
+
+              <!-- 3-Digit Window -->
+              <div class="flex justify-center items-center gap-2.5 my-2">
+                <div class="w-16 h-20 rounded-xl bg-slate-900 border-2 border-blue-500 flex flex-col items-center justify-center shadow-inner">
+                  <span id="dial-thou" class="font-mono text-3xl font-extrabold text-rose-400">0</span>
+                  <span class="font-mono text-[10px] uppercase text-slate-400 mt-0.5">1000s</span>
+                </div>
+                <div class="w-16 h-20 rounded-xl bg-slate-900 border-2 border-blue-500 flex flex-col items-center justify-center shadow-inner">
+                  <span id="dial-hund" class="font-mono text-3xl font-extrabold text-white">4</span>
+                  <span class="font-mono text-[10px] uppercase text-slate-400 mt-0.5">100s</span>
+                </div>
+                <div class="w-16 h-20 rounded-xl bg-slate-900 border-2 border-blue-500 flex flex-col items-center justify-center shadow-inner">
+                  <span id="dial-tens" class="font-mono text-3xl font-extrabold text-white">0</span>
+                  <span class="font-mono text-[10px] uppercase text-slate-400 mt-0.5">10s</span>
+                </div>
+              </div>
+
+              <p id="pip-step-note" class="text-center text-xs text-slate-300 mt-3 leading-relaxed">
+                Aspirate 400 µL of clear supernatant above the bead pellet without disturbing beads.
+              </p>
+
+              <!-- Preset Protocol Buttons -->
+              <div class="flex flex-wrap justify-center gap-1.5 mt-4">
+                <button onclick="setDial(0,4,0,'400 µL — Supernatant to Bead Filter Column','Keep tip above pellet; transfer 400 µL clear liquid to Red/White Bead Filter Column.')"
+                  class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-blue-600 border border-slate-700 hover:border-blue-400 font-mono text-xs font-bold text-slate-200 hover:text-white transition">
+                  400 µL
+                </button>
+                <button onclick="setDial(0,6,0,'600 µL — Lysis Buffer A & B','Add 600 µL Orange (A) + 600 µL Black (B), then pipette up/down slowly to mix without bubbles.')"
+                  class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-blue-600 border border-slate-700 hover:border-blue-400 font-mono text-xs font-bold text-slate-200 hover:text-white transition">
+                  600 µL
+                </button>
+                <button onclick="setDial(0,8,0,'800 µL — Lysate to DNA Spin Column (×2)','800 µL is the maximum safe volume per spin. Load twice to pass the entire ~1,600 µL lysate.')"
+                  class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-blue-600 border border-slate-700 hover:border-blue-400 font-mono text-xs font-bold text-slate-200 hover:text-white transition">
+                  800 µL
+                </button>
+                <button onclick="setDial(0,2,0,'200 µL — 1st Wash Buffer (Blue Cap)','Dispense along side wall of All-White DNA Spin Column; avoid puncturing the silica membrane.')"
+                  class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-blue-600 border border-slate-700 hover:border-blue-400 font-mono text-xs font-bold text-slate-200 hover:text-white transition">
+                  200 µL
+                </button>
+                <button onclick="setDial(0,5,0,'500 µL — 2nd Wash Buffer (Gray Cap)','Add 500 µL Gray Wash Buffer, spin 1 min, empty waste, then run the 2-min dry spin.')"
+                  class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-blue-600 border border-slate-700 hover:border-blue-400 font-mono text-xs font-bold text-slate-200 hover:text-white transition">
+                  500 µL
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bio-Rad 16K Centrifuge & Lab Safety Checklist -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-5 shadow-xl">
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <h2 class="text-base font-extrabold text-white">Bio-Rad 16K Centrifuge &amp; Lab Safety Check</h2>
+              <span id="safety-counter" class="font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                0/5 Checked
+              </span>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">
+              Verify before every spin (<strong class="text-slate-200">10,000 RPM</strong> for Bead Filter; <strong class="text-slate-200">12,000 RPM</strong> for DNA Spin Column):
+            </p>
+
+            <div class="space-y-2">
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-950/90 border border-slate-800 hover:border-slate-700 cursor-pointer text-xs text-slate-200">
+                <input type="checkbox" onchange="updateSafetyCount()" class="safety-chk mt-0.5 w-4 h-4 accent-emerald-500 rounded shrink-0" />
+                <span><strong>Balanced Rotor:</strong> Equal-volume tubes placed directly opposite one another across the rotor.</span>
+              </label>
+
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-950/90 border border-slate-800 hover:border-slate-700 cursor-pointer text-xs text-slate-200">
+                <input type="checkbox" onchange="updateSafetyCount()" class="safety-chk mt-0.5 w-4 h-4 accent-emerald-500 rounded shrink-0" />
+                <span><strong>Inner Safety Cover:</strong> Clear plastic rotor safety cover latched securely before closing the main lid.</span>
+              </label>
+
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-950/90 border border-slate-800 hover:border-slate-700 cursor-pointer text-xs text-slate-200">
+                <input type="checkbox" onchange="updateSafetyCount()" class="safety-chk mt-0.5 w-4 h-4 accent-emerald-500 rounded shrink-0" />
+                <span><strong>1-Minute Timer Trick:</strong> Turn mechanical timer dial clockwise past 5 min, then counterclockwise back to 1 min.</span>
+              </label>
+
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-950/90 border border-slate-800 hover:border-slate-700 cursor-pointer text-xs text-slate-200">
+                <input type="checkbox" onchange="updateSafetyCount()" class="safety-chk mt-0.5 w-4 h-4 accent-emerald-500 rounded shrink-0" />
+                <span><strong>Elution Hinge Orientation:</strong> Open yellow tube lid faces <em>inward</em> toward the center of the rotor so it doesn't snap off.</span>
+              </label>
+
+              <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-slate-950/90 border border-slate-800 hover:border-slate-700 cursor-pointer text-xs text-slate-200">
+                <input type="checkbox" onchange="updateSafetyCount()" class="safety-chk mt-0.5 w-4 h-4 accent-emerald-500 rounded shrink-0" />
+                <span><strong>Liquid Waste Bottle:</strong> Pour guanidine/ethanol/isopropanol waste into bottle (<strong class="text-rose-400">NEVER mix with bleach!</strong>).</span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: WORKSHEET CONCEPTS & MEMBRANE CHECK                            -->
+    <!-- ===================================================================== -->
+    <section id="panel-worksheet" class="hidden space-y-6">
+
+      <!-- Card 1: Interactive Step Purpose Reveal Table -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 mb-4 border-b border-slate-800">
+          <div>
+            <h2 class="text-base sm:text-lg font-extrabold text-white">Worksheet Part 1: Why Each DNA Extraction Step Is Important</h2>
+            <p class="text-xs text-slate-400 mt-0.5">Test yourself first, then click each button to verify your worksheet table responses.</p>
+          </div>
+          <button onclick="toggleAllTableAnswers()" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 text-xs font-extrabold transition">
+            Reveal / Hide All Answers
+          </button>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="bg-slate-950 border-b border-slate-800 text-emerald-300 font-extrabold uppercase text-xs tracking-wider">
+                <th class="py-3 px-4 rounded-tl-xl w-28 sm:w-36">Step</th>
+                <th class="py-3 px-4">Importance / Purpose in DNA Extraction</th>
+                <th class="py-3 px-4 rounded-tr-xl w-24 text-center">Check</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800">
+              <tr class="hover:bg-slate-800/40">
+                <td class="py-3.5 px-4 font-extrabold text-white align-top">Lysis</td>
+                <td class="py-3.5 px-4 align-top">
+                  <div id="ans-lysis" class="ws-ans hidden text-slate-200 bg-slate-950/80 border border-slate-800 rounded-lg p-3 leading-relaxed">
+                    Breaks open bacterial cell walls and phospholipid plasma membranes (via lysozyme, bead beating, and Lysis Buffers A &amp; B) to release genomic DNA into solution while denaturing nuclease enzymes that would otherwise degrade DNA.
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 text-center align-top">
+                  <button onclick="toggleSingleAnswer('ans-lysis')" class="px-3 py-1.5 rounded-lg bg-teal-700 hover:bg-teal-600 text-white text-xs font-bold transition">
+                    Show
+                  </button>
+                </td>
+              </tr>
+
+              <tr class="hover:bg-slate-800/40">
+                <td class="py-3.5 px-4 font-extrabold text-white align-top">Binding</td>
+                <td class="py-3.5 px-4 align-top">
+                  <div id="ans-binding" class="ws-ans hidden text-slate-200 bg-slate-950/80 border border-slate-800 rounded-lg p-3 leading-relaxed">
+                    Under high-salt binding buffer conditions, negatively charged DNA selectively attaches to the white silica membrane inside the spin column while cellular debris and unwanted molecules pass through into the waste tube.
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 text-center align-top">
+                  <button onclick="toggleSingleAnswer('ans-binding')" class="px-3 py-1.5 rounded-lg bg-teal-700 hover:bg-teal-600 text-white text-xs font-bold transition">
+                    Show
+                  </button>
+                </td>
+              </tr>
+
+              <tr class="hover:bg-slate-800/40">
+                <td class="py-3.5 px-4 font-extrabold text-white align-top">Washing</td>
+                <td class="py-3.5 px-4 align-top">
+                  <div id="ans-washing" class="ws-ans hidden text-slate-200 bg-slate-950/80 border border-slate-800 rounded-lg p-3 leading-relaxed">
+                    Removes remaining proteins, lipids, carbohydrates, and inhibitory salts (using 1st &amp; 2nd Wash Buffers plus a 2-minute ethanol dry spin) while keeping the DNA tightly bound to the silica membrane.
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 text-center align-top">
+                  <button onclick="toggleSingleAnswer('ans-washing')" class="px-3 py-1.5 rounded-lg bg-teal-700 hover:bg-teal-600 text-white text-xs font-bold transition">
+                    Show
+                  </button>
+                </td>
+              </tr>
+
+              <tr class="hover:bg-slate-800/40">
+                <td class="py-3.5 px-4 font-extrabold text-white align-top">Elution</td>
+                <td class="py-3.5 px-4 align-top">
+                  <div id="ans-elution" class="ws-ans hidden text-slate-200 bg-slate-950/80 border border-slate-800 rounded-lg p-3 leading-relaxed">
+                    Uses low-salt Elution Buffer (20 µL, soaked for 2 min) to reverse silica-DNA interactions, releasing purified DNA off the membrane and collecting it in the flow-through inside the yellow 1.5 mL tube.
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 text-center align-top">
+                  <button onclick="toggleSingleAnswer('ans-elution')" class="px-3 py-1.5 rounded-lg bg-teal-700 hover:bg-teal-600 text-white text-xs font-bold transition">
+                    Show
+                  </button>
+                </td>
+              </tr>
+
+              <tr class="hover:bg-slate-800/40">
+                <td class="py-3.5 px-4 font-extrabold text-white align-top">gDNA</td>
+                <td class="py-3.5 px-4 align-top">
+                  <div id="ans-gdna" class="ws-ans hidden text-slate-200 bg-slate-950/80 border border-slate-800 rounded-lg p-3 leading-relaxed">
+                    Provides purified, concentrated bacterial genomic DNA (the organism's complete set of genetic material) free of PCR inhibitors, ready for downstream amplification, gel electrophoresis, and DNA sequencing.
+                  </div>
+                </td>
+                <td class="py-3.5 px-4 text-center align-top">
+                  <button onclick="toggleSingleAnswer('ans-gdna')" class="px-3 py-1.5 rounded-lg bg-teal-700 hover:bg-teal-600 text-white text-xs font-bold transition">
+                    Show
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Card 2: Interactive Silica Membrane Circle Check -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+        <h2 class="text-base sm:text-lg font-extrabold text-white">Worksheet Part 2: Where Is DNA Attached to the Silica Membrane?</h2>
+        <p class="text-xs text-slate-400 mt-1">
+          Click to circle <strong class="text-slate-200">ALL steps</strong> in which DNA is bound to the spin column's white silica membrane (where mishandling or puncturing the membrane causes DNA loss):
+        </p>
+
+        <div id="membrane-chips" class="flex flex-wrap gap-2.5 my-4">
+          <button data-step="lysis" onclick="toggleMembraneChip(this)"
+            class="mem-chip px-4 py-2.5 rounded-full bg-slate-950 border-2 border-slate-700 hover:border-slate-500 text-xs sm:text-sm font-bold text-slate-200 transition">
+            Cell Lysis
+          </button>
+          <button data-step="binding" onclick="toggleMembraneChip(this)"
+            class="mem-chip px-4 py-2.5 rounded-full bg-slate-950 border-2 border-slate-700 hover:border-slate-500 text-xs sm:text-sm font-bold text-slate-200 transition">
+            DNA Binding
+          </button>
+          <button data-step="washing" onclick="toggleMembraneChip(this)"
+            class="mem-chip px-4 py-2.5 rounded-full bg-slate-950 border-2 border-slate-700 hover:border-slate-500 text-xs sm:text-sm font-bold text-slate-200 transition">
+            Washing
+          </button>
+          <button data-step="elution" onclick="toggleMembraneChip(this)"
+            class="mem-chip px-4 py-2.5 rounded-full bg-slate-950 border-2 border-slate-700 hover:border-slate-500 text-xs sm:text-sm font-bold text-slate-200 transition">
+            Eluting the DNA
+          </button>
+          <button data-step="gdna" onclick="toggleMembraneChip(this)"
+            class="mem-chip px-4 py-2.5 rounded-full bg-slate-950 border-2 border-slate-700 hover:border-slate-500 text-xs sm:text-sm font-bold text-slate-200 transition">
+            Genomic DNA Extract
+          </button>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="gradeMembraneSelection()" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 text-xs sm:text-sm font-extrabold transition">
+            Check My Selection
+          </button>
+          <button onclick="resetMembraneSelection()" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs sm:text-sm font-bold transition">
+            Reset
+          </button>
+        </div>
+
+        <div id="membrane-feedback" class="hidden mt-4 p-3.5 rounded-xl border text-xs sm:text-sm leading-relaxed"></div>
+      </div>
+
+      <!-- Card 3: 5-Step BIOS 110 Pipeline -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+        <h2 class="text-base sm:text-lg font-extrabold text-white">Worksheet Part 3: How Today's Lab Prepares Us for Upcoming BIOS 110 Labs</h2>
+        <p class="text-xs text-slate-400 mt-1 mb-4">
+          DNA Extraction bridges early enzymatic cell lysis with downstream molecular analysis of your probiotic sample:
+        </p>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5">
+            <div class="font-mono text-[10px] font-bold text-slate-400 uppercase mb-1">Previous Lab</div>
+            <div class="text-sm font-extrabold text-cyan-300 mb-1">1. Enzymes Lab</div>
+            <p class="text-xs text-slate-300 leading-relaxed">Started cell lysis by treating probiotic bacteria with lysozyme &amp; DNA Shield.</p>
+          </div>
+
+          <div class="bg-emerald-950/50 border-2 border-emerald-500 rounded-xl p-3.5">
+            <div class="font-mono text-[10px] font-bold text-emerald-300 uppercase mb-1">Today's Lab</div>
+            <div class="text-sm font-extrabold text-emerald-200 mb-1">2. DNA Extraction</div>
+            <p class="text-xs text-emerald-100 leading-relaxed">Isolates &amp; purifies genomic DNA (gDNA) into your labeled yellow tube for future labs.</p>
+          </div>
+
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5">
+            <div class="font-mono text-[10px] font-bold text-slate-400 uppercase mb-1">Next Lab</div>
+            <div class="text-sm font-extrabold text-cyan-300 mb-1">3. PCR Lab</div>
+            <p class="text-xs text-slate-300 leading-relaxed">Uses your purified gDNA as template to amplify millions of copies of target bacterial genes.</p>
+          </div>
+
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5">
+            <div class="font-mono text-[10px] font-bold text-slate-400 uppercase mb-1">Quality Control</div>
+            <div class="text-sm font-extrabold text-cyan-300 mb-1">4. Gel Electrophoresis</div>
+            <p class="text-xs text-slate-300 leading-relaxed">Checks the presence, size, and integrity of extracted gDNA smears &amp; PCR bands.</p>
+          </div>
+
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5">
+            <div class="font-mono text-[10px] font-bold text-slate-400 uppercase mb-1">Omics Analysis</div>
+            <div class="text-sm font-extrabold text-cyan-300 mb-1">5. DNA Sequencing</div>
+            <p class="text-xs text-slate-300 leading-relaxed">Reads nucleotide order (A, T, C, G) to identify the bacterial species in your probiotic.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 3: LAB NOTES & TROUBLESHOOTING (PARTS 3–8)                        -->
+    <!-- ===================================================================== -->
+    <section id="panel-notes" class="hidden space-y-6">
+
+      <!-- Card 1: Interactive Dropdown Troubleshooting Matrix -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+        <h2 class="text-base sm:text-lg font-extrabold text-white">Lab Manual Troubleshooting Matrix</h2>
+        <p class="text-xs text-slate-400 mt-1 mb-3">
+          Select an issue encountered during extraction to see its biological/chemical impact and recommended fix:
+        </p>
+
+        <label for="trouble-dropdown" class="sr-only">Select troubleshooting scenario</label>
+        <select id="trouble-dropdown" onchange="renderTrouble(this.value)"
+          class="w-full p-3 rounded-xl bg-slate-950 border border-slate-700 text-sm font-semibold text-white focus:outline-none focus:border-emerald-400 mb-4">
+          <option value="precipitate">White precipitate formed after adding Lysis Buffers A &amp; B</option>
+          <option value="puncture">Pipette tip touched/punctured the white silica membrane</option>
+          <option value="washorder">Added 2nd Wash Buffer (Gray) before 1st Wash Buffer (Blue)</option>
+          <option value="dryspin">Skipped or shortened the 2-minute dry spin after Wash 2</option>
+          <option value="flowthrough">Accidentally poured out the final yellow tube flow-through after Elution</option>
+          <option value="sharpie">Wrote Sharpie label on the side of the spin column instead of the lid</option>
+        </select>
+
+        <div id="trouble-box" class="bg-slate-800/80 border-l-4 border-rose-500 rounded-xl p-4">
+          <!-- Populated via JS -->
+        </div>
+      </div>
+
+      <!-- Card 2: Guided Worksheet Lab Notes (Parts 3-8) -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl space-y-4">
+        <div>
+          <h2 class="text-base sm:text-lg font-extrabold text-white">Guided Worksheet Lab Notes (Parts 3–8 Reflections)</h2>
+          <p class="text-xs text-slate-400 mt-0.5">Use these key observations and scientific explanations when completing your lab notebook reflections:</p>
+        </div>
+
+        <div class="space-y-3">
+          <!-- Part 3 -->
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+            <h3 class="text-sm font-extrabold text-amber-300 mb-1">Part 3 — Cell Lysis Reflection</h3>
+            <p class="text-xs text-slate-400 mb-2">What observations give you confidence you completed cell lysis correctly?</p>
+            <div class="bg-slate-900 border-l-4 border-cyan-400 rounded-r-lg p-3 text-xs sm:text-sm text-slate-200 leading-relaxed">
+              <strong>Key Indicators:</strong> After spinning the BashingBead tube at 12,000 RPM, a tight bead/debris pellet formed at the bottom and only clear supernatant (400 µL) was transferred. After adding 600 µL Lysis Buffer A + 600 µL Lysis Buffer B and mixing slowly without bubbles, the lysate became clear throughout (or cleared after 1–3 min warming if precipitate formed).
+            </div>
+          </div>
+
+          <!-- Part 4 -->
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+            <h3 class="text-sm font-extrabold text-amber-300 mb-1">Part 4 — DNA Binding Reflection</h3>
+            <p class="text-xs text-slate-400 mb-2">What did you pay the most attention to during the DNA binding step?</p>
+            <div class="bg-slate-900 border-l-4 border-cyan-400 rounded-r-lg p-3 text-xs sm:text-sm text-slate-200 leading-relaxed">
+              <strong>Key Indicators:</strong> Loading a maximum of 800 µL per spin (twice, to pass all ~1,600 µL lysate), resting the pipette tip against the side wall so it never punctured the delicate white silica membrane, spinning at 12,000 RPM for 1 min until all liquid passed into the "Lysis Buffer Waste" tube, and emptying waste into the liquid waste container.
+            </div>
+          </div>
+
+          <!-- Parts 5 & 6 -->
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+            <h3 class="text-sm font-extrabold text-amber-300 mb-1">Parts 5 &amp; 6 — Washing Reflection</h3>
+            <p class="text-xs text-slate-400 mb-2">How confident are you that the DNA was washed correctly?</p>
+            <div class="bg-slate-900 border-l-4 border-cyan-400 rounded-r-lg p-3 text-xs sm:text-sm text-slate-200 leading-relaxed">
+              <strong>Key Indicators:</strong> Added 200 µL of 1st Wash Buffer (Blue) first, spun and emptied waste; then added 500 µL of 2nd Wash Buffer (Gray), spun and emptied waste; and completed the mandatory <strong>2-minute dry spin at 12,000 RPM</strong> to evaporate residual ethanol that would otherwise inhibit PCR next week.
+            </div>
+          </div>
+
+          <!-- Part 7 -->
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+            <h3 class="text-sm font-extrabold text-amber-300 mb-1">Part 7 — DNA Elution Reflection</h3>
+            <p class="text-xs text-slate-400 mb-2">How confident are you that the DNA was successfully released from the silica membrane?</p>
+            <div class="bg-slate-900 border-l-4 border-cyan-400 rounded-r-lg p-3 text-xs sm:text-sm text-slate-200 leading-relaxed">
+              <strong>Key Indicators:</strong> Transferred the All-White DNA Spin Column into the labeled <strong>yellow 1.5 mL tube</strong>, dispensed 20 µL of Pink Elution Buffer directly onto the center of the silica membrane using the black pipette, let it soak for a full <strong>2 minutes</strong> before centrifuging at 12,000 RPM, and <strong>saved the final flow-through</strong> in the yellow tube.
+            </div>
+          </div>
+
+          <!-- Part 8 -->
+          <div class="bg-slate-950 border border-slate-800 rounded-xl p-4">
+            <h3 class="text-sm font-extrabold text-amber-300 mb-1">Part 8 — Pure gDNA Extract &amp; Looking Ahead</h3>
+            <p class="text-xs text-slate-400 mb-2">Do you think you will see your gDNA extract in upcoming labs? Why?</p>
+            <div class="bg-slate-900 border-l-4 border-cyan-400 rounded-r-lg p-3 text-xs sm:text-sm text-slate-200 leading-relaxed">
+              <strong>Key Indicators:</strong> Yes—if lysis released sufficient bacterial DNA, the silica membrane remained intact during binding/washing, ethanol was removed during the dry spin, and the 20 µL elution flow-through was saved in your section's gDNA storage box (A1–J9), you will see a high-molecular-weight gDNA smear on your gel and a sharp amplicon band after PCR.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <script>
+    /* =========================================================================
+       TAB SWITCHING
+       ========================================================================= */
+    function switchTab(tabKey) {
+      const keys = ['bench', 'worksheet', 'notes'];
+      keys.forEach(k => {
+        const panel = document.getElementById('panel-' + k);
+        const btn = document.getElementById('nav-btn-' + k);
+        const isActive = (k === tabKey);
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+
+        if (isActive) {
+          panel.classList.remove('hidden');
+          btn.className = 'nav-tab-btn bg-emerald-500 text-slate-950 border border-emerald-400 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl whitespace-nowrap transition shadow-sm';
+        } else {
+          panel.classList.add('hidden');
+          btn.className = 'nav-tab-btn bg-slate-900 text-slate-300 hover:bg-slate-800 hover:text-white border border-slate-700 font-bold text-xs sm:text-sm px-4 py-2.5 rounded-xl whitespace-nowrap transition';
+        }
+      });
+    }
+
+    /* =========================================================================
+       TAB 1: 5-STAGE MOLECULAR & BENCH SIMULATOR
+       ========================================================================= */
+    const STAGES = [
+      {
+        title: "Stage 1: Cell Lysis & Debris Filtration",
+        dnaLocation: "Released from bacterial cells into the clear liquid supernatant.",
+        bullets: [
+          "Vortex BashingBead tube 15 sec, then centrifuge at 12,000 RPM for 1 min to pellet beads & heavy debris.",
+          "Transfer 400 µL [0|4|0] of clear supernatant (avoiding beads!) into the Red/White Bead Filter Spin Column.",
+          "Centrifuge at 10,000 RPM for 1 min, discard Red/White filter in biohazard bin, and keep liquid in 'DNA After Bead Beating' tube.",
+          "Add 600 µL Lysis Buffer A (Orange) + 600 µL Lysis Buffer B (Black); pipette up/down slowly to mix without bubbles."
+        ],
+        warning: "Caution: Keep pipette tip above the bead pellet. If a white precipitate forms after adding lysis buffers, warm the tube in the incubator for 1–3 min until clear.",
+        svg: `
+          <svg viewBox="0 0 620 205" width="100%" role="img" aria-label="Bacterial Cell Lysis and Bead Pelleting">
+            <rect x="10" y="10" width="600" height="185" rx="10" fill="#0f172a" stroke="#1e293b"/>
+            <text x="28" y="34" fill="#6ee7b7" font-family="sans-serif" font-size="13" font-weight="bold">1. Bacterial Cell Lysis &amp; Bead Pelleting</text>
+            <!-- Lysed Cell -->
+            <rect x="35" y="55" width="130" height="90" rx="18" fill="#3f1d2e" stroke="#f43f5e" stroke-width="2" stroke-dasharray="6,4"/>
+            <text x="100" y="76" fill="#fda4af" font-family="sans-serif" font-size="11" text-anchor="middle" font-weight="bold">Lysed Bacterium</text>
+            <path d="M60 102 Q75 90 90 102 T120 102" stroke="#38bdf8" stroke-width="3" fill="none"/>
+            <path d="M60 112 Q75 124 90 112 T120 112" stroke="#fbbf24" stroke-width="3" fill="none"/>
+            <text x="100" y="133" fill="#cbd5e1" font-family="sans-serif" font-size="10" text-anchor="middle">gDNA released!</text>
+
+            <path d="M180 100 L225 100" stroke="#10b981" stroke-width="3"/>
+            <polygon points="222,95 232,100 222,105" fill="#10b981"/>
+
+            <!-- BashingBead Tube -->
+            <rect x="245" y="45" width="66" height="135" rx="12" fill="#1e293b" stroke="#94a3b8" stroke-width="2"/>
+            <rect x="248" y="65" width="60" height="62" fill="#0284c7" opacity="0.45"/>
+            <text x="278" y="92" fill="#e0f2fe" font-family="sans-serif" font-size="10" text-anchor="middle" font-weight="bold">Supernatant</text>
+            <text x="278" y="106" fill="#bae6fd" font-family="monospace" font-size="9" text-anchor="middle">(400 µL DNA)</text>
+            <circle cx="263" cy="142" r="7" fill="#e2e8f0"/><circle cx="278" cy="145" r="7" fill="#cbd5e1"/><circle cx="293" cy="141" r="7" fill="#e2e8f0"/>
+            <circle cx="268" cy="158" r="7" fill="#cbd5e1"/><circle cx="286" cy="159" r="7" fill="#e2e8f0"/><circle cx="277" cy="170" r="7" fill="#cbd5e1"/>
+            <text x="278" y="191" fill="#94a3b8" font-family="sans-serif" font-size="10" text-anchor="middle">Pellet (Leave!)</text>
+
+            <path d="M330 100 L375 100" stroke="#10b981" stroke-width="3"/>
+            <polygon points="372,95 382,100 372,105" fill="#10b981"/>
+
+            <!-- Red/White Filter + Lysis Buffers -->
+            <rect x="395" y="45" width="84" height="135" rx="12" fill="#1e293b" stroke="#94a3b8" stroke-width="2"/>
+            <rect x="405" y="52" width="64" height="44" fill="#334155" stroke="#cbd5e1"/>
+            <rect x="405" y="84" width="64" height="10" fill="#ef4444"/>
+            <text x="437" y="73" fill="#fff" font-family="sans-serif" font-size="9" text-anchor="middle">Red/White Filter</text>
+            <rect x="398" y="115" width="78" height="62" rx="8" fill="#f97316" opacity="0.4"/>
+            <text x="437" y="142" fill="#ffedd5" font-family="monospace" font-size="9.5" text-anchor="middle" font-weight="bold">+600 µL A (Org)</text>
+            <text x="437" y="156" fill="#ffedd5" font-family="monospace" font-size="9.5" text-anchor="middle" font-weight="bold">+600 µL B (Blk)</text>
+          </svg>`
+      },
+      {
+        title: "Stage 2: Selective DNA Binding to Silica Membrane",
+        dnaLocation: "Temporarily bound to the white silica membrane inside the All-White DNA Spin Column.",
+        bullets: [
+          "Insert All-White DNA Spin Column into the 'Lysis Buffer Waste' collection tube.",
+          "Transfer 800 µL [0|8|0] of clear lysate along the side wall (do NOT touch the white membrane), spin at 12,000 RPM for 1 min, and pour flow-through into Liquid Waste.",
+          "Repeat with the remaining ~800 µL lysate so ALL DNA passes through the silica membrane.",
+          "Move the DNA Spin Column into the 'Wash Buffer Waste' tube and empty 'Lysis Buffer Waste'."
+        ],
+        warning: "Critical: Never touch or puncture the white silica membrane at the bottom of the spin column—a punctured membrane causes DNA loss.",
+        svg: `
+          <svg viewBox="0 0 620 205" width="100%" role="img" aria-label="High-Salt Binding to White Silica Membrane">
+            <rect x="10" y="10" width="600" height="185" rx="10" fill="#0f172a" stroke="#1e293b"/>
+            <text x="28" y="34" fill="#67e8f9" font-family="sans-serif" font-size="13" font-weight="bold">2. High-Salt Binding to White Silica Membrane (2 × 800 µL)</text>
+            <rect x="85" y="45" width="96" height="140" rx="14" fill="#1e293b" stroke="#94a3b8" stroke-width="2"/>
+            <rect x="97" y="50" width="72" height="68" fill="#0f172a" stroke="#f8fafc" stroke-width="2"/>
+            <!-- Silica Membrane with bound DNA -->
+            <rect x="99" y="104" width="68" height="12" fill="#f8fafc"/>
+            <path d="M108 108 Q116 102 124 108 T140 108 T156 108" stroke="#f59e0b" stroke-width="3" fill="none"/>
+            <text x="133" y="80" fill="#e2e8f0" font-family="sans-serif" font-size="9.5" text-anchor="middle" font-weight="bold">All-White Column</text>
+            <text x="133" y="93" fill="#fde68a" font-family="sans-serif" font-size="9" text-anchor="middle">DNA Bound Here!</text>
+            <!-- Waste below -->
+            <rect x="88" y="135" width="90" height="47" rx="8" fill="#64748b" opacity="0.45"/>
+            <text x="133" y="158" fill="#cbd5e1" font-family="sans-serif" font-size="9.5" text-anchor="middle">Lysis Buffer Waste</text>
+            <text x="133" y="171" fill="#fca5a5" font-family="sans-serif" font-size="8.5" text-anchor="middle">(Pour into Liquid Waste)</text>
+
+            <rect x="225" y="55" width="355" height="115" rx="8" fill="#1e293b" stroke="#334155"/>
+            <text x="242" y="80" fill="#6ee7b7" font-family="sans-serif" font-size="12" font-weight="bold">Why does DNA stick while debris washes away?</text>
+            <text x="242" y="102" fill="#e2e8f0" font-family="sans-serif" font-size="11">• High-salt binding reagents shield DNA's negative backbone,</text>
+            <text x="252" y="118" fill="#e2e8f0" font-family="sans-serif" font-size="11">forming salt bridges with the silica membrane.</text>
+            <text x="242" y="140" fill="#e2e8f0" font-family="sans-serif" font-size="11">• Proteins &amp; cell debris do not bind and flow through</text>
+            <text x="252" y="156" fill="#e2e8f0" font-family="sans-serif" font-size="11">into the 'Lysis Buffer Waste' tube at 12,000 RPM.</text>
+          </svg>`
+      },
+      {
+        title: "Stage 3: Two-Step Washing & Mandatory 2-Min Dry Spin",
+        dnaLocation: "Still tightly bound to the white silica membrane while contaminants are flushed out.",
+        bullets: [
+          "Wash 1: Add 200 µL [0|2|0] of 1st Wash Buffer (Blue Cap), spin 1 min at 12,000 RPM, and empty 'Wash Buffer Waste'.",
+          "Wash 2: Add 500 µL [0|5|0] of 2nd Wash Buffer (Gray Cap), spin 1 min at 12,000 RPM, and empty 'Wash Buffer Waste'.",
+          "Dry Spin: Return the empty column assembly to the centrifuge and spin at 12,000 RPM for at least 2 minutes to evaporate residual ethanol.",
+          "Transfer the DNA Spin Column into your labeled Yellow 1.5 mL microcentrifuge tube."
+        ],
+        warning: "Do not skip the 2-minute dry spin! Residual ethanol from Wash 2 will contaminate your gDNA and block PCR amplification.",
+        svg: `
+          <svg viewBox="0 0 620 205" width="100%" role="img" aria-label="Washing Contaminants and Ethanol Dry Spin">
+            <rect x="10" y="10" width="600" height="185" rx="10" fill="#0f172a" stroke="#1e293b"/>
+            <text x="28" y="34" fill="#93c5fd" font-family="sans-serif" font-size="13" font-weight="bold">3. Washing Contaminants &amp; Ethanol Dry Spin</text>
+            <!-- Wash 1 -->
+            <rect x="35" y="52" width="160" height="125" rx="8" fill="#1e293b" stroke="#3b82f6"/>
+            <text x="115" y="75" fill="#60a5fa" font-family="sans-serif" font-size="12" text-anchor="middle" font-weight="bold">Wash 1 (Blue Cap)</text>
+            <text x="115" y="96" fill="#e2e8f0" font-family="monospace" font-size="11" text-anchor="middle">200 µL [0|2|0]</text>
+            <text x="115" y="116" fill="#cbd5e1" font-family="sans-serif" font-size="10" text-anchor="middle">12,000 RPM • 1 min</text>
+            <text x="115" y="138" fill="#fde68a" font-family="sans-serif" font-size="10" text-anchor="middle">DNA stays on silica</text>
+            <text x="115" y="156" fill="#94a3b8" font-family="sans-serif" font-size="10" text-anchor="middle">Empty waste tube</text>
+
+            <!-- Wash 2 -->
+            <rect x="220" y="52" width="170" height="125" rx="8" fill="#1e293b" stroke="#94a3b8"/>
+            <text x="305" y="75" fill="#e2e8f0" font-family="sans-serif" font-size="12" text-anchor="middle" font-weight="bold">Wash 2 (Gray Cap)</text>
+            <text x="305" y="96" fill="#e2e8f0" font-family="monospace" font-size="11" text-anchor="middle">500 µL [0|5|0]</text>
+            <text x="305" y="116" fill="#cbd5e1" font-family="sans-serif" font-size="10" text-anchor="middle">12,000 RPM • 1 min</text>
+            <text x="305" y="138" fill="#fde68a" font-family="sans-serif" font-size="10" text-anchor="middle">Removes salts/proteins</text>
+            <text x="305" y="156" fill="#94a3b8" font-family="sans-serif" font-size="10" text-anchor="middle">Empty waste tube</text>
+
+            <!-- Dry Spin -->
+            <rect x="415" y="52" width="170" height="125" rx="8" fill="#064e3b" stroke="#10b981"/>
+            <text x="500" y="75" fill="#6ee7b7" font-family="sans-serif" font-size="12" text-anchor="middle" font-weight="bold">2-Min Dry Spin</text>
+            <text x="500" y="96" fill="#ecfdf5" font-family="sans-serif" font-size="11" text-anchor="middle">No buffer added</text>
+            <text x="500" y="116" fill="#a7f3d0" font-family="sans-serif" font-size="10" text-anchor="middle">12,000 RPM • 2 min</text>
+            <text x="500" y="138" fill="#fde68a" font-family="sans-serif" font-size="10" text-anchor="middle">Removes ethanol</text>
+            <text x="500" y="156" fill="#d1fae5" font-family="sans-serif" font-size="10" text-anchor="middle">Move to Yellow Tube</text>
+          </svg>`
+      },
+      {
+        title: "Stage 4: Eluting Purified gDNA into the Yellow Tube",
+        dnaLocation: "Detached from the silica membrane and dissolved in the 20 µL liquid inside the Yellow tube.",
+        bullets: [
+          "Place the All-White DNA Spin Column inside your pre-labeled Yellow 1.5 mL microcentrifuge tube.",
+          "Use the BLACK micropipette to add 20 µL of Elution Buffer (Pink Cap) directly onto the center of the white silica membrane.",
+          "Let it soak in the blue tube rack for at least 2 minutes so low-salt buffer releases DNA from the silica.",
+          "Place in rotor with the yellow tube lid facing INWARD toward the center; spin at 12,000 RPM for 1 min."
+        ],
+        warning: "SAVE THE FINAL FLOW-THROUGH! Unlike previous steps, the liquid in the bottom of the yellow tube IS your purified gDNA.",
+        svg: `
+          <svg viewBox="0 0 620 205" width="100%" role="img" aria-label="Elution into Yellow Tube">
+            <rect x="10" y="10" width="600" height="185" rx="10" fill="#0f172a" stroke="#1e293b"/>
+            <text x="28" y="34" fill="#f472b6" font-family="sans-serif" font-size="13" font-weight="bold">4. Elution: 20 µL Pink Buffer + 2-Min Soak → Save Yellow Flow-Through</text>
+            <!-- Yellow Tube Assembly -->
+            <rect x="90" y="48" width="94" height="136" rx="14" fill="#422006" stroke="#eab308" stroke-width="2.5"/>
+            <rect x="103" y="52" width="68" height="62" fill="#1e293b" stroke="#f8fafc" stroke-width="1.5"/>
+            <rect x="105" y="102" width="64" height="10" fill="#f8fafc"/>
+            <text x="137" y="80" fill="#f472b6" font-family="monospace" font-size="9.5" text-anchor="middle" font-weight="bold">+20 µL Elution</text>
+            <text x="137" y="93" fill="#cbd5e1" font-family="sans-serif" font-size="8.5" text-anchor="middle">(Soak 2 min)</text>
+
+            <!-- Eluted DNA in bottom -->
+            <path d="M95 148 Q137 142 179 148 L179 172 Q137 182 95 172 Z" fill="#ec4899" opacity="0.55"/>
+            <path d="M112 162 Q122 156 132 162 T152 162" stroke="#fef08a" stroke-width="2.5" fill="none"/>
+            <text x="137" y="195" fill="#fde047" font-family="sans-serif" font-size="10" text-anchor="middle" font-weight="bold">KEEP THIS LIQUID!</text>
+
+            <rect x="220" y="55" width="360" height="118" rx="8" fill="#1e293b" stroke="#334155"/>
+            <text x="236" y="80" fill="#fde047" font-family="sans-serif" font-size="12" font-weight="bold">Centrifuge &amp; Collection Reminders:</text>
+            <text x="236" y="102" fill="#e2e8f0" font-family="sans-serif" font-size="11">1. Yellow lid cannot snap shut over spin column—point the</text>
+            <text x="250" y="118" fill="#e2e8f0" font-family="sans-serif" font-size="11">yellow hinge/lid INWARD toward the rotor center.</text>
+            <text x="236" y="140" fill="#e2e8f0" font-family="sans-serif" font-size="11">2. Discard the All-White spin column in the biohazard bin</text>
+            <text x="250" y="156" fill="#e2e8f0" font-family="sans-serif" font-size="11">and snap the yellow cap closed over your 20 µL gDNA.</text>
+          </svg>`
+      },
+      {
+        title: "Stage 5: Pure gDNA Storage & Lab Bench Cleanup",
+        dnaLocation: "Stored safely in your labeled Yellow 1.5 mL tube inside your section's white gDNA storage box.",
+        bullets: [
+          "Verify your initials are on the yellow lid and your full name + lab day/time are on the side of the yellow tube.",
+          "Place your yellow gDNA tube into your section's white gDNA storage box (grid A1–J9) with your TA.",
+          "Discard all used spin columns, collection tubes, BashingBead tubes, and pipette tips in the red tabletop biohazard bin.",
+          "Pour leftover liquid buffers into the Liquid Waste bottle, hang P1000 pipettes upright on the carousel, and wipe down racks with Simple Green."
+        ],
+        warning: "Participation & Future Labs: Failing to store your labeled yellow tube in your section's gDNA box means you will have no sample for PCR next week.",
+        svg: `
+          <svg viewBox="0 0 620 205" width="100%" role="img" aria-label="Section gDNA Storage Box A1-J9">
+            <rect x="10" y="10" width="600" height="185" rx="10" fill="#0f172a" stroke="#1e293b"/>
+            <text x="28" y="34" fill="#6ee7b7" font-family="sans-serif" font-size="13" font-weight="bold">5. Section gDNA Storage Box (A1–J9) &amp; Downstream Uses</text>
+            <!-- Storage Box -->
+            <rect x="35" y="52" width="170" height="122" rx="8" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+            <text x="120" y="75" fill="#0f172a" font-family="sans-serif" font-size="12" text-anchor="middle" font-weight="bold">Section gDNA Box</text>
+            <text x="120" y="93" fill="#334155" font-family="monospace" font-size="10" text-anchor="middle">Slots A1 through J9</text>
+            <rect x="55" y="106" width="130" height="28" rx="5" fill="#fef08a" stroke="#ca8a04"/>
+            <text x="120" y="124" fill="#854d0e" font-family="sans-serif" font-size="10" text-anchor="middle" font-weight="bold">Your Yellow gDNA Tube</text>
+            <text x="120" y="155" fill="#475569" font-family="sans-serif" font-size="9.5" text-anchor="middle">Name + Day/Time on side</text>
+
+            <!-- Downstream cards -->
+            <rect x="230" y="52" width="350" height="122" rx="8" fill="#1e293b" stroke="#334155"/>
+            <text x="248" y="76" fill="#67e8f9" font-family="sans-serif" font-size="12" font-weight="bold">How Your Pure gDNA Will Be Used:</text>
+            <text x="248" y="99" fill="#e2e8f0" font-family="sans-serif" font-size="11">• PCR: Amplifies millions of copies of target bacterial genes.</text>
+            <text x="248" y="121" fill="#e2e8f0" font-family="sans-serif" font-size="11">• Gel Electrophoresis: Checks gDNA quality &amp; PCR fragment size.</text>
+            <text x="248" y="143" fill="#e2e8f0" font-family="sans-serif" font-size="11">• DNA Sequencing: Identifies the bacterial species in your probiotic.</text>
+          </svg>`
+      }
+    ];
+
+    let activeStageIdx = 0;
+
+    function selectStage(idx) {
+      activeStageIdx = idx;
+      for (let i = 0; i < STAGES.length; i++) {
+        const btn = document.getElementById('stage-btn-' + i);
+        if (i === idx) {
+          btn.className = 'stage-btn p-2.5 rounded-xl bg-emerald-950 border-2 border-emerald-400 text-emerald-100 text-xs font-bold text-center transition shadow-sm';
+        } else {
+          btn.className = 'stage-btn p-2.5 rounded-xl bg-slate-800 border border-slate-700 hover:border-slate-500 text-slate-300 text-xs font-bold text-center transition';
+        }
+      }
+
+      const st = STAGES[idx];
+      document.getElementById('stage-svg-box').innerHTML = st.svg;
+      document.getElementById('stage-details-box').innerHTML = `
+        <h3 class="text-sm sm:text-base font-extrabold text-emerald-300">${st.title}</h3>
+        <p class="text-xs text-amber-200"><strong>Where is the DNA?</strong> ${st.dnaLocation}</p>
+        <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-200">
+          ${st.bullets.map(b => `<li>${b}</li>`).join('')}
+        </ul>
+        <div class="mt-2 p-2.5 rounded-lg bg-rose-500/15 border border-rose-500/40 text-xs text-rose-200 font-medium">
+          ${st.warning}
+        </div>
+      `;
+    }
+
+    function prevStage() {
+      selectStage(activeStageIdx > 0 ? activeStageIdx - 1 : STAGES.length - 1);
+    }
+
+    function nextStage() {
+      selectStage(activeStageIdx < STAGES.length - 1 ? activeStageIdx + 1 : 0);
+    }
+
+    /* =========================================================================
+       TAB 1: P1000 PIPETTE DIAL & CENTRIFUGE CHECKLIST
+       ========================================================================= */
+    function setDial(thou, hund, tens, label, note) {
+      document.getElementById('dial-thou').textContent = thou;
+      document.getElementById('dial-hund').textContent = hund;
+      document.getElementById('dial-tens').textContent = tens;
+      document.getElementById('pip-step-label').textContent = label;
+      document.getElementById('pip-step-note').textContent = note;
+    }
+
+    function updateSafetyCount() {
+      const boxes = document.querySelectorAll('.safety-chk');
+      let checked = 0;
+      boxes.forEach(b => { if (b.checked) checked++; });
+      const badge = document.getElementById('safety-counter');
+      badge.textContent = `${checked}/5 Checked`;
+      if (checked === 5) {
+        badge.className = 'font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+      } else {
+        badge.className = 'font-mono text-[11px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700';
+      }
+    }
+
+    /* =========================================================================
+       TAB 2: WORKSHEET TABLE & SILICA MEMBRANE CHECK
+       ========================================================================= */
+    function toggleSingleAnswer(id) {
+      document.getElementById(id).classList.toggle('hidden');
+    }
+
+    let allAnswersRevealed = false;
+    function toggleAllTableAnswers() {
+      allAnswersRevealed = !allAnswersRevealed;
+      document.querySelectorAll('.ws-ans').forEach(el => {
+        if (allAnswersRevealed) {
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+    }
+
+    function toggleMembraneChip(btn) {
+      btn.classList.remove('ring-2', 'ring-emerald-400', 'ring-rose-400');
+      const isSelected = btn.getAttribute('data-selected') === 'true';
+      if (isSelected) {
+        btn.setAttribute('data-selected', 'false');
+        btn.className = 'mem-chip px-4 py-2.5 rounded-full bg-slate-950 border-2 border-slate-700 hover:border-slate-500 text-xs sm:text-sm font-bold text-slate-200 transition';
+      } else {
+        btn.setAttribute('data-selected', 'true');
+        btn.className = 'mem-chip px-4 py-2.5 rounded-full bg-sky-500/20 border-2 border-sky-400 text-xs sm:text-sm font-bold text-sky-200 transition';
+      }
+    }
+
+    function gradeMembraneSelection() {
+      const chips = document.querySelectorAll('#membrane-chips .mem-chip');
+      const correctKeys = new Set(['binding', 'washing']);
+      let exactMatch = true;
+
+      chips.forEach(chip => {
+        const key = chip.getAttribute('data-step');
+        const selected = chip.getAttribute('data-selected') === 'true';
+        if (correctKeys.has(key) && selected) {
+          chip.className = 'mem-chip px-4 py-2.5 rounded-full bg-emerald-500/25 border-2 border-emerald-400 text-xs sm:text-sm font-bold text-emerald-200 transition';
+        } else if (!correctKeys.has(key) && !selected) {
+          chip.className = 'mem-chip px-4 py-2.5 rounded-full bg-slate-950 border-2 border-slate-700 text-xs sm:text-sm font-bold text-slate-400 transition';
+        } else {
+          exactMatch = false;
+          chip.className = 'mem-chip px-4 py-2.5 rounded-full bg-rose-500/25 border-2 border-rose-400 text-xs sm:text-sm font-bold text-rose-200 transition';
+        }
+      });
+
+      const fb = document.getElementById('membrane-feedback');
+      fb.classList.remove('hidden');
+      if (exactMatch) {
+        fb.className = 'mt-4 p-3.5 rounded-xl border border-emerald-500/40 bg-emerald-950/60 text-emerald-100 text-xs sm:text-sm leading-relaxed';
+        fb.innerHTML = '<strong class="text-emerald-300">Correct!</strong> DNA is attached to the white silica membrane during <strong>DNA Binding</strong> and <strong>Washing</strong>. During Cell Lysis it is free in solution, and during Elution it detaches into your yellow tube.';
+      } else {
+        fb.className = 'mt-4 p-3.5 rounded-xl border border-rose-500/40 bg-rose-950/60 text-rose-100 text-xs sm:text-sm leading-relaxed';
+        fb.innerHTML = '<strong class="text-rose-300">Check highlighted chips:</strong> Circle <strong>DNA Binding</strong> and <strong>Washing</strong> only. During Cell Lysis DNA is free in the lysate, and during Elution low-salt buffer releases it into your yellow tube.';
+      }
+    }
+
+    function resetMembraneSelection() {
+      document.querySelectorAll('#membrane-chips .mem-chip').forEach(chip => {
+        chip.setAttribute('data-selected', 'false');
+        chip.className = 'mem-chip px-4 py-2.5 rounded-full bg-slate-950 border-2 border-slate-700 hover:border-slate-500 text-xs sm:text-sm font-bold text-slate-200 transition';
+      });
+      document.getElementById('membrane-feedback').classList.add('hidden');
+    }
+
+    /* =========================================================================
+       TAB 3: TROUBLESHOOTING MATRIX
+       ========================================================================= */
+    const TROUBLE_DATA = {
+      precipitate: {
+        title: "White Precipitate After Adding Lysis Buffers A & B",
+        impact: "Detergents and salts in Lysis Buffers A/B can occasionally form a cloudy white precipitate at cooler room temperatures, which could clog the spin column.",
+        fix: "Place the closed collection tube in the classroom incubator for 1–3 minutes until the precipitate dissolves and the solution turns completely clear. This will not harm your DNA yield."
+      },
+      puncture: {
+        title: "Pipette Tip Touched or Punctured the White Silica Membrane",
+        impact: "A torn or punctured silica membrane allows genomic DNA to pass straight through into the waste tube instead of binding.",
+        fix: "Always rest the pipette tip against the inner plastic side wall of the spin column when dispensing buffers—never touch the white filter at the bottom."
+      },
+      washorder: {
+        title: "Added 2nd Wash Buffer (Gray) Before 1st Wash Buffer (Blue)",
+        impact: "Reversing wash order disrupts the salt/ethanol gradient needed to strip proteins and guanidine salts selectively, leading to lower yield or impure gDNA.",
+        fix: "Always follow Blue Cap (200 µL 1st Wash Buffer) first, then Gray Cap (500 µL 2nd Wash Buffer), followed by the mandatory 2-minute dry spin."
+      },
+      dryspin: {
+        title: "Skipped or Shortened the 2-Minute Dry Spin After Wash 2",
+        impact: "Residual ethanol from Wash 2 remains on the silica membrane and elutes into your yellow tube, which inhibits Taq DNA polymerase during next week's PCR.",
+        fix: "Always run the extra 2-minute spin at 12,000 RPM with no added buffer before transferring the spin column to your yellow tube."
+      },
+      flowthrough: {
+        title: "Accidentally Poured Out the Final Yellow Tube Flow-Through",
+        impact: "Because the 20 µL Pink Elution Buffer releases DNA off the membrane into the flow-through, discarding that liquid discards all of your extracted gDNA.",
+        fix: "Notify your TA immediately. Unlike previous waste steps, the final yellow tube flow-through IS your purified genomic DNA sample."
+      },
+      sharpie: {
+        title: "Wrote Sharpie Label on the Side of the Spin Column",
+        impact: "Ethanol in the wash buffers can dissolve Sharpie ink on the outer wall and carry dye/solvent contaminants into your purified sample.",
+        fix: "Write your initials only on the flat top LID of the spin columns, and write your full name + section day/time on the yellow storage tube."
+      }
+    };
+
+    function renderTrouble(key) {
+      const item = TROUBLE_DATA[key];
+      document.getElementById('trouble-box').innerHTML = `
+        <h3 class="text-sm sm:text-base font-extrabold text-rose-300 mb-2">${item.title}</h3>
+        <ul class="list-disc pl-5 space-y-1.5 text-xs sm:text-sm text-slate-200 leading-relaxed">
+          <li><strong>Impact on Extraction:</strong> ${item.impact}</li>
+          <li><strong>Recommended Fix / Prevention:</strong> ${item.fix}</li>
+        </ul>
+      `;
+    }
+
+    /* =========================================================================
+       INITIALIZE ON LOAD
+       ========================================================================= */
+    window.onload = function () {
+      selectStage(0);
+      renderTrouble('precipitate');
+    };
+  </script>
+</body>
+</html>
