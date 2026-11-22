@@ -1,0 +1,1521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIOS 110 Lab — Activity E: Forensic STR Crime Scene Investigation</title>
+    <style>
+        :root {
+            --bg-page: #f4f7fb;
+            --bg-card: #ffffff;
+            --bg-subtle: #f1f5f9;
+            --bg-header: #0b1324;
+            --text-main: #0f172a;
+            --text-muted: #475569;
+            --text-light: #94a3b8;
+            --border-color: #dbe3ee;
+            --accent-teal: #0d9488;
+            --accent-teal-bg: #f0fdfa;
+            --accent-cyan: #0891b2;
+            --accent-rose: #e11d48;
+            --accent-rose-bg: #fff1f2;
+            --accent-amber: #d97706;
+            --accent-amber-bg: #fffbeb;
+            --accent-emerald: #059669;
+            --accent-emerald-bg: #ecfdf5;
+            --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+            --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-page: #070d19;
+                --bg-card: #111b2e;
+                --bg-subtle: #18253d;
+                --bg-header: #050912;
+                --text-main: #f1f5f9;
+                --text-muted: #cbd5e1;
+                --text-light: #94a3b8;
+                --border-color: #24344f;
+                --accent-teal: #2dd4bf;
+                --accent-teal-bg: rgba(13, 148, 136, 0.16);
+                --accent-cyan: #22d3ee;
+                --accent-rose: #fb7185;
+                --accent-rose-bg: rgba(225, 29, 72, 0.16);
+                --accent-amber: #fbbf24;
+                --accent-amber-bg: rgba(217, 119, 6, 0.16);
+                --accent-emerald: #34d399;
+                --accent-emerald-bg: rgba(5, 150, 105, 0.16);
+                --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.35);
+                --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.45);
+            }
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            line-height: 1.55;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .lab-header {
+            background: linear-gradient(135deg, #091122 0%, #101f3d 100%);
+            color: #f8fafc;
+            border-bottom: 1px solid #1e293b;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+        }
+
+        .header-inner {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0.9rem 1.25rem;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .brand-group {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .dna-emblem {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #06b6d4, #0d9488);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.35);
+        }
+
+        .badge-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .course-badge {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            background: rgba(34, 211, 238, 0.16);
+            color: #67e8f9;
+            border: 1px solid rgba(34, 211, 238, 0.35);
+            padding: 0.12rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .worksheet-tag {
+            font-size: 0.75rem;
+            color: #94a3b8;
+        }
+
+        .lab-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: -0.01em;
+            color: #ffffff;
+        }
+
+        .lab-subtitle {
+            font-size: 0.8rem;
+            color: #cbd5e1;
+        }
+
+        /* Progress Pill */
+        .progress-widget {
+            background: rgba(15, 23, 42, 0.85);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 0.55rem 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .progress-labels {
+            text-align: right;
+        }
+
+        .progress-kicker {
+            font-family: ui-monospace, monospace;
+            font-size: 0.66rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #94a3b8;
+        }
+
+        .progress-value {
+            font-family: ui-monospace, monospace;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #f8fafc;
+        }
+
+        .progress-value span {
+            color: #2dd4bf;
+        }
+
+        .progress-track {
+            width: 110px;
+            height: 9px;
+            background: #1e293b;
+            border-radius: 999px;
+            overflow: hidden;
+            border: 1px solid #334155;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #06b6d4, #10b981);
+            transition: width 0.35s ease;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1240px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.4rem;
+            flex: 1;
+        }
+
+        /* Card Shell */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            padding: 1.25rem;
+        }
+
+        .section-header {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.85rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .section-kicker {
+            font-family: ui-monospace, monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--accent-cyan);
+            margin-bottom: 0.2rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .section-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.15rem;
+        }
+
+        /* Section 1: Case File & Forensic Background Tabs */
+        .bg-tabs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 820px) {
+            .bg-tabs {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .bg-tabs {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .bg-tab-btn {
+            padding: 0.7rem 0.85rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-color);
+            background: var(--bg-subtle);
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.18s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .bg-tab-btn:hover {
+            border-color: var(--accent-cyan);
+            color: var(--text-main);
+        }
+
+        .bg-tab-btn.active {
+            background: var(--accent-teal-bg);
+            border-color: var(--accent-teal);
+            color: var(--text-main);
+            box-shadow: 0 0 0 1px var(--accent-teal);
+        }
+
+        .tab-num {
+            width: 22px;
+            height: 22px;
+            border-radius: 6px;
+            background: var(--border-color);
+            color: var(--text-main);
+            font-family: ui-monospace, monospace;
+            font-size: 0.74rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .bg-tab-btn.active .tab-num {
+            background: var(--accent-teal);
+            color: #ffffff;
+        }
+
+        .bg-panel {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.1rem;
+        }
+
+        .bg-panel h3 {
+            font-size: 0.96rem;
+            font-weight: 700;
+            margin-bottom: 0.45rem;
+            color: var(--text-main);
+        }
+
+        .bg-panel p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            margin-bottom: 0.65rem;
+        }
+
+        .bg-panel p:last-child {
+            margin-bottom: 0;
+        }
+
+        .suspect-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 0.75rem;
+            margin-top: 0.6rem;
+        }
+
+        .suspect-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 0.85rem;
+        }
+
+        .suspect-box strong {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            margin-bottom: 0.25rem;
+        }
+
+        .adv-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .adv-list li {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 0.8rem;
+            font-size: 0.84rem;
+            color: var(--text-muted);
+        }
+
+        .adv-list li strong {
+            display: block;
+            color: var(--text-main);
+            margin-bottom: 0.2rem;
+        }
+
+        /* Section 2: Interactive 3-Locus STR Evidence Board */
+        .caliper-toolbar {
+            background: #0f172a;
+            color: #f8fafc;
+            border: 1px solid #334155;
+            border-radius: var(--radius-md);
+            padding: 0.9rem 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .caliper-top-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .caliper-readout {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: ui-monospace, monospace;
+            font-size: 0.8rem;
+        }
+
+        .readout-pill {
+            background: #1e293b;
+            border: 1px solid #475569;
+            padding: 0.28rem 0.65rem;
+            border-radius: 6px;
+            color: #e2e8f0;
+        }
+
+        .readout-pill span {
+            color: #fb7185;
+            font-weight: 700;
+        }
+
+        .caliper-slider-row {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+
+        .caliper-slider-row label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #cbd5e1;
+            white-space: nowrap;
+        }
+
+        .caliper-slider-row input[type="range"] {
+            flex: 1;
+            accent-color: #f43f5e;
+            height: 6px;
+            cursor: pointer;
+        }
+
+        .preset-row {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .preset-label {
+            font-size: 0.74rem;
+            color: #94a3b8;
+            font-family: ui-monospace, monospace;
+            margin-right: 0.25rem;
+        }
+
+        .btn-chip {
+            padding: 0.35rem 0.65rem;
+            border-radius: 6px;
+            border: 1px solid #475569;
+            background: #1e293b;
+            color: #e2e8f0;
+            font-size: 0.74rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .btn-chip:hover {
+            background: #334155;
+            border-color: #94a3b8;
+        }
+
+        .btn-chip.active-toggle {
+            background: #0d9488;
+            border-color: #2dd4bf;
+            color: #ffffff;
+        }
+
+        /* View Mode Toggle (Compare All 3 vs Focus Single Locus) */
+        .view-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.45rem;
+        }
+
+        .view-btn {
+            padding: 0.45rem 0.8rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-subtle);
+            color: var(--text-muted);
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .view-btn.active {
+            background: var(--accent-cyan);
+            border-color: var(--accent-cyan);
+            color: #061124;
+        }
+
+        /* Gels Grid */
+        .gels-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .gels-grid.single-focus {
+            grid-template-columns: minmax(280px, 560px);
+            justify-content: center;
+        }
+
+        @media (max-width: 900px) {
+            .gels-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .gel-card {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+        }
+
+        .gel-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .gel-card-title {
+            font-size: 0.92rem;
+            font-weight: 800;
+            color: var(--text-main);
+        }
+
+        .gel-badge {
+            font-family: ui-monospace, monospace;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 0.18rem 0.5rem;
+            border-radius: 6px;
+        }
+
+        .badge-gray {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        .badge-uv {
+            background: #dbeafe;
+            color: #1e3a8a;
+        }
+
+        .badge-alert {
+            background: #ffe4e6;
+            color: #9f1239;
+        }
+
+        /* SVG Gel Stage */
+        .gel-stage {
+            position: relative;
+            width: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #334155;
+            box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.55);
+            touch-action: pan-y;
+        }
+
+        .gel-stage svg {
+            display: block;
+            width: 100%;
+            height: auto;
+        }
+
+        .gel-caption {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+        }
+
+        /* Section 3: 4-Stage Forensic Evidence Evaluation */
+        .stages-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        @media (max-width: 860px) {
+            .stages-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stage-card {
+            background: var(--bg-subtle);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .stage-card.solved {
+            border-color: var(--accent-emerald);
+        }
+
+        .stage-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .stage-tag {
+            font-family: ui-monospace, monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--accent-cyan);
+        }
+
+        .stage-status {
+            font-family: ui-monospace, monospace;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        .stage-status.done {
+            color: var(--accent-emerald);
+        }
+
+        .stage-question {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .options-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+        }
+
+        .option-btn {
+            width: 100%;
+            text-align: left;
+            padding: 0.65rem 0.85rem;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-card);
+            color: var(--text-main);
+            font-size: 0.83rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.16s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .option-btn:hover {
+            border-color: var(--accent-cyan);
+            transform: translateY(-1px);
+        }
+
+        .option-btn.selected-correct {
+            background: var(--accent-emerald-bg);
+            border-color: var(--accent-emerald);
+            color: var(--text-main);
+        }
+
+        .option-btn.selected-wrong {
+            background: var(--accent-rose-bg);
+            border-color: var(--accent-rose);
+            color: var(--text-main);
+        }
+
+        .feedback-banner {
+            display: none;
+            font-size: 0.82rem;
+            padding: 0.7rem 0.85rem;
+            border-radius: 8px;
+            line-height: 1.45;
+        }
+
+        .feedback-banner.show {
+            display: block;
+        }
+
+        .feedback-banner.ok {
+            background: var(--accent-emerald-bg);
+            border: 1px solid var(--accent-emerald);
+            color: var(--text-main);
+        }
+
+        .feedback-banner.err {
+            background: var(--accent-rose-bg);
+            border: 1px solid var(--accent-rose);
+            color: var(--text-main);
+        }
+
+        /* Expandable Worksheet Observation & Interpretation Guide */
+        .guide-drawer {
+            border-top: 1px dashed var(--border-color);
+            padding-top: 0.65rem;
+            margin-top: auto;
+        }
+
+        .guide-toggle {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: var(--accent-teal);
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.25rem 0;
+        }
+
+        .guide-toggle:hover {
+            text-decoration: underline;
+        }
+
+        .guide-content {
+            display: none;
+            margin-top: 0.55rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-size: 0.81rem;
+            color: var(--text-muted);
+        }
+
+        .guide-content.open {
+            display: block;
+        }
+
+        .guide-content p {
+            margin-bottom: 0.45rem;
+        }
+
+        .guide-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        .guide-content strong {
+            color: var(--text-main);
+        }
+
+        /* Completion Banner */
+        .verdict-summary {
+            display: none;
+            background: linear-gradient(135deg, #064e3b 0%, #0f172a 100%);
+            color: #f8fafc;
+            border: 1px solid #10b981;
+            border-radius: var(--radius-md);
+            padding: 1.1rem 1.25rem;
+            margin-top: 1rem;
+        }
+
+        .verdict-summary.show {
+            display: block;
+        }
+
+        .verdict-summary h4 {
+            font-size: 0.98rem;
+            font-weight: 800;
+            color: #6ee7b7;
+            margin-bottom: 0.35rem;
+        }
+
+        .verdict-summary p {
+            font-size: 0.86rem;
+            color: #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Header -->
+    <header class="lab-header">
+        <div class="header-inner">
+            <div class="brand-group">
+                <div class="dna-emblem" aria-hidden="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 15c6.667-6 13.333 0 20-6"/>
+                        <path d="M9 22c1.798-1.998 2.518-3.995 2.807-5.993"/>
+                        <path d="M15 2c-1.798 1.998-2.518 3.995-2.807 5.993"/>
+                        <path d="m17 6-2.5-2.5"/>
+                        <path d="m14 8-1-1"/>
+                        <path d="m7 18 2.5 2.5"/>
+                        <path d="m3.5 14.5.5.5"/>
+                        <path d="m20 9 .5.5"/>
+                        <path d="m6.5 12.5 1 1"/>
+                        <path d="m16.5 10.5 1 1"/>
+                        <path d="m10 16 1.5 1.5"/>
+                    </svg>
+                </div>
+                <div>
+                    <div class="badge-row">
+                        <span class="course-badge">BIOS 110 Lab</span>
+                        <span class="worksheet-tag">Worksheet — Gel Electrophoresis</span>
+                    </div>
+                    <h1 class="lab-title">Activity E: Forensic STR Crime Scene Investigation</h1>
+                    <p class="lab-subtitle">Multi-locus Short Tandem Repeat (STR) gel electrophoresis profiling &amp; suspect comparison</p>
+                </div>
+            </div>
+
+            <div class="progress-widget" aria-live="polite">
+                <div class="progress-labels">
+                    <div class="progress-kicker">Investigation Progress</div>
+                    <div class="progress-value"><span id="stage-count">0</span> / 4 Evidence Stages Evaluated</div>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="stage-progress-fill"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- SECTION 1: CASE FILE & FORENSIC BACKGROUND -->
+        <section class="card" aria-labelledby="case-bg-heading">
+            <div class="section-header">
+                <div>
+                    <div class="section-kicker">Part 1 • Case File &amp; Molecular Principles</div>
+                    <h2 class="section-title" id="case-bg-heading">Forensic Investigation Background &amp; STR Concepts</h2>
+                    <p class="section-desc">Select each tab below to review the lab manual context and key worksheet definitions before analyzing the gels.</p>
+                </div>
+            </div>
+
+            <div class="bg-tabs" role="tablist">
+                <button class="bg-tab-btn active" role="tab" aria-selected="true" onclick="selectBgTab(0, this)">
+                    <span class="tab-num">1</span>
+                    <span>Why Suspects 1 &amp; 2?</span>
+                </button>
+                <button class="bg-tab-btn" role="tab" aria-selected="false" onclick="selectBgTab(1, this)">
+                    <span class="tab-num">2</span>
+                    <span>Why Use PCR on Blood?</span>
+                </button>
+                <button class="bg-tab-btn" role="tab" aria-selected="false" onclick="selectBgTab(2, this)">
+                    <span class="tab-num">3</span>
+                    <span>What Is an STR?</span>
+                </button>
+                <button class="bg-tab-btn" role="tab" aria-selected="false" onclick="selectBgTab(3, this)">
+                    <span class="tab-num">4</span>
+                    <span>3 Advantages of STRs</span>
+                </button>
+            </div>
+
+            <div id="bg-panel-0" class="bg-panel">
+                <h3>Why Are Suspect 1 and Suspect 2 Considered Suspects?</h3>
+                <p>In the lab manual crime scene scenario, investigators recovered a tiny drop of blood on a broken glass at the scene. Both Suspect 1 and Suspect 2 had circumstantial ties—motive, opportunity, or documented access to the location—requiring forensic DNA profiling to determine whether either individual was the source of the bloodstain.</p>
+                <div class="suspect-grid">
+                    <div class="suspect-box">
+                        <strong>Suspect 1 (S1 / Lane 1)</strong>
+                        Had direct access to the room/glass prior to the incident and lacked a verified alibi during the time window of the crime, placing them on the investigator suspect list.
+                    </div>
+                    <div class="suspect-box">
+                        <strong>Suspect 2 (S2 / Lane 2)</strong>
+                        Had a known dispute/motive and opportunity near the crime scene, making a reference DNA sample necessary to include or exclude them against the crime scene blood.
+                    </div>
+                </div>
+            </div>
+
+            <div id="bg-panel-1" class="bg-panel" style="display: none;">
+                <h3>Why Did the Lab Technician Need to Use PCR on the Tiny Blood Sample?</h3>
+                <p>The microscopic blood spot recovered from the glass contained only <strong>trace nanogram or picogram quantities</strong> of genomic DNA—far too little DNA to fluoresce visibly on an agarose gel after electrophoresis.</p>
+                <p><strong>Polymerase Chain Reaction (PCR)</strong> solves this limitation by using sequence-specific primers flanking the STR region to exponentially amplify that target locus across ~30 thermal cycles, generating <strong>millions to billions of identical DNA copies</strong> that produce bright, sharp bands on the gel.</p>
+            </div>
+
+            <div id="bg-panel-2" class="bg-panel" style="display: none;">
+                <h3>What Is a Short Tandem Repeat (STR)?</h3>
+                <p>A <strong>Short Tandem Repeat (STR)</strong> is a short DNA sequence motif (typically <strong>2 to 6 base pairs long</strong>, such as <code>GATA</code> or <code>AGAT</code>) repeated head-to-tail (in tandem) within non-coding regions of human chromosomes.</p>
+                <p>Because the number of tandem repeats at a given STR locus varies widely among unrelated individuals—and because each person inherits one allele from each parent—PCR amplification produces <strong>distinct DNA fragment lengths</strong> (1 band if homozygous, 2 bands if heterozygous) that separate by size during gel electrophoresis.</p>
+            </div>
+
+            <div id="bg-panel-3" class="bg-panel" style="display: none;">
+                <h3>What Are 3 Advantages of Using STRs for DNA Fingerprinting?</h3>
+                <ul class="adv-list">
+                    <li>
+                        <strong>1. High Discrimination Power</strong>
+                        STR loci are highly polymorphic with many possible repeat-length alleles in the population. Analyzing multiple independent STR loci together makes a coincidental match between two unrelated people astronomically unlikely.
+                    </li>
+                    <li>
+                        <strong>2. Ideal for Degraded &amp; Trace DNA</strong>
+                        Because STR amplicons are relatively small (~100–400 bp), PCR can reliably amplify intact STR regions even from old, environmentally damaged, or tiny crime scene stains where long DNA fragments would be broken.
+                    </li>
+                    <li>
+                        <strong>3. Standardized &amp; Reproducible Multiplexing</strong>
+                        Multiple core STR loci (such as the CODIS panel) can be amplified and compared reliably across laboratories using standardized primers, ladders, and gel or capillary electrophoresis.
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- SECTION 2: INTERACTIVE 3-LOCUS STR EVIDENCE BOARD -->
+        <section class="card" aria-labelledby="evidence-board-heading">
+            <div class="section-header">
+                <div>
+                    <div class="section-kicker">Part 2 • Multi-Locus Gel Comparison</div>
+                    <h2 class="section-title" id="evidence-board-heading">Interactive 3-Locus STR Evidence Board (STR 1, STR 2 &amp; STR 3)</h2>
+                    <p class="section-desc">Sweep the synchronized laser caliper across <strong>S1</strong>, <strong>S2</strong>, and <strong>CS</strong> (or click any gel directly) to verify exact allele band alignment.</p>
+                </div>
+
+                <div class="view-controls" role="group" aria-label="Locus View Filter">
+                    <button class="view-btn active" onclick="setLocusView('all', this)">Compare All 3 Loci</button>
+                    <button class="view-btn" onclick="setLocusView('str1', this)">STR 1 Only</button>
+                    <button class="view-btn" onclick="setLocusView('str2', this)">STR 2 Only</button>
+                    <button class="view-btn" onclick="setLocusView('str3', this)">STR 3 Only</button>
+                </div>
+            </div>
+
+            <!-- Synchronized Laser Caliper Controller -->
+            <div class="caliper-toolbar">
+                <div class="caliper-top-row">
+                    <div class="caliper-readout">
+                        <div class="readout-pill">Laser Migration Depth: <span id="caliper-pct">44%</span></div>
+                        <div class="readout-pill">Relative Fragment Size: <span id="caliper-size">Medium-Large Allele</span></div>
+                    </div>
+                    <button id="guide-lines-btn" class="btn-chip active-toggle" onclick="toggleAlignmentGuides()">
+                        Lane Alignment Guides: ON
+                    </button>
+                </div>
+
+                <div class="caliper-slider-row">
+                    <label for="laser-slider">Laser Caliper:</label>
+                    <input type="range" id="laser-slider" min="15" max="90" value="44" oninput="setLaserY(this.value)">
+                </div>
+
+                <div class="preset-row">
+                    <span class="preset-label">Snap to Band:</span>
+                    <button class="btn-chip" onclick="setLaserY(44)">STR 1 Upper (44%)</button>
+                    <button class="btn-chip" onclick="setLaserY(55)">STR 1 Lower (55%)</button>
+                    <button class="btn-chip" onclick="setLaserY(40)">STR 2 S1/CS Upper (40%)</button>
+                    <button class="btn-chip" onclick="setLaserY(74)">STR 2 Lower (74%)</button>
+                    <button class="btn-chip" onclick="setLaserY(52)">STR 3 CS Upper (52%)</button>
+                    <button class="btn-chip" onclick="setLaserY(80)">STR 3 CS Lower (80%)</button>
+                </div>
+            </div>
+
+            <!-- 3 Gels Grid -->
+            <div class="gels-grid" id="gels-grid">
+
+                <!-- STR 1 GEL -->
+                <article class="gel-card" id="card-str1">
+                    <div class="gel-card-header">
+                        <h3 class="gel-card-title">STR 1 (Lab Run Gel)</h3>
+                        <span class="gel-badge badge-gray">Grayscale Gel • Locus 1</span>
+                    </div>
+                    <div class="gel-stage" onclick="handleGelClick(event, this)" title="Click anywhere on gel to position laser caliper">
+                        <svg viewBox="0 0 300 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="STR 1 Gel showing Suspect 1, Suspect 2, and Crime Scene bands">
+                            <defs>
+                                <linearGradient id="grayGelBg" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#262626"/>
+                                    <stop offset="50%" stop-color="#333333"/>
+                                    <stop offset="100%" stop-color="#1f1f1f"/>
+                                </linearGradient>
+                                <filter id="whiteGlow" x="-25%" y="-40%" width="150%" height="180%">
+                                    <feGaussianBlur stdDeviation="2.6" result="blur"/>
+                                    <feMerge>
+                                        <feMergeNode in="blur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            </defs>
+                            <!-- Gel Background -->
+                            <rect width="300" height="320" fill="url(#grayGelBg)"/>
+                            <!-- Subtle grain/lane dividers -->
+                            <line x1="100" y1="36" x2="100" y2="312" stroke="#525252" stroke-dasharray="3,4" stroke-width="1"/>
+                            <line x1="200" y1="36" x2="200" y2="312" stroke="#525252" stroke-dasharray="3,4" stroke-width="1"/>
+
+                            <!-- Lane Headers -->
+                            <text x="50" y="22" fill="#f8fafc" font-family="ui-monospace, monospace" font-size="14" font-weight="700" text-anchor="middle">S1</text>
+                            <text x="150" y="22" fill="#f8fafc" font-family="ui-monospace, monospace" font-size="14" font-weight="700" text-anchor="middle">S2</text>
+                            <text x="250" y="22" fill="#f8fafc" font-family="ui-monospace, monospace" font-size="14" font-weight="700" text-anchor="middle">CS</text>
+
+                            <!-- Loading Wells at Top -->
+                            <rect x="26" y="32" width="48" height="8" rx="2" fill="#121212" stroke="#737373" stroke-width="1.2"/>
+                            <rect x="126" y="32" width="48" height="8" rx="2" fill="#121212" stroke="#737373" stroke-width="1.2"/>
+                            <rect x="226" y="32" width="48" height="8" rx="2" fill="#121212" stroke="#737373" stroke-width="1.2"/>
+
+                            <!-- Optional Horizontal Alignment Guides (y = 44% -> 140.8, y = 55% -> 176) -->
+                            <g class="align-guides" opacity="0.42">
+                                <line x1="0" y1="140.8" x2="300" y2="140.8" stroke="#38bdf8" stroke-width="1" stroke-dasharray="4,3"/>
+                                <line x1="0" y1="176" x2="300" y2="176" stroke="#38bdf8" stroke-width="1" stroke-dasharray="4,3"/>
+                            </g>
+
+                            <!-- S1 Bands: y = 44% (140.8) and y = 55% (176) -->
+                            <rect x="24" y="136.5" width="52" height="8.5" rx="2" fill="#f1f5f9" filter="url(#whiteGlow)"/>
+                            <rect x="24" y="171.8" width="52" height="8.5" rx="2" fill="#f1f5f9" filter="url(#whiteGlow)"/>
+
+                            <!-- S2 Bands: y = 39% (124.8) and y = 61% (195.2) -->
+                            <rect x="124" y="120.3" width="52" height="9" rx="2" fill="#f1f5f9" filter="url(#whiteGlow)"/>
+                            <rect x="124" y="191" width="52" height="8.5" rx="2" fill="#f1f5f9" filter="url(#whiteGlow)"/>
+
+                            <!-- CS Bands: y = 44% (140.8) and y = 55% (176) -->
+                            <rect x="224" y="136.5" width="52" height="8.5" rx="2" fill="#f1f5f9" filter="url(#whiteGlow)"/>
+                            <rect x="224" y="171.8" width="52" height="8.5" rx="2" fill="#f1f5f9" filter="url(#whiteGlow)"/>
+
+                            <!-- Direction Arrow -->
+                            <text x="292" y="310" fill="#a3a3a3" font-family="ui-monospace, monospace" font-size="9" text-anchor="end">Migration ↓ (+)</text>
+
+                            <!-- Synchronized Horizontal Laser Caliper -->
+                            <g class="svg-laser" transform="translate(0, 140.8)">
+                                <line x1="0" y1="0" x2="300" y2="0" stroke="#fb7185" stroke-width="2" stroke-dasharray="6,3"/>
+                                <rect x="4" y="-9" width="36" height="14" rx="3" fill="#e11d48"/>
+                                <text class="laser-svg-label" x="22" y="1" fill="#ffffff" font-family="ui-monospace, monospace" font-size="9" font-weight="700" text-anchor="middle">44%</text>
+                            </g>
+                        </svg>
+                    </div>
+                    <p class="gel-caption"><strong>STR 1:</strong> CS has two bands at <strong>44%</strong> and <strong>55%</strong>, aligning identically with <strong>Suspect 1 (S1)</strong>. Suspect 2 (S2) shows wider band spacing (39% &amp; 61%).</p>
+                </article>
+
+                <!-- STR 2 GEL -->
+                <article class="gel-card" id="card-str2">
+                    <div class="gel-card-header">
+                        <h3 class="gel-card-title">STR 2 (Additional Evidence)</h3>
+                        <span class="gel-badge badge-uv">UV Cyan Gel • Locus 2</span>
+                    </div>
+                    <div class="gel-stage" onclick="handleGelClick(event, this)" title="Click anywhere on gel to position laser caliper">
+                        <svg viewBox="0 0 300 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="STR 2 UV Gel showing Lane 1, Lane 2, and Crime Scene bands">
+                            <defs>
+                                <linearGradient id="uvGelBg2" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#071739"/>
+                                    <stop offset="50%" stop-color="#0b2861"/>
+                                    <stop offset="100%" stop-color="#061330"/>
+                                </linearGradient>
+                                <filter id="cyanGlow2" x="-25%" y="-45%" width="150%" height="190%">
+                                    <feGaussianBlur stdDeviation="3.2" result="blur"/>
+                                    <feMerge>
+                                        <feMergeNode in="blur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            </defs>
+                            <!-- UV Gel Background -->
+                            <rect width="300" height="320" fill="url(#uvGelBg2)"/>
+                            <line x1="100" y1="36" x2="100" y2="312" stroke="#1e40af" stroke-dasharray="3,4" stroke-width="1"/>
+                            <line x1="200" y1="36" x2="200" y2="312" stroke="#1e40af" stroke-dasharray="3,4" stroke-width="1"/>
+
+                            <!-- Lane Headers -->
+                            <text x="50" y="22" fill="#f8fafc" font-family="ui-monospace, monospace" font-size="14" font-weight="700" text-anchor="middle">1</text>
+                            <text x="150" y="22" fill="#f8fafc" font-family="ui-monospace, monospace" font-size="14" font-weight="700" text-anchor="middle">2</text>
+                            <text x="250" y="22" fill="#f8fafc" font-family="ui-monospace, monospace" font-size="14" font-weight="700" text-anchor="middle">CS</text>
+
+                            <!-- Loading Wells -->
+                            <rect x="26" y="32" width="48" height="8" rx="2" fill="#040d21" stroke="#3b82f6" stroke-width="1.2"/>
+                            <rect x="126" y="32" width="48" height="8" rx="2" fill="#040d21" stroke="#3b82f6" stroke-width="1.2"/>
+                            <rect x="226" y="32" width="48" height="8" rx="2" fill="#040d21" stroke="#3b82f6" stroke-width="1.2"/>
+
+                            <!-- Optional Alignment Guides (y = 40% -> 128, y = 74% -> 236.8) -->
+                            <g class="align-guides" opacity="0.45">
+                                <line x1="0" y1="128" x2="300" y2="128" stroke="#67e8f9" stroke-width="1" stroke-dasharray="4,3"/>
+                                <line x1="0" y1="236.8" x2="300" y2="236.8" stroke="#67e8f9" stroke-width="1" stroke-dasharray="4,3"/>
+                            </g>
+
+                            <!-- Lane 1 (Suspect 1): y = 40% (128) and y = 74% (236.8) -->
+                            <rect x="24" y="124" width="52" height="8" rx="2" fill="#67e8f9" filter="url(#cyanGlow2)"/>
+                            <rect x="24" y="232.8" width="52" height="8" rx="2" fill="#67e8f9" filter="url(#cyanGlow2)"/>
+
+                            <!-- Lane 2 (Suspect 2): y = 31% (99.2) and y = 74% (236.8) -->
+                            <rect x="124" y="95" width="52" height="8.5" rx="2" fill="#67e8f9" filter="url(#cyanGlow2)"/>
+                            <rect x="124" y="232.8" width="52" height="8" rx="2" fill="#67e8f9" filter="url(#cyanGlow2)"/>
+
+                            <!-- CS (Crime Scene): y = 40% (128) and y = 74% (236.8) -->
+                            <rect x="224" y="124" width="52" height="8" rx="2" fill="#67e8f9" filter="url(#cyanGlow2)"/>
+                            <rect x="224" y="232.8" width="52" height="8" rx="2" fill="#67e8f9" filter="url(#cyanGlow2)"/>
+
+                            <text x="292" y="310" fill="#93c5fd" font-family="ui-monospace, monospace" font-size="9" text-anchor="end">Migration ↓ (+)</text>
+
+                            <!-- Synchronized Horizontal Laser Caliper -->
+                            <g class="svg-laser" transform="translate(0, 140.8)">
+                                <line x1="0" y1="0" x2="300" y2="0" stroke="#fb7185" stroke-width="2" stroke-dasharray="6,3"/>
+                                <rect x="4" y="-9" width="36" height="14" rx="3" fill="#e11d48"/>
+                                <text class="laser-svg-label" x="22" y="1" fill="#ffffff" font-family="ui-monospace, monospace" font-size="9" font-weight="700" text-anchor="middle">44%</text>
+                            </g>
+                        </svg>
+                    </div>
+                    <p class="gel-caption"><strong>STR 2:</strong> CS bands at <strong>40%</strong> and <strong>74%</strong> match <strong>Suspect 1 (Lane 1)</strong>. Suspect 2 (Lane 2) has a larger upper allele at 31%.</p>
+                </article>
+
+                <!-- STR 3 GEL -->
+                <article class="gel-card" id="card-str3">
+                    <div class="gel-card-header">
+                        <h3 class="gel-card-title">STR 3 (Additional Evidence)</h3>
+                        <span class="gel-badge badge-alert">UV Cyan Gel • Locus 3</span>
+                    </div>
+                    <div class="gel-stage" onclick="handleGelClick(event, this)" title="Click anywhere on gel to position laser caliper">
+                        <svg viewBox="0 0 300 320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="STR 3 UV Gel showing Crime Scene bands lower than both Suspect 1 and Suspect 2">
+                            <defs>
+                                <linearGradient id="uvGelBg3" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0%" stop-color="#071739"/>
+                                    <stop offset="50%" stop-color="#0b2861"/>
+                                    <stop offset="100%" stop-color="#061330"/>
+                                </linearGradient>
+                                <filter id="cyanGlow3" x="-25%" y="-45%" width="150%" height="190%">
+                                    <feGaussianBlur stdDeviation="3.2" result="blur"/>
+                                    <feMerge>
+                                        <feMergeNode in="blur"/>
+                                        <feMergeNode in="SourceGraphic"/>
+                                    </feMerge>
+                                </filter>
+                            </defs>
+                            <!-- UV Gel Background -->
+                            <rect width="300" height="320" fill="url(#uvGelBg3)"/>
+                            <line x1="100" y1="36" x2="100" y2="312" stroke="#1e40af" stroke-dasharray="3,4" stroke-width="1"/>
+                            <line x1="200" y1="36" x2="200" y2="312" stroke="#1e40af" stroke-dasharray="3,4" stroke-width="1"/>
+
+                            <!-- Lane Headers -->
+                            <text x="50" y="22" fill="#f8fafc" font-family="ui-monospace, monospace" font-size="14" font-weight="700" text-anchor="middle">1</text>
+                            <text x="150" y="22" fill="#f8fafc" font-family="ui-monospace, monospace" font-size="14" font-weight="700" text-anchor="middle">2</text>
+                            <text x="250" y="22" fill="#f8fafc" font-family="ui-monospace, monospace" font-size="14" font-weight="700" text-anchor="middle">CS</text>
+
+                            <!-- Loading Wells -->
+                            <rect x="26" y="32" width="48" height="8" rx="2" fill="#040d21" stroke="#3b82f6" stroke-width="1.2"/>
+                            <rect x="126" y="32" width="48" height="8" rx="2" fill="#040d21" stroke="#3b82f6" stroke-width="1.2"/>
+                            <rect x="226" y="32" width="48" height="8" rx="2" fill="#040d21" stroke="#3b82f6" stroke-width="1.2"/>
+
+                            <!-- Optional Alignment Guides (CS bands at y = 52% -> 166.4, y = 80% -> 256) -->
+                            <g class="align-guides" opacity="0.45">
+                                <line x1="0" y1="166.4" x2="300" y2="166.4" stroke="#fda4af" stroke-width="1" stroke-dasharray="4,3"/>
+                                <line x1="0" y1="256" x2="300" y2="256" stroke="#fda4af" stroke-width="1" stroke-dasharray="4,3"/>
+                            </g>
+
+                            <!-- Lane 1 (Suspect 1): y = 42% (134.4) and y = 72% (230.4) -->
+                            <rect x="24" y="130.4" width="52" height="8" rx="2" fill="#67e8f9" filter="url(#cyanGlow3)"/>
+                            <rect x="24" y="226.4" width="52" height="8" rx="2" fill="#67e8f9" filter="url(#cyanGlow3)"/>
+
+                            <!-- Lane 2 (Suspect 2): y = 32% (102.4) and y = 71% (227.2) -->
+                            <rect x="124" y="98.2" width="52" height="8.5" rx="2" fill="#67e8f9" filter="url(#cyanGlow3)"/>
+                            <rect x="124" y="223.2" width="52" height="8" rx="2" fill="#67e8f9" filter="url(#cyanGlow3)"/>
+
+                            <!-- CS (Crime Scene): y = 52% (166.4) and y = 80% (256) -->
+                            <rect x="224" y="162.4" width="52" height="8" rx="2" fill="#67e8f9" filter="url(#cyanGlow3)"/>
+                            <rect x="224" y="252" width="52" height="8" rx="2" fill="#67e8f9" filter="url(#cyanGlow3)"/>
+
+                            <text x="292" y="310" fill="#93c5fd" font-family="ui-monospace, monospace" font-size="9" text-anchor="end">Migration ↓ (+)</text>
+
+                            <!-- Synchronized Horizontal Laser Caliper -->
+                            <g class="svg-laser" transform="translate(0, 140.8)">
+                                <line x1="0" y1="0" x2="300" y2="0" stroke="#fb7185" stroke-width="2" stroke-dasharray="6,3"/>
+                                <rect x="4" y="-9" width="36" height="14" rx="3" fill="#e11d48"/>
+                                <text class="laser-svg-label" x="22" y="1" fill="#ffffff" font-family="ui-monospace, monospace" font-size="9" font-weight="700" text-anchor="middle">44%</text>
+                            </g>
+                        </svg>
+                    </div>
+                    <p class="gel-caption"><strong>STR 3:</strong> CS bands at <strong>52%</strong> and <strong>80%</strong> migrated farther down (smaller repeat alleles) than <strong>both</strong> Suspect 1 and Suspect 2!</p>
+                </article>
+            </div>
+        </section>
+
+        <!-- SECTION 3: STEP-BY-STEP FORENSIC EVIDENCE EVALUATION & WORKSHEET GUIDE -->
+        <section class="card" aria-labelledby="evaluation-heading">
+            <div class="section-header">
+                <div>
+                    <div class="section-kicker">Part 3 • Interactive Evidence Evaluation &amp; Worksheet Key</div>
+                    <h2 class="section-title" id="evaluation-heading">Step-by-Step Forensic Deduction &amp; Worksheet Guide</h2>
+                    <p class="section-desc">Evaluate each locus individually, then synthesize all 3 STRs together. Open the guide drawer on each card to verify your written worksheet answers.</p>
+                </div>
+            </div>
+
+            <div class="stages-grid">
+
+                <!-- STAGE 1: STR 1 ALONE -->
+                <div class="stage-card" id="stage-card-1">
+                    <div class="stage-top">
+                        <span class="stage-tag">Stage 1 • STR 1 Alone</span>
+                        <span class="stage-status" id="status-1">Pending</span>
+                    </div>
+                    <div class="stage-question">Based on the band patterns of STR 1 alone, which suspect most closely matches the crime scene (CS) sample?</div>
+
+                    <div class="options-group">
+                        <button class="option-btn" onclick="evaluateStage(1, 's1', this)">
+                            <span>Suspect 1 (S1)</span>
+                        </button>
+                        <button class="option-btn" onclick="evaluateStage(1, 's2', this)">
+                            <span>Suspect 2 (S2)</span>
+                        </button>
+                        <button class="option-btn" onclick="evaluateStage(1, 'neither', this)">
+                            <span>Neither Suspect</span>
+                        </button>
+                    </div>
+
+                    <div class="feedback-banner" id="fb-1"></div>
+
+                    <div class="guide-drawer">
+                        <button class="guide-toggle" onclick="toggleGuide('guide-1', this)">
+                            <span>Worksheet Observation &amp; Interpretation Guide (STR 1)</span>
+                            <span>▼</span>
+                        </button>
+                        <div class="guide-content" id="guide-1">
+                            <p><strong>Observation:</strong> Each lane displays two distinct DNA bands. The Crime Scene (CS) lane has two bands positioned at the exact same migration distances (44% and 55%) as Suspect 1 (S1), whereas Suspect 2 (S2) has a larger upper band (39%) and a smaller lower band (61%).</p>
+                            <p><strong>Interpretation:</strong> Based on STR 1 alone, <strong>Suspect 1</strong> matches the crime scene sample because both of their STR 1 alleles have identical fragment lengths to the crime scene DNA, while Suspect 2 is excluded.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STAGE 2: STR 2 ALONE -->
+                <div class="stage-card" id="stage-card-2">
+                    <div class="stage-top">
+                        <span class="stage-tag">Stage 2 • STR 2 Only</span>
+                        <span class="stage-status" id="status-2">Pending</span>
+                    </div>
+                    <div class="stage-question">If STR 2 were the only evidence available, which suspect would you identify as the likely source of the crime scene DNA?</div>
+
+                    <div class="options-group">
+                        <button class="option-btn" onclick="evaluateStage(2, 's1', this)">
+                            <span>Suspect 1 (Lane 1)</span>
+                        </button>
+                        <button class="option-btn" onclick="evaluateStage(2, 's2', this)">
+                            <span>Suspect 2 (Lane 2)</span>
+                        </button>
+                        <button class="option-btn" onclick="evaluateStage(2, 'neither', this)">
+                            <span>Neither Suspect</span>
+                        </button>
+                    </div>
+
+                    <div class="feedback-banner" id="fb-2"></div>
+
+                    <div class="guide-drawer">
+                        <button class="guide-toggle" onclick="toggleGuide('guide-2', this)">
+                            <span>Worksheet Guide: STR 2 Only</span>
+                            <span>▼</span>
+                        </button>
+                        <div class="guide-content" id="guide-2">
+                            <p><strong>STR 2 Only Reasoning:</strong> <strong>Suspect 1 (Lane 1)</strong> would be identified as the likely source. Both bands in the CS lane (at 40% and 74%) align horizontally with Lane 1. Although Suspect 2 (Lane 2) shares the lower band at 74%, Suspect 2's upper band migrated less (31%, indicating a larger repeat allele) and does not match the crime scene.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STAGE 3: STR 3 ALONE -->
+                <div class="stage-card" id="stage-card-3">
+                    <div class="stage-top">
+                        <span class="stage-tag">Stage 3 • STR 3 Only</span>
+                        <span class="stage-status" id="status-3">Pending</span>
+                    </div>
+                    <div class="stage-question">If STR 3 were the only evidence available, which suspect would you identify as the likely source of the crime scene DNA?</div>
+
+                    <div class="options-group">
+                        <button class="option-btn" onclick="evaluateStage(3, 's1', this)">
+                            <span>Suspect 1 (Lane 1)</span>
+                        </button>
+                        <button class="option-btn" onclick="evaluateStage(3, 's2', this)">
+                            <span>Suspect 2 (Lane 2)</span>
+                        </button>
+                        <button class="option-btn" onclick="evaluateStage(3, 'neither', this)">
+                            <span>Neither Suspect</span>
+                        </button>
+                    </div>
+
+                    <div class="feedback-banner" id="fb-3"></div>
+
+                    <div class="guide-drawer">
+                        <button class="guide-toggle" onclick="toggleGuide('guide-3', this)">
+                            <span>Worksheet Guide: STR 3 Only</span>
+                            <span>▼</span>
+                        </button>
+                        <div class="guide-content" id="guide-3">
+                            <p><strong>STR 3 Only Reasoning:</strong> <strong>Neither suspect</strong> matches the crime scene DNA. Both bands in the Crime Scene (CS) lane (at 52% and 80%) migrated noticeably farther down the gel—meaning both alleles are smaller (have fewer tandem repeats)—than the bands in either Suspect 1 (42% &amp; 72%) or Suspect 2 (32% &amp; 71%).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STAGE 4: ALL 3 STRs COMBINED -->
+                <div class="stage-card" id="stage-card-4">
+                    <div class="stage-top">
+                        <span class="stage-tag">Stage 4 • All STRs Together</span>
+                        <span class="stage-status" id="status-4">Pending</span>
+                    </div>
+                    <div class="stage-question">Considering STR 1, STR 2, and STR 3 together, does the crime scene DNA profile match either suspect?</div>
+
+                    <div class="options-group">
+                        <button class="option-btn" onclick="evaluateStage(4, 's1', this)">
+                            <span>Yes — Suspect 1 (matched 2 of 3 STRs)</span>
+                        </button>
+                        <button class="option-btn" onclick="evaluateStage(4, 's2', this)">
+                            <span>Yes — Suspect 2</span>
+                        </button>
+                        <button class="option-btn" onclick="evaluateStage(4, 'neither', this)">
+                            <span>No — Neither Suspect (Unknown Third Person)</span>
+                        </button>
+                    </div>
+
+                    <div class="feedback-banner" id="fb-4"></div>
+
+                    <div class="guide-drawer">
+                        <button class="guide-toggle" onclick="toggleGuide('guide-4', this)">
+                            <span>Worksheet Guide: All STRs Together &amp; Final Conclusion</span>
+                            <span>▼</span>
+                        </button>
+                        <div class="guide-content" id="guide-4">
+                            <p><strong>Does the profile match either suspect?</strong> <strong>No.</strong> In forensic DNA analysis, a true match requires identical allele band patterns across <em>every</em> tested locus. Even though Suspect 1 matched STR 1 and STR 2 by coincidence/shared common alleles, the clear mismatch at <strong>STR 3</strong> completely excludes Suspect 1 (and Suspect 2 was excluded at all three loci).</p>
+                            <p><strong>What does the data suggest?</strong> The blood sample at the crime scene was left by an <strong>unknown third individual</strong> who has not yet been sampled. This demonstrates why forensic scientists must test multiple STR loci rather than relying on a single marker.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Final Forensic Case Solved Banner -->
+            <div class="verdict-summary" id="verdict-summary" role="status">
+                <h4>Case Investigation Complete (4 / 4 Stages Verified)</h4>
+                <p>You have successfully evaluated all three STR loci. While <strong>Suspect 1</strong> matched the crime scene profile at <strong>STR 1</strong> and <strong>STR 2</strong>, the distinct downward shift (smaller alleles) in the Crime Scene lane at <strong>STR 3</strong> excludes both Suspect 1 and Suspect 2—proving the evidence came from an <strong>unknown third person</strong>.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Application State
+        const state = {
+            laserY: 44,
+            guidesVisible: true,
+            completedStages: new Set()
+        };
+
+        // Stage Answer Key & Pedagogical Feedback
+        const STAGE_DATA = {
+            1: {
+                correct: 's1',
+                ok: 'Correct! On STR 1, the Crime Scene (CS) bands at 44% and 55% align directly with Suspect 1 (S1). Suspect 2 has wider band spacing (39% and 61%).',
+                err: 'Compare S1, S2, and CS using the laser caliper on STR 1: Suspect 1 (S1) has two bands at the exact same heights (44% and 55%) as CS.'
+            },
+            2: {
+                correct: 's1',
+                ok: 'Correct! On STR 2, Lane 1 (Suspect 1) matches both glowing cyan bands of CS (40% and 74%), whereas Lane 2 has a larger upper allele at 31%.',
+                err: 'Check the laser caliper at 40% and 74% on STR 2: Lane 1 (Suspect 1) matches CS, while Lane 2’s top band sits higher up at 31%.'
+            },
+            3: {
+                correct: 'neither',
+                ok: 'Correct! On STR 3, the Crime Scene (CS) bands migrated farther down (52% and 80% — smaller repeat alleles) than either Suspect 1 or Suspect 2.',
+                err: 'Look closely at STR 3: CS bands are at 52% and 80%, which sit lower down the gel than both Lane 1 (42% & 72%) and Lane 2 (32% & 71%).'
+            },
+            4: {
+                correct: 'neither',
+                ok: 'Spot on! A mismatch at even a single STR locus (STR 3) excludes a suspect. Therefore, neither Suspect 1 nor Suspect 2 left the blood—an unknown third individual committed the crime.',
+                err: 'Remember: forensic DNA profiling requires a match across ALL tested loci. Because STR 3 excludes Suspect 1 (and STR 1–3 exclude Suspect 2), neither suspect matches.'
+            }
+        };
+
+        // Tab Switching for Section 1 (Case File & Background)
+        function selectBgTab(index, btnEl) {
+            const buttons = document.querySelectorAll('.bg-tab-btn');
+            buttons.forEach((btn, idx) => {
+                const isSelected = idx === index;
+                btn.classList.toggle('active', isSelected);
+                btn.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+            });
+
+            for (let i = 0; i < 4; i++) {
+                const panel = document.getElementById(`bg-panel-${i}`);
+                if (panel) {
+                    panel.style.display = i === index ? 'block' : 'none';
+                }
+            }
+        }
+
+        // Locus View Switcher (All 3 vs Individual Focus)
+        function setLocusView(mode, btnEl) {
+            document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+            btnEl.classList.add('active');
+
+            const grid = document.getElementById('gels-grid');
+            const cards = {
+                str1: document.getElementById('card-str1'),
+                str2: document.getElementById('card-str2'),
+                str3: document.getElementById('card-str3')
+            };
+
+            if (mode === 'all') {
+                grid.classList.remove('single-focus');
+                Object.values(cards).forEach(c => c.style.display = 'flex');
+            } else {
+                grid.classList.add('single-focus');
+                Object.entries(cards).forEach(([key, card]) => {
+                    card.style.display = key === mode ? 'flex' : 'none';
+                });
+            }
+        }
+
+        // Synchronized Horizontal Laser Caliper Control
+        function setLaserY(pctValue) {
+            const pct = Math.max(15, Math.min(90, Number(pctValue)));
+            state.laserY = pct;
+
+            const slider = document.getElementById('laser-slider');
+            if (slider) slider.value = pct;
+
+            document.getElementById('caliper-pct').textContent = `${pct}%`;
+
+            // Update relative fragment size interpretation
+            let sizeText = 'Medium Allele';
+            if (pct < 36) {
+                sizeText = 'Large Allele (More Repeats • Slower)';
+            } else if (pct <= 48) {
+                sizeText = 'Medium-Large Allele';
+            } else if (pct <= 66) {
+                sizeText = 'Medium-Small Allele';
+            } else {
+                sizeText = 'Small Allele (Fewer Repeats • Faster)';
+            }
+            document.getElementById('caliper-size').textContent = sizeText;
+
+            // SVG viewBox height is 320
+            const yPx = (pct / 100) * 320;
+            document.querySelectorAll('.svg-laser').forEach(g => {
+                g.setAttribute('transform', `translate(0, ${yPx.toFixed(1)})`);
+            });
+            document.querySelectorAll('.laser-svg-label').forEach(txt => {
+                txt.textContent = `${pct}%`;
+            });
+        }
+
+        // Click directly on any gel SVG to move the laser caliper there
+        function handleGelClick(event, stageEl) {
+            const rect = stageEl.getBoundingClientRect();
+            const clickY = event.clientY - rect.top;
+            const pct = Math.round((clickY / rect.height) * 100);
+            setLaserY(pct);
+        }
+
+        // Toggle Dashed Alignment Guides
+        function toggleAlignmentGuides() {
+            state.guidesVisible = !state.guidesVisible;
+            const btn = document.getElementById('guide-lines-btn');
+            btn.textContent = `Lane Alignment Guides: ${state.guidesVisible ? 'ON' : 'OFF'}`;
+            btn.classList.toggle('active-toggle', state.guidesVisible);
+
+            document.querySelectorAll('.align-guides').forEach(g => {
+                g.style.display = state.guidesVisible ? 'inline' : 'none';
+            });
+        }
+
+        // Evaluate 4-Stage Forensic Deduction
+        function evaluateStage(stageNum, choice, btnEl) {
+            const card = document.getElementById(`stage-card-${stageNum}`);
+            const fb = document.getElementById(`fb-${stageNum}`);
+            const status = document.getElementById(`status-${stageNum}`);
+            const data = STAGE_DATA[stageNum];
+
+            // Clear previous button highlights in this card
+            card.querySelectorAll('.option-btn').forEach(b => {
+                b.classList.remove('selected-correct', 'selected-wrong');
+            });
+
+            const isCorrect = choice === data.correct;
+            fb.className = `feedback-banner show ${isCorrect ? 'ok' : 'err'}`;
+
+            if (isCorrect) {
+                btnEl.classList.add('selected-correct');
+                fb.innerHTML = `<strong>Verified:</strong> ${data.ok}`;
+                status.textContent = '✓ Evaluated';
+                status.classList.add('done');
+                card.classList.add('solved');
+                state.completedStages.add(stageNum);
+            } else {
+                btnEl.classList.add('selected-wrong');
+                fb.innerHTML = `<strong>Re-check Gel:</strong> ${data.err}`;
+            }
+
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const count = state.completedStages.size;
+            document.getElementById('stage-count').textContent = count;
+            document.getElementById('stage-progress-fill').style.width = `${(count / 4) * 100}%`;
+
+            const summary = document.getElementById('verdict-summary');
+            if (count === 4) {
+                summary.classList.add('show');
+            }
+        }
+
+        // Toggle Expandable Worksheet Guide Drawer
+        function toggleGuide(guideId, btnEl) {
+            const content = document.getElementById(guideId);
+            const isOpen = content.classList.toggle('open');
+            const arrow = btnEl.querySelector('span:last-child');
+            if (arrow) {
+                arrow.textContent = isOpen ? '▲' : '▼';
+            }
+        }
+
+        // Initialize caliper at 44% on window load
+        window.onload = function () {
+            setLaserY(44);
+        };
+    </script>
+</body>
+</html>
