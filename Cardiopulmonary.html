@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cardiopulmonary Structure &amp; Function Studio | Intro Biology</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --o2-rich: #c83737;
+      --o2-poor: #2563eb;
+      --area-teal: #0d9488;
+      --vel-amber: #d97706;
+    }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+      overflow-x: hidden;
+    }
+    .font-mono-num {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 1.15rem;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04);
+    }
+    .tab-btn {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .tab-btn.active {
+      background-color: #0f172a;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.16);
+    }
+    .circuit-node {
+      cursor: pointer;
+      transition: filter 0.2s ease, opacity 0.2s ease;
+    }
+    .circuit-node:hover {
+      filter: brightness(1.06);
+    }
+    .circuit-node.selected .node-ring {
+      stroke: #0f172a;
+      stroke-width: 3.5px;
+    }
+    .hemo-zone {
+      cursor: pointer;
+      transition: fill 0.2s ease;
+    }
+    .hemo-zone:hover {
+      fill: rgba(15, 23, 42, 0.05);
+    }
+    @keyframes flowDash {
+      to {
+        stroke-dashoffset: -36;
+      }
+    }
+    .flow-line {
+      stroke-dasharray: 7 11;
+      animation: flowDash 1.4s linear infinite;
+    }
+    .flow-line-fast {
+      stroke-dasharray: 7 11;
+      animation: flowDash 0.6s linear infinite;
+    }
+    .flow-line-slow {
+      stroke-dasharray: 7 11;
+      animation: flowDash 2.6s linear infinite;
+    }
+    /* Custom clean range slider */
+    input[type=range] {
+      -webkit-appearance: none;
+      background: transparent;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      height: 20px;
+      width: 20px;
+      border-radius: 9999px;
+      background: #0f172a;
+      cursor: pointer;
+      margin-top: -7px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.22);
+      border: 2.5px solid #ffffff;
+    }
+    input[type=range]::-webkit-slider-runnable-track {
+      width: 100%;
+      height: 6px;
+      cursor: pointer;
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#c83737] to-[#2563eb] flex items-center justify-center text-white shadow-sm shrink-0">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900">Cardiopulmonary Structure &amp; Function Studio</h1>
+            <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 border border-slate-200">Introductory Biology</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-500">Connecting Double-Circuit Circulation, Vessel Hemodynamics, Membrane Diffusion &amp; Cellular Respiration</p>
+        </div>
+      </div>
+
+      <!-- Compact Color Key -->
+      <div class="flex items-center gap-3 text-xs font-semibold bg-slate-50 px-3.5 py-2 rounded-xl border border-slate-200 self-start md:self-auto">
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#c83737]"></span>O₂-Rich (104 / 40 mm Hg)</span>
+        <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-[#2563eb]"></span>O₂-Poor (40 / 45 mm Hg)</span>
+      </div>
+    </div>
+
+    <!-- 2-Tab Navigation Bar -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 pb-3">
+      <nav class="grid grid-cols-1 sm:grid-cols-2 gap-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200/80" role="tablist">
+        <button onclick="switchTab(1)" id="tab-btn-1" class="tab-btn active px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2">
+          <span class="w-5 h-5 rounded-full bg-rose-500/20 text-current flex items-center justify-center text-xs font-extrabold">1</span>
+          <span>Circulation Map &amp; Hemodynamics (BP, Velocity &amp; Area)</span>
+        </button>
+        <button onclick="switchTab(2)" id="tab-btn-2" class="tab-btn text-slate-600 hover:text-slate-900 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2">
+          <span class="w-5 h-5 rounded-full bg-teal-500/20 text-current flex items-center justify-center text-xs font-extrabold">2</span>
+          <span>Membrane Gas Exchange &amp; Cellular Respiration</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+
+    <!-- =================================================================== -->
+    <!-- TAB 1: INTEGRATED CIRCULATION MAP & HEMODYNAMICS GRAPH              -->
+    <!-- =================================================================== -->
+    <section id="tab-panel-1" class="space-y-6">
+
+      <!-- Scenario Controls Bar -->
+      <div class="card p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-gradient-to-r from-white to-slate-50">
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Interactive Structure-to-Function Scenarios</span>
+          <h2 class="text-base sm:text-lg font-extrabold text-slate-900">Explore How Vessel Structure Governs Pressure, Velocity &amp; Gas Delivery</h2>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="setScenario('rest')" id="scen-rest" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white shadow-xs transition">Resting State</button>
+          <button onclick="setScenario('exercise')" id="scen-exercise" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Exercise (Sphincters Open)</button>
+          <button onclick="setScenario('cold')" id="scen-cold" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Cold Weather (Sphincters Constrict)</button>
+          <button onclick="setScenario('stiff')" id="scen-stiff" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">Stiff / Narrowed Artery</button>
+          <button onclick="toggleRbcLoop()" id="traceBtn" class="px-3.5 py-2 rounded-xl text-xs font-bold bg-teal-600 hover:bg-teal-700 text-white shadow-xs transition flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-white animate-ping"></span>
+            <span id="traceBtnLabel">Trace RBC Loop</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Synchronized Grid: Circulation Diagram (Left) + Hemodynamics Graph & Inspector (Right) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT COLUMN (6 cols): Double-Circuit Anatomical Diagram -->
+        <div class="lg:col-span-6 card p-4 sm:p-5 flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Double-Circuit Circulation (Click Any Structure)</span>
+            <span id="scenStatusPill" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">Normal Resting Flow</span>
+          </div>
+
+          <div class="rounded-xl bg-slate-50/80 border border-slate-200 p-2">
+            <svg id="circulationSvg" viewBox="0 0 640 590" class="w-full h-auto select-none">
+              <defs>
+                <marker id="arrRed" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#c83737"/>
+                </marker>
+                <marker id="arrBlue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563eb"/>
+                </marker>
+                <linearGradient id="capPulmGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop offset="0%" stop-color="#2563eb"/>
+                  <stop offset="50%" stop-color="#0d9488"/>
+                  <stop offset="100%" stop-color="#c83737"/>
+                </linearGradient>
+                <linearGradient id="capSysGrad" x1="100%" y1="0%" x2="0%" y2="0%">
+                  <stop offset="0%" stop-color="#c83737"/>
+                  <stop offset="50%" stop-color="#7c3aed"/>
+                  <stop offset="100%" stop-color="#2563eb"/>
+                </linearGradient>
+              </defs>
+
+              <!-- PULMONARY CIRCUIT ZONE -->
+              <rect x="135" y="10" width="370" height="125" rx="18" fill="#f0fdfa" stroke="#99f6e4" stroke-dasharray="5 4"/>
+              <text x="320" y="28" text-anchor="middle" font-size="10.5" font-weight="800" fill="#0f766e" letter-spacing="0.8">PULMONARY CIRCUIT (LUNGS • ALVEOLAR CAPILLARIES)</text>
+
+              <!-- SYSTEMIC CIRCUIT ZONE -->
+              <rect x="115" y="425" width="410" height="155" rx="18" fill="#fffbeb" stroke="#fde68a" stroke-dasharray="5 4"/>
+              <text x="320" y="570" text-anchor="middle" font-size="10.5" font-weight="800" fill="#b45309" letter-spacing="0.8">SYSTEMIC CIRCUIT (ARTERIOLES, SPHINCTERS &amp; TISSUE CAPILLARIES)</text>
+
+              <!-- VESSEL PIPES -->
+              <!-- RV -> Pulmonary Artery -> Lungs (Blue) -->
+              <path d="M 275 245 L 115 245 Q 80 245 80 210 L 80 110 Q 80 78 115 78 L 210 78"
+                    fill="none" stroke="#2563eb" stroke-width="13" stroke-linecap="round"/>
+              <path d="M 275 245 L 115 245 Q 80 245 80 210 L 80 110 Q 80 78 115 78 L 210 78"
+                    fill="none" stroke="#93c5fd" stroke-width="3" class="flow-line" id="f-pulm-art"/>
+
+              <!-- Lungs -> Pulmonary Vein -> LA (Red) -->
+              <path d="M 430 78 L 525 78 Q 560 78 560 110 L 560 210 Q 560 245 525 245 L 365 245"
+                    fill="none" stroke="#c83737" stroke-width="13" stroke-linecap="round"/>
+              <path d="M 430 78 L 525 78 Q 560 78 560 110 L 560 210 Q 560 245 525 245 L 365 245"
+                    fill="none" stroke="#fca5a5" stroke-width="3" class="flow-line" id="f-pulm-vein"/>
+
+              <!-- LV -> Aorta / Large & Small Arteries -> Arterioles (Red) -->
+              <path id="pipe-sys-artery" d="M 365 315 L 525 315 Q 560 315 560 350 L 560 445 Q 560 475 525 475 L 445 475"
+                    fill="none" stroke="#c83737" stroke-width="15" stroke-linecap="round"/>
+              <path d="M 365 315 L 525 315 Q 560 315 560 350 L 560 445 Q 560 475 525 475 L 445 475"
+                    fill="none" stroke="#fca5a5" stroke-width="3" class="flow-line" id="f-sys-art"/>
+
+              <!-- Systemic Capillaries -> Venules -> Vena Cavae -> RA (Blue) -->
+              <path d="M 195 475 L 115 475 Q 80 475 80 445 L 80 350 Q 80 315 115 315 L 275 315"
+                    fill="none" stroke="#2563eb" stroke-width="14" stroke-linecap="round"/>
+              <path d="M 195 475 L 115 475 Q 80 475 80 445 L 80 350 Q 80 315 115 315 L 275 315"
+                    fill="none" stroke="#93c5fd" stroke-width="3" class="flow-line" id="f-sys-vein"/>
+
+              <!-- CENTRAL 4-CHAMBER HEART -->
+              <g id="node-heart" class="circuit-node" onclick="selectStage('heart')">
+                <rect class="node-ring" x="245" y="198" width="150" height="164" rx="22" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+                <text x="320" y="190" text-anchor="middle" font-size="10.5" font-weight="800" fill="#1e293b">HEART (4 CHAMBERS &amp; VALVES)</text>
+                <!-- Septum -->
+                <line x1="320" y1="205" x2="320" y2="355" stroke="#64748b" stroke-width="3"/>
+                <line x1="252" y1="280" x2="388" y2="280" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4 3"/>
+
+                <!-- Right Heart (Blue) -->
+                <rect x="256" y="208" width="58" height="144" rx="10" fill="#dbeafe"/>
+                <text x="285" y="320" text-anchor="middle" font-size="11" font-weight="800" fill="#1e40af">RA</text>
+                <text x="285" y="334" text-anchor="middle" font-size="8.5" font-weight="700" fill="#1d4ed8">40 / 45</text>
+                <!-- Tricuspid Valve -->
+                <path d="M 272 280 L 285 270 L 298 280" fill="none" stroke="#1e40af" stroke-width="2"/>
+                <text x="285" y="242" text-anchor="middle" font-size="11" font-weight="800" fill="#1e40af">RV</text>
+                <text x="285" y="256" text-anchor="middle" font-size="8.5" font-weight="700" fill="#1d4ed8">40 / 45</text>
+
+                <!-- Left Heart (Red) -->
+                <rect x="326" y="208" width="58" height="144" rx="10" fill="#fee2e2"/>
+                <text x="355" y="242" text-anchor="middle" font-size="11" font-weight="800" fill="#991b1b">LA</text>
+                <text x="355" y="256" text-anchor="middle" font-size="8.5" font-weight="700" fill="#b91c1c">104 / 40</text>
+                <!-- Bicuspid/Mitral Valve -->
+                <path d="M 342 280 L 355 290 L 368 280" fill="none" stroke="#991b1b" stroke-width="2"/>
+                <text x="355" y="320" text-anchor="middle" font-size="11" font-weight="800" fill="#991b1b">LV</text>
+                <text x="355" y="334" text-anchor="middle" font-size="8.5" font-weight="700" fill="#b91c1c">104 / 40</text>
+              </g>
+
+              <!-- NODE 1: PULMONARY ARTERY -->
+              <g id="node-pulm_art" class="circuit-node" onclick="selectStage('pulm_art')">
+                <rect class="node-ring" x="14" y="140" width="134" height="48" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+                <text x="81" y="159" text-anchor="middle" font-size="10.5" font-weight="800" fill="#1e40af">Pulmonary Artery</text>
+                <text x="81" y="174" text-anchor="middle" font-size="9.5" font-weight="700" fill="#2563eb">PO₂: 40 | PCO₂: 45</text>
+              </g>
+
+              <!-- NODE 2: ALVEOLAR CAPILLARIES (LUNGS) -->
+              <g id="node-alveolar_cap" class="circuit-node" onclick="selectStage('alveolar_cap')">
+                <rect x="235" y="36" width="170" height="24" rx="8" fill="#ccfbf1" stroke="#0d9488" stroke-width="1.5"/>
+                <text x="320" y="51" text-anchor="middle" font-size="9.5" font-weight="800" fill="#0f766e">Alveoli Air: PO₂ 104 | PCO₂ 40</text>
+
+                <rect class="node-ring" x="205" y="64" width="230" height="36" rx="14" fill="url(#capPulmGrad)" stroke="#ffffff" stroke-width="2"/>
+                <text x="320" y="80" text-anchor="middle" font-size="10.5" font-weight="800" fill="#ffffff">Alveolar Capillaries (Gas Exchange)</text>
+                <text x="320" y="93" text-anchor="middle" font-size="9.5" font-weight="700" fill="#f0fdfa">40 / 45 mm Hg → 104 / 40 mm Hg</text>
+              </g>
+
+              <!-- NODE 3: PULMONARY VEIN -->
+              <g id="node-pulm_vein" class="circuit-node" onclick="selectStage('pulm_vein')">
+                <rect class="node-ring" x="492" y="140" width="134" height="48" rx="12" fill="#fef2f2" stroke="#c83737" stroke-width="2"/>
+                <text x="559" y="159" text-anchor="middle" font-size="10.5" font-weight="800" fill="#991b1b">Pulmonary Vein</text>
+                <text x="559" y="174" text-anchor="middle" font-size="9.5" font-weight="700" fill="#c83737">PO₂: 104 | PCO₂: 40</text>
+              </g>
+
+              <!-- NODE 4: LARGE & SMALL SYSTEMIC ARTERIES (AORTA) -->
+              <g id="node-large_artery" class="circuit-node" onclick="selectStage('large_artery')">
+                <rect class="node-ring" x="484" y="340" width="144" height="54" rx="12" fill="#fef2f2" stroke="#c83737" stroke-width="2"/>
+                <text x="556" y="358" text-anchor="middle" font-size="10.5" font-weight="800" fill="#991b1b">Aorta &amp; Arteries</text>
+                <text id="svg-artery-sub" x="556" y="372" text-anchor="middle" font-size="9" font-weight="700" fill="#c83737">Elastic Recoil • 104 / 40</text>
+                <text id="svg-artery-bp" x="556" y="385" text-anchor="middle" font-size="8.5" font-weight="700" fill="#7f1d1d">BP: 120/80 mm Hg</text>
+              </g>
+
+              <!-- NODE 5: ARTERIOLES & PRECAPILLARY SPHINCTERS -->
+              <g id="node-arteriole" class="circuit-node" onclick="selectStage('arteriole')">
+                <rect class="node-ring" x="430" y="446" width="118" height="56" rx="12" fill="#fff7ed" stroke="#ea580c" stroke-width="2"/>
+                <text x="489" y="463" text-anchor="middle" font-size="10" font-weight="800" fill="#9a3412">Arterioles &amp;</text>
+                <text x="489" y="476" text-anchor="middle" font-size="10" font-weight="800" fill="#9a3412">Sphincters</text>
+                <!-- Sphincter Gate Visual -->
+                <circle id="sphincter-top" cx="442" cy="467" r="5" fill="#ea580c"/>
+                <circle id="sphincter-bot" cx="442" cy="483" r="5" fill="#ea580c"/>
+                <text id="svg-sphincter-txt" x="489" y="492" text-anchor="middle" font-size="8.5" font-weight="700" fill="#c2410c">Normal Tone</text>
+              </g>
+
+              <!-- NODE 6: SYSTEMIC CAPILLARY BED & TISSUES -->
+              <g id="node-capillary" class="circuit-node" onclick="selectStage('capillary')">
+                <!-- Parallel Capillary Bed Strands -->
+                <path d="M 426 462 Q 320 442 214 462" fill="none" stroke="url(#capSysGrad)" stroke-width="4"/>
+                <path d="M 426 475 L 214 475" fill="none" stroke="url(#capSysGrad)" stroke-width="5"/>
+                <path d="M 426 488 Q 320 508 214 488" fill="none" stroke="url(#capSysGrad)" stroke-width="4"/>
+
+                <rect class="node-ring" x="220" y="454" width="200" height="42" rx="12" fill="#ffffff" fill-opacity="0.93" stroke="#7c3aed" stroke-width="2"/>
+                <text x="320" y="471" text-anchor="middle" font-size="10.5" font-weight="800" fill="#5b21b6">Systemic Tissue Capillaries</text>
+                <text id="svg-syscap-sub" x="320" y="485" text-anchor="middle" font-size="9.5" font-weight="700" fill="#4c1d95">104 / 40 mm Hg → 40 / 45 mm Hg</text>
+
+                <!-- Tissue Mitochondria Sink Box -->
+                <rect x="235" y="512" width="170" height="36" rx="10" fill="#f3e8ff" stroke="#a855f7" stroke-width="1.5"/>
+                <text x="320" y="527" text-anchor="middle" font-size="9.5" font-weight="800" fill="#6b21a8">Body Cells (Mitochondria)</text>
+                <text id="svg-tissue-sub" x="320" y="540" text-anchor="middle" font-size="9" font-weight="700" fill="#7e22ce">PO₂ &lt; 40 | PCO₂ &gt; 45 (Cell Resp.)</text>
+              </g>
+
+              <!-- NODE 7: VENULES & VEINS (VALVES + SKELETAL MUSCLE PUMP) -->
+              <g id="node-vein" class="circuit-node" onclick="selectStage('vein')">
+                <rect class="node-ring" x="12" y="340" width="144" height="62" rx="12" fill="#eff6ff" stroke="#2563eb" stroke-width="2"/>
+                <text x="84" y="358" text-anchor="middle" font-size="10.5" font-weight="800" fill="#1e40af">Venules &amp; Veins</text>
+                <text id="svg-vein-sub" x="84" y="372" text-anchor="middle" font-size="9" font-weight="700" fill="#2563eb">40 / 45 • Low BP</text>
+                <text x="84" y="386" text-anchor="middle" font-size="8.5" font-weight="700" fill="#1e3a8a">One-Way Valves + Muscle Pump</text>
+                <!-- One-Way Valve Chevron Icon -->
+                <path d="M 74 396 L 84 391 L 94 396" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+              </g>
+
+              <!-- Animated Synchronized RBC Packet -->
+              <g id="rbcMarkerGroup">
+                <circle id="rbcMarkerDot" cx="556" cy="340" r="11" fill="#c83737" stroke="#ffffff" stroke-width="2.5"/>
+                <text id="rbcMarkerTxt" x="556" y="343.5" text-anchor="middle" font-size="7.5" font-weight="800" fill="#ffffff">RBC</text>
+              </g>
+            </svg>
+          </div>
+
+          <!-- High-Yield Nomenclature Reminder -->
+          <div class="mt-3 p-3 rounded-xl bg-blue-50/80 border border-blue-200 text-xs text-slate-700 flex items-start gap-2.5">
+            <span class="px-2 py-0.5 rounded bg-blue-600 text-white font-bold shrink-0 mt-0.5">Key Rule</span>
+            <p><strong>Arteries</strong> carry blood <em>away</em> from the heart; <strong>veins</strong> carry blood <em>toward</em> the heart. That is why the <strong>pulmonary artery</strong> carries O₂-poor blood (40/45) and the <strong>pulmonary vein</strong> carries O₂-rich blood (104/40)!</p>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN (6 cols): Synchronized Hemodynamics Graph + Structure-Function Inspector -->
+        <div class="lg:col-span-6 flex flex-col gap-5">
+
+          <!-- SYNCHRONIZED LECTURE-STYLE HEMODYNAMICS GRAPH -->
+          <div class="card p-4 sm:p-5">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <div>
+                <span class="text-[11px] font-bold uppercase tracking-wider text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">Linked to Circulation Diagram</span>
+                <h3 class="text-base font-extrabold text-slate-900 mt-1">Blood Pressure, Velocity &amp; Total Cross-Sectional Area</h3>
+              </div>
+              <span class="text-[11px] font-semibold text-slate-500">Click any vessel column below</span>
+            </div>
+
+            <!-- Legend Pills -->
+            <div class="flex flex-wrap items-center gap-3 text-[11px] font-bold mb-2 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+              <span class="flex items-center gap-1.5 text-[#c83737]"><span class="w-3 h-1 bg-[#c83737] rounded"></span>Blood Pressure (mm Hg)</span>
+              <span class="flex items-center gap-1.5 text-[#d97706]"><span class="w-3 h-1 bg-[#d97706] rounded"></span>Velocity (cm/sec)</span>
+              <span class="flex items-center gap-1.5 text-[#0d9488]"><span class="w-3 h-1 bg-[#0d9488] rounded"></span>Total Cross-Sectional Area (cm²)</span>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 bg-white p-2">
+              <svg id="hemoSvg" viewBox="0 0 560 255" class="w-full h-auto select-none">
+                <!-- Background Horizontal Grid -->
+                <g stroke="#f1f5f9" stroke-width="1">
+                  <line x1="45" y1="30" x2="540" y2="30"/>
+                  <line x1="45" y1="72" x2="540" y2="72"/>
+                  <line x1="45" y1="115" x2="540" y2="115"/>
+                  <line x1="45" y1="158" x2="540" y2="158"/>
+                  <line x1="45" y1="200" x2="540" y2="200"/>
+                </g>
+
+                <!-- Clickable Vessel Columns (6 zones matching lecture diagram) -->
+                <rect id="hzone-large_artery" class="hemo-zone" x="45" y="20" width="82" height="185" fill="rgba(200,55,55,0.09)" onclick="selectStage('large_artery')"/>
+                <rect id="hzone-small_artery" class="hemo-zone" x="127" y="20" width="82" height="185" fill="transparent" onclick="selectStage('small_artery')"/>
+                <rect id="hzone-arteriole" class="hemo-zone" x="209" y="20" width="82" height="185" fill="transparent" onclick="selectStage('arteriole')"/>
+                <rect id="hzone-capillary" class="hemo-zone" x="291" y="20" width="84" height="185" fill="transparent" onclick="selectStage('capillary')"/>
+                <rect id="hzone-venule" class="hemo-zone" x="375" y="20" width="82" height="185" fill="transparent" onclick="selectStage('venule')"/>
+                <rect id="hzone-vein" class="hemo-zone" x="457" y="20" width="83" height="185" fill="transparent" onclick="selectStage('vein')"/>
+
+                <!-- Column Divider Dashed Lines -->
+                <g stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3 3">
+                  <line x1="127" y1="20" x2="127" y2="205"/>
+                  <line x1="209" y1="20" x2="209" y2="205"/>
+                  <line x1="291" y1="20" x2="291" y2="205"/>
+                  <line x1="375" y1="20" x2="375" y2="205"/>
+                  <line x1="457" y1="20" x2="457" y2="205"/>
+                </g>
+
+                <!-- Axes -->
+                <line x1="45" y1="20" x2="45" y2="205" stroke="#64748b" stroke-width="1.5"/>
+                <line x1="45" y1="205" x2="540" y2="205" stroke="#64748b" stroke-width="1.5"/>
+
+                <!-- Y-Axis Labels -->
+                <text x="40" y="34" text-anchor="end" font-size="9" font-weight="700" fill="#64748b">High</text>
+                <text x="40" y="118" text-anchor="end" font-size="9" font-weight="700" fill="#64748b">Med</text>
+                <text x="40" y="202" text-anchor="end" font-size="9" font-weight="700" fill="#64748b">Low</text>
+
+                <!-- CURVE 1: TOTAL CROSS-SECTIONAL AREA (Teal - Peaks dramatically in Capillaries) -->
+                <path id="curve-area" d="M 55 196 L 168 192 L 250 168 Q 295 45 333 34 Q 371 45 416 168 L 498 190"
+                      fill="none" stroke="#0d9488" stroke-width="3.2" stroke-linecap="round"/>
+
+                <!-- CURVE 2: BLOOD VELOCITY (Amber - High in Aorta, drops to near zero in Capillaries, rises slightly in Veins) -->
+                <path id="curve-vel" d="M 55 44 L 168 62 L 250 118 Q 295 190 333 194 Q 371 190 416 155 L 498 134"
+                      fill="none" stroke="#d97706" stroke-width="3.2" stroke-dasharray="6 3" stroke-linecap="round"/>
+
+                <!-- CURVE 3: BLOOD PRESSURE (Crimson - Pulsatile in arteries, steep drop in arterioles, near 0 in veins) -->
+                <path id="curve-bp" d="M 55 64 L 72 40 L 89 66 L 106 42 L 123 68 L 145 52 L 168 65 L 209 88 L 250 135 L 291 164 L 333 176 L 416 190 L 498 197"
+                      fill="none" stroke="#c83737" stroke-width="3.2" stroke-linecap="round"/>
+
+                <!-- Active Stage Vertical Indicator Line -->
+                <line id="hemo-active-line" x1="86" y1="20" x2="86" y2="205" stroke="#0f172a" stroke-width="2" stroke-dasharray="4 3"/>
+
+                <!-- X-Axis Labels (6 Vessel Stages) -->
+                <text x="86" y="220" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1e293b">Large</text>
+                <text x="86" y="231" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1e293b">Arteries</text>
+
+                <text x="168" y="220" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1e293b">Small</text>
+                <text x="168" y="231" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1e293b">Arteries</text>
+
+                <text x="250" y="225" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1e293b">Arterioles</text>
+
+                <text x="333" y="225" text-anchor="middle" font-size="9.5" font-weight="800" fill="#0f766e">Capillaries</text>
+
+                <text x="416" y="225" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1e293b">Venules</text>
+
+                <text x="498" y="225" text-anchor="middle" font-size="9.5" font-weight="700" fill="#1e293b">Veins</text>
+
+                <!-- Bottom Physics Formula Callout -->
+                <text x="292" y="249" text-anchor="middle" font-size="9.5" font-weight="700" fill="#475569">Continuity Principle: Velocity = Flow ÷ Total Cross-Sectional Area (Max Capillary Area → Lowest Velocity)</text>
+              </svg>
+            </div>
+          </div>
+
+          <!-- STRUCTURE & FUNCTION INSPECTOR CARD -->
+          <div class="card p-4 sm:p-5 border-t-4 border-t-slate-900">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <span id="sfBadge" class="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded bg-rose-100 text-rose-800">High-Pressure Elastic Reservoir</span>
+              <span id="sfGasBadge" class="text-xs font-mono-num font-bold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded">PO₂: 104 | PCO₂: 40 mm Hg</span>
+            </div>
+
+            <h3 id="sfTitle" class="text-lg font-extrabold text-slate-900">Large Elastic Arteries (Aorta)</h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
+              <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                <div class="text-[11px] font-bold uppercase text-slate-400 mb-1">Anatomical Structure</div>
+                <p id="sfStructure" class="text-xs font-semibold text-slate-800 leading-relaxed">
+                  Thick walls rich in elastic fibers and smooth muscle; wide lumen; no valves.
+                </p>
+              </div>
+              <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                <div class="text-[11px] font-bold uppercase text-slate-400 mb-1">Physiological Function</div>
+                <p id="sfFunction" class="text-xs font-semibold text-slate-800 leading-relaxed">
+                  Stretches during ventricular systole and elastically recoils during diastole to maintain continuous forward blood flow.
+                </p>
+              </div>
+            </div>
+
+            <div id="sfConnection" class="mt-3 p-3 rounded-xl bg-amber-50/90 border border-amber-200 text-xs text-amber-950 leading-relaxed">
+              <strong>Why it matters on the graph:</strong> Elastic recoil keeps diastolic pressure around 80 mm Hg even when the heart relaxes, propelling blood at high velocity (~40 cm/sec) toward the organs.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Quick "Same or Different?" Exam Station Comparator -->
+      <div class="card p-4 sm:p-5">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div class="lg:w-1/3">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded border border-purple-200">Self-Check Concept Drill</span>
+            <h3 class="text-base font-extrabold text-slate-900 mt-1">"Same or Different?" Gas Pressure Comparator</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Compare two locations in the circuit to test whether their O₂ and CO₂ partial pressures match.</p>
+          </div>
+
+          <div class="lg:w-2/3 grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+            <div class="sm:col-span-4">
+              <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Location A</label>
+              <select id="compA" onchange="updateComparator()" class="w-full text-xs font-semibold bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-slate-800">
+                <option value="leave_alv">Blood leaving alveolar capillaries</option>
+                <option value="enter_sys">Blood entering systemic capillaries</option>
+                <option value="leave_sys">Blood leaving systemic capillaries</option>
+                <option value="enter_alv">Blood entering alveolar capillaries</option>
+                <option value="pulm_art">Blood in the pulmonary artery</option>
+                <option value="pulm_vein">Blood in the pulmonary vein</option>
+              </select>
+            </div>
+            <div class="sm:col-span-4">
+              <label class="block text-[10px] font-bold uppercase text-slate-400 mb-1">Location B</label>
+              <select id="compB" onchange="updateComparator()" class="w-full text-xs font-semibold bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-slate-800">
+                <option value="enter_sys" selected>Blood entering systemic capillaries</option>
+                <option value="leave_alv">Blood leaving alveolar capillaries</option>
+                <option value="leave_sys">Blood leaving systemic capillaries</option>
+                <option value="enter_alv">Blood entering alveolar capillaries</option>
+                <option value="pulm_art">Blood in the pulmonary artery</option>
+                <option value="pulm_vein">Blood in the pulmonary vein</option>
+              </select>
+            </div>
+            <div id="compOutput" class="sm:col-span-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 leading-snug">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- TAB 2: MEMBRANE GAS EXCHANGE & CELLULAR RESPIRATION CONNECTION      -->
+    <!-- =================================================================== -->
+    <section id="tab-panel-2" class="hidden space-y-6">
+
+      <!-- Top Interactive Controls: Cellular Respiration Demand & Breathing Mechanics -->
+      <div class="card p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-gradient-to-r from-white to-slate-50">
+        <div>
+          <span class="text-[11px] font-bold uppercase tracking-wider text-purple-700">Connecting Organ Systems to Cell Biology</span>
+          <h2 class="text-base sm:text-lg font-extrabold text-slate-900">Simple Diffusion Across Membranes &amp; Mitochondrial Cellular Respiration</h2>
+          <p class="text-xs sm:text-sm text-slate-600 mt-0.5">Adjust cellular ATP demand or diaphragm breathing phase to see how concentration gradients drive gas exchange.</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          <!-- Cellular Respiration Demand Slider -->
+          <div class="bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-2xs min-w-[240px]">
+            <div class="flex justify-between items-center text-xs font-bold mb-1">
+              <span class="text-slate-700">Tissue ATP Demand:</span>
+              <span id="atpDemandBadge" class="text-amber-700 font-mono-num">Resting (1×)</span>
+            </div>
+            <input type="range" id="atpSlider" min="1" max="3" step="1" value="1" oninput="updateMembraneTab()" class="w-full">
+            <div class="flex justify-between text-[10px] font-bold text-slate-400 mt-0.5">
+              <span>Rest</span>
+              <span>Walking</span>
+              <span>Sprinting</span>
+            </div>
+          </div>
+
+          <!-- Breathing Mechanics Toggle -->
+          <div class="bg-white p-1.5 rounded-xl border border-slate-200 shadow-2xs flex items-center gap-1">
+            <button id="breath-inhale" onclick="setBreathingPhase('inhale')" class="px-3 py-2 rounded-lg text-xs font-bold bg-teal-600 text-white transition">Inhalation (Diaphragm ↓)</button>
+            <button id="breath-exhale" onclick="setBreathingPhase('exhale')" class="px-3 py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition">Exhalation (Diaphragm ↑)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Side-by-Side Membrane Diffusion Panels -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- LEFT PANEL: ALVEOLI <-> PULMONARY CAPILLARY -->
+        <div class="card p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-teal-800 bg-teal-50 px-2.5 py-1 rounded-lg border border-teal-200">1. Lungs • Alveolar Gas Exchange</span>
+              <span id="breathStatusText" class="text-xs font-bold text-teal-700">Diaphragm Contracts → Air In</span>
+            </div>
+            <h3 class="text-base font-extrabold text-slate-900">Alveolus ↔ Pulmonary Capillary</h3>
+            <p class="text-xs text-slate-600 mt-1">
+              O₂ and CO₂ are small, nonpolar molecules that cross the <strong>1-cell-thick alveolar epithelium</strong> and <strong>capillary endothelium</strong> by <strong>simple diffusion</strong> (no ATP required) down their concentration gradients.
+            </p>
+
+            <!-- Microscopic SVG: Alveolus & Diaphragm -->
+            <div class="mt-4 rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+              <svg viewBox="0 0 460 320" class="w-full h-auto">
+                <!-- Alveolar Air Space -->
+                <rect id="alv-air-bg" x="0" y="0" width="460" height="105" fill="#ccfbf1"/>
+                <text x="16" y="22" font-size="11" font-weight="800" fill="#0f766e">ALVEOLAR AIR SPACE</text>
+                <text x="16" y="38" font-size="10" font-weight="600" fill="#115e59">Inhaled Air: PO₂ = 160 mm Hg  →  Alveolar Air: PO₂ = 104 | PCO₂ = 40</text>
+
+                <!-- Mini Diaphragm Mechanics Box inside Alveolar Corner -->
+                <g transform="translate(302, 46)">
+                  <rect x="0" y="0" width="144" height="50" rx="8" fill="#ffffff" stroke="#5eead4" stroke-width="1.5"/>
+                  <text id="diaphragm-title" x="72" y="15" text-anchor="middle" font-size="9" font-weight="800" fill="#0f766e">Diaphragm Contracts</text>
+                  <path id="diaphragm-curve" d="M 16 38 Q 72 42 128 38" fill="none" stroke="#0d9488" stroke-width="3" stroke-linecap="round"/>
+                  <text id="diaphragm-sub" x="72" y="31" text-anchor="middle" font-size="8.5" font-weight="700" fill="#0369a1">Thoracic Vol ↑ • Fresh O₂ In</text>
+                </g>
+
+                <!-- 1-Cell-Thick Alveolar Wall -->
+                <rect x="0" y="105" width="460" height="18" fill="#fed7aa" stroke="#fb923c"/>
+                <text x="230" y="117" text-anchor="middle" font-size="9" font-weight="700" fill="#9a3412">Alveolar Wall (1-Cell-Thick Simple Squamous Epithelium)</text>
+
+                <!-- 1-Cell-Thick Capillary Wall -->
+                <rect x="0" y="123" width="460" height="18" fill="#fecaca" stroke="#f87171"/>
+                <text x="230" y="135" text-anchor="middle" font-size="9" font-weight="700" fill="#991b1b">Capillary Wall (1-Cell-Thick Endothelium — Short Diffusion Distance)</text>
+
+                <!-- Pulmonary Capillary Lumen -->
+                <rect x="0" y="141" width="460" height="179" fill="#fef2f2"/>
+                <path d="M 0 141 L 210 141 L 210 320 L 0 320 Z" fill="#dbeafe" opacity="0.75"/>
+
+                <text x="16" y="302" font-size="10.5" font-weight="800" fill="#1e40af">Entering: PO₂ 40 | PCO₂ 45</text>
+                <text x="268" y="302" font-size="10.5" font-weight="800" fill="#991b1b">Leaving: PO₂ 104 | PCO₂ 40</text>
+
+                <!-- Red Blood Cells Loading 4 O2 per Hemoglobin -->
+                <g transform="translate(76, 226)">
+                  <ellipse cx="0" cy="0" rx="34" ry="20" fill="#2563eb" stroke="#1d4ed8" stroke-width="2"/>
+                  <text x="0" y="-2" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">Deoxy-Hb</text>
+                  <text x="0" y="10" text-anchor="middle" font-size="8" font-weight="700" fill="#dbeafe">0–2 O₂ bound</text>
+                </g>
+
+                <g transform="translate(225, 226)">
+                  <ellipse cx="0" cy="0" rx="34" ry="20" fill="#7c3aed" stroke="#6d28d9" stroke-width="2"/>
+                  <text x="0" y="-2" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">Loading O₂</text>
+                  <text x="0" y="10" text-anchor="middle" font-size="8" font-weight="700" fill="#f3e8ff">PO₂ 104 → 40</text>
+                </g>
+
+                <g transform="translate(375, 226)">
+                  <ellipse cx="0" cy="0" rx="36" ry="21" fill="#c83737" stroke="#991b1b" stroke-width="2"/>
+                  <text x="0" y="-3" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">Oxy-Hb (HbO₂)</text>
+                  <text x="0" y="9" text-anchor="middle" font-size="8" font-weight="700" fill="#fee2e2">4 O₂ per Hb!</text>
+                </g>
+
+                <!-- Simple Diffusion Arrows -->
+                <line id="alv-o2-arrow" x1="145" y1="62" x2="145" y2="188" stroke="#c83737" stroke-width="4.5" stroke-linecap="round"/>
+                <polygon points="145,198 137,183 153,183" fill="#c83737"/>
+                <rect x="82" y="68" width="126" height="19" rx="6" fill="#c83737"/>
+                <text x="145" y="81" text-anchor="middle" font-size="9.5" font-weight="800" fill="#fff">O₂ Diffuses In (104→40)</text>
+
+                <line id="alv-co2-arrow" x1="275" y1="192" x2="275" y2="68" stroke="#2563eb" stroke-width="4.5" stroke-linecap="round"/>
+                <polygon points="275,58 267,73 283,73" fill="#2563eb"/>
+                <rect x="212" y="168" width="126" height="19" rx="6" fill="#2563eb"/>
+                <text x="275" y="181" text-anchor="middle" font-size="9.5" font-weight="800" fill="#fff">CO₂ Diffuses Out (45→40)</text>
+              </svg>
+            </div>
+          </div>
+
+          <div class="mt-3 p-3 rounded-xl bg-teal-50 border border-teal-200 text-xs text-teal-950 leading-relaxed">
+            <strong>Structure → Function Connection:</strong> Why are alveoli grape-like clusters surrounded by dense capillary nets? Millions of alveoli create a massive <strong>surface area</strong> (~70 m²), and walls only <strong>1 cell thick</strong> keep diffusion distance tiny—allowing O₂ to load onto hemoglobin (4 O₂ per Hb) in less than 1 second!
+          </div>
+        </div>
+
+        <!-- RIGHT PANEL: SYSTEMIC CAPILLARY <-> BODY TISSUE CELL (MITOCHONDRION) -->
+        <div class="card p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-purple-800 bg-purple-50 px-2.5 py-1 rounded-lg border border-purple-200">2. Tissues • Cellular Respiration Link</span>
+              <span id="cellRespRateBadge" class="text-xs font-bold text-amber-700">Gradient: Normal</span>
+            </div>
+            <h3 class="text-base font-extrabold text-slate-900">Systemic Capillary ↔ Body Cell &amp; Mitochondrion</h3>
+            <p class="text-xs text-slate-600 mt-1">
+              <strong>Mitochondrial cellular respiration</strong> consumes O₂ to make ATP and releases CO₂ as waste—maintaining the low tissue PO₂ (&lt;40) and high PCO₂ (&gt;45) that drive diffusion across membranes.
+            </p>
+
+            <!-- Microscopic SVG: Systemic Capillary -> Tissue Cell -> Mitochondrion -->
+            <div class="mt-4 rounded-xl overflow-hidden border border-slate-200 bg-slate-50">
+              <svg viewBox="0 0 460 320" class="w-full h-auto">
+                <!-- Systemic Capillary Lumen -->
+                <rect x="0" y="0" width="460" height="86" fill="#fef2f2"/>
+                <path d="M 240 0 L 460 0 L 460 86 L 240 86 Z" fill="#dbeafe" opacity="0.75"/>
+
+                <text x="14" y="20" font-size="10.5" font-weight="800" fill="#991b1b">Entering: PO₂ 104 | PCO₂ 40</text>
+                <text id="sys-exit-label" x="275" y="20" font-size="10.5" font-weight="800" fill="#1e40af">Leaving: PO₂ 40 | PCO₂ 45</text>
+
+                <!-- RBCs Unloading O2 -->
+                <g transform="translate(88, 54)">
+                  <ellipse cx="0" cy="0" rx="34" ry="18" fill="#c83737" stroke="#991b1b" stroke-width="2"/>
+                  <text x="0" y="3" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">HbO₂ (4 O₂)</text>
+                </g>
+                <g transform="translate(366, 54)">
+                  <ellipse cx="0" cy="0" rx="34" ry="18" fill="#2563eb" stroke="#1d4ed8" stroke-width="2"/>
+                  <text x="0" y="3" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">Hb (Unloaded)</text>
+                </g>
+
+                <!-- Capillary Endothelium + Plasma Membrane -->
+                <rect x="0" y="86" width="460" height="18" fill="#fecaca" stroke="#f87171"/>
+                <text x="230" y="98" text-anchor="middle" font-size="9" font-weight="700" fill="#991b1b">Capillary Wall &amp; Cell Plasma Membrane (Phospholipid Bilayers)</text>
+
+                <!-- Body Tissue Cell -->
+                <rect x="0" y="104" width="460" height="216" fill="#fffbeb"/>
+                <rect x="10" y="110" width="440" height="202" rx="16" fill="#fef3c7" stroke="#f59e0b" stroke-width="2"/>
+                <text x="24" y="129" font-size="10.5" font-weight="800" fill="#b45309">BODY TISSUE CELL (e.g., Skeletal Muscle or Brain Cell)</text>
+                <text id="tissue-gas-txt" x="24" y="145" font-size="10" font-weight="700" fill="#78350f">Intracellular PO₂ &lt; 40 mm Hg (≈ 30)   |   PCO₂ &gt; 45 mm Hg (≈ 50)</text>
+
+                <!-- MITOCHONDRION -->
+                <g transform="translate(28, 158)">
+                  <rect x="0" y="0" width="404" height="142" rx="28" fill="#f3e8ff" stroke="#7c3aed" stroke-width="2.5"/>
+                  <!-- Cristae folds -->
+                  <path d="M 22 26 Q 48 50 22 74 Q 48 98 22 120" fill="none" stroke="#a855f7" stroke-width="2.5"/>
+                  <path d="M 382 26 Q 356 50 382 74 Q 356 98 382 120" fill="none" stroke="#a855f7" stroke-width="2.5"/>
+
+                  <text x="202" y="21" text-anchor="middle" font-size="11" font-weight="800" fill="#5b21b6">MITOCHONDRION (Cellular Respiration)</text>
+                  <text x="202" y="36" text-anchor="middle" font-size="9.5" font-weight="700" fill="#6b21a8">Glucose + 6 O₂  ──▶  6 CO₂ + 6 H₂O + ATP Energy</text>
+
+                  <!-- Left Box: CO2 Production -->
+                  <rect x="44" y="46" width="150" height="82" rx="12" fill="#ffffff" stroke="#c084fc" stroke-width="1.5"/>
+                  <text x="119" y="63" text-anchor="middle" font-size="9.5" font-weight="800" fill="#1e40af">1. Breaks Down Glucose</text>
+                  <text x="119" y="79" text-anchor="middle" font-size="9" font-weight="700" fill="#2563eb">Produces CO₂ Waste</text>
+                  <text x="119" y="95" text-anchor="middle" font-size="8.5" fill="#475569">Raises cell PCO₂ &gt; 45 mm Hg</text>
+                  <text x="119" y="110" text-anchor="middle" font-size="8.5" font-weight="700" fill="#2563eb">→ CO₂ diffuses into blood</text>
+
+                  <!-- Right Box: O2 Consumption & ATP -->
+                  <rect x="210" y="46" width="150" height="82" rx="12" fill="#ffffff" stroke="#c084fc" stroke-width="1.5"/>
+                  <text x="285" y="63" text-anchor="middle" font-size="9.5" font-weight="800" fill="#991b1b">2. Consumes O₂ for ATP</text>
+                  <text x="285" y="79" text-anchor="middle" font-size="9" font-weight="700" fill="#c83737">O₂ Accepts Electrons → H₂O</text>
+                  <text x="285" y="95" text-anchor="middle" font-size="8.5" fill="#475569">Keeps cell PO₂ &lt; 40 mm Hg</text>
+                  <text id="mito-atp-txt" x="285" y="110" text-anchor="middle" font-size="9" font-weight="800" fill="#059669">Generates ATP ⚡ (1× Rest)</text>
+                </g>
+
+                <!-- Diffusion Arrows Crossing Membranes -->
+                <line id="tis-o2-arrow" x1="312" y1="70" x2="312" y2="195" stroke="#c83737" stroke-width="4.5" stroke-linecap="round"/>
+                <polygon points="312,205 304,190 320,190" fill="#c83737"/>
+                <rect x="256" y="114" width="112" height="18" rx="6" fill="#c83737"/>
+                <text x="312" y="126" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">O₂ Diffuses Into Cell</text>
+
+                <line id="tis-co2-arrow" x1="148" y1="198" x2="148" y2="74" stroke="#2563eb" stroke-width="4.5" stroke-linecap="round"/>
+                <polygon points="148,64 140,79 156,79" fill="#2563eb"/>
+                <rect x="86" y="114" width="124" height="18" rx="6" fill="#2563eb"/>
+                <text x="148" y="126" text-anchor="middle" font-size="9" font-weight="800" fill="#fff">CO₂ Diffuses Into Blood</text>
+              </svg>
+            </div>
+          </div>
+
+          <div id="cellRespSummaryBox" class="mt-3 p-3 rounded-xl bg-purple-50 border border-purple-200 text-xs text-purple-950 leading-relaxed">
+            <strong>Big-Picture Synthesis:</strong> Breathing and circulation exist to serve cellular respiration! Mitochondria pull O₂ into cells by constantly using it to make ATP, and push CO₂ out into the blood by breaking down fuel molecules.
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Clean Academic Footer -->
+  <footer class="bg-white border-t border-slate-200 py-3.5 px-4 sm:px-6 text-center text-xs text-slate-500">
+    Cardiopulmonary Structure &amp; Function Studio • Introductory Biology Interactive Explorer
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- INTERACTIVE SYNCHRONIZATION ENGINE                                    -->
+  <!-- ===================================================================== -->
+  <script>
+    // -----------------------------------------------------------------------
+    // 1. DATA MODEL: LINKING CIRCULATION DIAGRAM <-> HEMODYNAMICS GRAPH
+    // -----------------------------------------------------------------------
+    let currentTab = 1;
+    let currentScenario = 'rest'; // 'rest' | 'exercise' | 'cold' | 'stiff'
+    let selectedStage = 'large_artery';
+    let rbcLoopTimer = null;
+
+    const stageProfiles = {
+      heart: {
+        hemoZone: 'large_artery',
+        hemoX: 60,
+        rbc: { x: 355, y: 315, color: '#c83737' },
+        badge: '4-Chamber Double Pump',
+        badgeClass: 'bg-rose-100 text-rose-800',
+        gas: 'Right: 40/45 | Left: 104/40 mm Hg',
+        title: 'Heart (Right & Left Atria / Ventricles)',
+        structure: 'Four muscular chambers separated by a septum and one-way valves; Left Ventricle wall is much thicker than Right Ventricle.',
+        function: 'Right side pumps O₂-poor blood to the lungs; Left side pumps O₂-rich blood at high pressure to the entire body without mixing.',
+        connection: 'Ventricular contraction (systole) generates the peak blood pressure (~120 mm Hg) seen at the far left of the hemodynamics graph.'
+      },
+      pulm_art: {
+        hemoZone: 'large_artery',
+        hemoX: 86,
+        rbc: { x: 80, y: 164, color: '#2563eb' },
+        badge: 'Pulmonary Outflow (O₂-Poor Artery)',
+        badgeClass: 'bg-blue-100 text-blue-800',
+        gas: 'PO₂: 40 | PCO₂: 45 mm Hg',
+        title: 'Pulmonary Artery',
+        structure: 'Elastic artery carrying blood away from the Right Ventricle toward the lungs.',
+        function: 'Delivers deoxygenated, CO₂-rich blood to alveolar capillary beds for gas exchange.',
+        connection: 'Named an artery because it carries blood AWAY from the heart—even though it carries O₂-poor blood!'
+      },
+      alveolar_cap: {
+        hemoZone: 'capillary',
+        hemoX: 333,
+        rbc: { x: 320, y: 82, color: '#0d9488' },
+        badge: 'Pulmonary Gas Exchange',
+        badgeClass: 'bg-teal-100 text-teal-800',
+        gas: '40/45 → 104/40 mm Hg',
+        title: 'Alveolar Capillaries (Lungs)',
+        structure: 'Dense network of 1-cell-thick capillaries wrapped tightly around millions of thin-walled alveoli.',
+        function: 'O₂ diffuses into blood and binds hemoglobin; CO₂ diffuses into alveoli to be exhaled.',
+        connection: 'Massive combined cross-sectional area slows red blood cells down so diffusion reaches full equilibrium (104 / 40 mm Hg).'
+      },
+      pulm_vein: {
+        hemoZone: 'vein',
+        hemoX: 498,
+        rbc: { x: 560, y: 164, color: '#c83737' },
+        badge: 'Pulmonary Return (O₂-Rich Vein)',
+        badgeClass: 'bg-rose-100 text-rose-800',
+        gas: 'PO₂: 104 | PCO₂: 40 mm Hg',
+        title: 'Pulmonary Vein',
+        structure: 'Thin-walled vein returning blood from the lungs toward the Left Atrium.',
+        function: 'Transports freshly oxygenated blood back to the heart so the Left Ventricle can pump it body-wide.',
+        connection: 'Named a vein because it returns blood TOWARD the heart—making it the only vein carrying O₂-rich blood!'
+      },
+      large_artery: {
+        hemoZone: 'large_artery',
+        hemoX: 86,
+        rbc: { x: 556, y: 340, color: '#c83737' },
+        badge: 'High-Pressure Elastic Reservoir',
+        badgeClass: 'bg-rose-100 text-rose-800',
+        gas: 'PO₂: 104 | PCO₂: 40 mm Hg',
+        title: 'Large Elastic Arteries (Aorta)',
+        structure: 'Thick walls rich in elastic fibers and smooth muscle; wide lumen; no valves.',
+        function: 'Stretches during ventricular systole and elastically recoils during diastole to maintain continuous forward blood flow.',
+        connection: 'On the graph, Blood Pressure (120/80 mm Hg) and Velocity (~40 cm/sec) are highest here, while Total Cross-Sectional Area is small.'
+      },
+      small_artery: {
+        hemoZone: 'small_artery',
+        hemoX: 168,
+        rbc: { x: 556, y: 410, color: '#c83737' },
+        badge: 'Distributing Muscular Arteries',
+        badgeClass: 'bg-rose-100 text-rose-800',
+        gas: 'PO₂: 104 | PCO₂: 40 mm Hg',
+        title: 'Small Distributing Arteries',
+        structure: 'Thick layers of circular smooth muscle with moderate elastic tissue.',
+        function: 'Distributes O₂-rich blood to specific organs and limbs while maintaining high driving pressure.',
+        connection: 'As arteries branch into smaller vessels, Total Cross-Sectional Area begins to rise slightly and Velocity starts to taper.'
+      },
+      arteriole: {
+        hemoZone: 'arteriole',
+        hemoX: 250,
+        rbc: { x: 489, y: 475, color: '#ea580c' },
+        badge: 'Resistance & Flow Control',
+        badgeClass: 'bg-amber-100 text-amber-800',
+        gas: 'PO₂: 104 | PCO₂: 40 mm Hg',
+        title: 'Arterioles & Precapillary Sphincters',
+        structure: 'Narrow lumen wrapped in rings of smooth muscle; precapillary sphincters guard capillary entrances.',
+        function: 'Controls blood distribution to tissues (e.g., opens to muscles/skin during exercise; constricts skin in cold weather).',
+        connection: 'Notice the steepest drop in the red Blood Pressure curve here! Narrow arterioles create high resistance, protecting delicate capillaries downstream.'
+      },
+      capillary: {
+        hemoZone: 'capillary',
+        hemoX: 333,
+        rbc: { x: 320, y: 475, color: '#7c3aed' },
+        badge: 'Site of All Gas & Nutrient Exchange',
+        badgeClass: 'bg-purple-100 text-purple-800',
+        gas: '104/40 → 40/45 mm Hg',
+        title: 'Systemic Tissue Capillaries',
+        structure: 'Microscopic vessels with walls just 1 endothelial cell thick (no smooth muscle or elastic layer).',
+        function: 'O₂ and nutrients diffuse out to body cells; CO₂ and wastes diffuse into the blood.',
+        connection: 'Look at the graph: Total Cross-Sectional Area (teal) hits its MAXIMUM here, so Blood Velocity (amber) drops to its MINIMUM—giving plenty of time for diffusion!'
+      },
+      venule: {
+        hemoZone: 'venule',
+        hemoX: 416,
+        rbc: { x: 165, y: 475, color: '#2563eb' },
+        badge: 'Post-Capillary Collection',
+        badgeClass: 'bg-blue-100 text-blue-800',
+        gas: 'PO₂: 40 | PCO₂: 45 mm Hg',
+        title: 'Venules',
+        structure: 'Very thin walls (endothelium + thin fibrous layer) merging out of capillary beds.',
+        function: 'Collects O₂-poor, CO₂-rich blood from systemic capillaries and channels it into veins.',
+        connection: 'As venules merge together, Total Cross-Sectional Area drops back down and Blood Velocity begins to climb again.'
+      },
+      vein: {
+        hemoZone: 'vein',
+        hemoX: 498,
+        rbc: { x: 84, y: 371, color: '#2563eb' },
+        badge: 'Low-Pressure Return & Valves',
+        badgeClass: 'bg-blue-100 text-blue-800',
+        gas: 'PO₂: 40 | PCO₂: 45 mm Hg',
+        title: 'Veins & Venae Cavae',
+        structure: 'Wide lumen, thin walls with little smooth muscle, and internal one-way semilunar valves.',
+        function: 'Returns O₂-poor blood to the Right Atrium using skeletal muscle contractions ("muscle pump") and breathing pressure changes.',
+        connection: 'Blood Pressure is near zero on the graph—so one-way valves and surrounding skeletal muscles are essential to prevent backflow against gravity!'
+      }
+    };
+
+    // -----------------------------------------------------------------------
+    // 2. TAB NAVIGATION
+    // -----------------------------------------------------------------------
+    function switchTab(tabNum) {
+      currentTab = tabNum;
+      for (let i = 1; i <= 2; i++) {
+        const panel = document.getElementById(`tab-panel-${i}`);
+        const btn = document.getElementById(`tab-btn-${i}`);
+        if (i === tabNum) {
+          panel.classList.remove('hidden');
+          btn.classList.add('active');
+          btn.classList.remove('text-slate-600');
+        } else {
+          panel.classList.add('hidden');
+          btn.classList.remove('active');
+          btn.classList.add('text-slate-600');
+        }
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // 3. BIDIRECTIONAL SELECTION: DIAGRAM <-> HEMODYNAMICS GRAPH
+    // -----------------------------------------------------------------------
+    function selectStage(stageKey) {
+      selectedStage = stageKey;
+      const profile = stageProfiles[stageKey];
+
+      // 1. Highlight node on Circulation SVG
+      document.querySelectorAll('.circuit-node').forEach(n => n.classList.remove('selected'));
+      const nodeKey = (stageKey === 'small_artery') ? 'large_artery' : (stageKey === 'venule' ? 'vein' : stageKey);
+      const targetNode = document.getElementById(`node-${nodeKey}`);
+      if (targetNode) targetNode.classList.add('selected');
+
+      // 2. Highlight column & vertical marker on Hemodynamics Graph
+      ['large_artery', 'small_artery', 'arteriole', 'capillary', 'venule', 'vein'].forEach(z => {
+        const zoneRect = document.getElementById(`hzone-${z}`);
+        if (zoneRect) {
+          zoneRect.setAttribute('fill', z === profile.hemoZone ? 'rgba(13, 148, 136, 0.14)' : 'transparent');
+        }
+      });
+      const activeLine = document.getElementById('hemo-active-line');
+      activeLine.setAttribute('x1', profile.hemoX);
+      activeLine.setAttribute('x2', profile.hemoX);
+
+      // 3. Move RBC marker on Circulation SVG
+      const rbcDot = document.getElementById('rbcMarkerDot');
+      const rbcTxt = document.getElementById('rbcMarkerTxt');
+      rbcDot.setAttribute('cx', profile.rbc.x);
+      rbcDot.setAttribute('cy', profile.rbc.y);
+      rbcDot.setAttribute('fill', profile.rbc.color);
+      rbcTxt.setAttribute('x', profile.rbc.x);
+      rbcTxt.setAttribute('y', profile.rbc.y + 3.5);
+
+      // 4. Populate Structure & Function Inspector Card
+      const badge = document.getElementById('sfBadge');
+      badge.textContent = profile.badge;
+      badge.className = `text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded ${profile.badgeClass}`;
+      document.getElementById('sfGasBadge').textContent = profile.gas;
+      document.getElementById('sfTitle').textContent = profile.title;
+      document.getElementById('sfStructure').textContent = profile.structure;
+      document.getElementById('sfFunction').textContent = profile.function;
+      document.getElementById('sfConnection').innerHTML = `<strong>Graph &amp; Function Link:</strong> ${profile.connection}`;
+    }
+
+    // -----------------------------------------------------------------------
+    // 4. SCENARIO TOGGLES (REST, EXERCISE, COLD, STIFF ARTERY)
+    // -----------------------------------------------------------------------
+    function setScenario(scen) {
+      currentScenario = scen;
+      ['rest', 'exercise', 'cold', 'stiff'].forEach(k => {
+        const btn = document.getElementById(`scen-${k}`);
+        if (k === scen) {
+          btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-900 text-white shadow-xs transition";
+        } else {
+          btn.className = "px-3.5 py-2 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition";
+        }
+      });
+
+      const pill = document.getElementById('scenStatusPill');
+      const pipeArt = document.getElementById('pipe-sys-artery');
+      const sphTop = document.getElementById('sphincter-top');
+      const sphBot = document.getElementById('sphincter-bot');
+      const sphTxt = document.getElementById('svg-sphincter-txt');
+      const artSub = document.getElementById('svg-artery-sub');
+      const artBp = document.getElementById('svg-artery-bp');
+      const sysCapSub = document.getElementById('svg-syscap-sub');
+      const curveBp = document.getElementById('curve-bp');
+      const curveVel = document.getElementById('curve-vel');
+
+      const flowIds = ['f-pulm-art', 'f-pulm-vein', 'f-sys-art', 'f-sys-vein'];
+
+      if (scen === 'rest') {
+        pill.textContent = "Normal Resting Flow (CO: 5 L/min)";
+        pill.className = "text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200";
+        pipeArt.setAttribute('stroke-width', '15');
+        sphTop.setAttribute('cy', '467');
+        sphBot.setAttribute('cy', '483');
+        sphTxt.textContent = "Normal Tone";
+        artSub.textContent = "Elastic Recoil • 104 / 40";
+        artBp.textContent = "BP: 120/80 mm Hg";
+        sysCapSub.textContent = "104 / 40 mm Hg → 40 / 45 mm Hg";
+        curveBp.setAttribute('d', "M 55 64 L 72 40 L 89 66 L 106 42 L 123 68 L 145 52 L 168 65 L 209 88 L 250 135 L 291 164 L 333 176 L 416 190 L 498 197");
+        curveVel.setAttribute('d', "M 55 44 L 168 62 L 250 118 Q 295 190 333 194 Q 371 190 416 155 L 498 134");
+        flowIds.forEach(id => document.getElementById(id).setAttribute('class', 'flow-line'));
+      } else if (scen === 'exercise') {
+        pill.textContent = "Exercise: Muscle & Skin Sphincters Open!";
+        pill.className = "text-xs font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300";
+        pipeArt.setAttribute('stroke-width', '17');
+        sphTop.setAttribute('cy', '460'); // Sphincters open wide!
+        sphBot.setAttribute('cy', '490');
+        sphTxt.textContent = "Sphincters Open!";
+        artSub.textContent = "High Cardiac Output • 104 / 40";
+        artBp.textContent = "BP: 155/85 mm Hg";
+        sysCapSub.textContent = "104 / 40 → 25 / 55 mm Hg (More O₂ Unloaded)";
+        curveBp.setAttribute('d', "M 55 45 L 72 24 L 89 48 L 106 25 L 123 50 L 145 36 L 168 48 L 209 74 L 250 120 L 291 154 L 333 168 L 416 184 L 498 193");
+        curveVel.setAttribute('d', "M 55 28 L 168 44 L 250 95 Q 295 178 333 184 Q 371 178 416 135 L 498 112");
+        flowIds.forEach(id => document.getElementById(id).setAttribute('class', 'flow-line-fast'));
+        selectStage('arteriole');
+      } else if (scen === 'cold') {
+        pill.textContent = "Cold Weather: Skin Sphincters Constrict";
+        pill.className = "text-xs font-semibold px-2.5 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-300";
+        pipeArt.setAttribute('stroke-width', '14');
+        sphTop.setAttribute('cy', '472'); // Sphincters pinch shut!
+        sphBot.setAttribute('cy', '478');
+        sphTxt.textContent = "Constricted (Heat Saved)";
+        artSub.textContent = "Core Heat Conserved • 104 / 40";
+        artBp.textContent = "BP: 132/86 mm Hg";
+        sysCapSub.textContent = "Reduced Skin Surface Flow (Saves Body Heat)";
+        curveBp.setAttribute('d', "M 55 54 L 72 32 L 89 56 L 106 34 L 123 58 L 145 44 L 168 56 L 209 76 L 250 144 L 291 172 L 333 182 L 416 193 L 498 198");
+        curveVel.setAttribute('d', "M 55 52 L 168 72 L 250 132 Q 295 194 333 197 Q 371 194 416 164 L 498 144");
+        flowIds.forEach(id => document.getElementById(id).setAttribute('class', 'flow-line-slow'));
+        selectStage('arteriole');
+      } else if (scen === 'stiff') {
+        pill.textContent = "Stiff / Narrowed Artery (Plaque & Lost Elasticity)";
+        pill.className = "text-xs font-semibold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-800 border border-rose-300";
+        pipeArt.setAttribute('stroke-width', '9'); // Narrowed lumen!
+        sphTop.setAttribute('cy', '467');
+        sphBot.setAttribute('cy', '483');
+        sphTxt.textContent = "Normal Tone";
+        artSub.textContent = "Narrowed Lumen • Lost Recoil";
+        artBp.textContent = "BP: 165/98 mm Hg (High!)";
+        sysCapSub.textContent = "104 / 40 mm Hg → 40 / 45 mm Hg";
+        curveBp.setAttribute('d', "M 55 48 L 72 22 L 89 52 L 106 23 L 123 54 L 145 34 L 168 48 L 209 75 L 250 128 L 291 160 L 333 174 L 416 188 L 498 196");
+        curveVel.setAttribute('d', "M 55 24 L 168 40 L 250 110 Q 295 188 333 193 Q 371 188 416 152 L 498 132");
+        flowIds.forEach(id => document.getElementById(id).setAttribute('class', 'flow-line-fast'));
+        selectStage('large_artery');
+      }
+    }
+
+    function toggleRbcLoop() {
+      const btn = document.getElementById('traceBtn');
+      const lbl = document.getElementById('traceBtnLabel');
+      if (rbcLoopTimer) {
+        clearInterval(rbcLoopTimer);
+        rbcLoopTimer = null;
+        lbl.textContent = "Trace RBC Loop";
+        btn.classList.remove('bg-rose-600', 'hover:bg-rose-700');
+        btn.classList.add('bg-teal-600', 'hover:bg-teal-700');
+        return;
+      }
+
+      lbl.textContent = "Stop Trace";
+      btn.classList.remove('bg-teal-600', 'hover:bg-teal-700');
+      btn.classList.add('bg-rose-600', 'hover:bg-rose-700');
+
+      const order = ['heart', 'pulm_art', 'alveolar_cap', 'pulm_vein', 'large_artery', 'small_artery', 'arteriole', 'capillary', 'venule', 'vein'];
+      let i = 0;
+      selectStage(order[0]);
+      rbcLoopTimer = setInterval(() => {
+        i = (i + 1) % order.length;
+        selectStage(order[i]);
+      }, 1600);
+    }
+
+    // -----------------------------------------------------------------------
+    // 5. EXAM STATION COMPARATOR
+    // -----------------------------------------------------------------------
+    const stationGasMap = {
+      leave_alv: { name: "Blood leaving alveolar capillaries", po2: 104, pco2: 40, type: "O₂-rich" },
+      enter_sys: { name: "Blood entering systemic capillaries", po2: 104, pco2: 40, type: "O₂-rich" },
+      leave_sys: { name: "Blood leaving systemic capillaries", po2: 40, pco2: 45, type: "O₂-poor" },
+      enter_alv: { name: "Blood entering alveolar capillaries", po2: 40, pco2: 45, type: "O₂-poor" },
+      pulm_art:  { name: "Blood in the pulmonary artery", po2: 40, pco2: 45, type: "O₂-poor" },
+      pulm_vein: { name: "Blood in the pulmonary vein", po2: 104, pco2: 40, type: "O₂-rich" }
+    };
+
+    function updateComparator() {
+      const a = stationGasMap[document.getElementById('compA').value];
+      const b = stationGasMap[document.getElementById('compB').value];
+      const out = document.getElementById('compOutput');
+
+      if (a.po2 === b.po2 && a.pco2 === b.pco2) {
+        out.className = "sm:col-span-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-950 leading-snug";
+        out.innerHTML = `<strong>SAME (${a.po2} / ${a.pco2} mm Hg):</strong> Both carry <strong>${a.type}</strong> blood because no capillary gas exchange occurs between them!`;
+      } else {
+        out.className = "sm:col-span-4 p-3 rounded-xl bg-amber-50 border border-amber-300 text-xs text-amber-950 leading-snug";
+        out.innerHTML = `<strong>DIFFERENT:</strong> A is <strong>${a.type}</strong> (${a.po2}/${a.pco2}), while B is <strong>${b.type}</strong> (${b.po2}/${b.pco2}). A capillary bed separates them!`;
+      }
+    }
+
+    // -----------------------------------------------------------------------
+    // 6. TAB 2: MEMBRANE GAS EXCHANGE & CELLULAR RESPIRATION
+    // -----------------------------------------------------------------------
+    let breathPhase = 'inhale';
+
+    function setBreathingPhase(phase) {
+      breathPhase = phase;
+      const inBtn = document.getElementById('breath-inhale');
+      const exBtn = document.getElementById('breath-exhale');
+      const statusTxt = document.getElementById('breathStatusText');
+      const dTitle = document.getElementById('diaphragm-title');
+      const dCurve = document.getElementById('diaphragm-curve');
+      const dSub = document.getElementById('diaphragm-sub');
+      const alvBg = document.getElementById('alv-air-bg');
+
+      if (phase === 'inhale') {
+        inBtn.className = "px-3 py-2 rounded-lg text-xs font-bold bg-teal-600 text-white transition";
+        exBtn.className = "px-3 py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition";
+        statusTxt.textContent = "Diaphragm Contracts → Air In";
+        dTitle.textContent = "Diaphragm Contracts (Flattens)";
+        dCurve.setAttribute('d', "M 16 38 Q 72 43 128 38");
+        dSub.textContent = "Thoracic Vol ↑ • Fresh O₂ In";
+        alvBg.setAttribute('fill', '#ccfbf1');
+      } else {
+        exBtn.className = "px-3 py-2 rounded-lg text-xs font-bold bg-sky-600 text-white transition";
+        inBtn.className = "px-3 py-2 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition";
+        statusTxt.textContent = "Diaphragm Relaxes → CO₂ Out";
+        dTitle.textContent = "Diaphragm Relaxes (Domes Up)";
+        dCurve.setAttribute('d', "M 16 42 Q 72 28 128 42");
+        dSub.textContent = "Thoracic Vol ↓ • Clears CO₂";
+        alvBg.setAttribute('fill', '#e0f2fe');
+      }
+    }
+
+    function updateMembraneTab() {
+      const val = Number(document.getElementById('atpSlider').value);
+      const configs = {
+        1: {
+          badge: "Resting (1×)",
+          gradBadge: "Gradient: Normal",
+          tissueTxt: "Intracellular PO₂ < 40 mm Hg (≈ 30)   |   PCO₂ > 45 mm Hg (≈ 50)",
+          exitTxt: "Leaving: PO₂ 40 | PCO₂ 45",
+          mitoAtp: "Generates ATP ⚡ (1× Rest)",
+          arrowW: 4.5,
+          summary: "<strong>Big-Picture Synthesis:</strong> Breathing and circulation exist to serve cellular respiration! Mitochondria pull O₂ into cells by constantly using it to make ATP, and push CO₂ out into the blood by breaking down fuel molecules."
+        },
+        2: {
+          badge: "Brisk Walking (2.5×)",
+          gradBadge: "Gradient: Steeper",
+          tissueTxt: "Intracellular PO₂ ≈ 22 mm Hg   |   PCO₂ ≈ 55 mm Hg",
+          exitTxt: "Leaving: PO₂ 32 | PCO₂ 50",
+          mitoAtp: "Generates ATP ⚡⚡ (2.5× Walk)",
+          arrowW: 6,
+          summary: "<strong>Moderate Activity:</strong> Muscle mitochondria consume O₂ faster and generate more CO₂. The steeper concentration gradients accelerate simple diffusion across cell membranes, while heart rate and breathing rate rise to match demand."
+        },
+        3: {
+          badge: "Sprinting (5× Max)",
+          gradBadge: "Gradient: Very Steep!",
+          tissueTxt: "Intracellular PO₂ ≈ 12 mm Hg   |   PCO₂ ≈ 62 mm Hg",
+          exitTxt: "Leaving: PO₂ 22 | PCO₂ 56",
+          mitoAtp: "Max Aerobic ATP ⚡⚡⚡ (5× Sprint)",
+          arrowW: 8,
+          summary: "<strong>Peak Cellular Respiration:</strong> Rapid ATP breakdown drives mitochondrial O₂ consumption to maximum—dropping cell PO₂ to ~12 mm Hg and raising PCO₂ to ~62 mm Hg. This huge concentration gradient pulls maximum O₂ off hemoglobin!"
+        }
+      };
+
+      const cfg = configs[val];
+      document.getElementById('atpDemandBadge').textContent = cfg.badge;
+      document.getElementById('cellRespRateBadge').textContent = cfg.gradBadge;
+      document.getElementById('tissue-gas-txt').textContent = cfg.tissueTxt;
+      document.getElementById('sys-exit-label').textContent = cfg.exitTxt;
+      document.getElementById('mito-atp-txt').textContent = cfg.mitoAtp;
+      document.getElementById('tis-o2-arrow').setAttribute('stroke-width', cfg.arrowW);
+      document.getElementById('tis-co2-arrow').setAttribute('stroke-width', cfg.arrowW);
+      document.getElementById('alv-o2-arrow').setAttribute('stroke-width', cfg.arrowW);
+      document.getElementById('alv-co2-arrow').setAttribute('stroke-width', cfg.arrowW);
+      document.getElementById('cellRespSummaryBox').innerHTML = cfg.summary;
+    }
+
+    // Initialize defaults
+    window.addEventListener('DOMContentLoaded', () => {
+      selectStage('large_artery');
+      updateComparator();
+      setBreathingPhase('inhale');
+      updateMembraneTab();
+    });
+  </script>
+</body>
+</html>
