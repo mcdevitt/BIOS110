@@ -1,0 +1,1925 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIOS 110 — Activity B: Lactase Enzyme Demonstration</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --surface-alt: #f1f5f9;
+    --header-bg: #0f172a;
+    --header-text: #ffffff;
+    --text: #0f172a;
+    --text-muted: #334155;
+    --border: #cbd5e1;
+    --primary: #1d4ed8;
+    --primary-hover: #1e40af;
+    --primary-soft: #dbeafe;
+    --success: #15803d;
+    --success-soft: #dcfce7;
+    --warning: #b45309;
+    --warning-soft: #fef3c7;
+    --danger: #b91c1c;
+    --danger-soft: #fee2e2;
+    --focus: #2563eb;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 8px;
+    background: var(--primary);
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-weight: 700;
+    z-index: 1000;
+    text-decoration: none;
+  }
+  .skip-link:focus {
+    left: 12px;
+  }
+
+  *:focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  header {
+    background: var(--header-bg);
+    color: var(--header-text);
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 2px solid #1e293b;
+  }
+
+  .header-inner {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .title-block h1 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+  }
+
+  .title-block p {
+    margin: 2px 0 0;
+    font-size: 0.78rem;
+    color: #cbd5e1;
+  }
+
+  .nav-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .nav-btn {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 12px;
+    border-radius: 10px;
+    border: 1.5px solid #475569;
+    background: #1e293b;
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .nav-btn:hover:not(:disabled) {
+    background: #334155;
+  }
+  .nav-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .page-select {
+    flex: 1;
+    min-width: 0;
+    min-height: 44px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1.5px solid #64748b;
+    background: #ffffff;
+    color: #0f172a;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .tab-strip {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+    scrollbar-width: thin;
+  }
+
+  .tab-pill {
+    min-height: 44px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1.5px solid #334155;
+    background: #1e293b;
+    color: #e2e8f0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .tab-pill[aria-selected="true"] {
+    background: #3b82f6;
+    border-color: #93c5fd;
+    color: #ffffff;
+  }
+
+  main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+  }
+
+  .viewport-header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+
+  .viewport-header h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    background: var(--primary-soft);
+    color: #1e3a8a;
+    border: 1px solid #93c5fd;
+  }
+  .badge.success { background: var(--success-soft); color: #14532d; border-color: #86efac; }
+  .badge.warning { background: var(--warning-soft); color: #78350f; border-color: #fcd34d; }
+  .badge.danger { background: var(--danger-soft); color: #7f1d1d; border-color: #fca5a5; }
+
+  .canvas-frame {
+    width: 100%;
+    background: #0f172a;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 2px solid #1e293b;
+  }
+
+  canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 720 / 400;
+  }
+
+  .status-banner {
+    margin-top: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: var(--surface-alt);
+    border-left: 4px solid var(--primary);
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .status-banner.success { border-left-color: var(--success); background: #f0fdf4; }
+  .status-banner.warning { border-left-color: var(--warning); background: #fffbeb; }
+  .status-banner.danger { border-left-color: var(--danger); background: #fef2f2; }
+
+  .controls-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  @media (min-width: 640px) {
+    .controls-grid.two-col {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .action-btn {
+    min-height: 44px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex: 1 1 auto;
+  }
+  .action-btn:hover:not(:disabled) {
+    background: var(--surface-alt);
+    border-color: #94a3b8;
+  }
+  .action-btn.primary {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #ffffff;
+  }
+  .action-btn.primary:hover:not(:disabled) {
+    background: var(--primary-hover);
+  }
+  .action-btn[aria-pressed="true"] {
+    background: #1e3a8a;
+    border-color: #1e3a8a;
+    color: #ffffff;
+  }
+  .action-btn.danger-outline {
+    border-color: #fca5a5;
+    color: #991b1b;
+    background: #fef2f2;
+  }
+  .action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .slider-box {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+
+  .slider-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-bottom: 6px;
+  }
+
+  input[type="range"] {
+    width: 100%;
+    min-height: 44px;
+    cursor: pointer;
+    accent-color: var(--primary);
+  }
+
+  .info-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  @media (min-width: 700px) {
+    .info-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .info-panel {
+    background: var(--surface-alt);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .info-panel h3 {
+    margin: 0 0 6px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .info-panel p, .info-panel li {
+    margin: 0;
+    font-size: 0.88rem;
+    color: var(--text-muted);
+  }
+  .info-panel ul {
+    margin: 0;
+    padding-left: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+    margin-top: 10px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.86rem;
+    text-align: left;
+  }
+  th, td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: var(--surface-alt);
+    font-weight: 800;
+    color: var(--text);
+  }
+  tr:last-child td {
+    border-bottom: none;
+  }
+
+  .motion-note {
+    font-size: 0.8rem;
+    color: #cbd5e1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mini-toggle {
+    min-height: 36px;
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid #64748b;
+    background: #1e293b;
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main lab simulator</a>
+<div id="sr-announcer" class="sr-only" aria-live="polite"></div>
+
+<header>
+  <div class="header-inner">
+    <div class="title-row">
+      <div class="title-block">
+        <h1>Activity B: Lactase Enzyme Demo</h1>
+        <p>BIOS 110 • Pre-Lab &amp; Bench Technique Simulator</p>
+      </div>
+      <div class="motion-note">
+        <button type="button" id="motionToggle" class="mini-toggle" aria-pressed="true">Pause Motion</button>
+      </div>
+    </div>
+
+    <nav aria-label="Activity B pages">
+      <div class="nav-controls">
+        <button type="button" id="prevBtn" class="nav-btn" aria-label="Previous section">←</button>
+        <label for="pageSelect" class="sr-only">Choose simulation page</label>
+        <select id="pageSelect" class="page-select">
+          <option value="overview">1. Overview: Lactase &amp; Detection</option>
+          <option value="glucose">2. Glucose (Positive Control)</option>
+          <option value="lactose">3. Lactose Only (Neg. Control 2)</option>
+          <option value="lactase">4. Lactase Only (Neg. Control 1)</option>
+          <option value="reaction">5. Reaction (Lactose + Lactase)</option>
+          <option value="interpretation">6. Interpretation of Results</option>
+        </select>
+        <button type="button" id="nextBtn" class="nav-btn" aria-label="Next section">→</button>
+      </div>
+    </nav>
+
+    <div class="tab-strip" role="tablist" aria-label="Quick page tabs">
+      <button type="button" role="tab" class="tab-pill" data-page="overview" aria-selected="true">1. Overview</button>
+      <button type="button" role="tab" class="tab-pill" data-page="glucose" aria-selected="false">2. Glucose</button>
+      <button type="button" role="tab" class="tab-pill" data-page="lactose" aria-selected="false">3. Lactose Only</button>
+      <button type="button" role="tab" class="tab-pill" data-page="lactase" aria-selected="false">4. Lactase Only</button>
+      <button type="button" role="tab" class="tab-pill" data-page="reaction" aria-selected="false">5. Reaction</button>
+      <button type="button" role="tab" class="tab-pill" data-page="interpretation" aria-selected="false">6. Interpretation</button>
+    </div>
+  </div>
+</header>
+
+<main id="main-content" tabindex="-1">
+  <section class="card" aria-labelledby="sectionHeading">
+    <div class="viewport-header">
+      <h2 id="sectionHeading">1. Overview: Lactase Catalysis &amp; Dual Glucose Detection</h2>
+      <span id="stageBadge" class="badge">Hydrolase Mechanism</span>
+    </div>
+
+    <div class="canvas-frame">
+      <canvas id="labCanvas" width="720" height="400" role="img" aria-label="Interactive laboratory canvas for Activity B Lactase Enzyme Demonstration"></canvas>
+    </div>
+
+    <div id="statusBanner" class="status-banner" role="status">
+      Step through the lactase catalytic cycle or toggle how glucose oxidase detects glucose on qualitative strips vs. the digital meter.
+    </div>
+
+    <div id="controlsContainer" class="controls-grid"></div>
+  </section>
+
+  <section id="detailsContainer" class="card" aria-label="Protocol notes and experimental reference"></section>
+</main>
+
+<script>
+// Complete CanvasRenderingContext2D.prototype.roundRect polyfill for universal browser/WebView compatibility
+(function() {
+  if (typeof CanvasRenderingContext2D !== "undefined" && !CanvasRenderingContext2D.prototype.roundRect) {
+    CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, radii) {
+      if (w < 0) { x += w; w = -w; }
+      if (h < 0) { y += h; h = -h; }
+      var r = [0, 0, 0, 0];
+      if (typeof radii === "number") {
+        r = [radii, radii, radii, radii];
+      } else if (Array.isArray(radii)) {
+        if (radii.length === 1) {
+          r = [radii[0], radii[0], radii[0], radii[0]];
+        } else if (radii.length === 2) {
+          r = [radii[0], radii[1], radii[0], radii[1]];
+        } else if (radii.length === 3) {
+          r = [radii[0], radii[1], radii[2], radii[1]];
+        } else if (radii.length >= 4) {
+          r = [radii[0], radii[1], radii[2], radii[3]];
+        }
+      }
+      var maxR = Math.min(w / 2, h / 2);
+      var tl = Math.max(0, Math.min(r[0] || 0, maxR));
+      var tr = Math.max(0, Math.min(r[1] || 0, maxR));
+      var br = Math.max(0, Math.min(r[2] || 0, maxR));
+      var bl = Math.max(0, Math.min(r[3] || 0, maxR));
+
+      this.moveTo(x + tl, y);
+      this.lineTo(x + w - tr, y);
+      this.quadraticCurveTo(x + w, y, x + w, y + tr);
+      this.lineTo(x + w, y + h - br);
+      this.quadraticCurveTo(x + w, y + h, x + w - br, y + h);
+      this.lineTo(x + bl, y + h);
+      this.quadraticCurveTo(x, y + h, x, y + h - bl);
+      this.lineTo(x, y + tl);
+      this.quadraticCurveTo(x, y, x + tl, y);
+      this.closePath();
+      return this;
+    };
+  }
+})();
+
+(function() {
+  const PAGES = ["overview", "glucose", "lactose", "lactase", "reaction", "interpretation"];
+
+  const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  const state = {
+    page: "overview",
+    animating: !prefersReduced,
+    tick: 0,
+    // Overview state
+    catalysisStep: 0, // 0: approach, 1: complex + H2O, 2: products released
+    detectionMode: "strip", // "strip" or "meter"
+    // Glucose positive control state
+    glucose: {
+      stripDipped: false,
+      parafilmSpotted: false,
+      meterInserted: false,
+      meterCountdown: 0,
+      meterResult: null, // null | "Hi" | "Er 2"
+      touchEarlyError: false
+    },
+    // Lactose only negative control 2 state
+    lactose: {
+      stripDipped: false,
+      parafilmSpotted: false,
+      meterInserted: false,
+      meterCountdown: 0,
+      meterResult: null
+    },
+    // Lactase only negative control 1 state
+    lactase: {
+      impurityMode: false, // false = pure lab lactase (Lo), true = consumer Lactaid trace (~36 mg/dL)
+      stripDipped: false,
+      parafilmSpotted: false,
+      meterInserted: false,
+      meterCountdown: 0,
+      meterResult: null
+    },
+    // Reaction (Lactose + Lactase) state
+    reaction: {
+      lactoseAdded: false,
+      tipEjectedAfterLactose: false,
+      lactaseAdded: false,
+      tipEjectedAfterLactase: false,
+      incubationMin: 5,
+      stripSpotted10uL: false,
+      parafilmSpotted4uL: false,
+      meterInserted: false,
+      meterCountdown: 0,
+      meterResult: null
+    },
+    // Interpretation state
+    interpretation: {
+      selectedError: "expected"
+    }
+  };
+
+  const canvas = document.getElementById("labCanvas");
+  const ctx = canvas.getContext("2d");
+  const pageSelect = document.getElementById("pageSelect");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const tabPills = Array.from(document.querySelectorAll(".tab-pill"));
+  const sectionHeading = document.getElementById("sectionHeading");
+  const stageBadge = document.getElementById("stageBadge");
+  const statusBanner = document.getElementById("statusBanner");
+  const controlsContainer = document.getElementById("controlsContainer");
+  const detailsContainer = document.getElementById("detailsContainer");
+  const srAnnouncer = document.getElementById("sr-announcer");
+  const motionToggle = document.getElementById("motionToggle");
+
+  function announce(msg) {
+    srAnnouncer.textContent = "";
+    window.setTimeout(() => { srAnnouncer.textContent = msg; }, 20);
+  }
+
+  function updateMotionButton() {
+    motionToggle.setAttribute("aria-pressed", state.animating ? "true" : "false");
+    motionToggle.textContent = state.animating ? "Pause Motion" : "Play Motion";
+  }
+  updateMotionButton();
+
+  motionToggle.addEventListener("click", () => {
+    state.animating = !state.animating;
+    updateMotionButton();
+    announce(state.animating ? "Animations enabled" : "Animations paused");
+    renderFrame();
+  });
+
+  function setStatus(text, tone = "info") {
+    statusBanner.textContent = text;
+    statusBanner.className = "status-banner" + (tone !== "info" ? " " + tone : "");
+  }
+
+  function setPage(newPage) {
+    if (!PAGES.includes(newPage)) return;
+    state.page = newPage;
+    pageSelect.value = newPage;
+    const idx = PAGES.indexOf(newPage);
+    prevBtn.disabled = idx === 0;
+    nextBtn.disabled = idx === PAGES.length - 1;
+    tabPills.forEach(btn => {
+      btn.setAttribute("aria-selected", btn.dataset.page === newPage ? "true" : "false");
+    });
+    buildPageUI();
+    renderFrame();
+    announce("Loaded " + sectionHeading.textContent);
+  }
+
+  pageSelect.addEventListener("change", (e) => setPage(e.target.value));
+  prevBtn.addEventListener("click", () => {
+    const idx = PAGES.indexOf(state.page);
+    if (idx > 0) setPage(PAGES[idx - 1]);
+  });
+  nextBtn.addEventListener("click", () => {
+    const idx = PAGES.indexOf(state.page);
+    if (idx < PAGES.length - 1) setPage(PAGES[idx + 1]);
+  });
+  tabPills.forEach(btn => {
+    btn.addEventListener("click", () => setPage(btn.dataset.page));
+  });
+
+  // Helper drawing utilities
+  function roundRect(x, y, w, h, r, fill, stroke, lineWidth = 2) {
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+    if (fill) {
+      ctx.fillStyle = fill;
+      ctx.fill();
+    }
+    if (stroke) {
+      ctx.lineWidth = lineWidth;
+      ctx.strokeStyle = stroke;
+      ctx.stroke();
+    }
+  }
+
+  function drawTube(x, y, capColor, label, liquidColor, liquidLevel = 0.35, highlight = false) {
+    // Tube body
+    roundRect(x - 18, y, 36, 94, [4, 4, 18, 18], "rgba(226, 232, 240, 0.16)", highlight ? "#38bdf8" : "#94a3b8", highlight ? 3 : 2);
+    // Liquid inside
+    if (liquidLevel > 0) {
+      const lh = 74 * liquidLevel;
+      roundRect(x - 15, y + 90 - lh, 30, lh, [2, 2, 15, 15], liquidColor, null);
+    }
+    // Cap
+    roundRect(x - 21, y - 14, 42, 15, 4, capColor, "#0f172a", 1.5);
+    // Label text
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "bold 11px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(label, x, y + 112);
+  }
+
+  function drawQualStrip(x, y, labelText, padColor, readingLabel, developed = true) {
+    // White plastic strip
+    roundRect(x - 13, y, 26, 132, 4, "#f8fafc", "#64748b", 1.5);
+    // Sharpie label at top (away from reactive pad)
+    ctx.save();
+    ctx.translate(x, y + 48);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = "#0f172a";
+    ctx.font = "bold 11px monospace";
+    ctx.textAlign = "center";
+    ctx.fillText(labelText, 0, 4);
+    ctx.restore();
+
+    // Reactive pad at bottom
+    const finalColor = developed ? padColor : "#fde047"; // default unreacted yellow
+    roundRect(x - 10, y + 104, 20, 22, 3, finalColor, "#475569", 1);
+
+    if (readingLabel) {
+      ctx.fillStyle = "#e2e8f0";
+      ctx.font = "bold 11px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(readingLabel, x, y + 148);
+    }
+  }
+
+  function drawCarolinaChart(x, y) {
+    // 5-block reference chart: 0, 100, 250, 500, 2000 mg/dL
+    const levels = [
+      { val: "0", color: "#eab308", desc: "Neg" },
+      { val: "100", color: "#a3e635", desc: "Trace" },
+      { val: "250", color: "#4ade80", desc: "Low+" },
+      { val: "500", color: "#16a34a", desc: "Med+" },
+      { val: "2000", color: "#065f46", desc: "High+" }
+    ];
+    roundRect(x, y, 232, 74, 8, "#1e293b", "#475569", 1.5);
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "bold 11px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("Carolina Color Reference (mg/dL)", x + 10, y + 17);
+
+    levels.forEach((lv, i) => {
+      const bx = x + 10 + i * 43;
+      const by = y + 25;
+      roundRect(bx, by, 36, 26, 4, lv.color, "#0f172a", 1);
+      ctx.fillStyle = "#e2e8f0";
+      ctx.font = "bold 10px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(lv.val, bx + 18, by + 40);
+    });
+  }
+
+  function drawParafilm(x, y, hasDrop, dropColor = "rgba(186, 230, 253, 0.85)", dropLabel = "4 µL") {
+    roundRect(x - 52, y - 34, 104, 68, 6, "#e2e8f0", "#94a3b8", 1.5);
+    ctx.fillStyle = "#64748b";
+    ctx.font = "italic 10px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("Parafilm M (print down)", x, y - 18);
+    if (hasDrop) {
+      ctx.beginPath();
+      ctx.arc(x, y + 6, 11, 0, Math.PI * 2);
+      ctx.fillStyle = dropColor;
+      ctx.fill();
+      ctx.lineWidth = 1.5;
+      ctx.strokeStyle = "#0284c7";
+      ctx.stroke();
+
+      ctx.fillStyle = "#0f172a";
+      ctx.font = "bold 10px sans-serif";
+      ctx.fillText(dropLabel, x, y + 26);
+    }
+  }
+
+  function drawGlucoseMeter(x, y, mode, codeText, mainReadout, subNote) {
+    // Meter body
+    roundRect(x - 62, y, 124, 172, 22, "#334155", "#64748b", 2);
+    // LCD screen
+    roundRect(x - 46, y + 18, 92, 68, 8, "#cbd5e1", "#0f172a", 2);
+
+    ctx.fillStyle = "#0f172a";
+    ctx.textAlign = "center";
+
+    if (mode === "off") {
+      ctx.font = "bold 12px monospace";
+      ctx.fillText("METER OFF", x, y + 52);
+      ctx.font = "10px sans-serif";
+      ctx.fillText("Insert strip", x, y + 68);
+    } else if (mode === "ready") {
+      ctx.font = "bold 12px monospace";
+      ctx.fillText("CODE " + codeText, x, y + 36);
+      // Blinking droplet icon
+      const blink = !state.animating || Math.floor(state.tick / 18) % 2 === 0;
+      if (blink) {
+        ctx.fillStyle = "#1d4ed8";
+        ctx.beginPath();
+        ctx.arc(x, y + 58, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(x - 7, y + 58);
+        ctx.lineTo(x, y + 45);
+        ctx.lineTo(x + 7, y + 58);
+        ctx.fill();
+      }
+      ctx.fillStyle = "#0f172a";
+      ctx.font = "bold 10px sans-serif";
+      ctx.fillText("READY (TOUCH DROP)", x, y + 79);
+    } else if (mode === "countdown") {
+      ctx.font = "bold 26px monospace";
+      ctx.fillText(mainReadout + "s", x, y + 58);
+      ctx.font = "bold 10px sans-serif";
+      ctx.fillText("MEASURING...", x, y + 77);
+    } else if (mode === "result" || mode === "error") {
+      ctx.fillStyle = mode === "error" ? "#b91c1c" : "#0f172a";
+      ctx.font = "bold 22px monospace";
+      ctx.fillText(mainReadout, x, y + 56);
+      ctx.font = "bold 10px sans-serif";
+      ctx.fillText(subNote || "mg/dL", x, y + 76);
+    }
+
+    // Buttons M & C
+    ctx.beginPath();
+    ctx.arc(x - 24, y + 108, 11, 0, Math.PI * 2);
+    ctx.fillStyle = "#1e293b";
+    ctx.fill();
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "bold 10px sans-serif";
+    ctx.fillText("M", x - 24, y + 112);
+
+    ctx.beginPath();
+    ctx.arc(x + 24, y + 108, 11, 0, Math.PI * 2);
+    ctx.fillStyle = "#1e293b";
+    ctx.fill();
+    ctx.fillStyle = "#f8fafc";
+    ctx.fillText("C", x + 24, y + 112);
+
+    // Strip slot & inserted black electronic strip
+    roundRect(x - 16, y + 162, 32, 8, 2, "#0f172a", null);
+    if (mode !== "off") {
+      roundRect(x - 10, y + 166, 20, 56, 3, "#090d16", "#64748b", 1.5);
+      // White arrow on strip
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "bold 13px sans-serif";
+      ctx.fillText("↑", x, y + 190);
+      // Sample channel tip
+      roundRect(x - 6, y + 214, 12, 6, 1, mode === "result" ? "#38bdf8" : "#94a3b8", null);
+    }
+  }
+
+  // PAGE BUILDERS
+  function buildPageUI() {
+    controlsContainer.innerHTML = "";
+    detailsContainer.innerHTML = "";
+
+    if (state.page === "overview") {
+      sectionHeading.textContent = "1. Overview: Lactase Catalysis & Dual Glucose Detection";
+      stageBadge.textContent = "Enzyme Mechanism";
+      stageBadge.className = "badge";
+      setStatus("Step through the lactase catalytic cycle or toggle how glucose oxidase detects glucose.");
+
+      const stepGroup = document.createElement("div");
+      stepGroup.className = "btn-group";
+      ["1. Substrate Approach", "2. Active Site + H₂O", "3. Products Released"].forEach((label, idx) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "action-btn";
+        b.textContent = label;
+        b.setAttribute("aria-pressed", state.catalysisStep === idx ? "true" : "false");
+        b.addEventListener("click", () => {
+          state.catalysisStep = idx;
+          const msgs = [
+            "Lactose (a disaccharide of glucose + galactose) approaches the active site of the lactase enzyme.",
+            "Lactose binds the active site (enzyme-substrate complex) and H₂O hydrolyzes the glycosidic bond.",
+            "Glucose and galactose products are released; lactase remains unchanged and ready for another substrate."
+          ];
+          setStatus(msgs[idx], idx === 2 ? "success" : "info");
+          buildPageUI();
+          renderFrame();
+        });
+        stepGroup.appendChild(b);
+      });
+
+      const detGroup = document.createElement("div");
+      detGroup.className = "btn-group";
+      [
+        { id: "strip", label: "Detection 1: Qualitative Strip (H₂O₂ Dye)" },
+        { id: "meter", label: "Detection 2: Digital Meter (Current)" }
+      ].forEach(item => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "action-btn";
+        b.textContent = item.label;
+        b.setAttribute("aria-pressed", state.detectionMode === item.id ? "true" : "false");
+        b.addEventListener("click", () => {
+          state.detectionMode = item.id;
+          setStatus(
+            item.id === "strip"
+              ? "Qualitative strips use glucose oxidase to generate H₂O₂, oxidizing a dye pad from yellow to green."
+              : "Electronic strips use glucose oxidase to generate an electrical current proportional to glucose (mg/dL)."
+          );
+          buildPageUI();
+          renderFrame();
+        });
+        detGroup.appendChild(b);
+      });
+
+      controlsContainer.appendChild(stepGroup);
+      controlsContainer.appendChild(detGroup);
+
+      detailsContainer.innerHTML = `
+        <div class="info-grid">
+          <div class="info-panel">
+            <h3>Color-Coded Bench Reagents</h3>
+            <ul>
+              <li><strong>Blue Cap Tube:</strong> Standardized Glucose (Positive Control)</li>
+              <li><strong>Pink Cap Tube:</strong> Lactase Enzyme Solution</li>
+              <li><strong>Yellow Cap Tube:</strong> Lactose Substrate Solution</li>
+              <li><strong>Clear 1.5 mL Tube:</strong> Empty Reaction Tube</li>
+            </ul>
+          </div>
+          <div class="info-panel">
+            <h3>MiniPCR Micropipette Kit &amp; Parafilm</h3>
+            <ul>
+              <li><strong>Red Pipette (4 µL):</strong> Dispense 4 µL droplets onto Parafilm M for the digital meter.</li>
+              <li><strong>Green Pipette (10 µL):</strong> Spot 10 µL of reaction mix onto the qualitative strip pad.</li>
+              <li><strong>Black Pipette (20 µL):</strong> Transfer 20 µL lactose + 20 µL lactase into the reaction tube.</li>
+              <li><strong>Parafilm Tip:</strong> Place printed paper side down and cut with scissors (never tears cleanly).</li>
+            </ul>
+          </div>
+        </div>
+      `;
+    } else if (state.page === "glucose") {
+      const g = state.glucose;
+      sectionHeading.textContent = "2. Positive Control: Glucose Only (Blue Cap Tube)";
+      stageBadge.textContent = "Expected: High Glucose";
+      stageBadge.className = "badge success";
+
+      const row1 = document.createElement("div");
+      row1.className = "btn-group";
+
+      const bStrip = document.createElement("button");
+      bStrip.type = "button";
+      bStrip.className = "action-btn";
+      bStrip.textContent = g.stripDipped ? "✓ Qualitative Strip Dipped (2000 mg/dL)" : "1. Dip Qualitative Strip (1–2 s)";
+      bStrip.setAttribute("aria-pressed", g.stripDipped ? "true" : "false");
+      bStrip.addEventListener("click", () => {
+        g.stripDipped = true;
+        setStatus("Qualitative strip labeled 'glucose' dipped 1–2 s into Blue Glucose tube → develops dark emerald green (2000 mg/dL).", "success");
+        buildPageUI();
+        renderFrame();
+      });
+
+      const bSpot = document.createElement("button");
+      bSpot.type = "button";
+      bSpot.className = "action-btn";
+      bSpot.textContent = g.parafilmSpotted ? "✓ 4 µL Spotted on Parafilm (Red P4)" : "2. Spot 4 µL on Parafilm (Red P4)";
+      bSpot.setAttribute("aria-pressed", g.parafilmSpotted ? "true" : "false");
+      bSpot.addEventListener("click", () => {
+        g.parafilmSpotted = true;
+        setStatus("4 µL of glucose dispensed onto Parafilm M (printed side down) using the Red 4 µL pipette.", "info");
+        buildPageUI();
+        renderFrame();
+      });
+
+      row1.appendChild(bStrip);
+      row1.appendChild(bSpot);
+
+      const row2 = document.createElement("div");
+      row2.className = "btn-group";
+
+      const bInsert = document.createElement("button");
+      bInsert.type = "button";
+      bInsert.className = "action-btn";
+      bInsert.textContent = g.meterInserted ? "✓ Strip Inserted (Code A10)" : "3. Insert Black Electronic Strip";
+      bInsert.setAttribute("aria-pressed", g.meterInserted ? "true" : "false");
+      bInsert.addEventListener("click", () => {
+        g.meterInserted = true;
+        g.meterResult = null;
+        g.touchEarlyError = false;
+        setStatus("Meter powered on: Code A10 confirmed and blinking droplet (💧) ready symbol displayed.", "info");
+        buildPageUI();
+        renderFrame();
+      });
+
+      const bRead = document.createElement("button");
+      bRead.type = "button";
+      bRead.className = "action-btn primary";
+      bRead.textContent = "4. Touch Strip to 4 µL Drop & Read";
+      bRead.disabled = !g.parafilmSpotted || !g.meterInserted;
+      bRead.addEventListener("click", () => {
+        g.touchEarlyError = false;
+        g.meterResult = "Hi";
+        setStatus("Beep! 5-second countdown complete → Meter reads 'Hi' (> 600 mg/dL), confirming strips and meter work properly!", "success");
+        buildPageUI();
+        renderFrame();
+      });
+
+      const bErr = document.createElement("button");
+      bErr.type = "button";
+      bErr.className = "action-btn danger-outline";
+      bErr.textContent = "Simulate Early Touch (Er 2)";
+      bErr.addEventListener("click", () => {
+        g.meterInserted = true;
+        g.touchEarlyError = true;
+        g.meterResult = "Er 2";
+        setStatus("Error Er 2: Sample touched strip BEFORE the blinking 💧 symbol appeared. Eject strip and insert a fresh strip.", "danger");
+        buildPageUI();
+        renderFrame();
+      });
+
+      const bReset = document.createElement("button");
+      bReset.type = "button";
+      bReset.className = "action-btn";
+      bReset.textContent = "Reset Control";
+      bReset.addEventListener("click", () => {
+        state.glucose = { stripDipped: false, parafilmSpotted: false, meterInserted: false, meterCountdown: 0, meterResult: null, touchEarlyError: false };
+        setStatus("Positive control reset. Follow Steps 1–4 in order.");
+        buildPageUI();
+        renderFrame();
+      });
+
+      row2.appendChild(bInsert);
+      row2.appendChild(bRead);
+      row2.appendChild(bErr);
+      row2.appendChild(bReset);
+
+      controlsContainer.appendChild(row1);
+      controlsContainer.appendChild(row2);
+
+      detailsContainer.innerHTML = `
+        <div class="info-grid">
+          <div class="info-panel">
+            <h3>Why Run a Positive Control?</h3>
+            <p>Testing standardized glucose (Blue Cap Tube) confirms that both the qualitative color strips and the electronic glucose meter are active and functioning before interpreting unknown enzyme samples.</p>
+          </div>
+          <div class="info-panel">
+            <h3>Key Bench Precautions</h3>
+            <ul>
+              <li>Label the top end of the qualitative strip with Sharpie—ink near the yellow pad contaminates the reaction.</li>
+              <li>Wait for the blinking droplet (💧) icon before touching the drop, or the meter triggers <strong>Er 2</strong>.</li>
+            </ul>
+          </div>
+        </div>
+      `;
+    } else if (state.page === "lactose") {
+      const l = state.lactose;
+      sectionHeading.textContent = "3. Negative Control 2: Lactose Only (Yellow Cap Tube)";
+      stageBadge.textContent = "Expected: No Glucose";
+      stageBadge.className = "badge";
+
+      const row1 = document.createElement("div");
+      row1.className = "btn-group";
+
+      const bStrip = document.createElement("button");
+      bStrip.type = "button";
+      bStrip.className = "action-btn";
+      bStrip.textContent = l.stripDipped ? "✓ Qualitative Strip Dipped (0 mg/dL)" : "1. Dip 'lactose' Qualitative Strip";
+      bStrip.setAttribute("aria-pressed", l.stripDipped ? "true" : "false");
+      bStrip.addEventListener("click", () => {
+        l.stripDipped = true;
+        setStatus("Qualitative strip dipped into Yellow-capped Lactose Only tube stays yellow (0 mg/dL — no glucose present).", "info");
+        buildPageUI();
+        renderFrame();
+      });
+
+      const bSpot = document.createElement("button");
+      bSpot.type = "button";
+      bSpot.className = "action-btn";
+      bSpot.textContent = l.parafilmSpotted ? "✓ 4 µL Lactose on Parafilm" : "2. Spot 4 µL Lactose (Red P4)";
+      bSpot.setAttribute("aria-pressed", l.parafilmSpotted ? "true" : "false");
+      bSpot.addEventListener("click", () => {
+        l.parafilmSpotted = true;
+        setStatus("4 µL of Lactose Only solution spotted onto clean Parafilm M using the Red 4 µL pipette.", "info");
+        buildPageUI();
+        renderFrame();
+      });
+
+      row1.appendChild(bStrip);
+      row1.appendChild(bSpot);
+
+      const row2 = document.createElement("div");
+      row2.className = "btn-group";
+
+      const bRead = document.createElement("button");
+      bRead.type = "button";
+      bRead.className = "action-btn primary";
+      bRead.textContent = "3. Insert Strip & Read Digital Meter";
+      bRead.disabled = !l.parafilmSpotted;
+      bRead.addEventListener("click", () => {
+        l.meterInserted = true;
+        l.meterResult = "Lo";
+        setStatus("Digital meter reads 'Lo' (< 20 mg/dL). Without lactase enzyme, lactose disaccharide is NOT broken into glucose.", "success");
+        buildPageUI();
+        renderFrame();
+      });
+
+      const bReset = document.createElement("button");
+      bReset.type = "button";
+      bReset.className = "action-btn";
+      bReset.textContent = "Reset Lactose Control";
+      bReset.addEventListener("click", () => {
+        state.lactose = { stripDipped: false, parafilmSpotted: false, meterInserted: false, meterCountdown: 0, meterResult: null };
+        setStatus("Lactose-only negative control reset.");
+        buildPageUI();
+        renderFrame();
+      });
+
+      row2.appendChild(bRead);
+      row2.appendChild(bReset);
+
+      controlsContainer.appendChild(row1);
+      controlsContainer.appendChild(row2);
+
+      detailsContainer.innerHTML = `
+        <div class="info-grid">
+          <div class="info-panel">
+            <h3>What Negative Control 2 Proves</h3>
+            <p>Lactose (substrate) alone does not spontaneously break down into glucose during the lab timeframe, and the glucose oxidase enzyme on the test strips is specific to glucose—not intact lactose.</p>
+          </div>
+          <div class="info-panel">
+            <h3>Expected Bench Readings</h3>
+            <ul>
+              <li><strong>Digital Meter:</strong> <code>Lo</code> (&lt; 20 mg/dL) or no measurable glucose current.</li>
+              <li><strong>Qualitative Strip:</strong> Remains yellow (<code>0 mg/dL</code> on Carolina chart).</li>
+            </ul>
+          </div>
+        </div>
+      `;
+    } else if (state.page === "lactase") {
+      const lac = state.lactase;
+      sectionHeading.textContent = "4. Negative Control 1: Lactase Only (Pink Cap Tube)";
+      stageBadge.textContent = lac.impurityMode ? "Consumer Lactaid (Trace)" : "Pure Lab Lactase";
+      stageBadge.className = lac.impurityMode ? "badge warning" : "badge";
+
+      const row0 = document.createElement("div");
+      row0.className = "btn-group";
+      const bPure = document.createElement("button");
+      bPure.type = "button";
+      bPure.className = "action-btn";
+      bPure.textContent = "Enzyme Prep: Pure Lab Lactase";
+      bPure.setAttribute("aria-pressed", !lac.impurityMode ? "true" : "false");
+      bPure.addEventListener("click", () => {
+        lac.impurityMode = false;
+        if (lac.meterResult) lac.meterResult = "Lo";
+        setStatus("Selected Pure Lab Lactase: contains enzyme protein only with zero sugar additives.");
+        buildPageUI();
+        renderFrame();
+      });
+
+      const bConsumer = document.createElement("button");
+      bConsumer.type = "button";
+      bConsumer.className = "action-btn";
+      bConsumer.textContent = "Enzyme Prep: Consumer Lactaid (Trace Sugars)";
+      bConsumer.setAttribute("aria-pressed", lac.impurityMode ? "true" : "false");
+      bConsumer.addEventListener("click", () => {
+        lac.impurityMode = true;
+        if (lac.meterResult) lac.meterResult = "36";
+        setStatus("Selected Consumer Lactaid: commercial tablets often contain trace glucose/maltodextrin binders, causing a slight positive reading!", "warning");
+        buildPageUI();
+        renderFrame();
+      });
+      row0.appendChild(bPure);
+      row0.appendChild(bConsumer);
+
+      const row1 = document.createElement("div");
+      row1.className = "btn-group";
+
+      const bStrip = document.createElement("button");
+      bStrip.type = "button";
+      bStrip.className = "action-btn";
+      bStrip.textContent = lac.stripDipped ? "✓ Qualitative Strip Dipped" : "1. Dip 'lactase' Qualitative Strip";
+      bStrip.setAttribute("aria-pressed", lac.stripDipped ? "true" : "false");
+      bStrip.addEventListener("click", () => {
+        lac.stripDipped = true;
+        setStatus(
+          lac.impurityMode
+            ? "Qualitative strip shows a faint yellow-green tint (~100 mg/dL trace) from commercial Lactaid tablet binders."
+            : "Qualitative strip remains yellow (0 mg/dL) — enzyme alone produces no glucose without lactose substrate.",
+          lac.impurityMode ? "warning" : "info"
+        );
+        buildPageUI();
+        renderFrame();
+      });
+
+      const bSpot = document.createElement("button");
+      bSpot.type = "button";
+      bSpot.className = "action-btn";
+      bSpot.textContent = lac.parafilmSpotted ? "✓ 4 µL Lactase on Parafilm" : "2. Spot 4 µL Lactase (Red P4)";
+      bSpot.setAttribute("aria-pressed", lac.parafilmSpotted ? "true" : "false");
+      bSpot.addEventListener("click", () => {
+        lac.parafilmSpotted = true;
+        setStatus("4 µL of Lactase Only solution spotted onto clean Parafilm M using the Red 4 µL pipette.");
+        buildPageUI();
+        renderFrame();
+      });
+
+      const bRead = document.createElement("button");
+      bRead.type = "button";
+      bRead.className = "action-btn primary";
+      bRead.textContent = "3. Read Digital Meter";
+      bRead.disabled = !lac.parafilmSpotted;
+      bRead.addEventListener("click", () => {
+        lac.meterInserted = true;
+        lac.meterResult = lac.impurityMode ? "36" : "Lo";
+        setStatus(
+          lac.impurityMode
+            ? "Meter reads 36 mg/dL! Commercial Lactaid contains trace sugars—still far lower than the active Lactose + Lactase reaction."
+            : "Meter reads 'Lo' (< 20 mg/dL). Without substrate, lactase cannot generate glucose.",
+          lac.impurityMode ? "warning" : "success"
+        );
+        buildPageUI();
+        renderFrame();
+      });
+
+      const bReset = document.createElement("button");
+      bReset.type = "button";
+      bReset.className = "action-btn";
+      bReset.textContent = "Reset";
+      bReset.addEventListener("click", () => {
+        lac.stripDipped = false;
+        lac.parafilmSpotted = false;
+        lac.meterInserted = false;
+        lac.meterResult = null;
+        setStatus("Lactase-only negative control reset.");
+        buildPageUI();
+        renderFrame();
+      });
+
+      row1.appendChild(bStrip);
+      row1.appendChild(bSpot);
+      row1.appendChild(bRead);
+      row1.appendChild(bReset);
+
+      controlsContainer.appendChild(row0);
+      controlsContainer.appendChild(row1);
+
+      detailsContainer.innerHTML = `
+        <div class="info-grid">
+          <div class="info-panel">
+            <h3>Why Test Lactase Alone?</h3>
+            <p>This control verifies that the enzyme solution itself is not already loaded with high glucose. Comparing the reaction tube against this baseline proves that new glucose was generated by catalysis.</p>
+          </div>
+          <div class="info-panel">
+            <h3>Real-World Lab Nuance (Lactaid)</h3>
+            <p>As noted in your lab manual, consumer-grade lactase (e.g., Lactaid) may contain trace glucose, galactose, or maltodextrin fillers, producing a small background reading (or a "no reading" low-current strip).</p>
+          </div>
+        </div>
+      `;
+    } else if (state.page === "reaction") {
+      const r = state.reaction;
+      sectionHeading.textContent = "5. Enzyme Reaction: Lactose + Lactase (Clear Tube)";
+      stageBadge.textContent = "Active Catalysis";
+      stageBadge.className = "badge success";
+
+      const row1 = document.createElement("div");
+      row1.className = "btn-group";
+
+      const bAddLac = document.createElement("button");
+      bAddLac.type = "button";
+      bAddLac.className = "action-btn";
+      bAddLac.textContent = r.lactoseAdded ? "✓ 20 µL Lactose Added" : "1. Add 20 µL Lactose (Black P20)";
+      bAddLac.setAttribute("aria-pressed", r.lactoseAdded ? "true" : "false");
+      bAddLac.addEventListener("click", () => {
+        r.lactoseAdded = true;
+        setStatus("Transferred 20 µL of Yellow-capped Lactose into the Clear 1.5 mL Reaction Tube. Eject tip before touching Lactase!", "info");
+        buildPageUI();
+        renderFrame();
+      });
+
+      const bEject1 = document.createElement("button");
+      bEject1.type = "button";
+      bEject1.className = "action-btn";
+      bEject1.textContent = r.tipEjectedAfterLactose ? "✓ Tip Ejected (Clean)" : "2. Eject Tip to Biohazard Bin";
+      bEject1.disabled = !r.lactoseAdded;
+      bEject1.setAttribute("aria-pressed", r.tipEjectedAfterLactose ? "true" : "false");
+      bEject1.addEventListener("click", () => {
+        r.tipEjectedAfterLactose = true;
+        setStatus("Used tip ejected! Changing tips prevents contaminating the stock Pink Lactase tube with Lactose.", "success");
+        buildPageUI();
+        renderFrame();
+      });
+
+      const bAddEnz = document.createElement("button");
+      bAddEnz.type = "button";
+      bAddEnz.className = "action-btn";
+      bAddEnz.textContent = r.lactaseAdded ? "✓ 20 µL Lactase Added (40 µL Total)" : "3. Add 20 µL Lactase (Fresh Tip)";
+      bAddEnz.disabled = !r.tipEjectedAfterLactose;
+      bAddEnz.setAttribute("aria-pressed", r.lactaseAdded ? "true" : "false");
+      bAddEnz.addEventListener("click", () => {
+        r.lactaseAdded = true;
+        r.tipEjectedAfterLactase = true;
+        setStatus("20 µL Lactase added to 20 µL Lactose (40 µL total). Lactase is actively cleaving lactose into glucose + galactose!", "success");
+        buildPageUI();
+        renderFrame();
+      });
+
+      row1.appendChild(bAddLac);
+      row1.appendChild(bEject1);
+      row1.appendChild(bAddEnz);
+
+      // Incubation slider (0–15 min)
+      const sliderBox = document.createElement("div");
+      sliderBox.className = "slider-box";
+      sliderBox.innerHTML = `
+        <div class="slider-label-row">
+          <label for="incSlider">Reaction Incubation Time (0–15 min)</label>
+          <span id="incVal">${r.incubationMin} min (~${Math.round(r.incubationMin * 46)} mg/dL glucose)</span>
+        </div>
+        <input type="range" id="incSlider" min="0" max="15" step="1" value="${r.incubationMin}">
+      `;
+      const incSlider = sliderBox.querySelector("#incSlider");
+      incSlider.addEventListener("input", (e) => {
+        r.incubationMin = Number(e.target.value);
+        const mg = Math.round(r.incubationMin * 46);
+        if (r.meterResult !== null) {
+          r.meterResult = mg < 20 ? "Lo" : (mg > 600 ? "Hi" : String(mg));
+        }
+        sliderBox.querySelector("#incVal").textContent = `${r.incubationMin} min (~${mg} mg/dL glucose)`;
+        renderFrame();
+      });
+
+      const row2 = document.createElement("div");
+      row2.className = "btn-group";
+
+      const bSpot10 = document.createElement("button");
+      bSpot10.type = "button";
+      bSpot10.className = "action-btn";
+      bSpot10.textContent = r.stripSpotted10uL ? "✓ 10 µL on Strip Pad (Green P10)" : "4. Spot 10 µL on Strip (Green P10)";
+      bSpot10.disabled = !r.lactaseAdded;
+      bSpot10.setAttribute("aria-pressed", r.stripSpotted10uL ? "true" : "false");
+      bSpot10.addEventListener("click", () => {
+        r.stripSpotted10uL = true;
+        setStatus("Used Green 10 µL micropipette to dispense 10 µL of reaction mix onto the yellow reactive pad of the 'reaction' strip.", "success");
+        buildPageUI();
+        renderFrame();
+      });
+
+      const bRead4 = document.createElement("button");
+      bRead4.type = "button";
+      bRead4.className = "action-btn primary";
+      bRead4.textContent = "5. Spot 4 µL (Red P4) & Read Meter";
+      bRead4.disabled = !r.lactaseAdded;
+      bRead4.addEventListener("click", () => {
+        r.parafilmSpotted4uL = true;
+        r.meterInserted = true;
+        const mg = Math.round(r.incubationMin * 46);
+        r.meterResult = mg < 20 ? "Lo" : (mg > 600 ? "Hi" : String(mg));
+        setStatus(
+          `Meter reads ${r.meterResult} ${mg < 20 ? "(< 20 mg/dL — increase incubation time!)" : (mg > 600 ? "(> 600 mg/dL)! Confirmed rapid enzymatic hydrolysis." : "mg/dL! Confirmed enzymatic hydrolysis of lactose into glucose.")}`,
+          mg < 20 ? "warning" : "success"
+        );
+        buildPageUI();
+        renderFrame();
+      });
+
+      const bReset = document.createElement("button");
+      bReset.type = "button";
+      bReset.className = "action-btn";
+      bReset.textContent = "Reset Reaction";
+      bReset.addEventListener("click", () => {
+        state.reaction = {
+          lactoseAdded: false,
+          tipEjectedAfterLactose: false,
+          lactaseAdded: false,
+          tipEjectedAfterLactase: false,
+          incubationMin: 5,
+          stripSpotted10uL: false,
+          parafilmSpotted4uL: false,
+          meterInserted: false,
+          meterCountdown: 0,
+          meterResult: null
+        };
+        setStatus("Enzyme reaction tube reset. Start by adding 20 µL Lactose.");
+        buildPageUI();
+        renderFrame();
+      });
+
+      row2.appendChild(bSpot10);
+      row2.appendChild(bRead4);
+      row2.appendChild(bReset);
+
+      controlsContainer.appendChild(row1);
+      controlsContainer.appendChild(sliderBox);
+      controlsContainer.appendChild(row2);
+
+      detailsContainer.innerHTML = `
+        <div class="info-grid">
+          <div class="info-panel">
+            <h3>Three Pipettes Used in Activity B</h3>
+            <ul>
+              <li><strong>Black P20 (20 µL):</strong> Combines 20 µL Lactose + 20 µL Lactase (changing tips between reagents!).</li>
+              <li><strong>Green P10 (10 µL):</strong> Dispenses 10 µL directly onto the qualitative strip pad (do not dip into the small reaction volume).</li>
+              <li><strong>Red P4 (4 µL):</strong> Places a 4 µL droplet onto Parafilm M for the electronic glucose meter.</li>
+            </ul>
+          </div>
+          <div class="info-panel">
+            <h3>Why Tip Changing Is Mandatory</h3>
+            <p>Reusing the same tip between Lactose and Lactase contaminates the stock Lactase tube with substrate, causing your Lactase-Only negative control to turn positive!</p>
+          </div>
+        </div>
+      `;
+    } else if (state.page === "interpretation") {
+      sectionHeading.textContent = "6. Interpretation of Results & Error Troubleshooting";
+      stageBadge.textContent = "Multiple Lines of Evidence";
+      stageBadge.className = "badge";
+
+      const scenarios = [
+        { id: "expected", label: "Ideal Expected Results" },
+        { id: "blink", label: "Blinking 💧 (No Reading)" },
+        { id: "er1", label: "Er 1 (Damaged/Used Strip)" },
+        { id: "er2", label: "Er 2 (Sample Before 💧)" },
+        { id: "er4", label: "Er 4 (Not Enough Sample)" },
+        { id: "er5", label: "Er 5 (Wrong Strip Type)" }
+      ];
+
+      const btnRow = document.createElement("div");
+      btnRow.className = "btn-group";
+      scenarios.forEach(sc => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "action-btn";
+        b.textContent = sc.label;
+        b.setAttribute("aria-pressed", state.interpretation.selectedError === sc.id ? "true" : "false");
+        b.addEventListener("click", () => {
+          state.interpretation.selectedError = sc.id;
+          const notes = {
+            expected: "Comparing Positive Control ('Hi'), Reaction (~230 mg/dL), Lactase Only ('Lo' or trace), and Lactose Only ('Lo') provides two independent lines of evidence.",
+            blink: "Blinking 💧: Not enough liquid entered the strip, or glucose concentration was too low to generate a detectable electrical current. Record 'No reading'.",
+            er1: "Er 1: Damaged, bent, or previously used/humidity-exposed strip. Record 'Er 1' on your worksheet and retest with a fresh strip if needed.",
+            er2: "Er 2: Sample was touched to the strip before the blinking 💧 symbol appeared on the LCD screen. Record 'Er 2'.",
+            er4: "Er 4: Insufficient sample volume wicked into the strip channel. Record 'Er 4' and dispense a full 4 µL droplet.",
+            er5: "Er 5: Wrong strip type or improper seating in the meter slit. Try reinserting gently; if persistent, record 'Er 5'."
+          };
+          setStatus(notes[sc.id], sc.id === "expected" ? "success" : "warning");
+          buildPageUI();
+          renderFrame();
+        });
+        btnRow.appendChild(b);
+      });
+
+      controlsContainer.appendChild(btnRow);
+
+      detailsContainer.innerHTML = `
+        <h3 style="margin:0 0 8px;font-size:1rem;">Summary of Conditions &amp; Clean-Up Protocol</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Condition</th>
+                <th>Contents</th>
+                <th>Purpose</th>
+                <th>Digital Meter</th>
+                <th>Qualitative Strip</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Positive Control</strong></td>
+                <td>Glucose Only (Blue)</td>
+                <td>Verify meter &amp; strips work</td>
+                <td><code>Hi</code> (&gt; 600 mg/dL)</td>
+                <td>Dark Emerald (2000 mg/dL)</td>
+              </tr>
+              <tr>
+                <td><strong>Enzyme Reaction</strong></td>
+                <td>Lactose + Lactase (Clear)</td>
+                <td>Test enzymatic hydrolysis</td>
+                <td>Some glucose (~100–400 mg/dL)</td>
+                <td>Medium Green (250–500 mg/dL)</td>
+              </tr>
+              <tr>
+                <td><strong>Neg. Control 1</strong></td>
+                <td>Lactase Only (Pink)</td>
+                <td>Verify enzyme lacks high glucose</td>
+                <td><code>Lo</code> or slight trace (~36 mg/dL)</td>
+                <td>Yellow (0) or faint tint (100)</td>
+              </tr>
+              <tr>
+                <td><strong>Neg. Control 2</strong></td>
+                <td>Lactose Only (Yellow)</td>
+                <td>Verify no uncatalyzed breakdown</td>
+                <td><code>Lo</code> (&lt; 20 mg/dL)</td>
+                <td>Yellow (0 mg/dL)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="info-grid" style="margin-top:12px;">
+          <div class="info-panel">
+            <h3>Red Biohazard Bin Disposal</h3>
+            <p>Toss used reagent tubes, used Parafilm squares, used test strips, and pipette tips into the benchtop <strong>red biohazard bin</strong> (so they are never confused with Activity A tubes).</p>
+          </div>
+          <div class="info-panel">
+            <h3>Regular Trash &amp; Reusable Gear</h3>
+            <p>Wipe spills with Simple Green and discard paper towels in the <strong>regular trash</strong>. Return the clear 25 mL tube to the rack and verify Red (4 µL), Green (10 µL), Black (20 µL) pipettes, Sharpie, and glucose meter are in your kit.</p>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  // CANVAS RENDERING PER PAGE
+  function renderFrame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Subtle bench grid background
+    ctx.fillStyle = "#0f172a";
+    ctx.fillRect(0, 0, 720, 400);
+    ctx.strokeStyle = "rgba(148, 163, 184, 0.08)";
+    ctx.lineWidth = 1;
+    for (let gx = 0; gx < 720; gx += 36) {
+      ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, 400); ctx.stroke();
+    }
+    for (let gy = 0; gy < 400; gy += 36) {
+      ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(720, gy); ctx.stroke();
+    }
+
+    if (state.page === "overview") {
+      renderOverview();
+    } else if (state.page === "glucose") {
+      renderGlucose();
+    } else if (state.page === "lactose") {
+      renderLactose();
+    } else if (state.page === "lactase") {
+      renderLactase();
+    } else if (state.page === "reaction") {
+      renderReaction();
+    } else if (state.page === "interpretation") {
+      renderInterpretation();
+    }
+  }
+
+  function renderOverview() {
+    const pulse = state.animating ? Math.sin(state.tick * 0.08) * 4 : 0;
+
+    // Left card: Lactase Active Site Mechanism
+    roundRect(18, 18, 360, 224, 12, "#1e293b", "#334155", 1.5);
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "bold 13px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("A. Lactase Hydrolysis Mechanism", 32, 42);
+
+    // Lactase Enzyme (Large purple/indigo globular protein with active site notch)
+    ctx.save();
+    ctx.translate(150, 155);
+    ctx.fillStyle = "#6d28d9";
+    ctx.strokeStyle = "#c4b5fd";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.arc(0, 0, 62, 0.35 * Math.PI, 1.85 * Math.PI);
+    ctx.lineTo(14, -14);
+    ctx.lineTo(14, 14);
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 12px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("LACTASE", -16, 4);
+    ctx.font = "10px sans-serif";
+    ctx.fillStyle = "#ddd6fe";
+    ctx.fillText("(Hydrolase Enzyme)", -16, 19);
+    ctx.restore();
+
+    // Substrate / Products positions based on catalysisStep
+    if (state.catalysisStep === 0) {
+      // Approaching disaccharide
+      const sx = 258 + pulse;
+      drawSugarPair(sx, 148);
+      ctx.fillStyle = "#fde047";
+      ctx.font = "bold 11px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Lactose (Substrate)", sx + 22, 116);
+      ctx.fillStyle = "#93c5fd";
+      ctx.fillText("← Approaching Active Site", sx + 12, 192);
+    } else if (state.catalysisStep === 1) {
+      // Bound in active site + H2O
+      drawSugarPair(178, 148);
+      ctx.fillStyle = "#38bdf8";
+      ctx.font = "bold 12px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("H₂O", 212, 102 + pulse * 0.5);
+      ctx.fillText("↓ Hydrolysis", 212, 118);
+      ctx.fillStyle = "#fde047";
+      ctx.fillText("Enzyme–Substrate Complex", 215, 218);
+    } else {
+      // Cleaved into Galactose + Glucose
+      const dx = 250 + Math.abs(pulse);
+      drawSingleHex(dx, 122, "#fb923c", "Galactose");
+      drawSingleHex(dx + 16, 178, "#4ade80", "Glucose");
+      ctx.fillStyle = "#86efac";
+      ctx.font = "bold 11px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("Products Released!", dx + 10, 222);
+    }
+
+    // Right card: Glucose Oxidase Detection System
+    roundRect(392, 18, 310, 224, 12, "#1e293b", "#334155", 1.5);
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "bold 13px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("B. Glucose Oxidase Assay", 406, 42);
+
+    ctx.fillStyle = "#cbd5e1";
+    ctx.font = "11px sans-serif";
+    ctx.fillText("Glucose + O₂  →  Gluconic Acid + H₂O₂", 406, 66);
+
+    if (state.detectionMode === "strip") {
+      roundRect(406, 80, 282, 146, 8, "#0f172a", "#475569", 1);
+      ctx.fillStyle = "#86efac";
+      ctx.font = "bold 12px sans-serif";
+      ctx.fillText("Qualitative Strip (Colorimetric)", 418, 102);
+      ctx.fillStyle = "#e2e8f0";
+      ctx.font = "11px sans-serif";
+      ctx.fillText("• H₂O₂ oxidizes indicator dye on pad", 418, 124);
+      ctx.fillText("• Color shifts Yellow → Light/Dark Green", 418, 144);
+      ctx.fillText("• Compare against 5-block Carolina chart", 418, 164);
+      drawQualStrip(646, 86, "strip", "#16a34a", "", true);
+    } else {
+      roundRect(406, 80, 282, 146, 8, "#0f172a", "#475569", 1);
+      ctx.fillStyle = "#93c5fd";
+      ctx.font = "bold 12px sans-serif";
+      ctx.fillText("Digital Meter (Amperometric)", 418, 102);
+      ctx.fillStyle = "#e2e8f0";
+      ctx.font = "11px sans-serif";
+      ctx.fillText("• Enzyme reaction generates e⁻ current", 418, 124);
+      ctx.fillText("• 4 µL drop on Parafilm wicks into strip", 418, 144);
+      ctx.fillText("• Displays quantitative mg/dL in 5 sec", 418, 164);
+      roundRect(618, 96, 56, 76, 8, "#cbd5e1", "#64748b", 1.5);
+      ctx.fillStyle = "#0f172a";
+      ctx.font = "bold 13px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("248", 646, 134);
+      ctx.font = "9px sans-serif";
+      ctx.fillText("mg/dL", 646, 150);
+    }
+
+    // Bottom tray: All 4 tubes + 3 miniPCR pipettes
+    roundRect(18, 254, 684, 132, 12, "#1e293b", "#334155", 1.5);
+    drawTube(82, 272, "#2563eb", "Glucose (Pos)", "rgba(147, 197, 253, 0.7)", 0.45);
+    drawTube(182, 272, "#ec4899", "Lactase Enz", "rgba(244, 114, 182, 0.55)", 0.45);
+    drawTube(282, 272, "#eab308", "Lactose Sub", "rgba(253, 224, 71, 0.6)", 0.45);
+    drawTube(382, 272, "#e2e8f0", "1.5 mL React", "rgba(186, 230, 253, 0.25)", 0.15);
+
+    // MiniPCR Pipette color key
+    const pips = [
+      { x: 486, color: "#dc2626", name: "Red P4", vol: "4 µL (Parafilm)" },
+      { x: 568, color: "#16a34a", name: "Green P10", vol: "10 µL (Strip)" },
+      { x: 650, color: "#1e293b", name: "Black P20", vol: "20 µL (Tube)" }
+    ];
+    pips.forEach(p => {
+      roundRect(p.x - 10, 274, 20, 62, 6, p.color, "#94a3b8", 1.5);
+      roundRect(p.x - 4, 336, 8, 24, 2, "#e2e8f0", null);
+      ctx.fillStyle = "#f8fafc";
+      ctx.font = "bold 11px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(p.name, p.x, 373);
+      ctx.fillStyle = "#cbd5e1";
+      ctx.font = "9.5px sans-serif";
+      ctx.fillText(p.vol, p.x, 384);
+    });
+  }
+
+  function drawSingleHex(cx, cy, fill, label) {
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const ang = (Math.PI / 3) * i;
+      const px = cx + 18 * Math.cos(ang);
+      const py = cy + 18 * Math.sin(ang);
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#0f172a";
+    ctx.stroke();
+
+    if (label) {
+      ctx.fillStyle = "#f8fafc";
+      ctx.font = "bold 10px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(label, cx, cy + 30);
+    }
+  }
+
+  function drawSugarPair(cx, cy) {
+    drawSingleHex(cx, cy, "#fb923c", "");
+    drawSingleHex(cx + 42, cy, "#4ade80", "");
+    ctx.strokeStyle = "#fde047";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(cx + 18, cy);
+    ctx.lineTo(cx + 24, cy);
+    ctx.stroke();
+  }
+
+  function renderGlucose() {
+    const g = state.glucose;
+    drawTube(82, 74, "#2563eb", "Blue: Glucose", "rgba(96, 165, 250, 0.78)", g.parafilmSpotted ? 0.36 : 0.48, true);
+
+    drawQualStrip(
+      206,
+      54,
+      "glucose",
+      "#065f46",
+      g.stripDipped ? "2000 mg/dL" : "Unreacted",
+      g.stripDipped
+    );
+
+    drawCarolinaChart(268, 54);
+    drawParafilm(384, 210, g.parafilmSpotted, "rgba(96, 165, 250, 0.85)", "4 µL Glucose");
+
+    let mMode = "off";
+    let mMain = "";
+    let mSub = "mg/dL";
+    if (g.touchEarlyError) {
+      mMode = "error";
+      mMain = "Er 2";
+      mSub = "Early Sample";
+    } else if (g.meterResult === "Hi") {
+      mMode = "result";
+      mMain = "Hi";
+      mSub = "> 600 mg/dL";
+    } else if (g.meterInserted) {
+      mMode = "ready";
+    }
+    drawGlucoseMeter(594, 54, mMode, "A10", mMain, mSub);
+
+    // Checklist footer
+    roundRect(24, 304, 672, 76, 10, "#1e293b", "#334155", 1.5);
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "bold 12px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("Positive Control Checklist:", 40, 326);
+    ctx.font = "11px sans-serif";
+    ctx.fillStyle = g.stripDipped ? "#86efac" : "#cbd5e1";
+    ctx.fillText((g.stripDipped ? "✓" : "○") + " Qualitative strip dipped (1–2 s) → Dark emerald green", 40, 346);
+    ctx.fillStyle = g.meterResult === "Hi" ? "#86efac" : "#cbd5e1";
+    ctx.fillText((g.meterResult === "Hi" ? "✓" : "○") + " 4 µL drop on Parafilm wicked into meter → Reads 'Hi' (> 600 mg/dL)", 40, 366);
+  }
+
+  function renderLactose() {
+    const l = state.lactose;
+    drawTube(82, 74, "#eab308", "Yellow: Lactose", "rgba(253, 224, 71, 0.72)", l.parafilmSpotted ? 0.36 : 0.48, true);
+
+    drawQualStrip(
+      206,
+      54,
+      "lactose",
+      "#eab308",
+      l.stripDipped ? "0 mg/dL (Neg)" : "Unreacted",
+      l.stripDipped
+    );
+
+    drawCarolinaChart(268, 54);
+    drawParafilm(384, 210, l.parafilmSpotted, "rgba(253, 224, 71, 0.78)", "4 µL Lactose");
+
+    const mMode = l.meterResult ? "result" : (l.meterInserted ? "ready" : "off");
+    drawGlucoseMeter(594, 54, mMode, "A10", l.meterResult || "", "< 20 mg/dL");
+
+    roundRect(24, 304, 672, 76, 10, "#1e293b", "#334155", 1.5);
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "bold 12px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("Negative Control 2 (Substrate Only — No Lactase):", 40, 326);
+    ctx.font = "11px sans-serif";
+    ctx.fillStyle = "#cbd5e1";
+    ctx.fillText("• Intact lactose disaccharide cannot react with glucose oxidase on the strip.", 40, 346);
+    ctx.fillText("• Both the qualitative strip (0 mg/dL yellow) and digital meter ('Lo') confirm zero free glucose.", 40, 366);
+  }
+
+  function renderLactase() {
+    const lac = state.lactase;
+    drawTube(82, 74, "#ec4899", "Pink: Lactase", "rgba(244, 114, 182, 0.68)", lac.parafilmSpotted ? 0.36 : 0.48, true);
+
+    const stripColor = lac.impurityMode ? "#a3e635" : "#eab308";
+    const stripRead = lac.stripDipped ? (lac.impurityMode ? "~100 (Trace)" : "0 mg/dL (Neg)") : "Unreacted";
+    drawQualStrip(206, 54, "lactase", stripColor, stripRead, lac.stripDipped);
+
+    drawCarolinaChart(268, 54);
+    drawParafilm(384, 210, lac.parafilmSpotted, "rgba(244, 114, 182, 0.72)", "4 µL Lactase");
+
+    const mMode = lac.meterResult ? "result" : (lac.meterInserted ? "ready" : "off");
+    const subNote = lac.impurityMode ? "mg/dL (Trace)" : "< 20 mg/dL";
+    drawGlucoseMeter(594, 54, mMode, "A10", lac.meterResult || "", subNote);
+
+    roundRect(24, 304, 672, 76, 10, "#1e293b", "#334155", 1.5);
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "bold 12px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("Negative Control 1 (Enzyme Only — No Lactose):", 40, 326);
+    ctx.font = "11px sans-serif";
+    ctx.fillStyle = lac.impurityMode ? "#fcd34d" : "#cbd5e1";
+    ctx.fillText(
+      lac.impurityMode
+        ? "• Consumer Lactaid Mode: Commercial stabilizers/binders produce a slight positive reading (~36 mg/dL)."
+        : "• Pure Lab Lactase Mode: Without lactose substrate, no glucose is formed ('Lo' / 0 mg/dL).",
+      40,
+      348
+    );
+  }
+
+  function renderReaction() {
+    const r = state.reaction;
+    // Stock tubes on far left
+    drawTube(66, 62, "#eab308", "Lactose", "rgba(253, 224, 71, 0.72)", r.lactoseAdded ? 0.25 : 0.45, !r.lactoseAdded);
+    drawTube(144, 62, "#ec4899", "Lactase", "rgba(244, 114, 182, 0.68)", r.lactaseAdded ? 0.25 : 0.45, r.tipEjectedAfterLactose && !r.lactaseAdded);
+
+    // Clear 1.5 mL Reaction Tube
+    const level = (r.lactoseAdded ? 0.25 : 0) + (r.lactaseAdded ? 0.25 : 0);
+    const rxColor = r.lactaseAdded ? "rgba(74, 222, 128, 0.65)" : "rgba(253, 224, 71, 0.65)";
+    drawTube(232, 62, "#e2e8f0", "Reaction (40µL)", rxColor, level, r.lactaseAdded);
+
+    // Qualitative strip color scales with incubationMin (0–15 min)
+    let qualColor = "#eab308";
+    let qualLabel = "Unspotted";
+    if (r.stripSpotted10uL) {
+      if (r.incubationMin === 0) { qualColor = "#eab308"; qualLabel = "0 mg/dL"; }
+      else if (r.incubationMin <= 2) { qualColor = "#a3e635"; qualLabel = "~100 mg/dL"; }
+      else if (r.incubationMin <= 6) { qualColor = "#4ade80"; qualLabel = "~250 mg/dL"; }
+      else if (r.incubationMin <= 11) { qualColor = "#16a34a"; qualLabel = "~500 mg/dL"; }
+      else { qualColor = "#065f46"; qualLabel = "~2000 mg/dL"; }
+    }
+    drawQualStrip(336, 48, "reaction", qualColor, qualLabel, r.stripSpotted10uL);
+
+    drawParafilm(468, 124, r.parafilmSpotted4uL, "rgba(74, 222, 128, 0.8)", "4 µL Rxn");
+    drawCarolinaChart(392, 200);
+
+    const mMode = r.meterResult ? "result" : (r.meterInserted ? "ready" : "off");
+    const mSub = r.meterResult === "Lo" ? "< 20 mg/dL" : (r.meterResult === "Hi" ? "> 600 mg/dL" : "mg/dL (Product)");
+    drawGlucoseMeter(644, 48, mMode, "A10", r.meterResult || "", mSub);
+
+    // Bottom progress strip
+    roundRect(24, 304, 672, 76, 10, "#1e293b", "#334155", 1.5);
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "bold 12px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("Reaction Tube Protocol Status:", 40, 326);
+    ctx.font = "11px sans-serif";
+    ctx.fillStyle = "#cbd5e1";
+    ctx.fillText(
+      `1. Lactose (20 µL): ${r.lactoseAdded ? "Done" : "Pending"}  |  ` +
+      `2. Tip Eject: ${r.tipEjectedAfterLactose ? "Done" : "Pending"}  |  ` +
+      `3. Lactase (20 µL): ${r.lactaseAdded ? "Done" : "Pending"}`,
+      40, 346
+    );
+    ctx.fillStyle = "#86efac";
+    ctx.fillText(
+      `Incubation: ${r.incubationMin} min → Hydrolyzes lactose into glucose + galactose (~${Math.round(r.incubationMin * 46)} mg/dL).`,
+      40, 366
+    );
+  }
+
+  function renderInterpretation() {
+    // 4 Qualitative strips side-by-side
+    roundRect(20, 20, 420, 250, 12, "#1e293b", "#334155", 1.5);
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "bold 13px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("1. Qualitative Strips vs. Carolina Chart", 34, 42);
+
+    drawQualStrip(68, 54, "glucose", "#065f46", "2000", true);
+    drawQualStrip(144, 54, "reaction", "#4ade80", "250–500", true);
+    drawQualStrip(220, 54, "lactase", "#a3e635", "0–100", true);
+    drawQualStrip(296, 54, "lactose", "#eab308", "0", true);
+
+    drawCarolinaChart(196, 186);
+
+    // Right panel: Digital Meter Comparison & Selected Error Inspector
+    roundRect(454, 20, 246, 250, 12, "#1e293b", "#334155", 1.5);
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "bold 13px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("2. Digital Meter Readouts", 468, 42);
+
+    const err = state.interpretation.selectedError;
+    if (err === "expected") {
+      const rows = [
+        { name: "Positive Control (Glucose)", val: "Hi (>600)", col: "#4ade80" },
+        { name: "Reaction (Lactose+Lactase)", val: "230 mg/dL", col: "#86efac" },
+        { name: "Neg. Ctrl 1 (Lactase Only)", val: "Lo / 36*", col: "#fde047" },
+        { name: "Neg. Ctrl 2 (Lactose Only)", val: "Lo (<20)", col: "#93c5fd" }
+      ];
+      rows.forEach((rw, idx) => {
+        const ry = 60 + idx * 48;
+        roundRect(468, ry, 218, 40, 8, "#0f172a", "#475569", 1);
+        ctx.fillStyle = "#e2e8f0";
+        ctx.font = "bold 11px sans-serif";
+        ctx.textAlign = "left";
+        ctx.fillText(rw.name, 478, ry + 24);
+        ctx.fillStyle = rw.col;
+        ctx.font = "bold 12px monospace";
+        ctx.textAlign = "right";
+        ctx.fillText(rw.val, 676, ry + 24);
+      });
+    } else {
+      const codeMap = {
+        blink: { code: "💧 (Blink)", title: "Low Vol / No Current" },
+        er1: { code: "Er 1", title: "Damaged / Used Strip" },
+        er2: { code: "Er 2", title: "Sample Before 💧" },
+        er4: { code: "Er 4", title: "Not Enough Sample" },
+        er5: { code: "Er 5", title: "Wrong Strip Type" }
+      };
+      const info = codeMap[err];
+      drawGlucoseMeter(577, 56, "error", "A10", info.code, info.title);
+    }
+
+    // Bottom takeaway bar
+    roundRect(20, 284, 680, 96, 10, "#1e293b", "#334155", 1.5);
+    ctx.fillStyle = "#86efac";
+    ctx.font = "bold 12px sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("Scientific Conclusion:", 36, 308);
+    ctx.fillStyle = "#f8fafc";
+    ctx.font = "11.5px sans-serif";
+    ctx.fillText("• Glucose appears only when BOTH lactose (substrate) and lactase (enzyme) are combined.", 36, 330);
+    ctx.fillText("• Using both digital meters and qualitative strips provides multiple lines of evidence.", 36, 350);
+    ctx.fillText("• *Consumer lactase (Lactaid) may show a slight positive reading from tablet excipients.", 36, 370);
+  }
+
+  function loop() {
+    if (state.animating) {
+      state.tick++;
+      renderFrame();
+    }
+    window.requestAnimationFrame(loop);
+  }
+
+  // Initialize immediately
+  setPage("overview");
+  window.requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
