@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIOS 110: Activity A — Cell Lysis Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* =====================================================================
+           DESIGN TOKENS & WCAG 2.1 AA HIGH-CONTRAST SYSTEM (>= 4.5:1)
+           ===================================================================== */
+        :root {
+            --bg-page: #f1f5f9;
+            --bg-card: #ffffff;
+            --bg-subtle: #f8fafc;
+            --bg-hover: #e2e8f0;
+            --slate-950: #020617;
+            --slate-900: #0f172a;
+            --slate-800: #1e293b;
+            --slate-700: #334155;
+            --border-subtle: #cbd5e1;
+            --border-strong: #475569;
+            --blue-primary: #1d4ed8;
+            --blue-dark: #1e3a8a;
+            --teal-primary: #0f766e;
+            --teal-dark: #115e59;
+            --focus-ring: #2563eb;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg-page);
+            color: var(--slate-900);
+            margin: 0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* High-visibility keyboard focus indicators */
+        :focus-visible {
+            outline: 3px solid var(--focus-ring);
+            outline-offset: 2px;
+        }
+
+        header :focus-visible {
+            outline: 3px solid #38bdf8;
+            outline-offset: 2px;
+        }
+
+        /* Respect user reduced-motion preferences */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
+        }
+
+        /* Accessible >= 44px x 44px touch targets */
+        .touch-target {
+            min-height: 44px;
+            min-width: 44px;
+        }
+
+        .ctrl-btn {
+            min-height: 44px;
+            min-width: 44px;
+            padding: 0.45rem 0.65rem;
+            border-radius: 0.6rem;
+            border: 1.5px solid var(--border-strong);
+            background-color: #ffffff;
+            color: var(--slate-900);
+            font-size: 0.8rem;
+            font-weight: 700;
+            line-height: 1.25;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            text-align: center;
+            transition: background-color 0.12s ease, border-color 0.12s ease, transform 0.06s ease;
+            user-select: none;
+        }
+
+        .ctrl-btn:hover {
+            background-color: var(--bg-hover);
+            border-color: var(--slate-950);
+        }
+
+        .ctrl-btn:active {
+            transform: translateY(1px);
+        }
+
+        .ctrl-btn[aria-pressed="true"] {
+            background-color: var(--slate-900);
+            color: #ffffff;
+            border-color: var(--slate-900);
+        }
+
+        .ctrl-btn.btn-primary {
+            background-color: var(--blue-primary);
+            color: #ffffff;
+            border-color: var(--blue-dark);
+        }
+
+        .ctrl-btn.btn-primary:hover {
+            background-color: var(--blue-dark);
+        }
+
+        .ctrl-btn.btn-teal {
+            background-color: var(--teal-primary);
+            color: #ffffff;
+            border-color: var(--teal-dark);
+        }
+
+        .ctrl-btn.btn-teal:hover {
+            background-color: var(--teal-dark);
+        }
+
+        .ctrl-btn.btn-warn {
+            background-color: #b45309;
+            color: #ffffff;
+            border-color: #78350f;
+        }
+
+        .ctrl-btn.btn-warn:hover {
+            background-color: #92400e;
+        }
+
+        /* Unobstructed responsive HTML5 canvas (720x400 intrinsic buffer) */
+        .canvas-shell {
+            width: 100%;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: 2px solid var(--slate-900);
+            background-color: #0f172a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #simCanvas {
+            width: 100%;
+            height: auto;
+            aspect-ratio: 16 / 9;
+            max-height: 360px;
+            display: block;
+            touch-action: manipulation;
+        }
+    </style>
+</head>
+<body class="flex flex-col">
+    <!-- Skip-to-content link for keyboard & screen-reader users -->
+    <a href="#main-workspace" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:bg-white focus:text-slate-950 focus:font-extrabold focus:px-4 focus:py-3 focus:rounded-xl focus:border-2 focus:border-blue-700 focus:shadow-lg">
+        Skip to Activity A Cell Lysis Simulator
+    </a>
+
+    <!-- Polite ARIA live announcer -->
+    <div id="ariaLive" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+    <!-- =====================================================================
+         COMPACT STICKY TOP HEADER (Title + Prev/Next + <select id="stageSelect">)
+         ===================================================================== -->
+    <header class="sticky top-0 z-40 bg-slate-900 text-white border-b border-slate-800 shadow-md">
+        <div class="max-w-7xl mx-auto px-2.5 py-2 sm:px-4 flex flex-wrap items-center justify-between gap-2">
+            <!-- App Title -->
+            <div class="flex items-center gap-2 min-w-0">
+                <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-teal-600 via-blue-700 to-indigo-800 flex items-center justify-center shrink-0 shadow-inner" aria-hidden="true">
+                    <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <ellipse cx="12" cy="12" rx="9" ry="6"/>
+                        <path d="M8 12c1.5-2 2.5 2 4 0s2.5 2 4 0"/>
+                    </svg>
+                </div>
+                <div class="min-w-0">
+                    <div class="text-sm sm:text-base font-extrabold tracking-tight leading-tight truncate">
+                        Activity A: Cell Lysis
+                    </div>
+                    <div class="hidden md:block text-xs text-slate-300 leading-tight">
+                        BIOS 110 Student Lab Manual · Cell Lysis for DNA Extraction
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stage Navigation Controls (>= 44px touch targets) -->
+            <nav class="flex items-center gap-1.5 flex-1 sm:flex-initial min-w-0 max-w-full sm:w-[470px]" aria-label="Activity A Stage Selector">
+                <button id="prevStageBtn" type="button" class="touch-target px-3 rounded-xl border border-slate-400 bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-base shrink-0" aria-label="Previous stage">
+                    &larr;
+                </button>
+
+                <div class="relative flex-1 min-w-0">
+                    <label for="stageSelect" class="sr-only">Choose Activity A Stage</label>
+                    <select id="stageSelect" class="touch-target w-full pl-2.5 pr-8 py-2 rounded-xl border border-slate-400 bg-white text-slate-950 font-bold text-xs sm:text-sm truncate cursor-pointer appearance-none">
+                        <option value="stage1">Stage 1: Molecular Mechanism (Lysozyme, DNA Shield &amp; Bead Beating)</option>
+                        <option value="stage2">Stage 2: P1000 Transfers &amp; Overflow Prevention</option>
+                        <option value="stage3">Stage 3: Bead-Beater Loading &amp; Clean-Up</option>
+                    </select>
+                    <svg class="w-4 h-4 text-slate-900 pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </div>
+
+                <button id="nextStageBtn" type="button" class="touch-target px-3 rounded-xl border border-slate-400 bg-slate-800 hover:bg-slate-700 text-white font-extrabold text-base shrink-0" aria-label="Next stage">
+                    &rarr;
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- =====================================================================
+         MAIN WORKSPACE: UNOBSTRUCTED CANVAS + STAGE CONTROLS + LAB PROTOCOL
+         ===================================================================== -->
+    <main id="main-workspace" tabindex="-1" class="flex-1 w-full max-w-7xl mx-auto p-2.5 sm:p-4">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5 items-start">
+
+            <!-- Left 7 Columns: Unobstructed Canvas & Interactive Controls -->
+            <section class="lg:col-span-7 bg-white border border-slate-300 rounded-2xl shadow-md p-2.5 sm:p-3.5 min-w-0" aria-label="Activity A Interactive Simulation">
+                <div class="canvas-shell">
+                    <canvas id="simCanvas" width="720" height="400" role="img" aria-label="Activity A Cell Lysis Interactive Canvas"></canvas>
+                </div>
+
+                <!-- Interactive Controls Panel -->
+                <fieldset class="mt-2.5 bg-slate-50 border border-slate-300 rounded-xl p-2.5 sm:p-3 flex flex-col gap-2 min-w-0">
+                    <legend id="controlsLegend" class="text-xs font-extrabold uppercase tracking-wider text-slate-800 px-1.5">
+                        Stage 1 Controls
+                    </legend>
+
+                    <div id="dynamicControls" class="flex flex-col gap-2"></div>
+
+                    <!-- Inline Status Feedback Banner (Replaces alert()/confirm()) -->
+                    <div id="statusBox" role="status" class="text-xs sm:text-sm font-bold px-3 py-2 rounded-lg border border-blue-300 bg-blue-50 text-blue-950">
+                        Ready.
+                    </div>
+                </fieldset>
+            </section>
+
+            <!-- Right 5 Columns: BIOS 110 Activity A Lab Manual Reference -->
+            <aside class="lg:col-span-5 bg-white border border-slate-300 border-t-4 border-t-teal-700 rounded-2xl shadow-md p-3.5 sm:p-4 flex flex-col gap-3 min-w-0" aria-labelledby="stageHeading">
+                <div>
+                    <div id="stageTag" class="text-xs font-extrabold uppercase tracking-wider text-teal-800">
+                        BIOS 110 · Activity A · Stage 1 of 3
+                    </div>
+                    <h1 id="stageHeading" class="text-lg sm:text-xl font-extrabold text-slate-950 leading-snug mt-0.5">
+                        Stage 1: Molecular Mechanism (Lysozyme, DNA Shield &amp; Bead Beating)
+                    </h1>
+                    <p id="stageSubtitle" class="text-xs sm:text-sm font-bold text-blue-800 mt-0.5">
+                        Enzymatic Hydrolysis · Chemical Nuclease Denaturation · Mechanical Rupture
+                    </p>
+                </div>
+
+                <!-- Protocol Spec Chips -->
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-2">
+                        <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-600">Target</div>
+                        <div id="chipTarget" class="text-xs sm:text-sm font-extrabold text-slate-950 mt-0.5 truncate">NAG-NAM Wall</div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-2">
+                        <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-600">Reagent / Tool</div>
+                        <div id="chipTool" class="text-xs sm:text-sm font-extrabold text-slate-950 mt-0.5 truncate">BashingBeads</div>
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 rounded-xl p-2">
+                        <div class="text-[10px] font-extrabold uppercase tracking-wider text-slate-600">Key Concept</div>
+                        <div id="chipRule" class="text-xs sm:text-sm font-extrabold text-slate-950 mt-0.5 truncate">Protect gDNA</div>
+                    </div>
+                </div>
+
+                <!-- Stage Description -->
+                <p id="stageDescription" class="text-sm text-slate-800 leading-relaxed"></p>
+
+                <!-- BIOS 110 Lab Manual Checklist -->
+                <div id="stageChecklist" class="bg-teal-50 border-l-4 border-teal-700 rounded-r-xl p-3 text-xs sm:text-sm text-slate-950"></div>
+            </aside>
+
+        </div>
+    </main>
+
+    <script>
+        /**
+         * =====================================================================
+         * BIOS 110: Activity A — Cell Lysis Simulator (Standalone Spoke)
+         * Single-File Educational HTML5 Simulation (720 x 400 Canvas)
+         * =====================================================================
+         */
+        (() => {
+            const W = 720;
+            const H = 400;
+
+            const canvas = document.getElementById('simCanvas');
+            const ctx = canvas.getContext('2d');
+            const stageSelect = document.getElementById('stageSelect');
+            const prevStageBtn = document.getElementById('prevStageBtn');
+            const nextStageBtn = document.getElementById('nextStageBtn');
+            const dynamicControls = document.getElementById('dynamicControls');
+            const statusBox = document.getElementById('statusBox');
+            const ariaLive = document.getElementById('ariaLive');
+
+            const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            // Polite screen-reader announcement helper
+            function announce(text) {
+                ariaLive.textContent = '';
+                window.setTimeout(() => {
+                    ariaLive.textContent = text;
+                }, 25);
+            }
+
+            // Inline status banner updater (never uses alert() or confirm())
+            function setStatus(text, tone = 'info') {
+                statusBox.textContent = text;
+                if (tone === 'ok') {
+                    statusBox.className = 'text-xs sm:text-sm font-bold px-3 py-2 rounded-lg border border-emerald-400 bg-emerald-50 text-emerald-950';
+                } else if (tone === 'warn') {
+                    statusBox.className = 'text-xs sm:text-sm font-bold px-3 py-2 rounded-lg border border-red-400 bg-red-50 text-red-950';
+                } else {
+                    statusBox.className = 'text-xs sm:text-sm font-bold px-3 py-2 rounded-lg border border-blue-300 bg-blue-50 text-blue-950';
+                }
+            }
+
+            // =================================================================
+            // STAGE METADATA (BIOS 110 STUDENT LAB MANUAL: ACTIVITY A)
+            // =================================================================
+            const STAGES = [
+                {
+                    id: 'stage1',
+                    tag: 'BIOS 110 · Activity A · Stage 1 of 3',
+                    title: 'Stage 1: Molecular Mechanism (Lysozyme, DNA Shield & Bead Beating)',
+                    subtitle: 'Enzymatic Hydrolysis · Chemical Nuclease Denaturation · Mechanical Rupture',
+                    target: 'NAG-NAM Wall',
+                    tool: 'BashingBeads',
+                    rule: 'Protect gDNA',
+                    description: 'Probiotic bacteria possess a thick peptidoglycan cell wall made of cross-linked NAG and NAM sugar chains. Toggle Lysozyme, DNA/RNA Shield, and Bead Beating, then click "Collide Beads / Run Lysis" to observe how enzymatic, chemical, and mechanical steps protect and extract intact genomic DNA.',
+                    checklist: `
+                        <strong class="font-extrabold">Why All 3 Steps Are Required in Activity A:</strong>
+                        <ul class="list-disc pl-5 mt-1.5 space-y-1">
+                            <li><strong>Lysozyme (Enzymatic):</strong> Hydrolyzes <code>NAG-NAM</code> cross-links in peptidoglycan, creating structural gaps in the thick bacterial wall.</li>
+                            <li><strong>DNA/RNA Shield (Chemical):</strong> Denatures host <strong>nuclease enzymes</strong> (warping/closing their 3D C-shaped active sites) so released gDNA is not digested.</li>
+                            <li><strong>Bead Beating (Mechanical):</strong> Zirconia/silica BashingBeads collide with the weakened cell wall to shatter it open and release intact gDNA.</li>
+                        </ul>
+                    `
+                },
+                {
+                    id: 'stage2',
+                    tag: 'BIOS 110 · Activity A · Stage 2 of 3',
+                    title: 'Stage 2: P1000 Transfers & Overflow Prevention',
+                    subtitle: 'Tube Labeling · 200 µL Sample [0|2|0] · 750 µL Bead Buffer [0|7|5]',
+                    target: '200 + 750 µL',
+                    tool: 'Blue P1000',
+                    rule: 'Slow Plunger Release',
+                    description: 'Follow Activity A’s wet-bench pipetting protocol using the Blue miniPCR P1000 micropipette. Label your tubes first, transfer 200 µL of BSL-1 probiotic sample [0|2|0], and compare plunging the tip straight down versus slowly releasing the plunger while entering the 750 µL Bead Buffer tube [0|7|5].',
+                    checklist: `
+                        <strong class="font-extrabold">Activity A Wet-Bench Protocol &amp; Overflow Rule:</strong>
+                        <ul class="list-disc pl-5 mt-1.5 space-y-1">
+                            <li><strong>Tube Labeling:</strong> Initials on <strong>BashingBead lid</strong>, Full Name + Lab Day/Time on <strong>side</strong>; label <code>Bead Buffer</code> and <code>probiotic sample + Full Name</code>.</li>
+                            <li><strong>200 µL Sample [0|2|0]:</strong> Aspirate all 200 µL BSL-1 probiotic suspension into BashingBead tube, then eject tip into the red biohazard bin.</li>
+                            <li><strong>750 µL Buffer [0|7|5]:</strong> Slowly release the plunger <em>while lowering the tip</em> to the bottom so tip displacement does not overflow buffer onto your gloves!</li>
+                        </ul>
+                    `
+                },
+                {
+                    id: 'stage3',
+                    tag: 'BIOS 110 · Activity A · Stage 3 of 3',
+                    title: 'Stage 3: Bead-Beater Loading & Clean-Up',
+                    subtitle: '18-Slot Front-Bench Rack (40 min) · Biohazard vs. Regular Trash Sorting',
+                    target: '18-Slot Rack',
+                    tool: 'Biohazard & Kit',
+                    rule: 'Sort Waste Properly',
+                    description: 'Seat your tightly capped, labeled BashingBead tube into the shared 18-slot front-bench bead beater for the 40-minute lysis run, then sort used consumables and equipment into their proper lab stations without overfilling the benchtop biohazard bag.',
+                    checklist: `
+                        <strong class="font-extrabold">Activity A Bead-Beating &amp; Bench Clean-Up Rules:</strong>
+                        <ul class="list-disc pl-5 mt-1.5 space-y-1">
+                            <li><strong>18-Slot Bead Beater:</strong> Verify screw cap is tight, seat tube firmly in an open rack slot, and run the <strong>40-minute</strong> mechanical lysis timer.</li>
+                            <li><strong>Red Benchtop Biohazard Bag:</strong> Dispose of <em>empty sample/buffer tubes, caps, and used P1000 tips</em> here.</li>
+                            <li><strong>Regular Trash &amp; Kit:</strong> Put <em>Simple Green bench paper towels</em> in <strong>Regular Trash</strong> (saves biohazard space) and return P1000 + Sharpie to the <strong>Blue Carousel / Kit</strong>.</li>
+                        </ul>
+                    `
+                }
+            ];
+
+            // =================================================================
+            // CENTRALIZED SIMULATION STATE
+            // =================================================================
+            const state = {
+                stageId: 'stage1',
+
+                // Stage 1: Molecular Mechanism
+                lysozymeOn: false,
+                dnaShieldOn: false,
+                beadBeatingOn: false,
+                collisionBurstSec: 0,
+
+                // Stage 2: P1000 Transfers & Overflow Prevention
+                tubesLabeled: false,
+                sampleTransferred: false,      // 200 uL [0|2|0]
+                dialDigits: ['0', '2', '0'],   // ['0','2','0'] or ['0','7','5']
+                bufferOverflowError: false,
+                bufferTransferred: false,      // 750 uL [0|7|5]
+                bashingCapTight: false,
+                tipEjectedCount: 0,
+                overflowSplashSec: 0,
+
+                // Stage 3: 18-Slot Bead-Beater Rack & Waste Sorting
+                tubeSeated: false,
+                beadBeaterMinutes: 0,          // 0 -> 40 min fast-forward
+                beadBeaterRunning: false,
+                sortedTubesCaps: false,        // -> Red Biohazard
+                sortedUsedTips: false,         // -> Red Biohazard
+                sortedPaperTowels: false,      // -> Regular Trash
+                sortedPipetteSharpie: false    // -> Blue Carousel / Kit
+            };
+
+            let animTime = 0;
+            let lastFrameTs = 0;
+
+            // Pre-seeded zirconia/silica BashingBeads around the probiotic cell in Stage 1
+            const BASHING_BEADS = [
+                { bx: 78,  by: 108, phase: 0.1 },
+                { bx: 422, by: 104, phase: 1.2 },
+                { bx: 72,  by: 326, phase: 2.4 },
+                { bx: 428, by: 324, phase: 3.5 },
+                { bx: 248, by: 74,  phase: 4.3 },
+                { bx: 252, by: 358, phase: 5.2 }
+            ];
+
+            // =================================================================
+            // STAGE NAVIGATION & DYNAMIC CONTROL BUILDERS
+            // =================================================================
+            function loadStage(id, shouldAnnounce = true) {
+                state.stageId = id;
+                if (stageSelect.value !== id) {
+                    stageSelect.value = id;
+                }
+
+                const meta = STAGES.find(s => s.id === id) || STAGES[0];
+                document.getElementById('stageTag').textContent = meta.tag;
+                document.getElementById('stageHeading').textContent = meta.title;
+                document.getElementById('stageSubtitle').textContent = meta.subtitle;
+                document.getElementById('chipTarget').textContent = meta.target;
+                document.getElementById('chipTool').textContent = meta.tool;
+                document.getElementById('chipRule').textContent = meta.rule;
+                document.getElementById('stageDescription').textContent = meta.description;
+                document.getElementById('stageChecklist').innerHTML = meta.checklist;
+                document.getElementById('controlsLegend').textContent = `${meta.title} — Controls`;
+
+                canvas.setAttribute('aria-label', `${meta.title} interactive simulation canvas`);
+
+                buildStageControls(id);
+                render();
+
+                if (shouldAnnounce) {
+                    announce(`Loaded ${meta.title}`);
+                }
+            }
+
+            function buildStageControls(id) {
+                dynamicControls.innerHTML = '';
+                if (id === 'stage1') buildStage1Controls();
+                else if (id === 'stage2') buildStage2Controls();
+                else if (id === 'stage3') buildStage3Controls();
+            }
+
+            // Calculate Stage 1 metrics for Cell Wall Disruption (%) and Intact gDNA Yield (%)
+            function getStage1Metrics() {
+                const L = state.lysozymeOn;
+                const S = state.dnaShieldOn;
+                const B = state.beadBeatingOn;
+
+                let disruption = 0;
+                let dnaYield = 0;
+
+                if (!L && !B) {
+                    disruption = 0;
+                    dnaYield = 0;
+                } else if (L && !B) {
+                    disruption = 45;
+                    dnaYield = S ? 22 : 12;
+                } else if (!L && B) {
+                    // Thick Gram+ peptidoglycan resists mechanical shear alone
+                    disruption = 20;
+                    dnaYield = S ? 14 : 6;
+                } else if (L && B) {
+                    // Lysozyme weakens NAG-NAM wall + Bead Beating shatters it
+                    disruption = 100;
+                    dnaYield = S ? 96 : 12;
+                }
+
+                return { disruption, dnaYield };
+            }
+
+            // -----------------------------------------------------------------
+            // STAGE 1 CONTROLS: Molecular Mechanism (Lysozyme, DNA Shield & Beads)
+            // -----------------------------------------------------------------
+            function buildStage1Controls() {
+                dynamicControls.innerHTML = `
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="Cell Lysis Treatment Toggles">
+                        <button id="s1LysozymeBtn" type="button" class="ctrl-btn flex-1" aria-pressed="${state.lysozymeOn}">
+                            Lysozyme (Enzymatic): ${state.lysozymeOn ? 'ON' : 'OFF'}
+                        </button>
+                        <button id="s1ShieldBtn" type="button" class="ctrl-btn flex-1" aria-pressed="${state.dnaShieldOn}">
+                            DNA/RNA Shield (Chemical): ${state.dnaShieldOn ? 'ON' : 'OFF'}
+                        </button>
+                        <button id="s1BeadBtn" type="button" class="ctrl-btn flex-1" aria-pressed="${state.beadBeatingOn}">
+                            Bead Beating (Mechanical): ${state.beadBeatingOn ? 'ON' : 'OFF'}
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="Lysis Execution and Reset">
+                        <button id="s1CollideBtn" type="button" class="ctrl-btn btn-teal flex-1">
+                            Collide Beads / Run Lysis
+                        </button>
+                        <button id="s1ResetBtn" type="button" class="ctrl-btn">
+                            Reset
+                        </button>
+                    </div>
+                `;
+
+                const lyzBtn = document.getElementById('s1LysozymeBtn');
+                const shdBtn = document.getElementById('s1ShieldBtn');
+                const bedBtn = document.getElementById('s1BeadBtn');
+
+                function syncStage1(triggeredCollide = false) {
+                    lyzBtn.setAttribute('aria-pressed', String(state.lysozymeOn));
+                    lyzBtn.textContent = `Lysozyme (Enzymatic): ${state.lysozymeOn ? 'ON' : 'OFF'}`;
+
+                    shdBtn.setAttribute('aria-pressed', String(state.dnaShieldOn));
+                    shdBtn.textContent = `DNA/RNA Shield (Chemical): ${state.dnaShieldOn ? 'ON' : 'OFF'}`;
+
+                    bedBtn.setAttribute('aria-pressed', String(state.beadBeatingOn));
+                    bedBtn.textContent = `Bead Beating (Mechanical): ${state.beadBeatingOn ? 'ON' : 'OFF'}`;
+
+                    const { disruption, dnaYield } = getStage1Metrics();
+
+                    if (state.lysozymeOn && state.dnaShieldOn && state.beadBeatingOn) {
+                        setStatus(`Cell Wall Disruption: ${disruption}% | Intact gDNA Yield: ${dnaYield}% — Cell wall shattered cleanly and denatured nucleases bounced off harmlessly!`, 'ok');
+                    } else if (state.lysozymeOn && state.beadBeatingOn && !state.dnaShieldOn) {
+                        setStatus(`Cell Wall Disruption: ${disruption}% | Intact gDNA Yield: ${dnaYield}% — WARNING: Cell wall broke open, but active C-shaped nucleases attacked and chopped the DNA! Turn ON DNA/RNA Shield.`, 'warn');
+                    } else if (!state.lysozymeOn && state.beadBeatingOn) {
+                        setStatus(`Cell Wall Disruption: ${disruption}% | Intact gDNA Yield: ${dnaYield}% — Without Lysozyme, the thick NAG-NAM peptidoglycan cell wall stays intact and DNA remains trapped.`, 'warn');
+                    } else if (state.lysozymeOn && !state.beadBeatingOn) {
+                        setStatus(`Cell Wall Disruption: ${disruption}% | Intact gDNA Yield: ${dnaYield}% — Lysozyme hydrolyzed NAG-NAM cross-links in the cell wall. Click "Collide Beads / Run Lysis" to break it open!`, 'info');
+                    } else if (state.dnaShieldOn) {
+                        setStatus(`Cell Wall Disruption: ${disruption}% | Intact gDNA Yield: ${dnaYield}% — DNA/RNA Shield warped/closed nuclease active sites, but DNA is still trapped inside the intact cell wall.`, 'info');
+                    } else if (triggeredCollide) {
+                        setStatus(`Cell Wall Disruption: ${disruption}% | Intact gDNA Yield: ${dnaYield}% — Beads bounced off the intact peptidoglycan wall. Toggle Lysozyme & DNA/RNA Shield first!`, 'warn');
+                    } else {
+                        setStatus(`Cell Wall Disruption: 0% | Intact gDNA Yield: 0% — Toggle Lysozyme, DNA/RNA Shield, and Bead Beating, then click "Collide Beads / Run Lysis".`, 'info');
+                    }
+
+                    render();
+                }
+
+                lyzBtn.addEventListener('click', () => {
+                    state.lysozymeOn = !state.lysozymeOn;
+                    syncStage1(false);
+                });
+
+                shdBtn.addEventListener('click', () => {
+                    state.dnaShieldOn = !state.dnaShieldOn;
+                    syncStage1(false);
+                });
+
+                bedBtn.addEventListener('click', () => {
+                    state.beadBeatingOn = !state.beadBeatingOn;
+                    if (state.beadBeatingOn) state.collisionBurstSec = 1.1;
+                    syncStage1(false);
+                });
+
+                document.getElementById('s1CollideBtn').addEventListener('click', () => {
+                    state.beadBeatingOn = true;
+                    state.collisionBurstSec = 1.4;
+                    syncStage1(true);
+                    announce('Running bead collision lysis');
+                });
+
+                document.getElementById('s1ResetBtn').addEventListener('click', () => {
+                    state.lysozymeOn = false;
+                    state.dnaShieldOn = false;
+                    state.beadBeatingOn = false;
+                    state.collisionBurstSec = 0;
+                    syncStage1(false);
+                });
+
+                syncStage1(false);
+            }
+
+            // -----------------------------------------------------------------
+            // STAGE 2 CONTROLS: P1000 Transfers & Overflow Prevention
+            // -----------------------------------------------------------------
+            function buildStage2Controls() {
+                dynamicControls.innerHTML = `
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="Labeling and 200 uL Sample Transfer">
+                        <button id="s2LabelBtn" type="button" class="ctrl-btn flex-1" aria-pressed="${state.tubesLabeled}">
+                            1. Label Tubes
+                        </button>
+                        <button id="s2SampleBtn" type="button" class="ctrl-btn btn-primary flex-1" aria-pressed="${state.sampleTransferred}">
+                            2. Transfer 200 &mu;L Sample [0|2|0]
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="750 uL Bead Buffer Plunger Technique">
+                        <button id="s2ErrPlungeBtn" type="button" class="ctrl-btn btn-warn flex-1">
+                            3a. 750 &mu;L Buffer: Plunge Tip Straight Down (Test Error)
+                        </button>
+                        <button id="s2SafeSlowBtn" type="button" class="ctrl-btn btn-teal flex-1" aria-pressed="${state.bufferTransferred}">
+                            3b. 750 &mu;L Buffer: Slow Plunger Release While Inserting (Correct)
+                        </button>
+                    </div>
+
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="Reset Stage 2">
+                        <button id="s2ResetBtn" type="button" class="ctrl-btn flex-1">
+                            Reset Wet-Bench Setup
+                        </button>
+                    </div>
+                `;
+
+                const labelBtn = document.getElementById('s2LabelBtn');
+                const sampleBtn = document.getElementById('s2SampleBtn');
+                const safeBtn = document.getElementById('s2SafeSlowBtn');
+
+                labelBtn.addEventListener('click', () => {
+                    state.tubesLabeled = true;
+                    labelBtn.setAttribute('aria-pressed', 'true');
+                    setStatus('Step 1 Complete: Wrote initials (J.D.) on BashingBead lid, Full Name + Lab Day/Time on side, "Bead Buffer" on white-cap tube, and "probiotic sample + Jordan Doe" on sample tube.', 'ok');
+                    render();
+                });
+
+                sampleBtn.addEventListener('click', () => {
+                    if (!state.tubesLabeled) {
+                        setStatus('Complete Step 1 ("Label Tubes") before opening and pipetting BSL-1 probiotic sample!', 'warn');
+                        return;
+                    }
+                    state.dialDigits = ['0', '2', '0'];
+                    state.sampleTransferred = true;
+                    state.tipEjectedCount = Math.max(state.tipEjectedCount, 1);
+                    sampleBtn.setAttribute('aria-pressed', 'true');
+                    setStatus('Step 2 Complete: Set P1000 dial to [0|2|0] (200 \u00B5L), drew all 200 \u00B5L probiotic sample, dispensed into BashingBead tube, and ejected tip into the red biohazard bin.', 'ok');
+                    render();
+                });
+
+                document.getElementById('s2ErrPlungeBtn').addEventListener('click', () => {
+                    if (!state.sampleTransferred) {
+                        setStatus('Complete Step 1 (Label Tubes) and Step 2 (Transfer 200 \u00B5L Sample) first.', 'warn');
+                        return;
+                    }
+                    state.dialDigits = ['0', '7', '5'];
+                    state.bufferOverflowError = true;
+                    state.overflowSplashSec = 1.6;
+                    setStatus('OVERFLOW ONTO GLOVED HAND! The Bead Buffer tube is filled near the top with 750 \u00B5L—plunging the bulky P1000 tip straight to the bottom displaced buffer over the rim! Click Step 3b (Slow Plunger Release) to aspirate cleanly.', 'warn');
+                    announce('Buffer overflow error onto gloved hand because tip was plunged straight to the bottom.');
+                    render();
+                });
+
+                safeBtn.addEventListener('click', () => {
+                    if (!state.sampleTransferred) {
+                        setStatus('Complete Step 1 (Label Tubes) and Step 2 (Transfer 200 \u00B5L Sample) before adding Bead Buffer.', 'warn');
+                        return;
+                    }
+                    state.dialDigits = ['0', '7', '5'];
+                    state.bufferOverflowError = false;
+                    state.overflowSplashSec = 0;
+                    state.bufferTransferred = true;
+                    state.bashingCapTight = true;
+                    state.tipEjectedCount = 2;
+                    safeBtn.setAttribute('aria-pressed', 'true');
+                    setStatus('Step 3b Complete: Dialed P1000 to [0|7|5] (750 \u00B5L), slowly released plunger while inserting tip so liquid rose inside the tip without overflowing, dispensed into BashingBead tube (950 \u00B5L total), ejected tip, and screwed cap tightly!', 'ok');
+                    announce('750 microliters Bead Buffer transferred cleanly and BashingBead tube capped tightly.');
+                    render();
+                });
+
+                document.getElementById('s2ResetBtn').addEventListener('click', () => {
+                    state.tubesLabeled = false;
+                    state.sampleTransferred = false;
+                    state.dialDigits = ['0', '2', '0'];
+                    state.bufferOverflowError = false;
+                    state.bufferTransferred = false;
+                    state.bashingCapTight = false;
+                    state.tipEjectedCount = 0;
+                    state.overflowSplashSec = 0;
+                    buildStage2Controls();
+                    render();
+                });
+
+                setStatus('Follow Steps 1–3 in order: Label tubes, transfer 200 \u00B5L sample [0|2|0], and test/compare 750 \u00B5L Bead Buffer [0|7|5] plunger technique.', 'info');
+            }
+
+            // -----------------------------------------------------------------
+            // STAGE 3 CONTROLS: 18-Slot Bead-Beater Rack & Waste Sorting
+            // -----------------------------------------------------------------
+            function buildStage3Controls() {
+                dynamicControls.innerHTML = `
+                    <div class="flex flex-wrap gap-1.5" role="group" aria-label="18-Slot Bead-Beater Rack Control">
+                        <button id="s3BeatBtn" type="button" class="ctrl-btn btn-primary flex-1" aria-pressed="${state.tubeSeated}">
+                            1. Seat Tube in Bead Beater &amp; Run (40 min)
+                        </button>
+                        <button id="s3ResetBtn" type="button" class="ctrl-btn">
+                            Reset
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-1.5" role="group" aria-label="Interactive Waste and Equipment Sorting">
+                        <button id="s3SortTubesBtn" type="button" class="ctrl-btn" aria-pressed="${state.sortedTubesCaps}">
+                            Empty Tubes &amp; Caps &rarr; Biohazard
+                        </button>
+                        <button id="s3SortTipsBtn" type="button" class="ctrl-btn" aria-pressed="${state.sortedUsedTips}">
+                            Used P1000 Tips &rarr; Biohazard
+                        </button>
+                        <button id="s3SortTowelsBtn" type="button" class="ctrl-btn" aria-pressed="${state.sortedPaperTowels}">
+                            Simple Green Towels &rarr; Trash
+                        </button>
+                        <button id="s3SortKitBtn" type="button" class="ctrl-btn" aria-pressed="${state.sortedPipetteSharpie}">
+                            P1000 &amp; Sharpie &rarr; Carousel/Kit
+                        </button>
+                    </div>
+                `;
+
+                function checkAllStage3Done(customMsg) {
+                    const allDone = state.tubeSeated &&
+                        state.sortedTubesCaps &&
+                        state.sortedUsedTips &&
+                        state.sortedPaperTowels &&
+                        state.sortedPipetteSharpie;
+
+                    if (allDone) {
+                        setStatus('ACTIVITY A COMPLETE! BashingBead tube processed in the 18-slot bead beater (40 min), biohazard & regular trash sorted properly, and P1000 + Sharpie returned to kit.', 'ok');
+                    } else if (customMsg) {
+                        setStatus(customMsg, 'ok');
+                    }
+                    render();
+                }
+
+                document.getElementById('s3BeatBtn').addEventListener('click', () => {
+                    state.tubeSeated = true;
+                    state.beadBeaterRunning = true;
+                    state.beadBeaterMinutes = 0;
+                    document.getElementById('s3BeatBtn').setAttribute('aria-pressed', 'true');
+                    if (prefersReducedMotion) {
+                        state.beadBeaterMinutes = 40;
+                        state.beadBeaterRunning = false;
+                        checkAllStage3Done('Seated tightly capped BashingBead tube in Slot #1 of the 18-slot rack and completed the 40-minute bead-beating lysis run!');
+                    } else {
+                        setStatus('Seated tightly capped BashingBead tube in Slot #1 of the 18-slot front-bench Bead Beater — running 40-minute lysis cycle...', 'info');
+                        render();
+                    }
+                });
+
+                document.getElementById('s3SortTubesBtn').addEventListener('click', () => {
+                    state.sortedTubesCaps = true;
+                    document.getElementById('s3SortTubesBtn').setAttribute('aria-pressed', 'true');
+                    checkAllStage3Done('Sorted empty Sample & Buffer tubes and caps into the Red Benchtop Biohazard Bag!');
+                });
+
+                document.getElementById('s3SortTipsBtn').addEventListener('click', () => {
+                    state.sortedUsedTips = true;
+                    document.getElementById('s3SortTipsBtn').setAttribute('aria-pressed', 'true');
+                    checkAllStage3Done('Sorted used P1000 pipette tips into the Red Benchtop Biohazard Bag!');
+                });
+
+                document.getElementById('s3SortTowelsBtn').addEventListener('click', () => {
+                    state.sortedPaperTowels = true;
+                    document.getElementById('s3SortTowelsBtn').setAttribute('aria-pressed', 'true');
+                    checkAllStage3Done('Sorted Simple Green bench wipe paper towels into Regular Trash (prevents overfilling the benchtop biohazard bag)!');
+                });
+
+                document.getElementById('s3SortKitBtn').addEventListener('click', () => {
+                    state.sortedPipetteSharpie = true;
+                    document.getElementById('s3SortKitBtn').setAttribute('aria-pressed', 'true');
+                    checkAllStage3Done('Returned Blue P1000 micropipette to the Blue Pipette Carousel and Sharpie marker to the benchtop kit!');
+                });
+
+                document.getElementById('s3ResetBtn').addEventListener('click', () => {
+                    state.tubeSeated = false;
+                    state.beadBeaterMinutes = 0;
+                    state.beadBeaterRunning = false;
+                    state.sortedTubesCaps = false;
+                    state.sortedUsedTips = false;
+                    state.sortedPaperTowels = false;
+                    state.sortedPipetteSharpie = false;
+                    buildStage3Controls();
+                    render();
+                });
+
+                setStatus('Seat your tightly capped BashingBead tube in the 18-slot bead beater (40 min) and sort all 4 waste/equipment groups.', 'info');
+            }
+
+            // =================================================================
+            // MASTER CANVAS RENDERER (720 x 400 INTRINSIC BUFFER)
+            // =================================================================
+            function render() {
+                ctx.clearRect(0, 0, W, H);
+                if (state.stageId === 'stage1') drawStage1Molecular();
+                else if (state.stageId === 'stage2') drawStage2Pipetting();
+                else if (state.stageId === 'stage3') drawStage3RackAndWaste();
+            }
+
+            // =================================================================
+            // STAGE 1 DRAWING: Molecular Mechanism (Lysozyme, Shield, Beads)
+            // =================================================================
+            function drawStage1Molecular() {
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, W, H);
+
+                const { disruption, dnaYield } = getStage1Metrics();
+
+                // Top Live Quantitative Readout Bar
+                ctx.fillStyle = '#1e293b';
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.roundRect(16, 12, 688, 38, 10);
+                ctx.fill();
+                ctx.stroke();
+
+                // Cell Wall Disruption (%)
+                ctx.fillStyle = '#f8fafc';
+                ctx.font = '800 12px Inter, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(`Cell Wall Disruption: ${disruption}%`, 28, 35);
+
+                ctx.fillStyle = '#0f172a';
+                ctx.beginPath();
+                ctx.roundRect(210, 23, 126, 16, 6);
+                ctx.fill();
+                ctx.fillStyle = disruption >= 95 ? '#22c55e' : (disruption > 0 ? '#f59e0b' : '#475569');
+                ctx.beginPath();
+                ctx.roundRect(210, 23, Math.max(0, (disruption / 100) * 126), 16, 6);
+                ctx.fill();
+
+                // Intact gDNA Yield (%)
+                ctx.fillStyle = '#f8fafc';
+                ctx.fillText(`Intact gDNA Yield: ${dnaYield}%`, 364, 35);
+
+                ctx.fillStyle = '#0f172a';
+                ctx.beginPath();
+                ctx.roundRect(536, 23, 152, 16, 6);
+                ctx.fill();
+                ctx.fillStyle = dnaYield >= 90 ? '#38bdf8' : (dnaYield > 15 ? '#f59e0b' : '#ef4444');
+                ctx.beginPath();
+                ctx.roundRect(536, 23, Math.max(0, (dnaYield / 100) * 152), 16, 6);
+                ctx.fill();
+
+                // --- LEFT ARENA: Probiotic Bacterial Cell + NAG-NAM Wall + Nucleases + Beads ---
+                const cx = 248;
+                const cy = 224;
+                const cellW = 246;
+                const cellH = 148;
+                const fullyShattered = state.lysozymeOn && state.beadBeatingOn;
+                const beadImpactActive = state.beadBeatingOn || state.collisionBurstSec > 0;
+
+                // Zirconia/Silica BashingBeads
+                BASHING_BEADS.forEach((b) => {
+                    let bx = b.bx;
+                    let by = b.by;
+                    if (beadImpactActive && !prefersReducedMotion) {
+                        const t = Math.abs(Math.sin(animTime * 9.5 + b.phase));
+                        bx = b.bx + (cx - b.bx) * 0.38 * t;
+                        by = b.by + (cy - b.by) * 0.38 * t;
+                    } else if (beadImpactActive) {
+                        bx = b.bx + (cx - b.bx) * 0.28;
+                        by = b.by + (cy - b.by) * 0.28;
+                    }
+
+                    const grad = ctx.createRadialGradient(bx - 5, by - 5, 2, bx, by, 15);
+                    grad.addColorStop(0, '#ffffff');
+                    grad.addColorStop(0.55, '#cbd5e1');
+                    grad.addColorStop(1, '#475569');
+                    ctx.fillStyle = grad;
+                    ctx.beginPath();
+                    ctx.arc(bx, by, 14, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    ctx.fillStyle = '#0f172a';
+                    ctx.font = '800 8px Inter, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('BEAD', bx, by + 3);
+                });
+
+                // Bacterial Cytoplasm
+                ctx.fillStyle = fullyShattered ? 'rgba(30, 58, 138, 0.20)' : 'rgba(30, 58, 138, 0.58)';
+                ctx.beginPath();
+                ctx.roundRect(cx - cellW / 2 + 12, cy - cellH / 2 + 12, cellW - 24, cellH - 24, 54);
+                ctx.fill();
+
+                // Thick NAG-NAM Peptidoglycan Cell Wall
+                const numSubunits = 24;
+                for (let i = 0; i < numSubunits; i++) {
+                    const ang = (i / numSubunits) * Math.PI * 2;
+                    // Hydrolyzed gaps when Lysozyme is ON; shattered scatter when Lysozyme + Bead Beating
+                    if (fullyShattered && (i % 2 === 0 || i % 3 === 0)) continue;
+                    if (state.lysozymeOn && i % 3 === 0) continue;
+
+                    const scatterDist = fullyShattered ? 19 : 0;
+                    const px = cx + Math.cos(ang) * (cellW / 2 - 4 + scatterDist);
+                    const py = cy + Math.sin(ang) * (cellH / 2 - 4 + scatterDist);
+
+                    ctx.save();
+                    ctx.translate(px, py);
+                    ctx.rotate(ang + Math.PI / 2);
+
+                    // Alternating NAG (indigo) and NAM (purple) subunits
+                    ctx.fillStyle = i % 2 === 0 ? '#6366f1' : '#a855f7';
+                    ctx.strokeStyle = '#e9d5ff';
+                    ctx.lineWidth = 1;
+                    ctx.beginPath();
+                    ctx.roundRect(-12, -6.5, 24, 13, 4);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '800 7.5px monospace';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(i % 2 === 0 ? 'NAG' : 'NAM', 0, 2.5);
+                    ctx.restore();
+                }
+
+                // Lysozyme Enzyme Pac-Man Icons cleaving NAG-NAM cross-links
+                if (state.lysozymeOn) {
+                    const lyzSpots = [
+                        { x: cx - 96, y: cy - 68 },
+                        { x: cx + 96, y: cy + 68 }
+                    ];
+                    lyzSpots.forEach(lp => {
+                        ctx.fillStyle = '#22c55e';
+                        ctx.beginPath();
+                        ctx.moveTo(lp.x, lp.y);
+                        ctx.arc(lp.x, lp.y, 13, 0.35, Math.PI * 2 - 0.35);
+                        ctx.closePath();
+                        ctx.fill();
+
+                        ctx.fillStyle = '#86efac';
+                        ctx.font = '800 9.5px Inter, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Lysozyme', lp.x, lp.y - 16);
+                    });
+                }
+
+                // Coiled Genomic DNA (gDNA) vs Chopped Degraded Fragments
+                const dnaChopped = fullyShattered && !state.dnaShieldOn;
+                ctx.save();
+                if (dnaChopped) {
+                    // Chopped DNA fragments attacked by active nucleases
+                    ctx.strokeStyle = '#f87171';
+                    ctx.lineWidth = 3.2;
+                    const shards = [
+                        [-58, -22, -34, -34], [32, -26, 60, -10],
+                        [-52, 26, -24, 38],  [26, 30, 56, 16],
+                        [-12, -46, 16, -38], [-10, 42, 18, 48],
+                        [-22, -6, -4, 8],    [8, -10, 24, 6]
+                    ];
+                    shards.forEach(([x1, y1, x2, y2]) => {
+                        ctx.beginPath();
+                        ctx.moveTo(cx + x1, cy + y1);
+                        ctx.lineTo(cx + x2, cy + y2);
+                        ctx.stroke();
+                    });
+                    ctx.fillStyle = '#fecaca';
+                    ctx.font = '800 10px Inter, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('Degraded DNA Fragments!', cx, cy + 4);
+                } else {
+                    // Intact Coiled Double-Stranded gDNA
+                    ctx.strokeStyle = '#38bdf8';
+                    ctx.lineWidth = 3.5;
+                    ctx.beginPath();
+                    const spread = fullyShattered ? 1.32 : 1.0;
+                    for (let t = 0; t <= Math.PI * 2; t += 0.12) {
+                        const rx = Math.cos(t) * (62 * spread) + Math.sin(t * 5) * 7;
+                        const ry = Math.sin(t) * (30 * spread) + Math.cos(t * 4) * 6;
+                        if (t === 0) ctx.moveTo(cx + rx, cy + ry);
+                        else ctx.lineTo(cx + rx, cy + ry);
+                    }
+                    ctx.closePath();
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#bae6fd';
+                    ctx.font = '800 10px Inter, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(fullyShattered ? 'Intact Released gDNA' : 'Intact gDNA', cx, cy + 4);
+                }
+                ctx.restore();
+
+                // Cellular Nuclease Enzymes (Distinct C-shaped active sites vs Warped/Closed when Shield is ON)
+                const nucleases = [
+                    { x: cx - 48, y: cy - 16, rot: 0.2 },
+                    { x: cx + 50, y: cy + 16, rot: Math.PI + 0.2 }
+                ];
+
+                nucleases.forEach(nc => {
+                    ctx.save();
+                    ctx.translate(nc.x, nc.y);
+                    ctx.rotate(nc.rot);
+
+                    if (state.dnaShieldOn) {
+                        // Denatured Nuclease: Warped/closed 3D active site (cannot bind DNA)
+                        ctx.fillStyle = '#64748b';
+                        ctx.strokeStyle = '#cbd5e1';
+                        ctx.lineWidth = 2;
+                        ctx.beginPath();
+                        ctx.ellipse(0, 0, 15, 8, 0.4, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+
+                        ctx.rotate(-nc.rot);
+                        ctx.fillStyle = '#cbd5e1';
+                        ctx.font = '700 9px Inter, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Denatured Nuclease', 0, 21);
+                    } else {
+                        // Active Nuclease with distinct C-shaped active site cleft
+                        ctx.fillStyle = '#ef4444';
+                        ctx.strokeStyle = '#fecaca';
+                        ctx.lineWidth = 1.5;
+                        ctx.beginPath();
+                        ctx.arc(0, 0, 13, 0.55, Math.PI * 2 - 0.55, false);
+                        ctx.arc(0, 0, 6, Math.PI * 2 - 0.55, 0.55, true);
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.stroke();
+
+                        ctx.rotate(-nc.rot);
+                        ctx.fillStyle = '#fca5a5';
+                        ctx.font = '800 9px Inter, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('Active Nuclease', 0, 22);
+                    }
+                    ctx.restore();
+                });
+
+                // --- RIGHT PANEL: 3 Mechanism Cards ---
+                const cards = [
+                    {
+                        title: '1. Lysozyme (Enzymatic)',
+                        active: state.lysozymeOn,
+                        line1: state.lysozymeOn ? 'Hydrolyzing NAG-NAM cross-links' : 'OFF — NAG-NAM wall intact',
+                        line2: state.lysozymeOn ? 'Gaps weaken cell wall armor' : 'Thick barrier blocks lysis',
+                        y: 62
+                    },
+                    {
+                        title: '2. DNA/RNA Shield (Chemical)',
+                        active: state.dnaShieldOn,
+                        line1: state.dnaShieldOn ? 'Nucleases denatured (C-site closed)' : 'OFF — C-shaped nucleases active!',
+                        line2: state.dnaShieldOn ? 'Released gDNA stays intact' : 'Will chop exposed gDNA',
+                        y: 172
+                    },
+                    {
+                        title: '3. Bead Beating (Mechanical)',
+                        active: state.beadBeatingOn,
+                        line1: state.beadBeatingOn ? 'BashingBead collisions active' : 'OFF — Beads at rest',
+                        line2: state.beadBeatingOn ? 'Shatters weakened cell wall' : 'Click "Collide Beads / Run Lysis"',
+                        y: 282
+                    }
+                ];
+
+                cards.forEach(c => {
+                    ctx.fillStyle = c.active ? '#1e3a8a' : '#1e293b';
+                    ctx.strokeStyle = c.active ? '#38bdf8' : '#475569';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.roundRect(486, c.y, 218, 96, 12);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    ctx.fillStyle = c.active ? '#7dd3fc' : '#e2e8f0';
+                    ctx.font = '800 12px Inter, sans-serif';
+                    ctx.textAlign = 'left';
+                    ctx.fillText(c.title, 498, c.y + 24);
+
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '700 11px Inter, sans-serif';
+                    ctx.fillText(c.line1, 498, c.y + 49);
+
+                    ctx.fillStyle = '#cbd5e1';
+                    ctx.font = '600 10.5px Inter, sans-serif';
+                    ctx.fillText(c.line2, 498, c.y + 70);
+                });
+            }
+
+            // =================================================================
+            // STAGE 2 DRAWING: P1000 Transfers & Overflow Prevention
+            // =================================================================
+            function drawStage2Pipetting() {
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, W, H);
+
+                // --- LEFT & CENTER: BIOS 110 Benchtop Tube Rack (3 Tubes) ---
+                ctx.fillStyle = '#1e293b';
+                ctx.strokeStyle = '#334155';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.roundRect(14, 16, 444, 368, 16);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#f8fafc';
+                ctx.font = '800 13px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('BIOS 110 Benchtop Tube Rack', 236, 40);
+
+                // Tube 1: Probiotic Sample Tube (Colored cap, 200 uL BSL-1 bacterial suspension)
+                drawMicroTube(
+                    88,
+                    124,
+                    '#ec4899',
+                    state.sampleTransferred ? 0 : 0.48,
+                    'rgba(250, 204, 21, 0.85)',
+                    state.tubesLabeled ? 'probiotic sample' : 'Sample (200 \u00B5L)',
+                    state.tubesLabeled ? '+ Jordan Doe' : 'Unlabeled'
+                );
+
+                // Tube 2: Bead Buffer Tube (White cap, 750 uL filled near rim)
+                const bufX = 224;
+                const bufY = 124;
+                drawMicroTube(
+                    bufX,
+                    bufY,
+                    '#f8fafc',
+                    state.bufferTransferred ? 0 : (state.bufferOverflowError ? 0.62 : 0.90),
+                    'rgba(56, 189, 248, 0.82)',
+                    state.tubesLabeled ? 'Bead Buffer' : 'Buffer (750 \u00B5L)',
+                    state.tubesLabeled ? 'White Cap' : 'Full to Rim!'
+                );
+
+                // Animate Gloved Hand & Overflow Splash if Step 3a Error was triggered!
+                if (state.bufferOverflowError) {
+                    // Blue Nitrile Gloved Hand holding tube
+                    ctx.fillStyle = '#2563eb';
+                    ctx.strokeStyle = '#93c5fd';
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.roundRect(bufX - 38, bufY + 42, 24, 48, 8);
+                    ctx.fill();
+                    ctx.stroke();
+
+                    // Overflowing droplets splashing out of rim onto glove
+                    ctx.fillStyle = '#38bdf8';
+                    const drops = [
+                        [-18, -4], [-26, 12], [-30, 30], [18, -2], [24, 16]
+                    ];
+                    drops.forEach(([dx, dy]) => {
+                        ctx.beginPath();
+                        ctx.arc(bufX + dx, bufY + dy, 4.5, 0, Math.PI * 2);
+                        ctx.fill();
+                    });
+
+                    ctx.fillStyle = '#fca5a5';
+                    ctx.font = '800 10.5px Inter, sans-serif';
+                    ctx.fillText('OVERFLOW ON GLOVE!', bufX, bufY - 22);
+                }
+
+                // Tube 3: BashingBead Tube (Screw cap + Zirconia/Silica beads)
+                const bbX = 368;
+                const bbY = 124;
+                const capTop = state.bashingCapTight ? bbY - 15 : bbY - 40;
+
+                // Screw Cap (with student initials on lid when labeled)
+                ctx.fillStyle = '#7c3aed';
+                ctx.strokeStyle = '#c4b5fd';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.roundRect(bbX - 22, capTop, 44, 15, 4);
+                ctx.fill();
+                ctx.stroke();
+
+                if (state.tubesLabeled) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.font = '800 9.5px monospace';
+                    ctx.fillText('J.D.', bbX, capTop + 11);
+                }
+
+                // BashingBead Tube Cylinder
+                ctx.fillStyle = 'rgba(248, 250, 252, 0.14)';
+                ctx.strokeStyle = '#cbd5e1';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(bbX - 20, bbY, 40, 114, 8);
+                ctx.fill();
+                ctx.stroke();
+
+                // Accumulated Volume in BashingBead Tube (0 -> 200 -> 950 uL)
+                const currentVol = (state.sampleTransferred ? 200 : 0) + (state.bufferTransferred ? 750 : 0);
+                if (currentVol > 0) {
+                    const fillH = (currentVol / 1050) * 92;
+                    ctx.fillStyle = state.bufferTransferred ? 'rgba(56, 189, 248, 0.72)' : 'rgba(250, 204, 21, 0.78)';
+                    ctx.fillRect(bbX - 18, bbY + 112 - fillH, 36, fillH);
+                }
+
+                // Zirconia/Silica BashingBeads at bottom
+                ctx.fillStyle = '#f1f5f9';
+                for (let i = 0; i < 12; i++) {
+                    ctx.beginPath();
+                    ctx.arc(bbX - 12 + (i % 4) * 8, bbY + 104 - Math.floor(i / 4) * 6, 3, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // BashingBead Side Label
+                ctx.fillStyle = state.tubesLabeled ? '#86efac' : '#94a3b8';
+                ctx.font = '700 10.5px Inter, sans-serif';
+                ctx.fillText(state.tubesLabeled ? 'Jordan Doe' : 'BashingBead Tube', bbX, bbY + 132);
+                ctx.fillText(state.tubesLabeled ? 'Mon 8:00 AM' : 'Unlabeled Side', bbX, bbY + 146);
+
+                ctx.fillStyle = '#7dd3fc';
+                ctx.font = '800 11.5px monospace';
+                ctx.fillText(`Total: ${currentVol} \u00B5L`, bbX, bbY + 164);
+
+                // Bottom Status Strip inside Rack Box
+                ctx.fillStyle = '#0f172a';
+                ctx.beginPath();
+                ctx.roundRect(30, 314, 412, 54, 10);
+                ctx.fill();
+
+                ctx.fillStyle = '#e2e8f0';
+                ctx.font = '700 11px Inter, sans-serif';
+                ctx.fillText(`Used Tips Ejected to Red Biohazard Bin: ${state.tipEjectedCount} / 2`, 236, 336);
+                ctx.fillStyle = state.bashingCapTight ? '#4ade80' : '#94a3b8';
+                ctx.fillText(
+                    state.bashingCapTight ? 'Screw Cap Tightened & Ready for Bead Beater!' : 'Cap open — complete Steps 1, 2, and 3b',
+                    236,
+                    355
+                );
+
+                // --- RIGHT PANEL: Blue miniPCR P1000 Micropipette + 3-Digit Vertical Dial ---
+                ctx.fillStyle = '#1e293b';
+                ctx.strokeStyle = state.bufferOverflowError ? '#ef4444' : '#38bdf8';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(472, 16, 234, 368, 16);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#60a5fa';
+                ctx.font = '800 13px Inter, sans-serif';
+                ctx.fillText('Blue miniPCR P1000', 589, 40);
+
+                // Zoomed-In 3-Digit Vertical Volume Indicator
+                ctx.fillStyle = '#ffffff';
+                ctx.strokeStyle = '#1d4ed8';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.roundRect(549, 54, 80, 126, 12);
+                ctx.fill();
+                ctx.stroke();
+
+                state.dialDigits.forEach((digit, idx) => {
+                    if (idx > 0) {
+                        ctx.strokeStyle = '#cbd5e1';
+                        ctx.lineWidth = 1.5;
+                        ctx.beginPath();
+                        ctx.moveTo(555, 54 + idx * 42);
+                        ctx.lineTo(623, 54 + idx * 42);
+                        ctx.stroke();
+                    }
+                    ctx.fillStyle = idx === 0 ? '#1d4ed8' : '#0f172a';
+                    ctx.font = '800 30px monospace';
+                    ctx.fillText(digit, 589, 86 + idx * 42);
+                });
+
+                const dialVol = parseInt(state.dialDigits.join(''), 10) * 10;
+                ctx.fillStyle = '#fde047';
+                ctx.font = '800 13px monospace';
+                ctx.fillText(`Set Volume: ${dialVol} \u00B5L`, 589, 202);
+
+                // Technique Explanation Box
+                ctx.fillStyle = state.bufferOverflowError ? '#7f1d1d' : '#0f172a';
+                ctx.beginPath();
+                ctx.roundRect(486, 218, 206, 152, 10);
+                ctx.fill();
+
+                ctx.fillStyle = state.bufferOverflowError ? '#fecaca' : '#7dd3fc';
+                ctx.font = '800 11px Inter, sans-serif';
+                ctx.fillText(
+                    state.bufferOverflowError ? 'WHY DID IT OVERFLOW?' : '750 \u00B5L PLUNGER COORDINATION',
+                    589,
+                    240
+                );
+
+                ctx.fillStyle = '#f8fafc';
+                ctx.font = '600 10.5px Inter, sans-serif';
+                if (state.bufferOverflowError) {
+                    ctx.fillText('750 \u00B5L fills the tube near', 589, 264);
+                    ctx.fillText('the rim. Inserting the bulky', 589, 282);
+                    ctx.fillText('P1000 tip before aspirating', 589, 300);
+                    ctx.fillText('displaces buffer onto gloves!', 589, 318);
+                    ctx.fillStyle = '#fde047';
+                    ctx.fillText('Click Step 3b to fix!', 589, 344);
+                } else {
+                    ctx.fillText('Slowly release the P1000', 589, 264);
+                    ctx.fillText('plunger WHILE lowering the', 589, 282);
+                    ctx.fillText('tip to the bottom so liquid', 589, 300);
+                    ctx.fillText('draws up inside the tip', 589, 318);
+                    ctx.fillText('with zero overflow.', 589, 336);
+                }
+            }
+
+            // Helper to draw microcentrifuge tubes in Stage 2
+            function drawMicroTube(x, y, capCol, fillFrac, liqCol, line1, line2) {
+                ctx.fillStyle = capCol;
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.roundRect(x - 16, y - 13, 32, 11, 3);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = 'rgba(248, 250, 252, 0.14)';
+                ctx.strokeStyle = '#cbd5e1';
+                ctx.lineWidth = 1.8;
+                ctx.beginPath();
+                ctx.moveTo(x - 14, y);
+                ctx.lineTo(x + 14, y);
+                ctx.lineTo(x + 14, y + 72);
+                ctx.lineTo(x, y + 102);
+                ctx.lineTo(x - 14, y + 72);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                if (fillFrac > 0) {
+                    ctx.fillStyle = liqCol;
+                    const top = y + 100 - fillFrac * 92;
+                    ctx.beginPath();
+                    ctx.moveTo(x - 12, top);
+                    ctx.lineTo(x + 12, top);
+                    ctx.lineTo(x + 12, y + 71);
+                    ctx.lineTo(x, y + 99);
+                    ctx.lineTo(x - 12, y + 71);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+
+                ctx.fillStyle = '#f8fafc';
+                ctx.font = '700 10.5px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(line1, x, y + 120);
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '600 9.5px Inter, sans-serif';
+                ctx.fillText(line2, x, y + 134);
+            }
+
+            // =================================================================
+            // STAGE 3 DRAWING: 18-Slot Bead-Beater Rack & Waste Sorting
+            // =================================================================
+            function drawStage3RackAndWaste() {
+                ctx.fillStyle = '#0f172a';
+                ctx.fillRect(0, 0, W, H);
+
+                // --- LEFT: Shared 18-Slot Front-Bench Bead-Beater Rack ---
+                ctx.fillStyle = '#1e293b';
+                ctx.strokeStyle = state.tubeSeated ? '#38bdf8' : '#475569';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(16, 16, 250, 368, 16);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#f8fafc';
+                ctx.font = '800 13px Inter, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('18-Slot Bead-Beater Rack', 141, 40);
+                ctx.fillStyle = '#94a3b8';
+                ctx.font = '600 10.5px Inter, sans-serif';
+                ctx.fillText('Front Bench Shared Equipment', 141, 56);
+
+                // 6 rows x 3 columns = 18 slots
+                for (let r = 0; r < 6; r++) {
+                    for (let c = 0; c < 3; c++) {
+                        const slotNum = r * 3 + c + 1;
+                        let sx = 76 + c * 65;
+                        let sy = 88 + r * 40;
+
+                        if (state.beadBeaterRunning && !prefersReducedMotion) {
+                            sx += Math.sin(animTime * 28 + slotNum) * 2.5;
+                        }
+
+                        const isStudent = slotNum === 1 && state.tubeSeated;
+                        const isClassmate = slotNum === 3 || slotNum === 7 || slotNum === 14;
+
+                        ctx.fillStyle = isStudent ? '#7c3aed' : (isClassmate ? '#0284c7' : '#0f172a');
+                        ctx.strokeStyle = isStudent ? '#fde047' : '#64748b';
+                        ctx.lineWidth = isStudent ? 2.5 : 1.5;
+                        ctx.beginPath();
+                        ctx.arc(sx, sy, 14, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = '800 9.5px monospace';
+                        ctx.fillText(isStudent ? 'J.D.' : String(slotNum), sx, sy + 3);
+                    }
+                }
+
+                // 40-Minute Timer Readout Box
+                ctx.fillStyle = '#0f172a';
+                ctx.beginPath();
+                ctx.roundRect(32, 316, 218, 54, 10);
+                ctx.fill();
+
+                ctx.fillStyle = state.beadBeaterMinutes >= 40 ? '#4ade80' : '#fde047';
+                ctx.font = '800 13px monospace';
+                ctx.fillText(`Timer: ${Math.round(state.beadBeaterMinutes)} / 40 min`, 141, 339);
+                ctx.fillStyle = '#cbd5e1';
+                ctx.font = '600 10.5px Inter, sans-serif';
+                ctx.fillText(
+                    state.beadBeaterMinutes >= 40
+                        ? 'Mechanical cell lysis complete!'
+                        : (state.tubeSeated ? 'Bead beating in progress...' : 'Click Step 1 to seat tube'),
+                    141,
+                    358
+                );
+
+                // --- RIGHT: 3 Disposal & Return Destinations ---
+                // 1. Red Benchtop Biohazard Bag
+                ctx.fillStyle = '#991b1b';
+                ctx.strokeStyle = '#fca5a5';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(282, 16, 204, 368, 16);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '800 13px Inter, sans-serif';
+                ctx.fillText('Red Biohazard Bag', 384, 42);
+                ctx.fillStyle = '#fecaca';
+                ctx.font = '600 10.5px Inter, sans-serif';
+                ctx.fillText('Benchtop Biohazard Disposal', 384, 58);
+
+                // Biohazard Item Slot A: Empty Tubes & Caps
+                ctx.fillStyle = state.sortedTubesCaps ? '#14532d' : 'rgba(15, 23, 42, 0.55)';
+                ctx.strokeStyle = state.sortedTubesCaps ? '#4ade80' : '#fca5a5';
+                ctx.beginPath();
+                ctx.roundRect(296, 82, 176, 88, 10);
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '800 11px Inter, sans-serif';
+                ctx.fillText('Empty Tubes & Caps', 384, 114);
+                ctx.fillStyle = state.sortedTubesCaps ? '#86efac' : '#fecaca';
+                ctx.font = '700 10.5px Inter, sans-serif';
+                ctx.fillText(state.sortedTubesCaps ? '[✓] Disposed in Biohazard' : 'Awaiting sorting...', 384, 138);
+
+                // Biohazard Item Slot B: Used P1000 Tips
+                ctx.fillStyle = state.sortedUsedTips ? '#14532d' : 'rgba(15, 23, 42, 0.55)';
+                ctx.strokeStyle = state.sortedUsedTips ? '#4ade80' : '#fca5a5';
+                ctx.beginPath();
+                ctx.roundRect(296, 188, 176, 88, 10);
+                ctx.fill();
+                ctx.stroke();
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '800 11px Inter, sans-serif';
+                ctx.fillText('Used P1000 Tips', 384, 220);
+                ctx.fillStyle = state.sortedUsedTips ? '#86efac' : '#fecaca';
+                ctx.font = '700 10.5px Inter, sans-serif';
+                ctx.fillText(state.sortedUsedTips ? '[✓] Disposed in Biohazard' : 'Awaiting sorting...', 384, 244);
+
+                ctx.fillStyle = '#fde047';
+                ctx.font = '700 10px Inter, sans-serif';
+                ctx.fillText('Keep paper towels OUT to', 384, 326);
+                ctx.fillText('prevent overfilling bag!', 384, 342);
+
+                // 2. Regular Trash Can (Top Right)
+                ctx.fillStyle = '#334155';
+                ctx.strokeStyle = state.sortedPaperTowels ? '#4ade80' : '#94a3b8';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(500, 16, 204, 176, 16);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '800 13px Inter, sans-serif';
+                ctx.fillText('Regular Trash Can', 602, 42);
+                ctx.fillStyle = '#e2e8f0';
+                ctx.font = '600 10.5px Inter, sans-serif';
+                ctx.fillText('Simple Green Paper Towels', 602, 74);
+                ctx.fillText('(Wiped Benchtop Clean)', 602, 92);
+
+                ctx.fillStyle = state.sortedPaperTowels ? '#4ade80' : '#fde047';
+                ctx.font = '800 11px Inter, sans-serif';
+                ctx.fillText(
+                    state.sortedPaperTowels ? '[✓] Sorted into Regular Trash!' : 'Awaiting bench towels...',
+                    602,
+                    136
+                );
+
+                // 3. Blue Pipette Carousel / Kit (Bottom Right)
+                ctx.fillStyle = '#1e3a8a';
+                ctx.strokeStyle = state.sortedPipetteSharpie ? '#4ade80' : '#60a5fa';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.roundRect(500, 208, 204, 176, 16);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '800 13px Inter, sans-serif';
+                ctx.fillText('Blue Carousel & Kit', 602, 234);
+                ctx.fillStyle = '#dbeafe';
+                ctx.font = '600 10.5px Inter, sans-serif';
+                ctx.fillText('Blue P1000 Micropipette', 602, 266);
+                ctx.fillText('& Sharpie Marker', 602, 284);
+
+                ctx.fillStyle = state.sortedPipetteSharpie ? '#4ade80' : '#fde047';
+                ctx.font = '800 11px Inter, sans-serif';
+                ctx.fillText(
+                    state.sortedPipetteSharpie ? '[✓] Returned to Carousel/Kit!' : 'Awaiting return...',
+                    602,
+                    328
+                );
+            }
+
+            // =================================================================
+            // NAVIGATION EVENTS & ANIMATION LOOP
+            // =================================================================
+            stageSelect.addEventListener('change', (e) => {
+                loadStage(e.target.value, true);
+            });
+
+            prevStageBtn.addEventListener('click', () => {
+                const idx = (STAGES.findIndex(s => s.id === state.stageId) - 1 + STAGES.length) % STAGES.length;
+                loadStage(STAGES[idx].id, true);
+            });
+
+            nextStageBtn.addEventListener('click', () => {
+                const idx = (STAGES.findIndex(s => s.id === state.stageId) + 1) % STAGES.length;
+                loadStage(STAGES[idx].id, true);
+            });
+
+            function animationLoop(ts) {
+                if (!lastFrameTs) lastFrameTs = ts;
+                const dt = Math.min((ts - lastFrameTs) / 1000, 0.1);
+                lastFrameTs = ts;
+                animTime += dt;
+
+                let needsRedraw = false;
+
+                if (state.stageId === 'stage1') {
+                    if (state.collisionBurstSec > 0) {
+                        state.collisionBurstSec = Math.max(0, state.collisionBurstSec - dt);
+                        needsRedraw = true;
+                    }
+                    if (state.beadBeatingOn && !prefersReducedMotion) {
+                        needsRedraw = true;
+                    }
+                } else if (state.stageId === 'stage3' && state.beadBeaterRunning) {
+                    state.beadBeaterMinutes = Math.min(40, state.beadBeaterMinutes + dt * 24);
+                    if (state.beadBeaterMinutes >= 40) {
+                        state.beadBeaterRunning = false;
+                        const allDone = state.sortedTubesCaps &&
+                            state.sortedUsedTips &&
+                            state.sortedPaperTowels &&
+                            state.sortedPipetteSharpie;
+                        setStatus(
+                            allDone
+                                ? 'ACTIVITY A COMPLETE! BashingBead tube processed in the 18-slot bead beater (40 min), biohazard & regular trash sorted properly, and P1000 + Sharpie returned to kit.'
+                                : '40-minute Bead-Beating lysis cycle complete! Now sort all 4 waste and equipment items below.',
+                            'ok'
+                        );
+                        announce('40-minute bead-beating lysis cycle complete.');
+                    }
+                    needsRedraw = true;
+                }
+
+                if (needsRedraw) {
+                    render();
+                }
+
+                window.requestAnimationFrame(animationLoop);
+            }
+
+            // Guarantee immediate synchronous render on load
+            loadStage('stage1', false);
+            window.addEventListener('load', render);
+            window.requestAnimationFrame(animationLoop);
+        })();
+    </script>
+</body>
+</html>
