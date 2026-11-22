@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIOS 110: Activity C – Predicting Amplification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+        .dna-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Strict 64-column character grid: 4 cols left label (5'- ) + 56 base cols + 4 cols right label ( -3') */
+        .dna-grid-row {
+            display: grid;
+            grid-template-columns: repeat(64, 13.5px);
+            align-items: center;
+            width: max-content;
+        }
+        .base-cell {
+            width: 13.5px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 13.5px;
+            line-height: 1;
+            user-select: none;
+        }
+        .label-cell {
+            grid-column: span 4;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 12px;
+            color: #64748b;
+            white-space: nowrap;
+            user-select: none;
+        }
+        @keyframes pulseRing {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.55); }
+            50% { box-shadow: 0 0 0 6px rgba(245, 158, 11, 0); }
+        }
+        .pulse-target {
+            animation: pulseRing 1.7s infinite;
+        }
+        @keyframes bluePulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.5); }
+            50% { box-shadow: 0 0 0 6px rgba(37, 99, 235, 0); }
+        }
+        .pulse-next {
+            animation: bluePulse 1.8s infinite;
+        }
+        @keyframes shakeX {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .shake-error {
+            animation: shakeX 0.3s ease-in-out;
+        }
+        @keyframes primerGlide {
+            0% { opacity: 0; transform: translateY(-16px) scale(1.18); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .primer-glide {
+            animation: primerGlide 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .dna-scroll::-webkit-scrollbar {
+            height: 7px;
+        }
+        .dna-scroll::-webkit-scrollbar-track {
+            background: #e2e8f0;
+            border-radius: 9999px;
+        }
+        .dna-scroll::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col pb-24">
+
+    <!-- Top Milestone Bar -->
+    <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2.5">
+                <span class="bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 px-2.5 py-0.5 rounded-lg text-xs font-bold tracking-wider uppercase">
+                    BIOS 110
+                </span>
+                <h1 class="text-sm sm:text-base font-bold tracking-tight text-white">Activity C: Predicting Amplification</h1>
+            </div>
+
+            <!-- 4-Part Milestone Jump Pills -->
+            <div class="flex items-center gap-1 sm:gap-1.5 overflow-x-auto">
+                <button onclick="jumpToPart(1)" id="part-pill-1" class="part-pill px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer">
+                    Part 1 (1.1–1.5)
+                </button>
+                <button onclick="jumpToPart(2)" id="part-pill-2" class="part-pill px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer">
+                    Part 2 (2.1–2.3)
+                </button>
+                <button onclick="jumpToPart(3)" id="part-pill-3" class="part-pill px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer">
+                    Part 3 (3.1–3.3)
+                </button>
+                <button onclick="jumpToPart(4)" id="part-pill-4" class="part-pill px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer">
+                    Part 4 (4.1–4.3)
+                </button>
+            </div>
+        </div>
+        <!-- Thin Progress Bar -->
+        <div class="w-full bg-slate-800 h-1.5">
+            <div id="top-progress-bar" class="bg-emerald-400 h-1.5 transition-all duration-300" style="width: 7.14%"></div>
+        </div>
+    </header>
+
+    <!-- Main Step Card Container -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-5 space-y-4">
+
+        <!-- Step Header & Worksheet Prompt Banner -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div class="flex items-center gap-2.5 flex-wrap">
+                    <span id="step-code-badge" class="px-3 py-1 rounded-lg text-xs sm:text-sm font-extrabold bg-slate-900 text-white dna-font">
+                        Part 1.1
+                    </span>
+                    <h2 id="step-title" class="text-base sm:text-lg font-bold text-slate-900">
+                        Starting Double-Stranded DNA
+                    </h2>
+                </div>
+                <span id="step-counter-label" class="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    Step 1 of 14
+                </span>
+            </div>
+
+            <p id="step-instruction" class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                Inspect the complementary, antiparallel DNA template below before heating.
+            </p>
+
+            <!-- Worksheet Prompt Callout (Visible on steps linked to worksheet questions) -->
+            <div id="worksheet-banner" class="hidden bg-amber-50 border border-amber-300 rounded-xl px-3.5 py-2.5 flex items-start gap-2.5 text-xs sm:text-sm text-amber-950">
+                <span class="bg-amber-500 text-white font-extrabold text-[11px] uppercase px-2 py-0.5 rounded shrink-0 mt-0.5">Worksheet</span>
+                <div id="worksheet-text" class="font-medium"></div>
+            </div>
+        </div>
+
+        <!-- Interactive Stage Card -->
+        <div id="stage-card" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <!-- Dynamic Stage Content Rendered Here -->
+            <div id="stage-content" class="p-4 sm:p-6"></div>
+        </div>
+
+    </main>
+
+    <!-- Persistent Bottom Sticky Navigation Bar -->
+    <footer class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur border-t border-slate-200 z-30 shadow-lg">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between gap-2">
+            <!-- Back Button -->
+            <button id="nav-back-btn" onclick="prevStep()" class="px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer flex items-center gap-1.5">
+                <span>&larr;</span>
+                <span>Back</span>
+            </button>
+
+            <!-- Dedicated Reset Step Button (Distinct from Back) -->
+            <button id="nav-reset-btn" onclick="resetCurrentStep()" title="Reset current step (Shortcut: R)" class="px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 transition cursor-pointer flex items-center gap-1.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                <span>Reset Step</span>
+                <kbd class="hidden sm:inline-block text-[10px] font-mono bg-amber-200/70 text-amber-900 px-1.5 py-0.2 rounded">R</kbd>
+            </button>
+
+            <!-- Next Step Button -->
+            <button id="nav-next-btn" onclick="nextStep()" class="pulse-next px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-blue-600 hover:bg-blue-700 text-white shadow-sm transition cursor-pointer flex items-center gap-1.5">
+                <span id="nav-next-label">Next Step</span>
+                <span>&rarr;</span>
+            </button>
+        </div>
+    </footer>
+
+    <script>
+        // =========================================================================
+        // EXACT SEQUENCES FROM BIOS 110 LAB MANUAL & WORKSHEET
+        // =========================================================================
+        const TOP_SEQ = "ATGCGTACGTTAGCTAGCTAGGCTAACGTTAGCGTACGATCGTAGCTAGCTAGCTA"; // 56 bases
+        const BOT_SEQ = "TACGCATGCAATCGATCGATCCGATTGCAATCGCATGCTAGCATCGATCGATCGAT"; // 56 bases
+
+        // Helper: Build a strict 64-column row (4 left label cols + 56 base cols + 4 right label cols)
+        function buildGridRow(leftLabel, rightLabel, cellFn) {
+            let html = `<div class="label-cell text-right pr-1">${leftLabel}</div>`;
+            for (let i = 0; i < 56; i++) {
+                const cell = cellFn(i) || { char: '', cls: '' };
+                html += `<div class="base-cell ${cell.cls || ''}" ${cell.attrs || ''}>${cell.char}</div>`;
+            }
+            html += `<div class="label-cell text-left pl-1">${rightLabel}</div>`;
+            return html;
+        }
+
+        // =========================================================================
+        // 14 HIERARCHICAL STEPS (PART 1.1 THROUGH PART 4.3)
+        // =========================================================================
+        const STEPS = [
+            {
+                id: '1.1', part: 1,
+                title: 'Starting Double-Stranded DNA',
+                instruction: 'PCR begins with a double-stranded DNA template. Notice how the two strands are complementary (A–T, G–C) and antiparallel (5′→3′ on top, 3′→5′ on bottom).',
+                worksheet: null
+            },
+            {
+                id: '1.2', part: 1,
+                title: 'Denaturation (95°C) — Strand Separation',
+                instruction: 'Click the pulsing "Heat to 95°C (Denature)" button to break the hydrogen bonds and separate the two DNA strands.',
+                worksheet: null
+            },
+            {
+                id: '1.3', part: 1,
+                title: 'Annealing (55°C) — Match Forward & Reverse Primers',
+                instruction: 'Drag each primer tile onto its complementary dashed target zone (or click a primer tile and click the matching highlighted strand region). Remember: primers bind antiparallel (5′→3′ opposite 3′→5′).',
+                worksheet: 'Part 1: Match the Forward primer (5′–ATGCGTACGTTAGCT–3′) and Reverse primer (3′–CATCGATCGATCGAT–5′) to the template strands on your worksheet.'
+            },
+            {
+                id: '1.4', part: 1,
+                title: 'Extension (72°C) — Taq Polymerase Synthesis',
+                instruction: 'Click "Run Extension (72°C)" to watch Taq polymerase add complementary nucleotides in the 5′ → 3′ direction from each primer.',
+                worksheet: null
+            },
+            {
+                id: '1.5', part: 1,
+                title: 'Primer Directionality Check',
+                instruction: 'Toggle between Inward-Facing primers and Same-Direction primers to see why both primers must point toward each other across the target.',
+                worksheet: 'Question 6: Explain why PCR primers need to face each other across the target region instead of pointing in the same direction.'
+            },
+            {
+                id: '2.1', part: 2,
+                title: 'Amplification: Cycle 0 → Cycle 1',
+                instruction: 'Click either "Run Cycle 1" or "Next (2.2) →" to duplicate the starting DNA molecule into 2 copies (2¹ = 2) and move to Part 2.2.',
+                worksheet: null
+            },
+            {
+                id: '2.2', part: 2,
+                title: 'Amplification: Cycle 1 → Cycle 3',
+                instruction: 'Click either "Run Cycles 2 & 3" or "Next (2.3) →" to double through Cycle 2 (2² = 4) and Cycle 3 (2³ = 8) and move to Part 2.3.',
+                worksheet: null
+            },
+            {
+                id: '2.3', part: 2,
+                title: 'Exponential Growth to Cycle 5 (2⁵ = 32)',
+                instruction: 'Click "Run Cycles 4 & 5" (or "Next (3.1) →") to expand the cascade to 32 copies (2⁵ = 32), then calculate 2⁸ on paper.',
+                worksheet: 'Part 2: How many copies of each starting strand of DNA do you expect to have after 8 cycles of PCR amplification? (Calculate 2⁸).'
+            },
+            {
+                id: '3.1', part: 3,
+                title: 'Primer Specificity & Target Boundaries',
+                instruction: 'Inspect the aligned base pairs below. The Forward and Reverse primers define the exact boundaries of the target region to be copied.',
+                worksheet: null
+            },
+            {
+                id: '3.2', part: 3,
+                title: 'Annealing & Extension Define the Target Region',
+                instruction: 'Click "1. Anneal Specific Primers" then "2. Extend (72°C)" to watch how the Forward and Reverse primers act like bookends that frame the exact 38-bp target region.',
+                worksheet: null
+            },
+            {
+                id: '3.3', part: 3,
+                title: 'Why the Target Region Between Primers Dominates',
+                instruction: 'Compare how the region between the two primers is copied in every cycle while flanking DNA outside the primers is left behind.',
+                worksheet: 'Part 3: In your own words, explain why PCR eventually produces mostly the DNA fragment located between the forward and reverse primers.'
+            },
+            {
+                id: '4.1', part: 4,
+                title: 'Length of Primers: Short 4-Base Primer (GCTA / ATCG)',
+                instruction: 'Drag 3′–ATCG–5′ onto matching 4-bp gray boxes on the Top Strand (5′→3′) and 5′–GCTA–3′ onto matching 4-bp gray boxes on the Bottom Strand (3′→5′). Only the matching antiparallel primer will stick!',
+                worksheet: 'Part 4: Based on the template strands, how many locations can the short primer (5′–GCTA–3′ or 3′–ATCG–5′) bind to?'
+            },
+            {
+                id: '4.2', part: 4,
+                title: 'Length of Primers: Specific 15-Base Primer',
+                instruction: 'Click "Scan 15-Base Primer" to compare how a longer primer binds uniquely to just 1 complementary target location.',
+                worksheet: null
+            },
+            {
+                id: '4.3', part: 4,
+                title: 'Thermal Cycling Step Check',
+                instruction: 'Select the PCR stage responsible for ensuring primers base-pair specifically to their complementary target region.',
+                worksheet: 'Question 5: PCR has three main steps: denaturation, annealing, and extension. Which step ensures that primers bind to the correct region?'
+            }
+        ];
+
+        let currentStepIdx = 0;
+
+        // Per-step interactive state object (so Reset Step cleanly resets ONLY the current step)
+        let stepState = {};
+
+        function getFreshStateForStep(stepId) {
+            switch (stepId) {
+                case '1.2': return { denatured: false };
+                case '1.3': return { selectedPrimer: null, fwdBound: false, revBound: false, feedback: 'Drag a primer onto its dashed target zone, or click a primer then click the target zone.', feedbackType: 'info' };
+                case '1.4': return { extended: false };
+                case '1.5': return { mode: 'inward' };
+                case '2.1': return { cycle: 0 };
+                case '2.2': return { cycle: 1 };
+                case '2.3': return { cycle: 3 };
+                case '3.2': return { stage: 0 }; // 0 = denatured template, 1 = primers annealed, 2 = extended & target framed
+                case '3.3': return { view: 'bookend' };
+                case '4.1': return {
+                    selectedPrimer: null,
+                    foundTop: [],
+                    foundBot: [],
+                    justBound: null,
+                    hint: null,
+                    feedback: 'Drag 3′–ATCG–5′ onto a Top Strand gray box or 5′–GCTA–3′ onto a Bottom Strand gray box.',
+                    feedbackType: 'info'
+                };
+                case '4.2': return { scanned: false };
+                case '4.3': return { choice: null };
+                default: return {};
+            }
+        }
+
+        function initAllStates() {
+            STEPS.forEach(s => {
+                stepState[s.id] = getFreshStateForStep(s.id);
+            });
+        }
+
+        function resetCurrentStep() {
+            const step = STEPS[currentStepIdx];
+            stepState[step.id] = getFreshStateForStep(step.id);
+            renderCurrentStep();
+        }
+
+        function nextStep() {
+            const step = STEPS[currentStepIdx];
+            // Unified Part 2 progression: Next button also triggers the cycle duplication seamlessly
+            if (step.id === '2.1') {
+                stepState['2.2'].cycle = 1;
+                currentStepIdx++;
+                renderCurrentStep();
+                return;
+            }
+            if (step.id === '2.2') {
+                stepState['2.3'].cycle = 3;
+                currentStepIdx++;
+                renderCurrentStep();
+                return;
+            }
+            if (step.id === '2.3' && stepState['2.3'].cycle < 5) {
+                stepState['2.3'].cycle = 5;
+                renderCurrentStep();
+                return;
+            }
+
+            if (currentStepIdx < STEPS.length - 1) {
+                currentStepIdx++;
+                renderCurrentStep();
+            }
+        }
+
+        function prevStep() {
+            if (currentStepIdx > 0) {
+                currentStepIdx--;
+                renderCurrentStep();
+            }
+        }
+
+        function jumpToPart(partNum) {
+            const idx = STEPS.findIndex(s => s.part === partNum);
+            if (idx !== -1) {
+                currentStepIdx = idx;
+                renderCurrentStep();
+            }
+        }
+
+        // Keyboard shortcut 'R' for Reset Step
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'r' || e.key === 'R') {
+                if (document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                    resetCurrentStep();
+                }
+            }
+        });
+
+        // =========================================================================
+        // MAIN STEP CONTROLLER & UI UPDATER
+        // =========================================================================
+        function renderCurrentStep() {
+            const step = STEPS[currentStepIdx];
+
+            // Update top milestone pills
+            [1, 2, 3, 4].forEach(p => {
+                const pill = document.getElementById(`part-pill-${p}`);
+                if (!pill) return;
+                if (step.part === p) {
+                    pill.className = 'part-pill px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer bg-emerald-500 text-slate-950 shadow-xs';
+                } else {
+                    pill.className = 'part-pill px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer bg-slate-800 text-slate-300 hover:bg-slate-700';
+                }
+            });
+
+            // Update progress bar
+            const pct = ((currentStepIdx + 1) / STEPS.length) * 100;
+            const progBar = document.getElementById('top-progress-bar');
+            if (progBar) progBar.style.width = `${pct}%`;
+
+            // Update step headers & instruction
+            document.getElementById('step-code-badge').textContent = `Part ${step.id}`;
+            document.getElementById('step-title').textContent = step.title;
+            document.getElementById('step-counter-label').textContent = `Step ${currentStepIdx + 1} of ${STEPS.length}`;
+            document.getElementById('step-instruction').textContent = step.instruction;
+
+            // Update worksheet callout banner
+            const wsBanner = document.getElementById('worksheet-banner');
+            const wsText = document.getElementById('worksheet-text');
+            if (step.worksheet) {
+                wsBanner.classList.remove('hidden');
+                wsText.textContent = step.worksheet;
+            } else {
+                wsBanner.classList.add('hidden');
+            }
+
+            // Update bottom navigation buttons
+            const backBtn = document.getElementById('nav-back-btn');
+            const nextBtn = document.getElementById('nav-next-btn');
+            const nextLabel = document.getElementById('nav-next-label');
+
+            backBtn.disabled = (currentStepIdx === 0);
+
+            if (currentStepIdx === STEPS.length - 1) {
+                nextBtn.disabled = true;
+                nextBtn.classList.remove('pulse-next');
+                nextLabel.textContent = 'Activity C Complete ✓';
+            } else {
+                nextBtn.disabled = false;
+                nextBtn.classList.add('pulse-next');
+                const nextStepObj = STEPS[currentStepIdx + 1];
+                nextLabel.textContent = `Next (${nextStepObj.id})`;
+            }
+
+            // Route to the active step renderer
+            const container = document.getElementById('stage-content');
+            switch (step.id) {
+                case '1.1': renderStep1_1(container); break;
+                case '1.2': renderStep1_2(container); break;
+                case '1.3': renderStep1_3(container); break;
+                case '1.4': renderStep1_4(container); break;
+                case '1.5': renderStep1_5(container); break;
+                case '2.1': renderStep2(container, '2.1'); break;
+                case '2.2': renderStep2(container, '2.2'); break;
+                case '2.3': renderStep2(container, '2.3'); break;
+                case '3.1': renderStep3_1(container); break;
+                case '3.2': renderStep3_2(container); break;
+                case '3.3': renderStep3_3(container); break;
+                case '4.1': renderStep4_1(container); break;
+                case '4.2': renderStep4_2(container); break;
+                case '4.3': renderStep4_3(container); break;
+            }
+        }
+
+        // =========================================================================
+        // PART 1.1 – 1.5: PRIMER OVERVIEW & ORIENTATION
+        // =========================================================================
+        function renderStep1_1(container) {
+            const topRow = buildGridRow('5′–', '–3′', i => ({ char: TOP_SEQ[i], cls: 'text-slate-900' }));
+            const bondRow = buildGridRow('', '', () => ({ char: '|', cls: 'text-slate-300 text-xs' }));
+            const botRow = buildGridRow('3′–', '–5′', i => ({ char: BOT_SEQ[i], cls: 'text-slate-900' }));
+
+            container.innerHTML = `
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between text-xs font-bold text-slate-500">
+                        <span>56 Base Pairs • Complementary & Antiparallel</span>
+                        <span class="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200">Status: Double-Stranded Template</span>
+                    </div>
+                    <div class="overflow-x-auto dna-scroll bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="inline-block min-w-full space-y-0.5">
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-slate-500 shrink-0">Top Strand</span><div class="dna-grid-row bg-white rounded-lg py-1">${topRow}</div></div>
+                            <div class="flex items-center gap-2"><span class="w-24 shrink-0"></span><div class="dna-grid-row">${bondRow}</div></div>
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-slate-500 shrink-0">Bottom Strand</span><div class="dna-grid-row bg-white rounded-lg py-1">${botRow}</div></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStep1_2(container) {
+            const st = stepState['1.2'];
+            const topRow = buildGridRow('5′–', '–3′', i => ({ char: TOP_SEQ[i], cls: 'text-slate-900' }));
+            const bondRow = buildGridRow('', '', () => ({ char: st.denatured ? '' : '|', cls: 'text-slate-300 text-xs' }));
+            const botRow = buildGridRow('3′–', '–5′', i => ({ char: BOT_SEQ[i], cls: 'text-slate-900' }));
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <button onclick="stepState['1.2'].denatured = true; renderCurrentStep();" ${st.denatured ? 'disabled' : ''} class="${st.denatured ? 'bg-slate-200 text-slate-500 cursor-default' : 'pulse-target bg-rose-600 hover:bg-rose-700 text-white cursor-pointer'} px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-xs transition">
+                            ${st.denatured ? '✓ Denatured at 95°C (Single-Stranded Templates)' : '🔥 Heat to 95°C (Denature)'}
+                        </button>
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-lg border ${st.denatured ? 'bg-rose-50 text-rose-800 border-rose-200' : 'bg-slate-100 text-slate-600 border-slate-200'}">
+                            Temp: ${st.denatured ? '95°C (Strands Separated)' : '25°C (Double Helix Intact)'}
+                        </span>
+                    </div>
+
+                    <div class="overflow-x-auto dna-scroll bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="inline-block min-w-full">
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-slate-500 shrink-0">Top Strand</span><div class="dna-grid-row bg-white rounded-lg py-1">${topRow}</div></div>
+                            <div class="flex items-center gap-2 transition-all duration-300 ${st.denatured ? 'h-8' : 'h-6'}"><span class="w-24 shrink-0"></span><div class="dna-grid-row">${bondRow}</div></div>
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-slate-500 shrink-0">Bottom Strand</span><div class="dna-grid-row bg-white rounded-lg py-1">${botRow}</div></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Drag-and-drop & click handlers for Part 1.3
+        function selectPrimerTile(primerType) {
+            const st = stepState['1.3'];
+            if ((primerType === 'fwd' && st.fwdBound) || (primerType === 'rev' && st.revBound)) return;
+            st.selectedPrimer = (st.selectedPrimer === primerType) ? null : primerType;
+            st.feedback = st.selectedPrimer
+                ? `Selected ${primerType === 'fwd' ? 'Forward' : 'Reverse'} Primer — now click its complementary dashed target zone on the DNA.`
+                : 'Drag a primer onto its dashed target zone, or click a primer then click the target zone.';
+            st.feedbackType = 'info';
+            renderCurrentStep();
+        }
+
+        function handlePrimerDragStart(e, primerType) {
+            e.dataTransfer.setData('text/plain', primerType);
+            stepState['1.3'].selectedPrimer = primerType;
+        }
+
+        function handleZoneDrop(e, zoneType) {
+            e.preventDefault();
+            const dragged = e.dataTransfer.getData('text/plain') || stepState['1.3'].selectedPrimer;
+            if (dragged) attemptBindPrimer(dragged, zoneType);
+        }
+
+        function handleZoneClick(zoneType) {
+            const st = stepState['1.3'];
+            if (st.selectedPrimer) {
+                attemptBindPrimer(st.selectedPrimer, zoneType);
+            } else {
+                // Direct click convenience: bind the matching primer if none is selected
+                attemptBindPrimer(zoneType, zoneType);
+            }
+        }
+
+        function attemptBindPrimer(primerType, zoneType) {
+            const st = stepState['1.3'];
+            if (primerType === 'fwd' && zoneType === 'fwd') {
+                st.fwdBound = true;
+                st.selectedPrimer = null;
+                st.feedback = '✓ Forward Primer (5′–ATGCGTACGTTAGCT–3′) bound antiparallel to the 3′ end of the Bottom Strand!';
+                st.feedbackType = 'success';
+            } else if (primerType === 'rev' && zoneType === 'rev') {
+                st.revBound = true;
+                st.selectedPrimer = null;
+                st.feedback = '✓ Reverse Primer (3′–CATCGATCGATCGAT–5′) bound antiparallel to the 3′ end of the Top Strand!';
+                st.feedbackType = 'success';
+            } else {
+                st.selectedPrimer = null;
+                st.feedback = '✗ Polarity/Complementarity mismatch! Remember: DNA strands are antiparallel (5′→3′ pairs with 3′→5′). Try the opposite strand.';
+                st.feedbackType = 'error';
+            }
+            renderCurrentStep();
+        }
+
+        function renderStep1_3(container) {
+            const st = stepState['1.3'];
+            const bothBound = st.fwdBound && st.revBound;
+
+            const topRow = buildGridRow('5′–', '–3′', i => ({
+                char: TOP_SEQ[i],
+                cls: (i >= 41 && i <= 55) ? 'bg-emerald-100/80 text-slate-950' : 'text-slate-900'
+            }));
+
+            const revSlotRow = buildGridRow('', '', i => {
+                if (st.revBound) {
+                    if (i === 39) return { char: '3′', cls: 'text-[11px] text-emerald-700' };
+                    if (i === 40) return { char: '–', cls: 'text-emerald-700' };
+                    if (i >= 41 && i <= 55) return { char: BOT_SEQ[i], cls: 'bg-emerald-200 text-emerald-950 border-y border-emerald-600' };
+                    if (i === 56) return { char: '–', cls: 'text-emerald-700' };
+                    if (i === 57) return { char: '5′', cls: 'text-[11px] text-emerald-700' };
+                    return { char: '' };
+                } else {
+                    if (i >= 41 && i <= 55) {
+                        const isFirst = i === 41, isLast = i === 55;
+                        const labelChar = 'DROP REV PRIMER'[i - 41] || '';
+                        return {
+                            char: labelChar,
+                            cls: `bg-amber-50 text-amber-800 text-[10px] border-y-2 border-dashed border-amber-400 cursor-pointer hover:bg-amber-100 ${isFirst ? 'border-l-2 rounded-l' : ''} ${isLast ? 'border-r-2 rounded-r' : ''}`,
+                            attrs: `ondragover="event.preventDefault()" ondrop="handleZoneDrop(event, 'rev')" onclick="handleZoneClick('rev')"`
+                        };
+                    }
+                    return { char: '' };
+                }
+            });
+
+            const fwdSlotRow = buildGridRow('', '', i => {
+                if (st.fwdBound) {
+                    if (i >= 0 && i <= 14) return { char: TOP_SEQ[i], cls: 'bg-orange-200 text-orange-950 border-y border-orange-600' };
+                    if (i === 15) return { char: '–', cls: 'text-orange-700' };
+                    if (i === 16) return { char: '3′', cls: 'text-[11px] text-orange-700' };
+                    return { char: '' };
+                } else {
+                    if (i >= 0 && i <= 14) {
+                        const isFirst = i === 0, isLast = i === 14;
+                        const labelChar = 'DROP FWD PRIMER'[i] || '';
+                        return {
+                            char: labelChar,
+                            cls: `bg-amber-50 text-amber-800 text-[10px] border-y-2 border-dashed border-amber-400 cursor-pointer hover:bg-amber-100 ${isFirst ? 'border-l-2 rounded-l' : ''} ${isLast ? 'border-r-2 rounded-r' : ''}`,
+                            attrs: `ondragover="event.preventDefault()" ondrop="handleZoneDrop(event, 'fwd')" onclick="handleZoneClick('fwd')"`
+                        };
+                    }
+                    return { char: '' };
+                }
+            });
+
+            const botRow = buildGridRow('3′–', '–5′', i => ({
+                char: BOT_SEQ[i],
+                cls: (i >= 0 && i <= 14) ? 'bg-orange-100/80 text-slate-950' : 'text-slate-900'
+            }));
+
+            const fbClasses = st.feedbackType === 'success'
+                ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
+                : st.feedbackType === 'error'
+                    ? 'bg-rose-50 border-rose-300 text-rose-950 shake-error'
+                    : 'bg-blue-50 border-blue-200 text-blue-950';
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <!-- Draggable / Clickable Primer Dock -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-100 p-3 rounded-xl border border-slate-200">
+                        <div class="flex flex-wrap items-center gap-2.5">
+                            <span class="text-xs font-extrabold uppercase text-slate-500">Primer Dock:</span>
+                            <button
+                                draggable="${!st.fwdBound}"
+                                ondragstart="handlePrimerDragStart(event, 'fwd')"
+                                onclick="selectPrimerTile('fwd')"
+                                ${st.fwdBound ? 'disabled' : ''}
+                                class="dna-font px-3 py-2 rounded-xl text-xs font-bold border-2 transition ${st.fwdBound ? 'bg-slate-200 border-slate-300 text-slate-400 line-through cursor-default' : st.selectedPrimer === 'fwd' ? 'bg-orange-600 text-white border-orange-800 scale-105 shadow-md cursor-grab' : 'pulse-target bg-orange-100 hover:bg-orange-200 text-orange-950 border-orange-500 cursor-grab'}">
+                                Forward: 5′–ATGCGTACGTTAGCT–3′ &rarr;
+                            </button>
+                            <button
+                                draggable="${!st.revBound}"
+                                ondragstart="handlePrimerDragStart(event, 'rev')"
+                                onclick="selectPrimerTile('rev')"
+                                ${st.revBound ? 'disabled' : ''}
+                                class="dna-font px-3 py-2 rounded-xl text-xs font-bold border-2 transition ${st.revBound ? 'bg-slate-200 border-slate-300 text-slate-400 line-through cursor-default' : st.selectedPrimer === 'rev' ? 'bg-emerald-600 text-white border-emerald-800 scale-105 shadow-md cursor-grab' : 'pulse-target bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border-emerald-500 cursor-grab'}">
+                                &larr; Reverse: 3′–CATCGATCGATCGAT–5′
+                            </button>
+                        </div>
+                        <span class="text-xs font-bold px-2.5 py-1 rounded-lg ${bothBound ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600 border border-slate-200'}">
+                            Bound: ${(st.fwdBound ? 1 : 0) + (st.revBound ? 1 : 0)} / 2
+                        </span>
+                    </div>
+
+                    <!-- Status Feedback -->
+                    <div class="px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-semibold ${fbClasses}">
+                        ${st.feedback}
+                    </div>
+
+                    <!-- 64-Column Template + Drop Zones -->
+                    <div class="overflow-x-auto dna-scroll bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="inline-block min-w-full space-y-1">
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-slate-500 shrink-0">Top Strand</span><div class="dna-grid-row bg-white rounded-lg py-1">${topRow}</div></div>
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-emerald-700 shrink-0">&larr; Rev Zone</span><div class="dna-grid-row">${revSlotRow}</div></div>
+                            <div class="h-2"></div>
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-orange-700 shrink-0">Fwd Zone &rarr;</span><div class="dna-grid-row">${fwdSlotRow}</div></div>
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-slate-500 shrink-0">Bottom Strand</span><div class="dna-grid-row bg-white rounded-lg py-1">${botRow}</div></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStep1_4(container) {
+            const st = stepState['1.4'];
+            const topRow = buildGridRow('5′–', '–3′', i => ({ char: TOP_SEQ[i], cls: 'text-slate-900' }));
+
+            const newTopCompRow = buildGridRow('3′–', '–5′', i => {
+                if (i >= 41 && i <= 55) return { char: BOT_SEQ[i], cls: 'bg-emerald-200 text-emerald-950 border-y border-emerald-600' };
+                if (st.extended) return { char: BOT_SEQ[i], cls: 'bg-emerald-50 text-emerald-700' };
+                return { char: '' };
+            });
+
+            const newBotCompRow = buildGridRow('5′–', '–3′', i => {
+                if (i >= 0 && i <= 14) return { char: TOP_SEQ[i], cls: 'bg-orange-200 text-orange-950 border-y border-orange-600' };
+                if (st.extended) return { char: TOP_SEQ[i], cls: 'bg-orange-50 text-orange-700' };
+                return { char: '' };
+            });
+
+            const botRow = buildGridRow('3′–', '–5′', i => ({ char: BOT_SEQ[i], cls: 'text-slate-900' }));
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <button onclick="stepState['1.4'].extended = true; renderCurrentStep();" ${st.extended ? 'disabled' : ''} class="${st.extended ? 'bg-slate-200 text-slate-500 cursor-default' : 'pulse-target bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer'} px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-xs transition">
+                            ${st.extended ? '✓ Extended at 72°C (2 Double-Stranded Molecules)' : '🧬 Run Extension (72°C)'}
+                        </button>
+                        <span class="text-xs font-bold text-slate-600 bg-slate-100 border border-slate-200 px-3 py-1 rounded-lg">
+                            Polymerase Direction: 5′ &rarr; 3′
+                        </span>
+                    </div>
+
+                    <div class="overflow-x-auto dna-scroll bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="inline-block min-w-full space-y-1">
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-slate-500 shrink-0">Orig Top</span><div class="dna-grid-row bg-white rounded-lg py-1">${topRow}</div></div>
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-emerald-700 shrink-0">&larr; New Strand</span><div class="dna-grid-row bg-white rounded-lg py-1">${newTopCompRow}</div></div>
+                            <div class="h-3"></div>
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-orange-700 shrink-0">New Strand &rarr;</span><div class="dna-grid-row bg-white rounded-lg py-1">${newBotCompRow}</div></div>
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-slate-500 shrink-0">Orig Bottom</span><div class="dna-grid-row bg-white rounded-lg py-1">${botRow}</div></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStep1_5(container) {
+            const st = stepState['1.5'];
+            const isInward = (st.mode === 'inward');
+
+            const topRow = buildGridRow('5′–', '–3′', i => ({
+                char: TOP_SEQ[i],
+                cls: (i >= 15 && i <= 40) ? 'text-slate-400' : 'text-slate-900'
+            }));
+            const botRow = buildGridRow('3′–', '–5′', i => ({
+                char: BOT_SEQ[i],
+                cls: (i >= 15 && i <= 40) ? 'text-slate-400' : 'text-slate-900'
+            }));
+
+            let upperPrimerRow = '';
+            let lowerPrimerRow = '';
+            let explanationHtml = '';
+
+            if (isInward) {
+                upperPrimerRow = buildGridRow('', '', i => {
+                    if (i === 23) return { char: '←', cls: 'text-emerald-700' };
+                    if (i >= 25 && i <= 37) return { char: 'Extends 5′→3′'[i - 25], cls: 'text-[10px] text-emerald-700' };
+                    if (i === 39) return { char: '3′', cls: 'text-[11px] text-emerald-700' };
+                    if (i === 40) return { char: '–', cls: 'text-emerald-700' };
+                    if (i >= 41 && i <= 55) return { char: BOT_SEQ[i], cls: 'bg-emerald-200 text-emerald-950 border-y border-emerald-600' };
+                    if (i === 56) return { char: '–', cls: 'text-emerald-700' };
+                    if (i === 57) return { char: '5′', cls: 'text-[11px] text-emerald-700' };
+                    return { char: '' };
+                });
+
+                lowerPrimerRow = buildGridRow('5′–', '', i => {
+                    if (i >= 0 && i <= 14) return { char: TOP_SEQ[i], cls: 'bg-orange-200 text-orange-950 border-y border-orange-600' };
+                    if (i === 15) return { char: '–', cls: 'text-orange-700' };
+                    if (i === 16) return { char: '3′', cls: 'text-[11px] text-orange-700' };
+                    if (i >= 18 && i <= 30) return { char: 'Extends 5′→3′'[i - 18], cls: 'text-[10px] text-orange-700' };
+                    if (i === 32) return { char: '→', cls: 'text-orange-700' };
+                    return { char: '' };
+                });
+
+                explanationHtml = `
+                    <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs sm:text-sm text-emerald-950">
+                        <strong>Why Inward-Facing Primers Work:</strong> Because DNA polymerase only synthesizes <strong>5′ &rarr; 3′</strong>, placing one primer on the bottom strand pointing right and one primer on the top strand pointing left ensures <strong>both strands are copied across the target region</strong>—and each newly synthesized strand includes the binding site for the opposite primer!
+                    </div>
+                `;
+            } else {
+                upperPrimerRow = buildGridRow('5′–', '', i => {
+                    if (i >= 0 && i <= 14) return { char: TOP_SEQ[i], cls: 'bg-rose-200 text-rose-950 border-y border-rose-600' };
+                    if (i === 15) return { char: '–', cls: 'text-rose-700' };
+                    if (i === 16) return { char: '3′', cls: 'text-[11px] text-rose-700' };
+                    if (i >= 18 && i <= 52) return { char: '✗ Cannot bind Top Strand (parallel 5′→3′)'[i - 18] || '', cls: 'text-[10px] text-rose-700' };
+                    return { char: '' };
+                });
+
+                lowerPrimerRow = buildGridRow('5′–', '', i => {
+                    if (i >= 0 && i <= 14) return { char: TOP_SEQ[i], cls: 'bg-orange-200 text-orange-950 border-y border-orange-600' };
+                    if (i === 15) return { char: '–', cls: 'text-orange-700' };
+                    if (i === 16) return { char: '3′', cls: 'text-[11px] text-orange-700' };
+                    if (i >= 18 && i <= 50) return { char: '→ Copies Bottom Strand only (linear)'[i - 18] || '', cls: 'text-[10px] text-orange-700' };
+                    return { char: '' };
+                });
+
+                explanationHtml = `
+                    <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs sm:text-sm text-rose-950">
+                        <strong>What Happens If Primers Point in the Same Direction:</strong> Only one strand gets copied linearly, and the newly synthesized strands never acquire a reverse primer binding site—so <strong>exponential amplification of the specific target region fails</strong>.
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button onclick="stepState['1.5'].mode = 'inward'; renderCurrentStep();" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold cursor-pointer transition ${isInward ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}">
+                            ✓ Facing Each Other (Inward)
+                        </button>
+                        <button onclick="stepState['1.5'].mode = 'same'; renderCurrentStep();" class="${isInward ? 'pulse-target' : ''} px-4 py-2 rounded-xl text-xs sm:text-sm font-bold cursor-pointer transition ${!isInward ? 'bg-rose-600 text-white shadow-xs' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'}">
+                            ✗ Pointing Same Direction
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto dna-scroll bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="inline-block min-w-full space-y-1">
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-slate-500 shrink-0">Top Strand</span><div class="dna-grid-row bg-white rounded-lg py-1">${topRow}</div></div>
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold ${isInward ? 'text-emerald-700' : 'text-rose-700'} shrink-0">Primer 2</span><div class="dna-grid-row">${upperPrimerRow}</div></div>
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-orange-700 shrink-0">Primer 1</span><div class="dna-grid-row">${lowerPrimerRow}</div></div>
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-slate-500 shrink-0">Bottom Strand</span><div class="dna-grid-row bg-white rounded-lg py-1">${botRow}</div></div>
+                        </div>
+                    </div>
+
+                    ${explanationHtml}
+                </div>
+            `;
+        }
+
+        // =========================================================================
+        // PART 2.1, 2.2, 2.3: EXPONENTIAL AMPLIFICATION (2^n) — ZERO-SCROLL ROWS
+        // =========================================================================
+        function advancePart2Action(stepId) {
+            if (stepId === '2.1') {
+                stepState['2.2'].cycle = 1;
+                currentStepIdx++;
+                renderCurrentStep();
+            } else if (stepId === '2.2') {
+                stepState['2.3'].cycle = 3;
+                currentStepIdx++;
+                renderCurrentStep();
+            } else if (stepId === '2.3') {
+                if (stepState['2.3'].cycle < 5) {
+                    stepState['2.3'].cycle = 5;
+                    renderCurrentStep();
+                } else {
+                    nextStep();
+                }
+            }
+        }
+
+        function renderStep2(container, stepId) {
+            const st = stepState[stepId];
+            const supers = ['⁰', '¹', '²', '³', '⁴', '⁵'];
+            const currentCycle = st.cycle;
+            const totalMols = Math.pow(2, currentCycle);
+
+            // Configure unified top action button label & styling
+            let topBtnLabel = '';
+            let topBtnStyle = 'pulse-target bg-indigo-600 hover:bg-indigo-700 text-white cursor-pointer';
+            if (stepId === '2.1') {
+                topBtnLabel = 'Run Cycle 1 → 2 Copies (Part 2.2) →';
+            } else if (stepId === '2.2') {
+                topBtnLabel = 'Run Cycles 2 & 3 → 8 Copies (Part 2.3) →';
+            } else if (stepId === '2.3') {
+                if (currentCycle < 5) {
+                    topBtnLabel = 'Run Cycles 4 & 5 → 32 Copies (2⁵ = 32)';
+                } else {
+                    topBtnLabel = '✓ 32 Copies Reached — Continue to Part 3.1 →';
+                    topBtnStyle = 'bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer';
+                }
+            }
+
+            // Build horizontal rows from Cycle 0 up to currentCycle, dynamically zooming out as total copies grow
+            const maxScale = Math.pow(2, currentCycle);
+            const showPolarityLabels = currentCycle <= 2;
+            let rowsHtml = '';
+            for (let c = 0; c <= currentCycle; c++) {
+                const count = Math.pow(2, c);
+                const isLatest = (c === currentCycle);
+                const rowWidthPct = (count / maxScale) * 100;
+                let colsHtml = '';
+
+                for (let i = 0; i < count; i++) {
+                    const topOrig = (i === 0);
+                    const botOrig = (i === count - 1);
+                    colsHtml += `
+                        <div class="bg-white border ${isLatest ? 'border-indigo-300' : 'border-slate-200'} rounded ${currentCycle <= 2 ? 'px-2 py-1.5' : 'px-1 py-1'} flex flex-col gap-1 min-w-0 transition-all duration-300">
+                            <div class="flex items-center gap-1">
+                                ${showPolarityLabels ? '<span class="dna-font text-[9px] font-bold text-slate-400">5′</span>' : ''}
+                                <div class="${currentCycle <= 2 ? 'h-2' : 'h-1.5'} flex-1 rounded-full ${topOrig ? 'bg-slate-900' : 'bg-orange-500'}"></div>
+                                ${showPolarityLabels ? '<span class="dna-font text-[9px] font-bold text-slate-400">3′</span>' : ''}
+                            </div>
+                            <div class="flex items-center gap-1">
+                                ${showPolarityLabels ? '<span class="dna-font text-[9px] font-bold text-slate-400">3′</span>' : ''}
+                                <div class="${currentCycle <= 2 ? 'h-2' : 'h-1.5'} flex-1 rounded-full ${botOrig ? 'bg-slate-900' : 'bg-emerald-500'}"></div>
+                                ${showPolarityLabels ? '<span class="dna-font text-[9px] font-bold text-slate-400">5′</span>' : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                rowsHtml += `
+                    <div class="flex items-center gap-2.5 px-3 py-2 rounded-xl border transition-all ${isLatest ? 'bg-indigo-50/70 border-indigo-300 shadow-2xs' : 'bg-slate-50/80 border-slate-200'}">
+                        <div class="w-24 shrink-0 flex items-center justify-between gap-1">
+                            <span class="text-xs font-extrabold ${isLatest ? 'text-indigo-950' : 'text-slate-600'}">Cycle ${c}</span>
+                            <span class="dna-font text-[11px] font-bold px-1.5 py-0.5 rounded ${isLatest ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-700'}">2${supers[c]}=${count}</span>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="grid gap-1.5 transition-all duration-300" style="width: ${rowWidthPct}%; grid-template-columns: repeat(${count}, minmax(0, 1fr));">
+                                ${colsHtml}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            container.innerHTML = `
+                <div class="space-y-3">
+                    <!-- Top Summary & Unified Action Bar -->
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex flex-wrap items-center gap-3 text-xs font-semibold text-slate-600">
+                            <span class="flex items-center gap-1.5"><span class="w-3.5 h-1.5 bg-slate-900 inline-block rounded"></span> Original Strand</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3.5 h-1.5 bg-orange-500 inline-block rounded"></span> Forward Copy</span>
+                            <span class="flex items-center gap-1.5"><span class="w-3.5 h-1.5 bg-emerald-500 inline-block rounded"></span> Reverse Copy</span>
+                            <span class="dna-font font-extrabold text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-0.5 rounded-lg">Current: 2${supers[currentCycle]} = ${totalMols} ${totalMols === 1 ? 'Copy' : 'Copies'}</span>
+                            <span class="text-[11px] font-bold text-slate-400">Zoom: ${Math.round((1 / maxScale) * 100)}%</span>
+                        </div>
+
+                        <button onclick="advancePart2Action('${stepId}')" class="${topBtnStyle} px-4 py-2 rounded-xl text-xs sm:text-sm font-bold shadow-sm transition">
+                            ${topBtnLabel}
+                        </button>
+                    </div>
+
+                    <!-- Zero-Scroll Horizontal Doubling Cascade -->
+                    <div class="space-y-1.5">
+                        ${rowsHtml}
+                    </div>
+                </div>
+            `;
+        }
+
+        // =========================================================================
+        // PART 3.1, 3.2, 3.3: PRIMER SPECIFICITY & TARGET BOUNDARIES
+        // =========================================================================
+        function getAlignedBoundaryHtml() {
+            // Exact Lab Manual Part 3 target region: indices 9..46 (38 bases)
+            // Forward Primer: 5'-GTTAGCTA-3' (indices 9..16)
+            // Reverse Primer: 3'-TAGCATCG-5' (indices 39..46)
+            const rowTop = buildGridRow('5′–', '–3′', i => {
+                const inTarget = (i >= 9 && i <= 46);
+                return { char: TOP_SEQ[i], cls: inTarget ? 'text-slate-950 bg-slate-200/70' : 'text-slate-400' };
+            });
+            const rowRev = buildGridRow('', '', i => {
+                if (i === 7) return { char: '3′', cls: 'text-[11px] text-emerald-700' };
+                if (i === 8) return { char: '–', cls: 'text-emerald-700' };
+                if (i >= 9 && i <= 38) return { char: BOT_SEQ[i], cls: 'bg-emerald-50 text-emerald-800 italic border-y border-emerald-300' };
+                if (i >= 39 && i <= 46) return { char: BOT_SEQ[i], cls: 'bg-emerald-200 text-emerald-950 font-extrabold underline decoration-2 border-y-2 border-emerald-600' };
+                if (i === 47) return { char: '–', cls: 'text-emerald-700' };
+                if (i === 48) return { char: '5′', cls: 'text-[11px] text-emerald-700' };
+                return { char: '' };
+            });
+            const rowRevLabel = buildGridRow('', '', i => {
+                const lbl = '← (Reverse Primer)';
+                if (i >= 33 && i < 33 + lbl.length) {
+                    return { char: lbl[i - 33], cls: 'text-[11px] font-extrabold text-emerald-700' };
+                }
+                return { char: '' };
+            });
+            const rowFwdLabel = buildGridRow('', '', i => {
+                const lbl = '(Forward Primer) →';
+                if (i >= 5 && i < 5 + lbl.length) {
+                    return { char: lbl[i - 5], cls: 'text-[11px] font-extrabold text-orange-700' };
+                }
+                return { char: '' };
+            });
+            const rowFwd = buildGridRow('', '', i => {
+                if (i === 7) return { char: '5′', cls: 'text-[11px] text-orange-700' };
+                if (i === 8) return { char: '–', cls: 'text-orange-700' };
+                if (i >= 9 && i <= 16) return { char: TOP_SEQ[i], cls: 'bg-orange-200 text-orange-950 font-extrabold underline decoration-2 border-y-2 border-orange-600' };
+                if (i >= 17 && i <= 46) return { char: TOP_SEQ[i], cls: 'bg-orange-50 text-orange-800 italic border-y border-orange-300' };
+                if (i === 47) return { char: '–', cls: 'text-orange-700' };
+                if (i === 48) return { char: '3′', cls: 'text-[11px] text-orange-700' };
+                return { char: '' };
+            });
+            const rowBot = buildGridRow('3′–', '–5′', i => {
+                const inTarget = (i >= 9 && i <= 46);
+                return { char: BOT_SEQ[i], cls: inTarget ? 'text-slate-950 bg-slate-200/70' : 'text-slate-400' };
+            });
+
+            return `
+                <div class="overflow-x-auto dna-scroll bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <div class="inline-block min-w-full space-y-0.5">
+                        <div class="flex items-center gap-2"><span class="w-20 text-right text-[11px] font-bold text-slate-400 shrink-0">Top</span><div class="dna-grid-row">${rowTop}</div></div>
+                        <div class="flex items-center gap-2"><span class="w-20 text-right text-[11px] font-bold text-emerald-700 shrink-0">Rev Copy</span><div class="dna-grid-row">${rowRev}</div></div>
+                        <div class="flex items-center gap-2"><span class="w-20 shrink-0"></span><div class="dna-grid-row">${rowRevLabel}</div></div>
+                        <div class="flex items-center gap-2"><span class="w-20 shrink-0"></span><div class="dna-grid-row">${rowFwdLabel}</div></div>
+                        <div class="flex items-center gap-2"><span class="w-20 text-right text-[11px] font-bold text-orange-700 shrink-0">Fwd Copy</span><div class="dna-grid-row">${rowFwd}</div></div>
+                        <div class="flex items-center gap-2"><span class="w-20 text-right text-[11px] font-bold text-slate-400 shrink-0">Bottom</span><div class="dna-grid-row">${rowBot}</div></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStep3_1(container) {
+            container.innerHTML = `
+                <div class="space-y-3">
+                    <div class="text-xs font-bold text-slate-500 uppercase">Exact Primer-to-Primer Target Region (Highlighted Center Bases)</div>
+                    ${getAlignedBoundaryHtml()}
+                </div>
+            `;
+        }
+
+        function renderStep3_2(container) {
+            const st = stepState['3.2'];
+            // Stage 0: Denatured DNA template (bases 9..46 subtly outlined as target)
+            // Stage 1: Specific primers annealed (5'-GTTAGCTA-3' at 9..16, 3'-TAGCATCG-5' at 39..46)
+            // Stage 2: Taq extends 5'->3' across the shared overlap (9..46) + glowing "Target Region Defined" bracket
+
+            const rowTop = buildGridRow('5′–', '–3′', i => {
+                const inTarget = (i >= 9 && i <= 46);
+                return {
+                    char: TOP_SEQ[i],
+                    cls: st.stage === 2 && inTarget
+                        ? 'text-slate-950 bg-indigo-100/70 font-extrabold'
+                        : inTarget ? 'text-slate-900' : 'text-slate-400'
+                };
+            });
+
+            const rowRev = buildGridRow('', '', i => {
+                if (st.stage === 0) return { char: '' };
+                if (st.stage === 1) {
+                    if (i === 37) return { char: '3′', cls: 'text-[11px] text-emerald-700' };
+                    if (i === 38) return { char: '–', cls: 'text-emerald-700' };
+                    if (i >= 39 && i <= 46) return { char: BOT_SEQ[i], cls: 'primer-glide bg-emerald-200 text-emerald-950 font-extrabold underline decoration-2 border-y-2 border-emerald-600' };
+                    if (i === 47) return { char: '–', cls: 'text-emerald-700' };
+                    if (i === 48) return { char: '5′', cls: 'text-[11px] text-emerald-700' };
+                    return { char: '' };
+                }
+                // st.stage === 2 (extended leftward 5' -> 3')
+                if (i === 7) return { char: '3′', cls: 'text-[11px] text-emerald-700' };
+                if (i === 8) return { char: '–', cls: 'text-emerald-700' };
+                if (i >= 9 && i <= 38) return { char: BOT_SEQ[i], cls: 'bg-emerald-100 text-emerald-900 border-y border-emerald-400' };
+                if (i >= 39 && i <= 46) return { char: BOT_SEQ[i], cls: 'bg-emerald-200 text-emerald-950 font-extrabold underline decoration-2 border-y-2 border-emerald-600' };
+                if (i === 47) return { char: '–', cls: 'text-emerald-700' };
+                if (i === 48) return { char: '5′', cls: 'text-[11px] text-emerald-700' };
+                return { char: '' };
+            });
+
+            const rowBracket = buildGridRow('', '', i => {
+                if (st.stage < 2) {
+                    if (i === 9) return { char: '├', cls: 'text-slate-400' };
+                    if (i > 9 && i < 46) {
+                        const lbl = '────── Target Region (38 bp) ──────';
+                        return { char: lbl[i - 10] || '─', cls: 'text-[10px] text-slate-400' };
+                    }
+                    if (i === 46) return { char: '┤', cls: 'text-slate-400' };
+                    return { char: '' };
+                }
+                if (i === 9) return { char: '┣', cls: 'text-indigo-700 font-extrabold' };
+                if (i > 9 && i < 46) {
+                    const lbl = '══ TARGET DEFINED BY PRIMERS (38 bp) ══';
+                    return { char: lbl[i - 10] || '═', cls: 'text-[10px] text-indigo-700 font-extrabold bg-indigo-50' };
+                }
+                if (i === 46) return { char: '┫', cls: 'text-indigo-700 font-extrabold' };
+                return { char: '' };
+            });
+
+            const rowFwd = buildGridRow('', '', i => {
+                if (st.stage === 0) return { char: '' };
+                if (st.stage === 1) {
+                    if (i === 7) return { char: '5′', cls: 'text-[11px] text-orange-700' };
+                    if (i === 8) return { char: '–', cls: 'text-orange-700' };
+                    if (i >= 9 && i <= 16) return { char: TOP_SEQ[i], cls: 'primer-glide bg-orange-200 text-orange-950 font-extrabold underline decoration-2 border-y-2 border-orange-600' };
+                    if (i === 17) return { char: '–', cls: 'text-orange-700' };
+                    if (i === 18) return { char: '3′', cls: 'text-[11px] text-orange-700' };
+                    return { char: '' };
+                }
+                // st.stage === 2 (extended rightward 5' -> 3')
+                if (i === 7) return { char: '5′', cls: 'text-[11px] text-orange-700' };
+                if (i === 8) return { char: '–', cls: 'text-orange-700' };
+                if (i >= 9 && i <= 16) return { char: TOP_SEQ[i], cls: 'bg-orange-200 text-orange-950 font-extrabold underline decoration-2 border-y-2 border-orange-600' };
+                if (i >= 17 && i <= 46) return { char: TOP_SEQ[i], cls: 'bg-orange-100 text-orange-900 border-y border-orange-400' };
+                if (i === 47) return { char: '–', cls: 'text-orange-700' };
+                if (i === 48) return { char: '3′', cls: 'text-[11px] text-orange-700' };
+                return { char: '' };
+            });
+
+            const rowBot = buildGridRow('3′–', '–5′', i => {
+                const inTarget = (i >= 9 && i <= 46);
+                return {
+                    char: BOT_SEQ[i],
+                    cls: st.stage === 2 && inTarget
+                        ? 'text-slate-950 bg-indigo-100/70 font-extrabold'
+                        : inTarget ? 'text-slate-900' : 'text-slate-400'
+                };
+            });
+
+            const takeaway = st.stage === 0
+                ? 'Step 1: The double-stranded DNA has been separated. Notice the flanking DNA on the far left and far right outside the target region.'
+                : st.stage === 1
+                    ? 'Step 2 (Annealing): Because the Forward (5′–GTTAGCTA–3′) and Reverse (3′–TAGCATCG–5′) primers match only one unique sequence each, they act like molecular bookends.'
+                    : 'Step 3 (Extension): Taq polymerase extends 5′ → 3′ from each primer. Only the 38-bp region framed between the two primers gets copied on BOTH strands—setting the exact start and stop boundaries for amplification!';
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="stepState['3.2'].stage = 1; renderCurrentStep();" ${st.stage >= 1 ? 'disabled' : ''} class="${st.stage === 0 ? 'pulse-target bg-orange-600 hover:bg-orange-700 text-white cursor-pointer' : 'bg-slate-200 text-slate-500 cursor-default'} px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition">
+                                ${st.stage >= 1 ? '✓ 1. Primers Annealed (55°C)' : '1. Anneal Specific Primers (55°C)'}
+                            </button>
+                            <button onclick="stepState['3.2'].stage = 2; renderCurrentStep();" ${st.stage !== 1 ? 'disabled' : ''} class="${st.stage === 1 ? 'pulse-target bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer' : st.stage === 2 ? 'bg-slate-200 text-slate-500 cursor-default' : 'bg-slate-100 text-slate-400 cursor-not-allowed'} px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition">
+                                ${st.stage === 2 ? '✓ 2. Extended & Target Framed (72°C)' : '2. Extend in 5′→3′ Direction (72°C)'}
+                            </button>
+                        </div>
+                        <span class="text-xs font-bold px-3 py-1 rounded-lg border ${st.stage === 2 ? 'bg-indigo-50 text-indigo-800 border-indigo-200' : 'bg-slate-100 text-slate-600 border-slate-200'}">
+                            Target Defined: ${st.stage === 2 ? '38 bp Framed' : 'Pending'}
+                        </span>
+                    </div>
+
+                    <div class="overflow-x-auto dna-scroll bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="inline-block min-w-full space-y-1">
+                            <div class="flex items-center gap-2"><span class="w-20 text-right text-[11px] font-bold text-slate-500 shrink-0">Top</span><div class="dna-grid-row bg-white rounded-lg py-0.5">${rowTop}</div></div>
+                            <div class="flex items-center gap-2"><span class="w-20 text-right text-[11px] font-bold text-emerald-700 shrink-0">&larr; Rev</span><div class="dna-grid-row">${rowRev}</div></div>
+                            <div class="flex items-center gap-2"><span class="w-20 shrink-0"></span><div class="dna-grid-row">${rowBracket}</div></div>
+                            <div class="flex items-center gap-2"><span class="w-20 text-right text-[11px] font-bold text-orange-700 shrink-0">Fwd &rarr;</span><div class="dna-grid-row">${rowFwd}</div></div>
+                            <div class="flex items-center gap-2"><span class="w-20 text-right text-[11px] font-bold text-slate-500 shrink-0">Bottom</span><div class="dna-grid-row bg-white rounded-lg py-0.5">${rowBot}</div></div>
+                        </div>
+                    </div>
+
+                    <div class="p-3.5 rounded-xl border text-xs sm:text-sm font-medium ${st.stage === 2 ? 'bg-indigo-50 border-indigo-200 text-indigo-950' : 'bg-slate-50 border-slate-200 text-slate-700'}">
+                        ${takeaway}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStep3_3(container) {
+            const st = stepState['3.3'];
+            const isResult = (st.view === 'result');
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl">
+                            <button onclick="stepState['3.3'].view = 'bookend'; renderCurrentStep();" class="px-3.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition ${!isResult ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'}">
+                                1. How Primers Act as Bookends
+                            </button>
+                            <button onclick="stepState['3.3'].view = 'result'; renderCurrentStep();" class="${!isResult ? 'pulse-target' : ''} px-3.5 py-1.5 rounded-lg text-xs font-bold cursor-pointer transition ${isResult ? 'bg-white text-slate-900 shadow-2xs' : 'text-slate-600'}">
+                                2. Result After 30 Cycles (&gt;1 Billion Copies)
+                            </button>
+                        </div>
+                        <span class="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-lg">
+                            Key Takeaway: Primer Specificity = Target Selection
+                        </span>
+                    </div>
+
+                    ${!isResult ? `
+                        <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-5 space-y-4">
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs sm:text-sm">
+                                <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-1.5">
+                                    <div class="font-extrabold text-orange-700 uppercase text-[11px]">Left Boundary (5′ Start)</div>
+                                    <div class="font-bold text-slate-900">Forward Primer (5′–GTTAGCTA–3′)</div>
+                                    <p class="text-slate-600 text-xs">Marks the exact left starting base of every new forward strand. Flanking DNA to the left is never copied.</p>
+                                </div>
+                                <div class="bg-indigo-600 text-white p-3.5 rounded-xl shadow-xs space-y-1.5">
+                                    <div class="font-extrabold text-indigo-200 uppercase text-[11px]">The Amplified Target</div>
+                                    <div class="font-bold text-base">Region Between Primers (38 bp)</div>
+                                    <p class="text-indigo-100 text-xs">Because both primers point inward toward each other, <strong>only this shared middle section</strong> is copied every cycle and doubles exponentially (2ⁿ).</p>
+                                </div>
+                                <div class="bg-white p-3.5 rounded-xl border border-slate-200 space-y-1.5">
+                                    <div class="font-extrabold text-emerald-700 uppercase text-[11px]">Right Boundary (5′ Start)</div>
+                                    <div class="font-bold text-slate-900">Reverse Primer (3′–TAGCATCG–5′)</div>
+                                    <p class="text-slate-600 text-xs">Marks the exact right starting base of every new reverse strand. Flanking DNA to the right is never copied.</p>
+                                </div>
+                            </div>
+
+                            <!-- Clean Visual Diagram of Bookend Effect -->
+                            <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-2 overflow-x-auto">
+                                <div class="min-w-[520px] space-y-1.5 text-[11px] font-bold">
+                                    <div class="flex items-center">
+                                        <div class="w-[18%] bg-slate-200 text-slate-500 h-6 rounded-l flex items-center justify-center border-r border-slate-300">Ignored Flanking DNA</div>
+                                        <div class="w-[64%] bg-indigo-100 text-indigo-950 h-6 flex items-center justify-center border-y-2 border-indigo-600">Target Region Framed Between Primers (Amplified 2ⁿ)</div>
+                                        <div class="w-[18%] bg-slate-200 text-slate-500 h-6 rounded-r flex items-center justify-center border-l border-slate-300">Ignored Flanking DNA</div>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="w-[18%]"></div>
+                                        <div class="w-[64%] flex justify-between items-center pt-1">
+                                            <span class="bg-orange-500 text-white px-2.5 py-0.5 rounded">Fwd Primer &rarr;</span>
+                                            <span class="text-indigo-700 font-extrabold">Both strands copied here every cycle</span>
+                                            <span class="bg-emerald-600 text-white px-2.5 py-0.5 rounded">&larr; Rev Primer</span>
+                                        </div>
+                                        <div class="w-[18%]"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ` : `
+                        <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 sm:p-5 space-y-3">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <span class="text-sm font-extrabold text-emerald-950">After 30 Cycles of PCR (2³⁰ = 1,073,741,824 Copies):</span>
+                                <span class="dna-font text-xs font-extrabold bg-emerald-600 text-white px-3 py-1 rounded-lg">&gt;99.9999% Exact Target Fragment</span>
+                            </div>
+                            <div class="w-full bg-slate-300 h-7 rounded-full overflow-hidden flex text-xs font-extrabold">
+                                <div class="bg-emerald-600 text-white h-full flex items-center justify-center px-3" style="width: 99.2%">
+                                    ~1.07 Billion Copies of the Exact Primer-to-Primer Target Region
+                                </div>
+                                <div class="bg-slate-600 h-full" style="width: 0.8%" title="Original template strands (only 2 copies)"></div>
+                            </div>
+                            <p class="text-xs sm:text-sm text-emerald-950 leading-relaxed">
+                                <strong>Summary for Your Worksheet:</strong> Because the Forward and Reverse primers bind specifically to the two ends of our target gene and face inward, every PCR cycle copies the DNA between them. By Cycle 30, over <strong>a billion exact copies</strong> of the target region accumulate while the original long chromosome remains at just <strong>2 copies</strong>—making the target region practically 100% of the DNA in the tube.
+                            </p>
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        // =========================================================================
+        // PART 4.1, 4.2, 4.3: PRIMER LENGTH & STEP CHECK
+        // =========================================================================
+        // Exact 0-based start indices matching Lab Manual Section 4.3 Key:
+        // Top Strand (5'->3'): ATGCGTACGT (0-9) |TAGC|(10) |TAGC|(14) TAGGCTAACGTT (18-28) |TAGC|(29) GTACGATCG (33-41) |TAGC|(42) |TAGC|(46) |TAGC|(50) TA(54-55)
+        // Bot Strand (3'->5'): TACGCATGCAAT (0-11) |CGAT|(12) |CGAT|(16) C (20) |CGAT|(21) TGCAATCGCATGCTAGCAT (25-43) |CGAT|(44) |CGAT|(48) |CGAT|(52)
+        const TOP_SHORT_MATCHES = [10, 14, 29, 42, 46, 50]; // 6 sites on Top (TAGC -> pairs with 3'-ATCG-5')
+        const BOT_SHORT_MATCHES = [12, 16, 21, 44, 48, 52]; // 6 sites on Bottom (CGAT -> pairs with 5'-GCTA-3') -> 12 total
+        const BOT_LONG_MATCHES = [0];                       // 1 unique site (15 bases)
+
+        function isIndexInMatch(idx, starts, len) {
+            return starts.some(s => idx >= s && idx < s + len);
+        }
+
+        function selectShortPrimer4_1(type) {
+            const st = stepState['4.1'];
+            st.selectedPrimer = (st.selectedPrimer === type) ? null : type;
+            st.feedback = st.selectedPrimer
+                ? `Selected ${type === 'top' ? '3′–ATCG–5′' : '5′–GCTA–3′'} — now click or drag onto a complementary 4-bp gray box.`
+                : 'Drag 3′–ATCG–5′ or 5′–GCTA–3′ onto a matching 4-bp gray box.';
+            st.feedbackType = 'info';
+            renderCurrentStep();
+        }
+
+        function handleShortDragStart4_1(e, type) {
+            e.dataTransfer.setData('text/plain', type);
+            stepState['4.1'].selectedPrimer = type;
+        }
+
+        function handleShortDrop4_1(e, strand, idx) {
+            e.preventDefault();
+            const dragged = e.dataTransfer.getData('text/plain') || stepState['4.1'].selectedPrimer;
+            if (!dragged) return;
+            attemptShortBind4_1(dragged, strand, idx);
+        }
+
+        function handleShortClick4_1(strand, idx) {
+            const st = stepState['4.1'];
+            if (!st.selectedPrimer) {
+                st.feedback = 'Drag a primer from the dock onto a 4-bp gray box (or click a primer tile first to select it).';
+                st.feedbackType = 'info';
+                renderCurrentStep();
+                return;
+            }
+            attemptShortBind4_1(st.selectedPrimer, strand, idx);
+        }
+
+        function attemptShortBind4_1(primerType, strand, idx) {
+            const st = stepState['4.1'];
+            const validStarts = strand === 'top' ? TOP_SHORT_MATCHES : BOT_SHORT_MATCHES;
+            const matchedStart = validStarts.find(s => idx >= s && idx < s + 4);
+
+            if (matchedStart === undefined) return;
+
+            // Enforce strict primer-to-strand polarity matching: only the right primer sticks!
+            if (primerType !== strand) {
+                st.justBound = null;
+                if (primerType === 'bot' && strand === 'top') {
+                    st.feedback = '✗ Does not stick! 5′–GCTA–3′ cannot bind the 5′→3′ Top Strand (wrong polarity/bases). Try the Bottom Strand or use 3′–ATCG–5′.';
+                } else {
+                    st.feedback = '✗ Does not stick! 3′–ATCG–5′ cannot bind the 3′→5′ Bottom Strand (wrong polarity/bases). Try the Top Strand or use 5′–GCTA–3′.';
+                }
+                st.feedbackType = 'error';
+                renderCurrentStep();
+                return;
+            }
+
+            const foundList = strand === 'top' ? st.foundTop : st.foundBot;
+            if (foundList.includes(matchedStart)) {
+                st.feedback = 'That 4-bp gray box already has its complementary primer attached!';
+                st.feedbackType = 'info';
+            } else {
+                foundList.push(matchedStart);
+                st.justBound = { strand, idx: matchedStart };
+                if (st.hint && st.hint.strand === strand && st.hint.idx === matchedStart) {
+                    st.hint = null;
+                }
+                const total = st.foundTop.length + st.foundBot.length;
+                if (total === 12) {
+                    st.feedback = '🎉 All 12 binding sites matched! Short 4-base primers bind far too often (6 times on Top + 6 times on Bottom).';
+                    st.feedbackType = 'success';
+                } else {
+                    const boundSeq = strand === 'top' ? '3′–ATCG–5′ (paired with TAGC)' : '5′–GCTA–3′ (paired with CGAT)';
+                    st.feedback = `✓ Stuck! ${boundSeq} — ${total} of 12 boxes filled.`;
+                    st.feedbackType = 'success';
+                }
+            }
+            renderCurrentStep();
+        }
+
+        function triggerHint4_1() {
+            const st = stepState['4.1'];
+            const unfoundTop = TOP_SHORT_MATCHES.find(s => !st.foundTop.includes(s));
+            if (unfoundTop !== undefined) {
+                st.hint = { strand: 'top', idx: unfoundTop };
+                st.feedback = '💡 Hint: Drag 3′–ATCG–5′ onto the pulsing amber 4-bp box on the Top Strand!';
+                st.feedbackType = 'info';
+                renderCurrentStep();
+                return;
+            }
+            const unfoundBot = BOT_SHORT_MATCHES.find(s => !st.foundBot.includes(s));
+            if (unfoundBot !== undefined) {
+                st.hint = { strand: 'bot', idx: unfoundBot };
+                st.feedback = '💡 Hint: Drag 5′–GCTA–3′ onto the pulsing amber 4-bp box on the Bottom Strand!';
+                st.feedbackType = 'info';
+                renderCurrentStep();
+                return;
+            }
+            st.feedback = '✓ All binding sites have already been found!';
+            st.feedbackType = 'success';
+            renderCurrentStep();
+        }
+
+        function renderStep4_1(container) {
+            const st = stepState['4.1'];
+            const totalFound = st.foundTop.length + st.foundBot.length;
+            const allFound = (totalFound === 12);
+
+            // Top Strand & 4-bp Gray Drop Boxes Directly Inside
+            const topPrimerTrack = buildGridRow('', '', i => {
+                const matchStart = TOP_SHORT_MATCHES.find(s => i >= s && i < s + 4);
+                if (matchStart !== undefined) {
+                    const offset = i - matchStart;
+                    const isFirst = (offset === 0);
+                    const isLast = (offset === 3);
+                    const isFound = st.foundTop.includes(matchStart);
+                    const isJustBound = st.justBound && st.justBound.strand === 'top' && st.justBound.idx === matchStart;
+                    const isHint = st.hint && st.hint.strand === 'top' && st.hint.idx === matchStart;
+
+                    if (isFound) {
+                        return {
+                            char: 'ATCG'[offset],
+                            cls: `${isJustBound ? 'primer-glide' : ''} bg-teal-600 text-white text-[11px] font-bold ${isFirst ? 'rounded-l' : ''} ${isLast ? 'rounded-r' : ''}`
+                        };
+                    }
+                    return {
+                        char: '',
+                        cls: `${isHint ? 'pulse-target bg-amber-200 border-amber-500' : 'bg-slate-200/90 hover:bg-slate-300 border-slate-400'} border-y border-dashed cursor-pointer transition-colors ${isFirst ? 'border-l rounded-l' : ''} ${isLast ? 'border-r rounded-r' : ''}`,
+                        attrs: `ondragover="event.preventDefault()" ondrop="handleShortDrop4_1(event, 'top', ${matchStart})" onclick="handleShortClick4_1('top', ${matchStart})"`
+                    };
+                }
+                return { char: '' };
+            });
+
+            const topGrid = buildGridRow('5′–', '–3′', i => {
+                const matchStart = TOP_SHORT_MATCHES.find(s => i >= s && i < s + 4);
+                const isFound = matchStart !== undefined && st.foundTop.includes(matchStart);
+                const isInBox = matchStart !== undefined;
+                const isFirst = isInBox && (i === matchStart);
+                const isLast = isInBox && (i === matchStart + 3);
+                let cls = 'text-slate-900';
+                if (isFound) {
+                    cls = `bg-teal-100 text-teal-950 font-extrabold ${isFirst ? 'border-l-2 border-teal-600' : ''} ${isLast ? 'border-r-2 border-teal-600' : ''}`;
+                } else if (isInBox) {
+                    cls = `bg-slate-100 text-slate-950 cursor-pointer ${isFirst ? 'border-l border-slate-400' : ''} ${isLast ? 'border-r border-slate-400' : ''}`;
+                }
+                return {
+                    char: TOP_SEQ[i],
+                    cls,
+                    attrs: isInBox ? `ondragover="event.preventDefault()" ondrop="handleShortDrop4_1(event, 'top', ${matchStart})" onclick="handleShortClick4_1('top', ${matchStart})"` : ''
+                };
+            });
+
+            // Bottom Strand & 4-bp Gray Drop Boxes Directly Inside
+            const botGrid = buildGridRow('3′–', '–5′', i => {
+                const matchStart = BOT_SHORT_MATCHES.find(s => i >= s && i < s + 4);
+                const isFound = matchStart !== undefined && st.foundBot.includes(matchStart);
+                const isInBox = matchStart !== undefined;
+                const isFirst = isInBox && (i === matchStart);
+                const isLast = isInBox && (i === matchStart + 3);
+                let cls = 'text-slate-900';
+                if (isFound) {
+                    cls = `bg-emerald-100 text-emerald-950 font-extrabold ${isFirst ? 'border-l-2 border-emerald-600' : ''} ${isLast ? 'border-r-2 border-emerald-600' : ''}`;
+                } else if (isInBox) {
+                    cls = `bg-slate-100 text-slate-950 cursor-pointer ${isFirst ? 'border-l border-slate-400' : ''} ${isLast ? 'border-r border-slate-400' : ''}`;
+                }
+                return {
+                    char: BOT_SEQ[i],
+                    cls,
+                    attrs: isInBox ? `ondragover="event.preventDefault()" ondrop="handleShortDrop4_1(event, 'bot', ${matchStart})" onclick="handleShortClick4_1('bot', ${matchStart})"` : ''
+                };
+            });
+
+            const botPrimerTrack = buildGridRow('', '', i => {
+                const matchStart = BOT_SHORT_MATCHES.find(s => i >= s && i < s + 4);
+                if (matchStart !== undefined) {
+                    const offset = i - matchStart;
+                    const isFirst = (offset === 0);
+                    const isLast = (offset === 3);
+                    const isFound = st.foundBot.includes(matchStart);
+                    const isJustBound = st.justBound && st.justBound.strand === 'bot' && st.justBound.idx === matchStart;
+                    const isHint = st.hint && st.hint.strand === 'bot' && st.hint.idx === matchStart;
+
+                    if (isFound) {
+                        return {
+                            char: 'GCTA'[offset],
+                            cls: `${isJustBound ? 'primer-glide' : ''} bg-emerald-600 text-white text-[11px] font-bold ${isFirst ? 'rounded-l' : ''} ${isLast ? 'rounded-r' : ''}`
+                        };
+                    }
+                    return {
+                        char: '',
+                        cls: `${isHint ? 'pulse-target bg-amber-200 border-amber-500' : 'bg-slate-200/90 hover:bg-slate-300 border-slate-400'} border-y border-dashed cursor-pointer transition-colors ${isFirst ? 'border-l rounded-l' : ''} ${isLast ? 'border-r rounded-r' : ''}`,
+                        attrs: `ondragover="event.preventDefault()" ondrop="handleShortDrop4_1(event, 'bot', ${matchStart})" onclick="handleShortClick4_1('bot', ${matchStart})"`
+                    };
+                }
+                return { char: '' };
+            });
+
+            const fbClasses = st.feedbackType === 'success'
+                ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
+                : st.feedbackType === 'error'
+                    ? 'bg-rose-50 border-rose-300 text-rose-950 shake-error'
+                    : 'bg-blue-50 border-blue-200 text-blue-950';
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <!-- Draggable Short Primer Dock + Hint Button + Counter -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-100 p-3 rounded-xl border border-slate-200">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-xs font-extrabold uppercase text-slate-500">Drag Primer:</span>
+                            <button
+                                draggable="true"
+                                ondragstart="handleShortDragStart4_1(event, 'top')"
+                                onclick="selectShortPrimer4_1('top')"
+                                class="dna-font px-3 py-2 rounded-xl text-xs font-bold border-2 transition cursor-grab ${st.selectedPrimer === 'top' ? 'bg-teal-700 text-white border-teal-900 scale-105 shadow-md' : 'bg-teal-100 hover:bg-teal-200 text-teal-950 border-teal-500'}">
+                                3′–ATCG–5′
+                            </button>
+                            <button
+                                draggable="true"
+                                ondragstart="handleShortDragStart4_1(event, 'bot')"
+                                onclick="selectShortPrimer4_1('bot')"
+                                class="dna-font px-3 py-2 rounded-xl text-xs font-bold border-2 transition cursor-grab ${st.selectedPrimer === 'bot' ? 'bg-emerald-700 text-white border-emerald-900 scale-105 shadow-md' : 'bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border-emerald-500'}">
+                                5′–GCTA–3′
+                            </button>
+                        </div>
+
+                        <div class="flex items-center gap-2.5">
+                            <button onclick="triggerHint4_1()" ${allFound ? 'disabled' : ''} class="${allFound ? 'opacity-40 cursor-default bg-slate-200 text-slate-500' : 'bg-amber-500 hover:bg-amber-600 text-white cursor-pointer shadow-2xs'} px-3.5 py-2 rounded-xl text-xs font-bold transition">
+                                💡 Need a Hint?
+                            </button>
+                            <div class="flex items-center gap-1.5 bg-white border border-slate-200 px-3 py-1.5 rounded-xl">
+                                <span class="text-xs font-bold text-slate-500 uppercase">Matched:</span>
+                                <span class="dna-font text-base font-extrabold ${allFound ? 'text-emerald-600' : 'text-indigo-600'}">${totalFound} / 12</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Feedback Banner -->
+                    <div class="px-3.5 py-2 rounded-xl border text-xs sm:text-sm font-semibold ${fbClasses}">
+                        ${st.feedback}
+                    </div>
+
+                    <!-- Separated Top & Bottom Template Strands with 4-bp Gray Drop Boxes Inside -->
+                    <div class="overflow-x-auto dna-scroll bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="inline-block min-w-full space-y-1">
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-slate-700 shrink-0">Top Strand</span><div class="dna-grid-row bg-white rounded-lg py-1 border border-slate-200">${topGrid}</div></div>
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[10px] font-bold text-slate-400 shrink-0">Primer Site</span><div class="dna-grid-row">${topPrimerTrack}</div></div>
+
+                            <!-- Visual Denatured Separation Gap -->
+                            <div class="py-1.5 flex items-center gap-2">
+                                <span class="w-24 shrink-0"></span>
+                                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                                    &#8597; Drag the matching antiparallel primer into each 4-bp gray box
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[10px] font-bold text-slate-400 shrink-0">Primer Site</span><div class="dna-grid-row">${botPrimerTrack}</div></div>
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-slate-700 shrink-0">Bottom Strand</span><div class="dna-grid-row bg-white rounded-lg py-1 border border-slate-200">${botGrid}</div></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStep4_2(container) {
+            const st = stepState['4.2'];
+            const activeBot = st.scanned ? BOT_LONG_MATCHES : [];
+
+            const topGrid = buildGridRow('5′–', '–3′', i => ({ char: TOP_SEQ[i], cls: 'text-slate-800' }));
+            const botGrid = buildGridRow('3′–', '–5′', i => ({
+                char: BOT_SEQ[i],
+                cls: isIndexInMatch(i, activeBot, 15) ? 'bg-orange-300 text-orange-950 border-b-2 border-orange-700' : 'text-slate-800'
+            }));
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <button onclick="stepState['4.2'].scanned = true; renderCurrentStep();" class="${!st.scanned ? 'pulse-target' : ''} px-4 py-2 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs cursor-pointer">
+                            Scan 15-Base Primer (5′–ATGCGTACGTTAGCT–3′)
+                        </button>
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-slate-500 uppercase">Matches Found:</span>
+                            <span class="dna-font text-base font-extrabold text-emerald-700 bg-emerald-50 border border-emerald-200 px-3 py-0.5 rounded-lg">${st.scanned ? '1 / 1 (Unique)' : '0 / 1'}</span>
+                        </div>
+                    </div>
+
+                    <div class="overflow-x-auto dna-scroll bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <div class="inline-block min-w-full space-y-2">
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-slate-400 shrink-0">Top Strand</span><div class="dna-grid-row bg-white rounded-lg py-1">${topGrid}</div></div>
+                            <div class="flex items-center gap-2"><span class="w-24 text-right text-[11px] font-bold text-orange-700 shrink-0">Bottom Strand</span><div class="dna-grid-row bg-white rounded-lg py-1">${botGrid}</div></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderStep4_3(container) {
+            const st = stepState['4.3'];
+            const options = [
+                { id: 'denature', label: '1. Denaturation (~95°C)', desc: 'Heat breaks hydrogen bonds to separate the double helix' },
+                { id: 'anneal', label: '2. Annealing (~55°C)', desc: 'Primers base-pair specifically to complementary target sequences' },
+                { id: 'extend', label: '3. Extension (~72°C)', desc: 'Taq polymerase adds nucleotides in the 5′ → 3′ direction' }
+            ];
+
+            const cards = options.map(opt => {
+                let style = 'border-slate-200 hover:border-slate-300 bg-white';
+                if (st.choice === opt.id) {
+                    style = opt.id === 'anneal'
+                        ? 'border-emerald-500 bg-emerald-50 ring-2 ring-emerald-400'
+                        : 'border-rose-400 bg-rose-50 ring-2 ring-rose-300';
+                }
+                return `
+                    <button onclick="stepState['4.3'].choice = '${opt.id}'; renderCurrentStep();" class="text-left p-4 rounded-xl border-2 transition cursor-pointer ${style}">
+                        <div class="text-sm font-bold text-slate-900">${opt.label}</div>
+                        <div class="text-xs text-slate-600 mt-1">${opt.desc}</div>
+                    </button>
+                `;
+            }).join('');
+
+            let feedback = '';
+            if (st.choice === 'anneal') {
+                feedback = `<div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs sm:text-sm font-semibold text-emerald-950">✓ Correct! During <strong>Annealing (~55°C)</strong>, the reaction cools enough for primers to form stable hydrogen bonds only with their exact complementary target sequence.</div>`;
+            } else if (st.choice === 'denature') {
+                feedback = `<div class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs sm:text-sm font-semibold text-rose-950">✗ Not quite — <strong>Denaturation (95°C)</strong> separates the DNA strands; it is too hot for primers to bind.</div>`;
+            } else if (st.choice === 'extend') {
+                feedback = `<div class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-xs sm:text-sm font-semibold text-rose-950">✗ Not quite — <strong>Extension (72°C)</strong> is when Taq polymerase synthesizes new DNA after primers have already bound.</div>`;
+            }
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">${cards}</div>
+                    ${feedback}
+                </div>
+            `;
+        }
+
+        // Boot App
+        window.onload = function () {
+            initAllStates();
+            renderCurrentStep();
+        };
+    </script>
+</body>
+</html>
