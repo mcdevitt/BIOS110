@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BIOS 110 Lab — Activity B: Vision Challenge Simulator</title>
+  <!-- Load Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Load Google Font: Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    /* Range slider styling */
+    input[type="range"] {
+      accent-color: #2563eb;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen flex flex-col antialiased selection:bg-blue-100 selection:text-blue-900">
+
+  <!-- Toast / Non-blocking Message Banner -->
+  <div id="toast-container" class="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Top Academic Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
+          <!-- Eye Icon SVG -->
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200">BIOS 110 Lab</span>
+            <span class="text-xs font-medium text-slate-500 hidden sm:inline">Vertebrate Eyes</span>
+          </div>
+          <h1 class="text-base sm:text-lg font-bold text-slate-900 leading-tight mt-0.5">Activity B: Simulating Common Vision Challenges</h1>
+        </div>
+      </div>
+
+      <!-- Quick Empathy / Purpose Toggle Button -->
+      <div class="flex items-center gap-2">
+        <button id="toggle-guide-btn" type="button" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs sm:text-sm font-medium rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition">
+          <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>Why This Matters</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Collapsible Lab Context Drawer -->
+    <div id="guide-drawer" class="hidden bg-blue-50/80 border-t border-blue-100">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 text-sm text-slate-700 grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white/90 p-3.5 rounded-xl border border-blue-100 shadow-xs">
+          <h3 class="font-semibold text-slate-900 mb-1 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-blue-600"></span> Healthcare & Communication
+          </h3>
+          <p class="text-xs text-slate-600 leading-relaxed">Understanding how patients experience vision loss helps healthcare providers explain medical instructions using clear language, high-contrast visuals, and accessible formats.</p>
+        </div>
+        <div class="bg-white/90 p-3.5 rounded-xl border border-blue-100 shadow-xs">
+          <h3 class="font-semibold text-slate-900 mb-1 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-emerald-600"></span> Inclusive Environments & Signage
+          </h3>
+          <p class="text-xs text-slate-600 leading-relaxed">Architects, educators, and designers use this perspective to optimize lighting, contrast, typography, and layout so public spaces and kiosks remain safe and navigable.</p>
+        </div>
+        <div class="bg-white/90 p-3.5 rounded-xl border border-blue-100 shadow-xs">
+          <h3 class="font-semibold text-slate-900 mb-1 flex items-center gap-1.5">
+            <span class="w-2 h-2 rounded-full bg-amber-600"></span> Empathy & Daily Navigation
+          </h3>
+          <p class="text-xs text-slate-600 leading-relaxed">Step into another person’s visual world. Compare each simulation against normal vision and reflect on how daily tasks like reading, driving, and recognizing faces change.</p>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    
+    <!-- Condition Selector Bar (Matches the 5 Lab Glasses) -->
+    <section aria-label="Vision Condition Selector" class="mb-6">
+      <div class="flex items-center justify-between mb-2.5">
+        <h2 class="text-xs font-bold uppercase tracking-wider text-slate-500">1. Select Simulation Condition (Lab Glasses)</h2>
+        <span class="text-xs text-slate-500 hidden sm:inline">Click a condition to inspect anatomy &amp; simulate vision</span>
+      </div>
+      
+      <div id="condition-buttons" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+        <!-- Buttons injected via JS for clean state sync -->
+      </div>
+    </section>
+
+    <!-- Primary Two-Column Layout: Left = Viewport & Controls | Right = Anatomy Explanation & Lab Worksheet Reminder -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- LEFT COLUMN: Interactive Simulation Viewport (7 cols on lg) -->
+      <div class="lg:col-span-7 flex flex-col gap-4">
+        
+        <!-- Input Source Toolbar -->
+        <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs flex flex-wrap items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span class="text-xs font-semibold text-slate-500 mr-1">Visual Source:</span>
+            <button id="src-sample-btn" type="button" class="px-3 py-2 text-xs font-semibold rounded-xl bg-blue-600 text-white shadow-xs transition flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              Sample Scenes
+            </button>
+            <label for="image-upload-input" class="cursor-pointer px-3 py-2 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+              Upload Image
+              <input id="image-upload-input" type="file" accept="image/*" class="hidden" />
+            </label>
+            <button id="src-camera-btn" type="button" class="px-3 py-2 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              <span id="camera-btn-label">Turn On Camera</span>
+            </button>
+            <button id="flip-camera-btn" type="button" class="hidden px-2.5 py-2 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition items-center gap-1" title="Switch Front / Back Camera">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <span>Flip</span>
+            </button>
+          </div>
+
+          <!-- Sample Scene Picker (Visible when Sample Scenes is active) -->
+          <div id="sample-scene-selector" class="flex items-center gap-1.5">
+            <label for="scene-select" class="text-xs font-medium text-slate-500 sr-only">Choose Scene</label>
+            <select id="scene-select" class="text-xs font-medium rounded-xl border border-slate-200 bg-slate-50 px-2.5 py-2 text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+              <option value="street">Scene 1: Street &amp; Crosswalk Signs</option>
+              <option value="reading">Scene 2: Medicine Label &amp; Eye Chart</option>
+              <option value="classroom">Scene 3: Faces &amp; Lab Bench Objects</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Simulation Canvas Card -->
+        <div class="bg-slate-900 rounded-2xl border border-slate-800 shadow-md overflow-hidden flex flex-col">
+          <!-- Canvas Top Overlay Bar -->
+          <div class="bg-slate-900/95 border-b border-slate-800 px-4 py-2.5 flex flex-wrap items-center justify-between gap-2 text-xs">
+            <div class="flex items-center gap-2">
+              <span id="active-condition-pill" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-semibold bg-slate-800 text-slate-200 border border-slate-700">
+                <span id="pill-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span id="pill-text">Glaucoma — Dark Green Glasses</span>
+              </span>
+            </div>
+
+            <!-- Hold-to-Compare Normal Vision Button -->
+            <button id="compare-hold-btn" type="button" class="select-none px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-blue-600 active:text-white text-slate-200 font-semibold border border-slate-700 transition flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              <span>Hold for Unfiltered View</span>
+            </button>
+          </div>
+
+          <!-- Responsive Canvas Container -->
+          <div id="canvas-wrapper" class="relative w-full aspect-[4/3] bg-slate-950 flex items-center justify-center overflow-hidden">
+            <canvas id="sim-canvas" class="w-full h-full block"></canvas>
+            <!-- Hidden video element for webcam stream -->
+            <video id="webcam-video" autoplay playsinline muted class="hidden"></video>
+
+            <!-- Camera Status / Error Overlay -->
+            <div id="camera-message-overlay" class="hidden absolute inset-0 bg-slate-900/90 backdrop-blur-xs flex flex-col items-center justify-center p-6 text-center z-10">
+              <div class="w-12 h-12 rounded-full bg-amber-500/20 text-amber-400 flex items-center justify-center mb-3">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              </div>
+              <h3 id="camera-msg-title" class="text-white font-bold text-base mb-1">Camera Access Unavailable</h3>
+              <p id="camera-msg-body" class="text-slate-300 text-xs max-w-md mb-4 leading-relaxed">Please allow camera permissions in your browser settings, or switch back to Sample Scenes or Upload Image.</p>
+              <button id="fallback-sample-btn" type="button" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold transition">
+                Return to Sample Scenes
+              </button>
+            </div>
+          </div>
+
+          <!-- Bottom Parameter Controls Bar -->
+          <div class="bg-slate-900 border-t border-slate-800 px-4 py-3 text-slate-200 flex flex-wrap items-center justify-between gap-4">
+            <!-- Severity Slider (Shown for progressive conditions) -->
+            <div id="severity-control-group" class="flex items-center gap-3 flex-1 min-w-[210px]">
+              <label for="severity-slider" class="text-xs font-semibold text-slate-300 whitespace-nowrap">Condition Severity:</label>
+              <input id="severity-slider" type="range" min="20" max="100" value="65" class="w-full h-1.5 bg-slate-700 rounded-lg cursor-pointer" />
+              <span id="severity-value" class="text-xs font-bold text-blue-400 w-10 text-right">65%</span>
+            </div>
+
+            <!-- Hemianopsia Side Toggle (Only visible when Hemianopsia is active) -->
+            <div id="hemianopsia-control-group" class="hidden items-center gap-2">
+              <span class="text-xs font-semibold text-slate-300">Visual Field Loss:</span>
+              <div class="inline-flex rounded-xl bg-slate-800 p-0.5 border border-slate-700">
+                <button id="hemi-right-btn" type="button" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-red-600 text-white transition">Right Half</button>
+                <button id="hemi-left-btn" type="button" class="px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition">Left Half</button>
+              </div>
+            </div>
+
+            <!-- Snapshot Button -->
+            <div class="flex items-center gap-2 ml-auto">
+              <button id="download-snap-btn" type="button" title="Save simulated view as PNG" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                <span>Save Frame</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: Educational Explanation & Lab Worksheet Reminder (5 cols on lg) -->
+      <div class="lg:col-span-5 flex flex-col gap-5">
+        
+        <!-- Biological & Clinical Explanation Card -->
+        <article class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div id="info-card-header" class="px-5 py-4 border-b border-slate-100 bg-slate-50/70 flex items-start justify-between gap-3">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span id="glasses-badge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">
+                  <span id="glasses-swatch" class="w-2.5 h-2.5 rounded-full bg-emerald-700"></span>
+                  <span id="glasses-label">Dark Green Glasses</span>
+                </span>
+              </div>
+              <h2 id="condition-title" class="text-lg font-extrabold text-slate-900">Glaucoma</h2>
+            </div>
+          </div>
+
+          <div class="p-5 space-y-4 text-sm">
+            <!-- Affected Anatomical Structure -->
+            <div class="bg-slate-50 rounded-xl p-3 border border-slate-200/80 flex items-start gap-3">
+              <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 mt-0.5">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+              </div>
+              <div>
+                <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Primary Structure Affected</div>
+                <div id="condition-structure" class="font-semibold text-slate-900 text-xs sm:text-sm mt-0.5">Optic Nerve (often damaged by elevated intraocular pressure)</div>
+              </div>
+            </div>
+
+            <!-- Lab Manual Description -->
+            <div>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">Pathophysiology &amp; Visual Effect</h3>
+              <p id="condition-description" class="text-slate-700 leading-relaxed text-xs sm:text-sm">
+                Glaucoma is a group of eye diseases that damage the optic nerve, often due to high fluid pressure inside the eye. It typically begins with gradual loss of peripheral (side) vision, so individuals may not notice it right away. As it progresses, the visual field narrows into a tunnel-like effect.
+              </p>
+            </div>
+
+            <!-- Real-World Daily Life & Design Considerations -->
+            <div>
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Daily Life &amp; Accessibility Insights</h3>
+              <ul id="condition-impacts" class="space-y-1.5 text-xs text-slate-600">
+                <!-- Populated dynamically -->
+              </ul>
+            </div>
+          </div>
+        </article>
+
+        <!-- Lab Worksheet & Post-Lab Assignment Reminder Card -->
+        <aside aria-label="Lab Worksheet Reminder" class="bg-amber-50/90 rounded-2xl border border-amber-200 shadow-xs p-5">
+          <div class="flex items-start gap-3">
+            <div class="w-9 h-9 rounded-xl bg-amber-100 text-amber-700 border border-amber-200 flex items-center justify-center shrink-0 mt-0.5">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </div>
+            <div class="space-y-2">
+              <div class="flex items-center gap-2">
+                <span class="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-amber-200/70 text-amber-900">Action Required</span>
+                <h2 class="text-sm font-bold text-slate-900">Record Reflection on Your Lab Worksheet</h2>
+              </div>
+              <p class="text-xs text-slate-700 leading-relaxed">
+                Be sure to write your Activity B reflection directly on your <strong>BIOS 110 Lab Worksheet</strong> before leaving lab—your reflection responses will be part of your <strong>post-lab assignment</strong>.
+              </p>
+              <div class="bg-white/80 rounded-xl p-3 border border-amber-200/80">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-amber-900 mb-1.5">Worksheet Reflection Prompts:</div>
+                <ul class="space-y-1 text-xs text-slate-700 list-disc pl-4">
+                  <li>What was hardest to see or do with this condition?</li>
+                  <li>How would this condition affect daily life (reading, driving, recognizing faces)?</li>
+                  <li>What inclusive design adaptations might help someone with this condition?</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </aside>
+
+      </div>
+    </div>
+  </main>
+
+  <script>
+    /**
+     * BIOS 110 Lab — Activity B: Simulating Common Vision Challenges
+     * Self-contained real-time HTML5 Canvas simulation engine & educational guide.
+     */
+    (function () {
+      'use strict';
+
+      // =========================================================================
+      // 1. EDUCATIONAL DATA (Aligned directly with BIOS 110 Lab Manual Activity B)
+      // =========================================================================
+      const CONDITIONS = {
+        glaucoma: {
+          id: 'glaucoma',
+          name: 'Glaucoma',
+          shortName: 'Glaucoma',
+          glasses: 'Dark Green Glasses',
+          glassesColorHex: '#15803d',
+          badgeBg: 'bg-emerald-100 text-emerald-900 border-emerald-300',
+          btnRing: 'ring-emerald-600',
+          hasSeverity: true,
+          structure: 'Optic Nerve (often damaged by elevated intraocular pressure)',
+          description:
+            'Glaucoma is a group of eye diseases that damage the optic nerve, often due to high fluid pressure inside the eye. It typically begins with gradual loss of peripheral (side) vision, so individuals may not notice it right away. As it progresses, the visual field narrows into a tunnel-like effect.',
+          impacts: [
+            'Driving & Mobility: Missing pedestrians, cars, or obstacles approaching from the side; tripping over low objects.',
+            'Daily Navigation: Crowded hallways or unfamiliar stairs become hazardous without scanning head movements.',
+            'Inclusive Design: Clear sightlines, high-contrast floor/step edges, and auditory alerts at crosswalks.'
+          ]
+        },
+        macular: {
+          id: 'macular',
+          name: 'Macular Degeneration',
+          shortName: 'Macular Degen.',
+          glasses: 'Dark Blue Glasses',
+          glassesColorHex: '#1d4ed8',
+          badgeBg: 'bg-blue-100 text-blue-900 border-blue-300',
+          btnRing: 'ring-blue-600',
+          hasSeverity: true,
+          structure: 'Macula & Fovea (central region of the retina for high-acuity vision)',
+          description:
+            'Age-related macular degeneration (AMD) damages the macula, the central part of the retina responsible for sharp, straight-ahead vision. The center of vision becomes blurry, distorted (straight lines appear wavy), or obscured by a dark/gray smudge (scotoma), while side vision remains intact.',
+          impacts: [
+            'Reading & Faces: Recognizing facial expressions, reading medication bottles, or viewing digital screens is severely impaired.',
+            'Driving: Inability to read road signs or see brake lights directly ahead makes driving unsafe.',
+            'Inclusive Design: Large-print sans-serif typography, screen readers, tactile buttons, and high-contrast labels.'
+          ]
+        },
+        cataracts: {
+          id: 'cataracts',
+          name: 'Cataracts',
+          shortName: 'Cataracts',
+          glasses: 'Light Blue Glasses',
+          glassesColorHex: '#0284c7',
+          badgeBg: 'bg-sky-100 text-sky-900 border-sky-300',
+          btnRing: 'ring-sky-500',
+          hasSeverity: true,
+          structure: 'Crystalline Lens (protein clumping causes clouding & light scattering)',
+          description:
+            'Cataracts occur when the normally clear lens behind the iris becomes cloudy over time, often due to aging. This cloudiness blocks and scatters incoming light, making the entire world look blurry, dim, yellowish, or washed out—like looking through a foggy window or wax paper.',
+          impacts: [
+            'Glare & Night Vision: Bright sunlight or oncoming headlights scatter across the cloudy lens, creating blinding glare.',
+            'Color & Contrast: Faded colors (especially blues/purples) make low-contrast text or pale steps difficult to distinguish.',
+            'Inclusive Design: Diffused anti-glare lighting, bold black-on-white or yellow-on-black signage, and surgical lens replacement (IOL).'
+          ]
+        },
+        hemianopsia: {
+          id: 'hemianopsia',
+          name: 'Hemianopsia',
+          shortName: 'Hemianopsia',
+          glasses: 'Red Glasses',
+          glassesColorHex: '#dc2626',
+          badgeBg: 'bg-red-100 text-red-900 border-red-300',
+          btnRing: 'ring-red-600',
+          hasSeverity: false,
+          structure: 'Visual Pathway / Optic Tract or Visual Cortex (post-chiasm brain injury/stroke)',
+          description:
+            'Hemianopsia is the loss of vision in half of the visual field (left or right side) in both eyes, typically caused by a stroke, traumatic brain injury, or tumor—even though the eyes themselves are structurally healthy.',
+          impacts: [
+            'Reading: Losing the right half of text makes tracking the end of lines hard; losing the left half makes finding the next line difficult.',
+            'Spatial Awareness: Bumping into doorframes or missing food on one side of a plate.',
+            'Inclusive Design: Placing key information and navigation controls toward the intact visual field and using visual scanning cues.'
+          ]
+        },
+        detached: {
+          id: 'detached',
+          name: 'Detached Retina',
+          shortName: 'Detached Retina',
+          glasses: 'Yellow Glasses',
+          glassesColorHex: '#ca8a04',
+          badgeBg: 'bg-amber-100 text-amber-900 border-amber-300',
+          btnRing: 'ring-amber-500',
+          hasSeverity: true,
+          structure: 'Retina (light-sensitive layer pulls away from underlying choroid blood supply)',
+          description:
+            'A retinal detachment occurs when the thin retina at the back of the eye pulls away from its supporting tissue. This causes sudden flashes of light (photopsia), floating specks or cobweb strings (floaters), and a dark shadow spreading across the visual field like a curtain. It is a medical emergency.',
+          impacts: [
+            'Sudden Onset: Rapidly expanding dark curtain blocks an entire quadrant or hemisphere of vision.',
+            'Visual Distractions: Drifting floaters and peripheral flashes interfere with focus and depth perception.',
+            'Medical Urgency: Requires prompt surgical repair (e.g., pneumatic retinopexy, scleral buckle, or vitrectomy) to prevent permanent blindness.'
+          ]
+        }
+      };
+
+      // =========================================================================
+      // 2. APPLICATION STATE
+      // =========================================================================
+      const state = {
+        condition: 'glaucoma',
+        severity: 65,          // 20 to 100
+        hemiSide: 'right',     // 'right' or 'left'
+        sourceType: 'sample',  // 'sample', 'upload', 'camera'
+        sampleScene: 'street', // 'street', 'reading', 'classroom'
+        isComparingNormal: false,
+        uploadedImage: null,
+        cameraStream: null,
+        facingMode: 'user'     // 'user' (front/webcam) or 'environment' (rear)
+      };
+
+      // Pre-generate drifting floaters for Detached Retina simulation
+      const floaters = Array.from({ length: 18 }, (_, i) => ({
+        x: Math.random(),
+        y: Math.random(),
+        r: 2 + Math.random() * 5,
+        speedX: (Math.random() - 0.5) * 0.0008,
+        speedY: 0.0003 + Math.random() * 0.0009,
+        phase: Math.random() * Math.PI * 2,
+        isString: i % 4 === 0
+      }));
+
+      // =========================================================================
+      // 3. DOM REFERENCES
+      // =========================================================================
+      const canvas = document.getElementById('sim-canvas');
+      const ctx = canvas.getContext('2d');
+      const offscreenCanvas = document.createElement('canvas');
+      const offCtx = offscreenCanvas.getContext('2d');
+      const fxCanvas = document.createElement('canvas');
+      const fxCtx = fxCanvas.getContext('2d');
+
+      const webcamVideo = document.getElementById('webcam-video');
+      const cameraOverlay = document.getElementById('camera-message-overlay');
+      const cameraMsgTitle = document.getElementById('camera-msg-title');
+      const cameraMsgBody = document.getElementById('camera-msg-body');
+      const cameraBtnLabel = document.getElementById('camera-btn-label');
+
+      const conditionButtonsContainer = document.getElementById('condition-buttons');
+      const severityGroup = document.getElementById('severity-control-group');
+      const severitySlider = document.getElementById('severity-slider');
+      const severityValue = document.getElementById('severity-value');
+      const hemiGroup = document.getElementById('hemianopsia-control-group');
+      const hemiRightBtn = document.getElementById('hemi-right-btn');
+      const hemiLeftBtn = document.getElementById('hemi-left-btn');
+
+      const compareHoldBtn = document.getElementById('compare-hold-btn');
+
+      // =========================================================================
+      // 4. NON-BLOCKING TOAST NOTIFICATION HELPER
+      // =========================================================================
+      function showToast(message, type = 'info') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        const colors =
+          type === 'success'
+            ? 'bg-emerald-900 text-emerald-50 border-emerald-700'
+            : type === 'error'
+            ? 'bg-red-900 text-red-50 border-red-700'
+            : 'bg-slate-900 text-white border-slate-700';
+
+        toast.className = `pointer-events-auto px-4 py-2.5 rounded-xl border shadow-lg text-xs font-medium flex items-center gap-2 transition-all duration-300 translate-y-2 opacity-0 ${colors}`;
+        toast.textContent = message;
+        container.appendChild(toast);
+
+        requestAnimationFrame(() => {
+          toast.classList.remove('translate-y-2', 'opacity-0');
+        });
+
+        setTimeout(() => {
+          toast.classList.add('translate-y-2', 'opacity-0');
+          setTimeout(() => toast.remove(), 300);
+        }, 3000);
+      }
+
+      // =========================================================================
+      // 5. HIGH-DETAIL PROCEDURAL SAMPLE SCENES (100% Self-Contained / Offline)
+      // =========================================================================
+      function drawSampleScene(targetCtx, w, h, sceneId) {
+        targetCtx.save();
+        if (sceneId === 'street') {
+          drawStreetScene(targetCtx, w, h);
+        } else if (sceneId === 'reading') {
+          drawReadingScene(targetCtx, w, h);
+        } else {
+          drawClassroomFacesScene(targetCtx, w, h);
+        }
+        targetCtx.restore();
+      }
+
+      // Scene 1: Street Crossing, Traffic Signs, Pedestrian & Car (Tests peripheral, central & glare)
+      function drawStreetScene(c, w, h) {
+        // Sky gradient
+        const sky = c.createLinearGradient(0, 0, 0, h * 0.58);
+        sky.addColorStop(0, '#38bdf8');
+        sky.addColorStop(1, '#bae6fd');
+        c.fillStyle = sky;
+        c.fillRect(0, 0, w, h * 0.58);
+
+        // Bright sun (triggers glare in Cataracts)
+        const sunX = w * 0.82;
+        const sunY = h * 0.16;
+        const sunGlow = c.createRadialGradient(sunX, sunY, 4, sunX, sunY, w * 0.14);
+        sunGlow.addColorStop(0, '#ffffff');
+        sunGlow.addColorStop(0.3, '#fef08a');
+        sunGlow.addColorStop(1, 'rgba(254, 240, 138, 0)');
+        c.fillStyle = sunGlow;
+        c.beginPath();
+        c.arc(sunX, sunY, w * 0.14, 0, Math.PI * 2);
+        c.fill();
+
+        // City buildings background
+        const buildings = [
+          { x: 0.03, y: 0.24, bw: 0.16, bh: 0.34, col: '#64748b' },
+          { x: 0.21, y: 0.18, bw: 0.18, bh: 0.40, col: '#475569' },
+          { x: 0.62, y: 0.22, bw: 0.17, bh: 0.36, col: '#64748b' },
+          { x: 0.81, y: 0.28, bw: 0.17, bh: 0.30, col: '#475569' }
+        ];
+        buildings.forEach((b) => {
+          c.fillStyle = b.col;
+          c.fillRect(w * b.x, h * b.y, w * b.bw, h * b.bh);
+          // Windows grid
+          c.fillStyle = '#e2e8f0';
+          for (let wy = b.y + 0.03; wy < 0.53; wy += 0.05) {
+            for (let wx = b.x + 0.02; wx < b.x + b.bw - 0.02; wx += 0.04) {
+              c.fillRect(w * wx, h * wy, w * 0.022, h * 0.028);
+            }
+          }
+        });
+
+        // Sidewalk & Grass
+        c.fillStyle = '#22c55e';
+        c.fillRect(0, h * 0.56, w, h * 0.08);
+        c.fillStyle = '#cbd5e1';
+        c.fillRect(0, h * 0.62, w, h * 0.08);
+
+        // Asphalt Road
+        c.fillStyle = '#334155';
+        c.fillRect(0, h * 0.68, w, h * 0.32);
+
+        // Crosswalk stripes (straight lines test Macular Degeneration waviness)
+        c.fillStyle = '#f8fafc';
+        for (let i = 0; i < 6; i++) {
+          const sx = w * (0.28 + i * 0.075);
+          c.beginPath();
+          c.moveTo(sx, h * 0.71);
+          c.lineTo(sx + w * 0.045, h * 0.71);
+          c.lineTo(sx + w * 0.06, h * 0.96);
+          c.lineTo(sx - w * 0.015, h * 0.96);
+          c.closePath();
+          c.fill();
+        }
+
+        // STOP Sign on Left (Tests Glaucoma peripheral loss & Left Hemianopsia)
+        const stopX = w * 0.13;
+        const stopY = h * 0.42;
+        c.fillStyle = '#475569';
+        c.fillRect(stopX - 3, stopY, 6, h * 0.25);
+        c.fillStyle = '#dc2626';
+        c.strokeStyle = '#ffffff';
+        c.lineWidth = 3;
+        const r = Math.min(w, h) * 0.075;
+        c.beginPath();
+        for (let i = 0; i < 8; i++) {
+          const ang = (Math.PI / 4) * i + Math.PI / 8;
+          const px = stopX + r * Math.cos(ang);
+          const py = stopY + r * Math.sin(ang);
+          i === 0 ? c.moveTo(px, py) : c.lineTo(px, py);
+        }
+        c.closePath();
+        c.fill();
+        c.stroke();
+        c.fillStyle = '#ffffff';
+        c.font = `bold ${Math.round(r * 0.55)}px Inter, sans-serif`;
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.fillText('STOP', stopX, stopY + 1);
+
+        // Center Overhead Street Sign (Tests Macular Degeneration central scotoma)
+        const signW = w * 0.28;
+        const signH = h * 0.095;
+        const signX = (w - signW) / 2;
+        const signY = h * 0.26;
+        c.fillStyle = '#15803d';
+        c.strokeStyle = '#ffffff';
+        c.lineWidth = 3;
+        c.beginPath();
+        c.roundRect(signX, signY, signW, signH, 8);
+        c.fill();
+        c.stroke();
+        c.fillStyle = '#ffffff';
+        c.font = `bold ${Math.round(h * 0.036)}px Inter, sans-serif`;
+        c.fillText('BIOLOGY AVE', w / 2, signY + signH * 0.38);
+        c.font = `600 ${Math.round(h * 0.024)}px Inter, sans-serif`;
+        c.fillStyle = '#bbf7d0';
+        c.fillText('CAMPUS CROSSING', w / 2, signY + signH * 0.74);
+
+        // Approaching Car on Right (Tests Glaucoma peripheral loss & Right Hemianopsia)
+        const carX = w * 0.76;
+        const carY = h * 0.72;
+        c.fillStyle = '#2563eb';
+        c.beginPath();
+        c.roundRect(carX, carY, w * 0.19, h * 0.11, 10);
+        c.fill();
+        c.fillStyle = '#1d4ed8';
+        c.beginPath();
+        c.roundRect(carX + w * 0.03, carY - h * 0.06, w * 0.12, h * 0.07, 8);
+        c.fill();
+        // Headlights
+        c.fillStyle = '#fef08a';
+        c.beginPath();
+        c.arc(carX + 6, carY + h * 0.055, 7, 0, Math.PI * 2);
+        c.fill();
+        // Wheels
+        c.fillStyle = '#0f172a';
+        c.beginPath();
+        c.arc(carX + w * 0.04, carY + h * 0.11, h * 0.035, 0, Math.PI * 2);
+        c.arc(carX + w * 0.15, carY + h * 0.11, h * 0.035, 0, Math.PI * 2);
+        c.fill();
+
+        // Pedestrian in Center-Left Crosswalk
+        const pedX = w * 0.46;
+        const pedY = h * 0.56;
+        // Head
+        c.fillStyle = '#fde68a';
+        c.beginPath();
+        c.arc(pedX, pedY, h * 0.032, 0, Math.PI * 2);
+        c.fill();
+        // Jacket
+        c.fillStyle = '#f97316';
+        c.beginPath();
+        c.roundRect(pedX - w * 0.022, pedY + h * 0.035, w * 0.044, h * 0.09, 6);
+        c.fill();
+        // Legs
+        c.strokeStyle = '#1e293b';
+        c.lineWidth = 6;
+        c.beginPath();
+        c.moveTo(pedX - 7, pedY + h * 0.125);
+        c.lineTo(pedX - 12, pedY + h * 0.21);
+        c.moveTo(pedX + 7, pedY + h * 0.125);
+        c.lineTo(pedX + 14, pedY + h * 0.21);
+        c.stroke();
+      }
+
+      // Scene 2: Snellen Eye Chart + Prescription Bottle + Amsler Grid (Tests fine reading & distortion)
+      function drawReadingScene(c, w, h) {
+        // Warm desk background
+        c.fillStyle = '#e2e8f0';
+        c.fillRect(0, 0, w, h);
+
+        // Left Card: Snellen Visual Acuity Chart
+        const chartW = w * 0.42;
+        const chartH = h * 0.84;
+        const chartX = w * 0.05;
+        const chartY = h * 0.08;
+        c.fillStyle = '#ffffff';
+        c.shadowColor = 'rgba(15, 23, 42, 0.12)';
+        c.shadowBlur = 12;
+        c.beginPath();
+        c.roundRect(chartX, chartY, chartW, chartH, 12);
+        c.fill();
+        c.shadowBlur = 0;
+
+        c.fillStyle = '#0f172a';
+        c.textAlign = 'center';
+        const rows = [
+          { txt: 'E', size: 0.11, y: 0.19 },
+          { txt: 'F P', size: 0.075, y: 0.31 },
+          { txt: 'T O Z', size: 0.055, y: 0.41 },
+          { txt: 'L P E D', size: 0.042, y: 0.50 },
+          { txt: 'P E C F D', size: 0.032, y: 0.58 },
+          { txt: 'E D F C Z P', size: 0.025, y: 0.65 },
+          { txt: 'F E L O P Z D', size: 0.020, y: 0.71 }
+        ];
+        rows.forEach((row) => {
+          c.font = `800 ${Math.round(h * row.size)}px Inter, monospace`;
+          c.fillText(row.txt, chartX + chartW / 2, h * row.y);
+        });
+
+        // Red & Green horizontal bars on Snellen chart
+        c.fillStyle = '#16a34a';
+        c.fillRect(chartX + chartW * 0.18, h * 0.76, chartW * 0.64, 6);
+        c.fillStyle = '#dc2626';
+        c.fillRect(chartX + chartW * 0.25, h * 0.82, chartW * 0.50, 5);
+
+        // Top Right: Amsler Grid (Classic Macular Degeneration straight-line diagnostic)
+        const gridSize = Math.min(w * 0.36, h * 0.42);
+        const gridX = w * 0.54;
+        const gridY = h * 0.08;
+        c.fillStyle = '#ffffff';
+        c.beginPath();
+        c.roundRect(gridX, gridY, gridSize, gridSize, 10);
+        c.fill();
+
+        c.strokeStyle = '#334155';
+        c.lineWidth = 1.2;
+        const cells = 10;
+        const step = (gridSize - 24) / cells;
+        const startX = gridX + 12;
+        const startY = gridY + 12;
+        for (let i = 0; i <= cells; i++) {
+          c.beginPath();
+          c.moveTo(startX + i * step, startY);
+          c.lineTo(startX + i * step, startY + cells * step);
+          c.stroke();
+
+          c.beginPath();
+          c.moveTo(startX, startY + i * step);
+          c.lineTo(startX + cells * step, startY + i * step);
+          c.stroke();
+        }
+        // Center fixation dot
+        c.fillStyle = '#dc2626';
+        c.beginPath();
+        c.arc(startX + (cells * step) / 2, startY + (cells * step) / 2, 4, 0, Math.PI * 2);
+        c.fill();
+
+        // Bottom Right: Prescription Medication Label Card
+        const medX = w * 0.54;
+        const medY = h * 0.55;
+        const medW = w * 0.41;
+        const medH = h * 0.37;
+        c.fillStyle = '#fffbeb';
+        c.strokeStyle = '#f59e0b';
+        c.lineWidth = 2;
+        c.beginPath();
+        c.roundRect(medX, medY, medW, medH, 10);
+        c.fill();
+        c.stroke();
+
+        c.fillStyle = '#b45309';
+        c.fillRect(medX, medY, medW, h * 0.065);
+        c.fillStyle = '#ffffff';
+        c.textAlign = 'left';
+        c.font = `bold ${Math.round(h * 0.025)}px Inter, sans-serif`;
+        c.fillText('Rx: EYE DROPS (TIMOLOL 0.5%)', medX + 12, medY + h * 0.042);
+
+        c.fillStyle = '#1e293b';
+        c.font = `bold ${Math.round(h * 0.026)}px Inter, sans-serif`;
+        c.fillText('DOSAGE: Instill 1 drop twice daily', medX + 12, medY + h * 0.12);
+        c.font = `500 ${Math.round(h * 0.022)}px Inter, sans-serif`;
+        c.fillStyle = '#475569';
+        c.fillText('• Wash hands before applying', medX + 12, medY + h * 0.18);
+        c.fillText('• Do not touch dropper tip to eye', medX + 12, medY + h * 0.23);
+        c.fillStyle = '#dc2626';
+        c.font = `bold ${Math.round(h * 0.021)}px Inter, sans-serif`;
+        c.fillText('WARNING: For ophthalmic use only', medX + 12, medY + h * 0.30);
+      }
+
+      // Scene 3: Faces & Lab Bench Fine-Motor Items (Matches Activity B manual!)
+      function drawClassroomFacesScene(c, w, h) {
+        // Lab room wall & whiteboard
+        c.fillStyle = '#f1f5f9';
+        c.fillRect(0, 0, w, h * 0.68);
+
+        // Whiteboard in background
+        c.fillStyle = '#ffffff';
+        c.strokeStyle = '#94a3b8';
+        c.lineWidth = 3;
+        c.fillRect(w * 0.12, h * 0.06, w * 0.76, h * 0.28);
+        c.strokeRect(w * 0.12, h * 0.06, w * 0.76, h * 0.28);
+
+        c.fillStyle = '#1e3a8a';
+        c.textAlign = 'center';
+        c.font = `bold ${Math.round(h * 0.036)}px Inter, sans-serif`;
+        c.fillText('BIOS 110: VERTEBRATE EYE LAB', w * 0.5, h * 0.14);
+        c.fillStyle = '#334155';
+        c.font = `500 ${Math.round(h * 0.024)}px Inter, sans-serif`;
+        c.fillText('Cornea → Pupil → Lens → Retina → Optic Nerve', w * 0.5, h * 0.21);
+        c.fillStyle = '#059669';
+        c.fillText('Activity B: Vision Simulation & Empathy', w * 0.5, h * 0.28);
+
+        // Two Lab Partners (Faces in center-left and center-right)
+        const drawPerson = (cx, cy, skin, hair, shirt) => {
+          // Shoulders
+          c.fillStyle = shirt;
+          c.beginPath();
+          c.roundRect(cx - w * 0.09, cy + h * 0.09, w * 0.18, h * 0.18, 20);
+          c.fill();
+          // Head
+          c.fillStyle = skin;
+          c.beginPath();
+          c.ellipse(cx, cy, w * 0.055, h * 0.085, 0, 0, Math.PI * 2);
+          c.fill();
+          // Hair
+          c.fillStyle = hair;
+          c.beginPath();
+          c.arc(cx, cy - h * 0.025, w * 0.058, Math.PI, 0);
+          c.fill();
+          // Eyes
+          c.fillStyle = '#0f172a';
+          c.beginPath();
+          c.arc(cx - w * 0.02, cy - h * 0.005, 3.5, 0, Math.PI * 2);
+          c.arc(cx + w * 0.02, cy - h * 0.005, 3.5, 0, Math.PI * 2);
+          c.fill();
+          // Smile
+          c.strokeStyle = '#991b1b';
+          c.lineWidth = 2.5;
+          c.beginPath();
+          c.arc(cx, cy + h * 0.02, w * 0.02, 0.15 * Math.PI, 0.85 * Math.PI);
+          c.stroke();
+        };
+
+        drawPerson(w * 0.36, h * 0.47, '#fde68a', '#78350f', '#2563eb');
+        drawPerson(w * 0.64, h * 0.47, '#d97706', '#1e293b', '#0d9488');
+
+        // Lab Bench Surface
+        c.fillStyle = '#1e293b';
+        c.fillRect(0, h * 0.68, w, h * 0.32);
+
+        // Fine Motor Skill Items on Lab Bench (Wooden shoe / blocks / dropper)
+        // Colorful wooden blocks on left
+        const blockCols = ['#ef4444', '#eab308', '#22c55e', '#3b82f6'];
+        blockCols.forEach((col, idx) => {
+          c.fillStyle = col;
+          c.beginPath();
+          c.roundRect(w * (0.10 + idx * 0.055), h * 0.77, w * 0.045, h * 0.08, 6);
+          c.fill();
+        });
+
+        // Wooden Lacing Shoe in center (referenced in lab manual!)
+        c.fillStyle = '#d97706';
+        c.beginPath();
+        c.roundRect(w * 0.41, h * 0.75, w * 0.18, h * 0.13, 16);
+        c.fill();
+        c.strokeStyle = '#fef3c7';
+        c.lineWidth = 3;
+        for (let i = 0; i < 3; i++) {
+          const lx = w * (0.45 + i * 0.035);
+          c.beginPath();
+          c.moveTo(lx, h * 0.77);
+          c.lineTo(lx + 12, h * 0.85);
+          c.stroke();
+        }
+
+        // Lab Manual & Magnifier on Right
+        c.fillStyle = '#ffffff';
+        c.beginPath();
+        c.roundRect(w * 0.68, h * 0.74, w * 0.22, h * 0.16, 6);
+        c.fill();
+        c.fillStyle = '#64748b';
+        for (let l = 0; l < 4; l++) {
+          c.fillRect(w * 0.70, h * (0.77 + l * 0.028), w * 0.17, 3);
+        }
+      }
+
+      // =========================================================================
+      // 6. VISION IMPAIRMENT RENDERING FILTERS
+      // =========================================================================
+      function renderSimulatedFrame(targetCtx, sourceCanvas, w, h, timestamp) {
+        const cond = state.condition;
+        const sev = state.severity / 100; // 0.2 to 1.0
+
+        targetCtx.save();
+        targetCtx.clearRect(0, 0, w, h);
+
+        // -----------------------------------------------------------------------
+        // A. GLAUCOMA (Dark Green Glasses): Progressive peripheral tunnel vision
+        // -----------------------------------------------------------------------
+        if (cond === 'glaucoma') {
+          // Slight optic nerve contrast reduction + subtle green tint matching lab glasses
+          targetCtx.drawImage(sourceCanvas, 0, 0, w, h);
+
+          // Peripheral blur layer outside central tunnel
+          fxCtx.clearRect(0, 0, w, h);
+          fxCtx.filter = `blur(${Math.round(6 + sev * 10)}px)`;
+          fxCtx.drawImage(sourceCanvas, 0, 0, w, h);
+          fxCtx.filter = 'none';
+
+          const cx = w * 0.5;
+          const cy = h * 0.5;
+          const maxDim = Math.hypot(cx, cy);
+          // Tunnel radius shrinks as severity increases
+          const innerR = maxDim * (0.46 - sev * 0.34);
+          const outerR = innerR + maxDim * (0.28 - sev * 0.10);
+
+          // Draw blurred periphery
+          targetCtx.save();
+          const blurMask = targetCtx.createRadialGradient(cx, cy, innerR * 0.85, cx, cy, outerR);
+          blurMask.addColorStop(0, 'rgba(0,0,0,0)');
+          blurMask.addColorStop(1, 'rgba(0,0,0,1)');
+          targetCtx.globalAlpha = 0.85;
+          targetCtx.drawImage(fxCanvas, 0, 0, w, h);
+          targetCtx.globalAlpha = 1;
+          // Re-draw crisp center inside the tunnel
+          targetCtx.save();
+          targetCtx.beginPath();
+          targetCtx.arc(cx, cy, innerR * 1.05, 0, Math.PI * 2);
+          targetCtx.clip();
+          targetCtx.drawImage(sourceCanvas, 0, 0, w, h);
+          targetCtx.restore();
+
+          // Dark peripheral scotoma vignette
+          const tunnelGrad = targetCtx.createRadialGradient(cx, cy, innerR * 0.75, cx, cy, outerR);
+          tunnelGrad.addColorStop(0, 'rgba(2, 12, 6, 0)');
+          tunnelGrad.addColorStop(0.55, 'rgba(3, 18, 10, 0.68)');
+          tunnelGrad.addColorStop(1, 'rgba(1, 8, 4, 0.985)');
+          targetCtx.fillStyle = tunnelGrad;
+          targetCtx.fillRect(0, 0, w, h);
+          targetCtx.restore();
+        }
+
+        // -----------------------------------------------------------------------
+        // B. MACULAR DEGENERATION (Dark Blue Glasses): Central scotoma + wavy lines
+        // -----------------------------------------------------------------------
+        else if (cond === 'macular') {
+          // Sharp peripheral vision
+          targetCtx.drawImage(sourceCanvas, 0, 0, w, h);
+
+          const cx = w * 0.5;
+          const cy = h * 0.5;
+          const radius = Math.min(w, h) * (0.14 + sev * 0.24);
+
+          // 1) Subtle metamorphopsia (wavy distortion) around the macula
+          fxCtx.clearRect(0, 0, w, h);
+          const sliceHeight = 4;
+          const waveAmp = 3 + sev * 9;
+          const waveFreq = 0.045;
+          for (let y = 0; y < h; y += sliceHeight) {
+            const dy = y - cy;
+            const distY = Math.abs(dy);
+            if (distY < radius * 1.45) {
+              const factor = Math.cos((distY / (radius * 1.45)) * (Math.PI / 2));
+              const shiftX = Math.sin(y * waveFreq + timestamp * 0.0015) * waveAmp * factor;
+              fxCtx.drawImage(sourceCanvas, 0, y, w, sliceHeight, shiftX, y, w, sliceHeight);
+            } else {
+              fxCtx.drawImage(sourceCanvas, 0, y, w, sliceHeight, 0, y, w, sliceHeight);
+            }
+          }
+
+          // 2) Heavy central blur inside macular zone
+          targetCtx.save();
+          targetCtx.beginPath();
+          targetCtx.arc(cx, cy, radius * 1.35, 0, Math.PI * 2);
+          targetCtx.clip();
+          targetCtx.filter = `blur(${Math.round(5 + sev * 14)}px)`;
+          targetCtx.drawImage(fxCanvas, 0, 0, w, h);
+          targetCtx.filter = 'none';
+          targetCtx.restore();
+
+          // 3) Gray/dark central scotoma smudge
+          const scotomaGrad = targetCtx.createRadialGradient(cx, cy, radius * 0.1, cx, cy, radius * 1.15);
+          const coreOpacity = 0.45 + sev * 0.48;
+          scotomaGrad.addColorStop(0, `rgba(45, 52, 64, ${coreOpacity})`);
+          scotomaGrad.addColorStop(0.6, `rgba(71, 85, 105, ${coreOpacity * 0.82})`);
+          scotomaGrad.addColorStop(1, 'rgba(71, 85, 105, 0)');
+          targetCtx.fillStyle = scotomaGrad;
+          targetCtx.beginPath();
+          targetCtx.arc(cx, cy, radius * 1.15, 0, Math.PI * 2);
+          targetCtx.fill();
+        }
+
+        // -----------------------------------------------------------------------
+        // C. CATARACTS (Light Blue Glasses): Full-frame blur, yellow haze & glare
+        // -----------------------------------------------------------------------
+        else if (cond === 'cataracts') {
+          const blurPx = (2.5 + sev * 11).toFixed(1);
+          const contrastPct = Math.round(92 - sev * 38);
+          const brightnessPct = Math.round(102 + sev * 14);
+
+          targetCtx.filter = `blur(${blurPx}px) contrast(${contrastPct}%) brightness(${brightnessPct}%) sepia(${Math.round(18 + sev * 32)}%)`;
+          targetCtx.drawImage(sourceCanvas, 0, 0, w, h);
+          targetCtx.filter = 'none';
+
+          // Milky light-scattering veil (wax paper / foggy window effect)
+          targetCtx.fillStyle = `rgba(254, 249, 232, ${0.14 + sev * 0.24})`;
+          targetCtx.fillRect(0, 0, w, h);
+
+          // Glare bloom overlay from bright areas
+          const glareGrad = targetCtx.createRadialGradient(w * 0.75, h * 0.22, 10, w * 0.65, h * 0.3, w * 0.55);
+          glareGrad.addColorStop(0, `rgba(255, 253, 240, ${0.22 + sev * 0.32})`);
+          glareGrad.addColorStop(1, 'rgba(255, 253, 240, 0)');
+          targetCtx.fillStyle = glareGrad;
+          targetCtx.fillRect(0, 0, w, h);
+        }
+
+        // -----------------------------------------------------------------------
+        // D. HEMIANOPSIA (Red Glasses): Loss of Right or Left half of visual field
+        // -----------------------------------------------------------------------
+        else if (cond === 'hemianopsia') {
+          // Draw normal intact field first
+          targetCtx.drawImage(sourceCanvas, 0, 0, w, h);
+
+          const isRightLoss = state.hemiSide === 'right';
+          const midX = w * 0.5;
+          const feather = w * 0.05;
+
+          // Blurred, washed-out/darkened blind hemifield
+          fxCtx.clearRect(0, 0, w, h);
+          fxCtx.filter = 'blur(18px) brightness(35%) contrast(60%)';
+          fxCtx.drawImage(sourceCanvas, 0, 0, w, h);
+          fxCtx.filter = 'none';
+
+          targetCtx.save();
+          targetCtx.beginPath();
+          if (isRightLoss) {
+            targetCtx.rect(midX - feather * 0.5, 0, w - midX + feather * 0.5, h);
+          } else {
+            targetCtx.rect(0, 0, midX + feather * 0.5, h);
+          }
+          targetCtx.clip();
+          targetCtx.drawImage(fxCanvas, 0, 0, w, h);
+          targetCtx.restore();
+
+          // Smooth anatomical midline shadow gradient
+          const hemiGrad = isRightLoss
+            ? targetCtx.createLinearGradient(midX - feather, 0, midX + feather * 1.4, 0)
+            : targetCtx.createLinearGradient(midX + feather, 0, midX - feather * 1.4, 0);
+
+          hemiGrad.addColorStop(0, 'rgba(10, 12, 18, 0)');
+          hemiGrad.addColorStop(0.5, 'rgba(10, 12, 18, 0.75)');
+          hemiGrad.addColorStop(1, 'rgba(8, 10, 15, 0.94)');
+
+          targetCtx.fillStyle = hemiGrad;
+          if (isRightLoss) {
+            targetCtx.fillRect(midX - feather, 0, w - (midX - feather), h);
+          } else {
+            targetCtx.fillRect(0, 0, midX + feather, h);
+          }
+        }
+
+        // -----------------------------------------------------------------------
+        // E. DETACHED RETINA (Yellow Glasses): Curtain shadow + floaters + flashes
+        // -----------------------------------------------------------------------
+        else if (cond === 'detached') {
+          targetCtx.drawImage(sourceCanvas, 0, 0, w, h);
+
+          // 1) Animated drifting floaters (specks & cobweb strands)
+          const floaterCount = Math.round(6 + sev * 12);
+          targetCtx.save();
+          for (let i = 0; i < floaterCount; i++) {
+            const f = floaters[i];
+            f.x = (f.x + f.speedX + Math.sin(timestamp * 0.001 + f.phase) * 0.0004 + 1) % 1;
+            f.y = (f.y + f.speedY) % 1;
+            const fx = f.x * w;
+            const fy = f.y * h;
+
+            targetCtx.strokeStyle = 'rgba(30, 41, 59, 0.55)';
+            targetCtx.fillStyle = 'rgba(30, 41, 59, 0.45)';
+            if (f.isString) {
+              targetCtx.lineWidth = 2;
+              targetCtx.beginPath();
+              targetCtx.moveTo(fx, fy);
+              targetCtx.quadraticCurveTo(fx + 14, fy + 10, fx + 6, fy + 24);
+              targetCtx.stroke();
+            } else {
+              targetCtx.beginPath();
+              targetCtx.arc(fx, fy, f.r, 0, Math.PI * 2);
+              targetCtx.fill();
+            }
+          }
+          targetCtx.restore();
+
+          // 2) Occasional peripheral light flash (photopsia) along detachment edge
+          const flashWave = Math.sin(timestamp * 0.0045);
+          if (flashWave > 0.88) {
+            const flashAlpha = (flashWave - 0.88) * 3.5;
+            const flashGrad = targetCtx.createRadialGradient(w * 0.72, h * 0.38, 4, w * 0.72, h * 0.38, w * 0.22);
+            flashGrad.addColorStop(0, `rgba(255, 255, 255, ${flashAlpha})`);
+            flashGrad.addColorStop(1, 'rgba(255, 255, 255, 0)');
+            targetCtx.fillStyle = flashGrad;
+            targetCtx.fillRect(0, 0, w, h);
+          }
+
+          // 3) Diagonal dark "curtain" shadow creeping from bottom-right
+          const progress = 0.22 + sev * 0.52; // How far across the screen the curtain reaches
+          const x1 = w * (1.15 - progress * 1.1);
+          const y1 = h * 1.05;
+          const x2 = w * 1.05;
+          const y2 = h * (0.95 - progress * 1.15);
+
+          // Gradient perpendicular to curtain edge
+          const curtainGrad = targetCtx.createLinearGradient(
+            w * (0.95 - progress * 0.85),
+            h * (0.95 - progress * 0.85),
+            w * (1.05 - progress * 0.65),
+            h * (1.05 - progress * 0.65)
+          );
+          curtainGrad.addColorStop(0, 'rgba(5, 7, 12, 0)');
+          curtainGrad.addColorStop(0.35, 'rgba(5, 7, 12, 0.82)');
+          curtainGrad.addColorStop(1, 'rgba(2, 4, 8, 0.99)');
+
+          targetCtx.fillStyle = curtainGrad;
+          targetCtx.beginPath();
+          targetCtx.moveTo(x1 - 40, y1);
+          targetCtx.lineTo(x2, y2 - 40);
+          targetCtx.lineTo(w, h);
+          targetCtx.closePath();
+          targetCtx.fill();
+        }
+
+        targetCtx.restore();
+      }
+
+      // =========================================================================
+      // 7. MAIN ANIMATION LOOP & RESPONSIVE CANVAS RESIZING
+      // =========================================================================
+      function resizeCanvases() {
+        const wrapper = document.getElementById('canvas-wrapper');
+        const rect = wrapper.getBoundingClientRect();
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const w = Math.max(320, Math.round(rect.width * dpr));
+        const h = Math.max(240, Math.round(rect.height * dpr));
+
+        if (canvas.width !== w || canvas.height !== h) {
+          canvas.width = w;
+          canvas.height = h;
+          offscreenCanvas.width = w;
+          offscreenCanvas.height = h;
+          fxCanvas.width = w;
+          fxCanvas.height = h;
+        }
+      }
+
+      function drawImageCover(targetCtx, imgOrVideo, srcW, srcH, dstW, dstH, mirror = false) {
+        const scale = Math.max(dstW / srcW, dstH / srcH);
+        const drawW = srcW * scale;
+        const drawH = srcH * scale;
+        const offsetX = (dstW - drawW) / 2;
+        const offsetY = (dstH - drawH) / 2;
+
+        targetCtx.save();
+        if (mirror) {
+          targetCtx.translate(dstW, 0);
+          targetCtx.scale(-1, 1);
+        }
+        targetCtx.drawImage(imgOrVideo, offsetX, offsetY, drawW, drawH);
+        targetCtx.restore();
+      }
+
+      function renderLoop(timestamp) {
+        resizeCanvases();
+        const w = canvas.width;
+        const h = canvas.height;
+
+        // 1. Render active raw source onto offscreenCanvas
+        offCtx.clearRect(0, 0, w, h);
+        if (state.sourceType === 'camera' && state.cameraStream && webcamVideo.videoWidth > 0) {
+          const shouldMirror = state.facingMode === 'user';
+          drawImageCover(offCtx, webcamVideo, webcamVideo.videoWidth, webcamVideo.videoHeight, w, h, shouldMirror);
+        } else if (state.sourceType === 'upload' && state.uploadedImage) {
+          drawImageCover(offCtx, state.uploadedImage, state.uploadedImage.naturalWidth, state.uploadedImage.naturalHeight, w, h, false);
+        } else {
+          drawSampleScene(offCtx, w, h, state.sampleScene);
+        }
+
+        // 2. Apply simulation (or temporary unfiltered comparison while holding button)
+        if (state.isComparingNormal) {
+          ctx.clearRect(0, 0, w, h);
+          ctx.drawImage(offscreenCanvas, 0, 0, w, h);
+        } else {
+          renderSimulatedFrame(ctx, offscreenCanvas, w, h, timestamp);
+        }
+
+        requestAnimationFrame(renderLoop);
+      }
+
+      // =========================================================================
+      // 8. UI RENDERING & STATE SYNCHRONIZATION
+      // =========================================================================
+      function buildConditionButtons() {
+        conditionButtonsContainer.innerHTML = '';
+        Object.values(CONDITIONS).forEach((cond) => {
+          const isActive = state.condition === cond.id;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.dataset.condId = cond.id;
+          btn.className = `p-2.5 rounded-xl border text-left transition flex flex-col justify-between gap-1.5 ${
+            isActive
+              ? `bg-white border-slate-900 ring-2 ${cond.btnRing} shadow-sm`
+              : 'bg-white/80 hover:bg-white border-slate-200 text-slate-700'
+          }`;
+
+          btn.innerHTML = `
+            <div class="flex items-center justify-between w-full">
+              <span class="w-3 h-3 rounded-full shrink-0 border border-black/15" style="background-color: ${cond.glassesColorHex}"></span>
+              <span class="text-[10px] font-semibold text-slate-400 truncate ml-1">${cond.glasses.replace(' Glasses', '')}</span>
+            </div>
+            <div class="font-bold text-xs sm:text-[13px] text-slate-900 leading-tight">${cond.shortName}</div>
+          `;
+
+          btn.addEventListener('click', () => selectCondition(cond.id));
+          conditionButtonsContainer.appendChild(btn);
+        });
+      }
+
+      function selectCondition(condId) {
+        state.condition = condId;
+        const cond = CONDITIONS[condId];
+
+        buildConditionButtons();
+
+        // Update viewport top badge
+        document.getElementById('pill-dot').style.backgroundColor = cond.glassesColorHex;
+        document.getElementById('pill-text').textContent = `${cond.name} — ${cond.glasses}`;
+
+        // Toggle parameter controls
+        if (cond.hasSeverity) {
+          severityGroup.classList.remove('hidden');
+          severityGroup.classList.add('flex');
+        } else {
+          severityGroup.classList.add('hidden');
+          severityGroup.classList.remove('flex');
+        }
+
+        if (cond.id === 'hemianopsia') {
+          hemiGroup.classList.remove('hidden');
+          hemiGroup.classList.add('flex');
+        } else {
+          hemiGroup.classList.add('hidden');
+          hemiGroup.classList.remove('flex');
+        }
+
+        // Update Educational Info Card
+        const glassesBadge = document.getElementById('glasses-badge');
+        glassesBadge.className = `inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border ${cond.badgeBg}`;
+        document.getElementById('glasses-swatch').style.backgroundColor = cond.glassesColorHex;
+        document.getElementById('glasses-label').textContent = cond.glasses;
+        document.getElementById('condition-title').textContent = cond.name;
+        document.getElementById('condition-structure').textContent = cond.structure;
+        document.getElementById('condition-description').textContent = cond.description;
+
+        const impactsList = document.getElementById('condition-impacts');
+        impactsList.innerHTML = cond.impacts
+          .map(
+            (item) =>
+              `<li class="flex items-start gap-2"><span class="text-blue-600 font-bold mt-0.5">•</span><span>${item}</span></li>`
+          )
+          .join('');
+      }
+
+      // =========================================================================
+      // 9. INPUT SOURCE HANDLERS (SAMPLES, IMAGE UPLOAD, WEBCAM)
+      // =========================================================================
+      function stopCamera() {
+        if (state.cameraStream) {
+          state.cameraStream.getTracks().forEach((track) => track.stop());
+          state.cameraStream = null;
+        }
+        webcamVideo.srcObject = null;
+        cameraBtnLabel.textContent = 'Turn On Camera';
+        document.getElementById('flip-camera-btn').classList.add('hidden');
+        document.getElementById('flip-camera-btn').classList.remove('inline-flex');
+      }
+
+      function updateSourceButtonsUI() {
+        const sampleBtn = document.getElementById('src-sample-btn');
+        const cameraBtn = document.getElementById('src-camera-btn');
+        const flipBtn = document.getElementById('flip-camera-btn');
+        const sceneSelector = document.getElementById('sample-scene-selector');
+
+        sampleBtn.className =
+          state.sourceType === 'sample'
+            ? 'px-3 py-2 text-xs font-semibold rounded-xl bg-blue-600 text-white shadow-xs transition flex items-center gap-1.5'
+            : 'px-3 py-2 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5';
+
+        cameraBtn.className =
+          state.sourceType === 'camera'
+            ? 'px-3 py-2 text-xs font-semibold rounded-xl bg-emerald-600 text-white shadow-xs transition flex items-center gap-1.5'
+            : 'px-3 py-2 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5';
+
+        if (state.sourceType === 'camera') {
+          flipBtn.classList.remove('hidden');
+          flipBtn.classList.add('inline-flex');
+        } else {
+          flipBtn.classList.add('hidden');
+          flipBtn.classList.remove('inline-flex');
+        }
+
+        if (state.sourceType === 'sample') {
+          sceneSelector.classList.remove('hidden');
+        } else {
+          sceneSelector.classList.add('hidden');
+        }
+      }
+
+      async function startCamera() {
+        cameraOverlay.classList.add('hidden');
+        stopCamera();
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          const isInsecure = window.location.protocol !== 'https:' && window.location.hostname !== 'localhost';
+          cameraMsgTitle.textContent = isInsecure ? 'HTTPS Required for Camera' : 'Camera Not Supported';
+          cameraMsgBody.textContent = isInsecure
+            ? 'Browsers require a secure (HTTPS) connection or localhost to access the webcam. Please open this file via HTTPS/localhost or use Sample Scenes / Upload Image.'
+            : 'Your browser or embedded preview frame does not allow live camera access. You can download this HTML file and open it directly in Chrome/Safari/Edge, or use Sample Scenes / Upload Image.';
+          cameraOverlay.classList.remove('hidden');
+          return;
+        }
+
+        cameraBtnLabel.textContent = 'Starting...';
+
+        // Progressive fallback constraints so laptops, external webcams, and phones all connect
+        const constraintAttempts = [
+          { video: { facingMode: state.facingMode, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false },
+          { video: { facingMode: state.facingMode }, audio: false },
+          { video: true, audio: false }
+        ];
+
+        let stream = null;
+        let lastError = null;
+
+        for (const constraints of constraintAttempts) {
+          try {
+            stream = await navigator.mediaDevices.getUserMedia(constraints);
+            if (stream) break;
+          } catch (err) {
+            lastError = err;
+          }
+        }
+
+        if (!stream) {
+          cameraBtnLabel.textContent = 'Turn On Camera';
+          const errName = lastError && lastError.name ? lastError.name : '';
+          if (errName === 'NotAllowedError' || errName === 'PermissionDeniedError') {
+            cameraMsgTitle.textContent = 'Camera Permission Blocked';
+            cameraMsgBody.textContent =
+              'Camera access was blocked by your browser or this preview sandbox. Click the lock/camera icon in your address bar to allow access, or open this HTML file directly in a new browser tab.';
+          } else if (errName === 'NotFoundError' || errName === 'DevicesNotFoundError') {
+            cameraMsgTitle.textContent = 'No Camera Detected';
+            cameraMsgBody.textContent =
+              'No webcam was found on this device. Please use the Sample Scenes or Upload Image buttons instead.';
+          } else if (errName === 'NotReadableError' || errName === 'TrackStartError') {
+            cameraMsgTitle.textContent = 'Camera In Use by Another App';
+            cameraMsgBody.textContent =
+              'Another application (like Zoom, Teams, or another browser tab) is currently using your camera. Close it and try again.';
+          } else {
+            cameraMsgTitle.textContent = 'Unable to Start Camera';
+            cameraMsgBody.textContent =
+              'If you are viewing this inside an embedded preview frame, camera access may be restricted by the host frame. Download the HTML file and open it directly in your browser, or use Sample Scenes / Upload Image.';
+          }
+          cameraOverlay.classList.remove('hidden');
+          return;
+        }
+
+        try {
+          state.cameraStream = stream;
+          webcamVideo.setAttribute('playsinline', '');
+          webcamVideo.muted = true;
+          webcamVideo.srcObject = stream;
+
+          // Wait until video metadata is ready so videoWidth/videoHeight are populated
+          await new Promise((resolve) => {
+            if (webcamVideo.readyState >= 1) {
+              resolve();
+            } else {
+              webcamVideo.onloadedmetadata = () => resolve();
+            }
+          });
+
+          await webcamVideo.play();
+          state.sourceType = 'camera';
+          cameraBtnLabel.textContent = 'Stop Camera';
+          updateSourceButtonsUI();
+          showToast('Live camera active!', 'success');
+        } catch (playErr) {
+          stopCamera();
+          cameraMsgTitle.textContent = 'Video Playback Error';
+          cameraMsgBody.textContent =
+            'The camera connected, but video playback could not start. Please try again or use Sample Scenes / Upload Image.';
+          cameraOverlay.classList.remove('hidden');
+        }
+      }
+
+      // =========================================================================
+      // 10. EVENT LISTENERS
+      // =========================================================================
+      document.getElementById('toggle-guide-btn').addEventListener('click', () => {
+        document.getElementById('guide-drawer').classList.toggle('hidden');
+      });
+
+      document.getElementById('src-sample-btn').addEventListener('click', () => {
+        stopCamera();
+        cameraOverlay.classList.add('hidden');
+        state.sourceType = 'sample';
+        updateSourceButtonsUI();
+      });
+
+      document.getElementById('fallback-sample-btn').addEventListener('click', () => {
+        stopCamera();
+        cameraOverlay.classList.add('hidden');
+        state.sourceType = 'sample';
+        updateSourceButtonsUI();
+      });
+
+      document.getElementById('scene-select').addEventListener('change', (e) => {
+        state.sampleScene = e.target.value;
+      });
+
+      document.getElementById('image-upload-input').addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            stopCamera();
+            cameraOverlay.classList.add('hidden');
+            state.uploadedImage = img;
+            state.sourceType = 'upload';
+            updateSourceButtonsUI();
+            showToast(`Loaded "${file.name}" into simulator.`, 'success');
+          };
+          img.onerror = () => {
+            showToast('Could not decode image file. Try a JPEG or PNG.', 'error');
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+        e.target.value = '';
+      });
+
+      document.getElementById('src-camera-btn').addEventListener('click', () => {
+        if (state.sourceType === 'camera' && state.cameraStream) {
+          stopCamera();
+          state.sourceType = 'sample';
+          updateSourceButtonsUI();
+          showToast('Camera turned off.');
+        } else {
+          startCamera();
+        }
+      });
+
+      document.getElementById('flip-camera-btn').addEventListener('click', () => {
+        state.facingMode = state.facingMode === 'user' ? 'environment' : 'user';
+        startCamera();
+      });
+
+      severitySlider.addEventListener('input', (e) => {
+        state.severity = parseInt(e.target.value, 10);
+        severityValue.textContent = `${state.severity}%`;
+      });
+
+      hemiRightBtn.addEventListener('click', () => {
+        state.hemiSide = 'right';
+        hemiRightBtn.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg bg-red-600 text-white transition';
+        hemiLeftBtn.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition';
+      });
+
+      hemiLeftBtn.addEventListener('click', () => {
+        state.hemiSide = 'left';
+        hemiLeftBtn.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg bg-red-600 text-white transition';
+        hemiRightBtn.className = 'px-2.5 py-1 text-xs font-semibold rounded-lg text-slate-300 hover:text-white transition';
+      });
+
+      // Hold-to-compare unfiltered view (Mouse + Touch support)
+      const startCompare = (e) => {
+        e.preventDefault();
+        state.isComparingNormal = true;
+        document.getElementById('pill-text').textContent = 'Comparing: Unfiltered View';
+      };
+      const endCompare = () => {
+        if (!state.isComparingNormal) return;
+        state.isComparingNormal = false;
+        const cond = CONDITIONS[state.condition];
+        document.getElementById('pill-text').textContent = `${cond.name} — ${cond.glasses}`;
+      };
+
+      compareHoldBtn.addEventListener('mousedown', startCompare);
+      compareHoldBtn.addEventListener('touchstart', startCompare, { passive: false });
+      window.addEventListener('mouseup', endCompare);
+      window.addEventListener('touchend', endCompare);
+
+      // Save frame snapshot
+      document.getElementById('download-snap-btn').addEventListener('click', () => {
+        try {
+          const link = document.createElement('a');
+          link.download = `BIOS110_${state.condition}_simulation.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+          showToast('Saved simulated view image!', 'success');
+        } catch (err) {
+          showToast('Unable to export frame.', 'error');
+        }
+      });
+
+      // =========================================================================
+      // 11. INITIALIZATION ON WINDOW LOAD
+      // =========================================================================
+      window.onload = function () {
+        selectCondition('glaucoma');
+        updateSourceButtonsUI();
+        requestAnimationFrame(renderLoop);
+      };
+    })();
+  </script>
+</body>
+</html>
