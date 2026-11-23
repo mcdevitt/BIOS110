@@ -1,0 +1,2449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cell Division & Checkpoint Systems Studio | BIOS 110</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
+  <!-- MathJax / KaTeX for crisp biological notation if needed, plus clean Unicode/HTML formatting -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            canvas: '#f8fafc',
+            ink: '#0f172a',
+            maternal: '#2563eb',
+            paternal: '#e11d48',
+            pass: '#059669',
+            warn: '#d97706',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #f8fafc;
+      color: #0f172a;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .studio-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 1rem;
+      box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.03);
+    }
+    .studio-panel-subtle {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.75rem;
+    }
+    .tab-btn {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .tab-btn.active {
+      background-color: #0f172a;
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    }
+    .tab-btn:not(.active):hover {
+      background-color: #e2e8f0;
+      color: #0f172a;
+    }
+    .pulse-ring {
+      animation: pulseRing 2s infinite;
+    }
+    @keyframes pulseRing {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      70% { transform: scale(1.15); opacity: 0; }
+      100% { transform: scale(0.95); opacity: 0; }
+    }
+    /* Custom scrollbar for clean look */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- TOP SCIENTIFIC STUDIO HEADER -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+        <!-- Brand & Subtitle -->
+        <div class="flex items-start sm:items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-slate-900 text-white flex items-center justify-center shrink-0 shadow-sm">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M8 3c0 4 8 5 8 9s-8 5-8 9" stroke="#60a5fa" stroke-linecap="round"/>
+              <path d="M16 3c0 4-8 5-8 9s8 5 8 9" stroke="#fb7185" stroke-linecap="round"/>
+              <circle cx="12" cy="12" r="2" fill="#ffffff" stroke="none"/>
+            </svg>
+          </div>
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900">
+                Cell Division &amp; Checkpoint Systems Studio
+              </h1>
+              <span class="px-2 py-0.5 text-xs font-bold uppercase tracking-wider rounded-md bg-blue-50 text-blue-700 border border-blue-200">
+                BIOS 110
+              </span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
+              Input &rarr; Molecular/Structural Mechanism &rarr; System Output &amp; Failure Modes
+            </p>
+          </div>
+        </div>
+
+        <!-- Compact Quick-Reference Ploidy/Chromatid Counter Badge -->
+        <div class="flex flex-wrap items-center gap-2 bg-slate-900 text-white px-3.5 py-2 rounded-xl shadow-sm text-xs">
+          <div class="flex items-center gap-1.5 pr-2.5 border-r border-slate-700">
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span class="font-semibold text-slate-300 uppercase tracking-wider text-[10px]">Golden Rule:</span>
+            <span class="font-bold text-white">1 Centromere = 1 Chromosome</span>
+          </div>
+          <div class="flex items-center gap-3 font-mono">
+            <span class="text-blue-300" title="Maternal Homolog">● Maternal</span>
+            <span class="text-rose-300" title="Paternal Homolog">● Paternal</span>
+            <span id="header-live-badge" class="bg-slate-800 px-2 py-0.5 rounded text-emerald-300 font-semibold">
+              Active: Tab 1 (Checkpoints)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4 INTERACTIVE SYSTEM TABS -->
+      <nav class="mt-3 pt-2 border-t border-slate-100 flex overflow-x-auto gap-1.5 pb-1" aria-label="System Modules">
+        <button onclick="switchTab('tab1')" id="btn-tab1" class="tab-btn active px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap flex items-center gap-2">
+          <span class="w-5 h-5 rounded-md bg-white/20 flex items-center justify-center text-xs font-bold">1</span>
+          Cell Cycle &amp; Checkpoints
+        </button>
+        <button onclick="switchTab('tab2')" id="btn-tab2" class="tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 whitespace-nowrap flex items-center gap-2">
+          <span class="w-5 h-5 rounded-md bg-slate-200/80 text-slate-700 flex items-center justify-center text-xs font-bold">2</span>
+          Chromosome Accounting &amp; Mitosis
+        </button>
+        <button onclick="switchTab('tab3')" id="btn-tab3" class="tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 whitespace-nowrap flex items-center gap-2">
+          <span class="w-5 h-5 rounded-md bg-slate-200/80 text-slate-700 flex items-center justify-center text-xs font-bold">3</span>
+          Meiosis &amp; Genetic Diversity
+        </button>
+        <button onclick="switchTab('tab4')" id="btn-tab4" class="tab-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 whitespace-nowrap flex items-center gap-2">
+          <span class="w-5 h-5 rounded-md bg-slate-200/80 text-slate-700 flex items-center justify-center text-xs font-bold">4</span>
+          Errors, Nondisjunction &amp; Exam Lab
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ===================================================================== -->
+    <!-- TAB 1: THE CELL CYCLE & CHECKPOINT CONTROL SYSTEM (REGULATION/CANCER) -->
+    <!-- ===================================================================== -->
+    <section id="tab1" class="tab-content space-y-6">
+      <!-- Systems Banner -->
+      <div class="studio-card p-4 sm:p-5 bg-gradient-to-r from-slate-900 to-slate-800 text-white">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
+          <div class="bg-white/10 rounded-xl p-3 border border-white/10">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-blue-300">1. Cellular Inputs</div>
+            <p class="text-xs sm:text-sm text-slate-100 mt-1">Growth factors, DNA integrity, neighbor contact (density), ECM anchorage, &amp; kinetochore tension.</p>
+          </div>
+          <div class="bg-white/10 rounded-xl p-3 border border-white/10">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-amber-300">2. Molecular Mechanism</div>
+            <p class="text-xs sm:text-sm text-slate-100 mt-1">Cyclin oscillation + CDKs phosphorylate <strong>Rb</strong> (releasing <strong>E2F</strong>); DNA damage triggers <strong>p53 &rarr; p21</strong> brake.</p>
+          </div>
+          <div class="bg-white/10 rounded-xl p-3 border border-white/10">
+            <div class="text-[11px] font-bold uppercase tracking-wider text-emerald-300">3. System Output &amp; Failure</div>
+            <p class="text-xs sm:text-sm text-slate-100 mt-1">Controlled division, reversible <strong>G<sub>0</sub></strong> arrest, <strong>apoptosis/anoikis</strong>, or oncogenic transformation.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Grid: SVG Wheel + Live Perturbation & Mutation Lab -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left 7 Cols: Interactive Cell Cycle Wheel + Molecular Cascade -->
+        <div class="lg:col-span-7 studio-card p-5 flex flex-col justify-between space-y-5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <h2 class="text-base sm:text-lg font-bold text-slate-900">Interactive Cell Cycle &amp; Checkpoint Wheel</h2>
+              <p class="text-xs text-slate-500">Click any phase or checkpoint gate to inspect molecular machinery.</p>
+            </div>
+            <div id="t1-overall-badge" class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+              SYSTEM STATUS: NORMAL PROLIFERATION
+            </div>
+          </div>
+
+          <!-- SVG Cell Cycle Wheel -->
+          <div class="relative flex flex-col items-center justify-center bg-slate-50 rounded-xl border border-slate-200 p-4">
+            <svg id="cell-cycle-svg" viewBox="0 0 520 340" class="w-full max-w-lg h-auto select-none">
+              <defs>
+                <marker id="arrow-slate" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#64748b"/>
+                </marker>
+                <marker id="arrow-emerald" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#059669"/>
+                </marker>
+                <marker id="arrow-rose" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                  <path d="M 0 1 L 10 5 L 0 9 z" fill="#e11d48"/>
+                </marker>
+              </defs>
+
+              <!-- Background Interphase vs M-phase halo -->
+              <circle cx="290" cy="175" r="115" fill="none" stroke="#e2e8f0" stroke-width="34" />
+
+              <!-- Phase Arcs (Clickable) -->
+              <!-- G1 Arc: top-right to bottom-right -->
+              <path id="arc-G1" onclick="selectCycleNode('G1')" class="cursor-pointer transition-opacity hover:opacity-80"
+                d="M 290 60 A 115 115 0 0 1 399 210" fill="none" stroke="#3b82f6" stroke-width="32" stroke-linecap="butt" />
+              <!-- S Arc: bottom-right to bottom-left -->
+              <path id="arc-S" onclick="selectCycleNode('S')" class="cursor-pointer transition-opacity hover:opacity-80"
+                d="M 399 210 A 115 115 0 0 1 215 262" fill="none" stroke="#6366f1" stroke-width="32" stroke-linecap="butt" />
+              <!-- G2 Arc: bottom-left to top-left -->
+              <path id="arc-G2" onclick="selectCycleNode('G2')" class="cursor-pointer transition-opacity hover:opacity-80"
+                d="M 215 262 A 115 115 0 0 1 200 103" fill="none" stroke="#8b5cf6" stroke-width="32" stroke-linecap="butt" />
+              <!-- M + C Arc: top-left to top -->
+              <path id="arc-M" onclick="selectCycleNode('M')" class="cursor-pointer transition-opacity hover:opacity-80"
+                d="M 200 103 A 115 115 0 0 1 290 60" fill="none" stroke="#ec4899" stroke-width="32" stroke-linecap="butt" />
+
+              <!-- G0 Exit Branch -->
+              <path id="path-G0" onclick="selectCycleNode('G0')" class="cursor-pointer"
+                d="M 392 122 Q 445 85 455 55" fill="none" stroke="#64748b" stroke-width="4" stroke-dasharray="5,4" marker-end="url(#arrow-slate)" />
+              <g onclick="selectCycleNode('G0')" class="cursor-pointer">
+                <rect x="415" y="18" width="90" height="34" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="2" />
+                <text x="460" y="34" text-anchor="middle" font-size="11" font-weight="800" fill="#0f172a">G₀ Quiescent</text>
+                <text x="460" y="46" text-anchor="middle" font-size="9" fill="#475569">Non-dividing state</text>
+              </g>
+
+              <!-- Phase Labels -->
+              <text x="378" y="142" text-anchor="middle" font-size="13" font-weight="800" fill="#ffffff" pointer-events="none">G₁</text>
+              <text x="315" y="294" text-anchor="middle" font-size="13" font-weight="800" fill="#ffffff" pointer-events="none">S (Synthesis)</text>
+              <text x="172" y="190" text-anchor="middle" font-size="13" font-weight="800" fill="#ffffff" pointer-events="none">G₂</text>
+              <text x="235" y="68" text-anchor="middle" font-size="12" font-weight="800" fill="#ffffff" pointer-events="none">M + C</text>
+
+              <!-- Clockwise Direction Arrow in Center -->
+              <path d="M 265 145 A 35 35 0 1 1 258 195" fill="none" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrow-slate)" />
+              <text x="290" y="172" text-anchor="middle" font-size="10" font-weight="700" fill="#475569">INTERPHASE</text>
+              <text x="290" y="185" text-anchor="middle" font-size="9" fill="#64748b">(~90% of cycle)</text>
+
+              <!-- 3 CHECKPOINT GATES -->
+              <!-- Checkpoint 1: G1 Restriction Point -->
+              <g id="cp-G1-group" onclick="selectCycleNode('CP_G1')" class="cursor-pointer">
+                <circle id="cp-G1-ring" cx="399" cy="210" r="18" fill="#059669" stroke="#ffffff" stroke-width="3" />
+                <text id="cp-G1-icon" x="399" y="214" text-anchor="middle" font-size="11" font-weight="800" fill="#ffffff">G₁</text>
+                <rect x="422" y="195" width="92" height="32" rx="6" fill="#ffffff" stroke="#cbd5e1" />
+                <text x="468" y="209" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0f172a">G₁ Checkpoint</text>
+                <text id="cp-G1-status" x="468" y="221" text-anchor="middle" font-size="8.5" font-weight="700" fill="#059669">PASS &rarr; S</text>
+              </g>
+
+              <!-- Checkpoint 2: G2 Gateway -->
+              <g id="cp-G2-group" onclick="selectCycleNode('CP_G2')" class="cursor-pointer">
+                <circle id="cp-G2-ring" cx="200" cy="103" r="18" fill="#059669" stroke="#ffffff" stroke-width="3" />
+                <text id="cp-G2-icon" x="200" y="107" text-anchor="middle" font-size="11" font-weight="800" fill="#ffffff">G₂</text>
+                <rect x="12" y="86" width="164" height="34" rx="6" fill="#ffffff" stroke="#cbd5e1" />
+                <text x="94" y="101" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0f172a">G₂ Gateway (MPF Active)</text>
+                <text id="cp-G2-status" x="94" y="113" text-anchor="middle" font-size="8.5" font-weight="700" fill="#059669">DNA Intact &rarr; Mitosis</text>
+              </g>
+
+              <!-- Checkpoint 3: M Spindle Checkpoint -->
+              <g id="cp-M-group" onclick="selectCycleNode('CP_M')" class="cursor-pointer">
+                <circle id="cp-M-ring" cx="242" cy="70" r="16" fill="#059669" stroke="#ffffff" stroke-width="3" />
+                <text id="cp-M-icon" x="242" y="74" text-anchor="middle" font-size="10" font-weight="800" fill="#ffffff">M</text>
+                <rect x="12" y="20" width="174" height="34" rx="6" fill="#ffffff" stroke="#cbd5e1" />
+                <text x="99" y="35" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0f172a">M Spindle Checkpoint</text>
+                <text id="cp-M-status" x="99" y="47" text-anchor="middle" font-size="8.5" font-weight="700" fill="#059669">Bipolar Tension &rarr; Anaphase</text>
+              </g>
+            </svg>
+
+            <!-- Selected Node Readout Box -->
+            <div id="t1-node-detail" class="w-full mt-2 bg-white border border-slate-200 rounded-xl p-3.5 text-xs sm:text-sm">
+              <div class="flex items-center justify-between">
+                <span id="t1-node-title" class="font-bold text-slate-900">G₁ Restriction Point (Start Checkpoint)</span>
+                <span id="t1-node-tag" class="px-2 py-0.5 rounded bg-blue-50 text-blue-700 font-semibold text-xs">Primary Commitment Gate</span>
+              </div>
+              <p id="t1-node-desc" class="text-slate-600 mt-1.5 leading-relaxed">
+                Integrates external growth factors, cell size, nutrient reserves, and DNA integrity. If growth signals are absent, cells exit into <strong>G₀</strong>. If signals are present, Cyclin D/E-CDK phosphorylates <strong>Rb</strong>, releasing <strong>E2F</strong> to transcribe S-phase DNA replication genes.
+              </p>
+            </div>
+          </div>
+
+          <!-- Live Rb-E2F & p53-p21 Molecular Pathway Strip -->
+          <div class="studio-panel-subtle p-4">
+            <div class="flex items-center justify-between mb-2.5">
+              <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-700">Live Molecular Signal Cascade (G₁ &rarr; S Gate)</h3>
+              <span id="t1-pathway-outcome" class="text-xs font-bold text-emerald-700">E2F Released &rarr; S-Phase Genes ON</span>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
+              <div id="box-cyclin" class="p-2.5 rounded-lg bg-blue-50 border border-blue-200">
+                <div class="font-bold text-blue-900">Cyclin D/E + CDK</div>
+                <div id="state-cyclin" class="text-[11px] font-semibold text-blue-700 mt-0.5">ACTIVE (Kinase ON)</div>
+              </div>
+              <div id="box-p53" class="p-2.5 rounded-lg bg-slate-100 border border-slate-300">
+                <div class="font-bold text-slate-800">p53 &rarr; p21 Brake</div>
+                <div id="state-p53" class="text-[11px] font-semibold text-slate-600 mt-0.5">BASAL (No Damage)</div>
+              </div>
+              <div id="box-rb" class="p-2.5 rounded-lg bg-amber-50 border border-amber-200">
+                <div class="font-bold text-amber-900">Rb Protein</div>
+                <div id="state-rb" class="text-[11px] font-semibold text-amber-700 mt-0.5">PHOSPHORYLATED (Inactive)</div>
+              </div>
+              <div id="box-e2f" class="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200">
+                <div class="font-bold text-emerald-900">E2F Factor</div>
+                <div id="state-e2f" class="text-[11px] font-semibold text-emerald-700 mt-0.5">FREE &rarr; Transcribing</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right 5 Cols: Perturbation Lab & Mutation Sandbox -->
+        <div class="lg:col-span-5 space-y-5">
+          <!-- Cellular Inputs (Perturbation Lab) -->
+          <div class="studio-card p-5 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-bold text-slate-900">1. Cellular Input Perturbations</h3>
+              <button onclick="resetT1Controls()" class="text-xs font-semibold text-blue-600 hover:underline">Reset Normal</button>
+            </div>
+
+            <div class="space-y-3 text-xs sm:text-sm">
+              <!-- Growth Factors -->
+              <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                <div>
+                  <div class="font-semibold text-slate-900">External Growth Factors</div>
+                  <div class="text-xs text-slate-500">Stimulates Cyclin D/E transcription</div>
+                </div>
+                <input type="checkbox" id="in-gf" checked onchange="evaluateCellCycle()" class="w-5 h-5 accent-blue-600 rounded cursor-pointer">
+              </label>
+
+              <!-- DNA Damage -->
+              <div class="p-2.5 rounded-xl border border-slate-200 space-y-1.5">
+                <div class="flex items-center justify-between">
+                  <span class="font-semibold text-slate-900">DNA Damage Sensor</span>
+                  <span id="lbl-dna" class="text-xs font-bold text-emerald-700">Intact DNA</span>
+                </div>
+                <select id="in-dna" onchange="evaluateCellCycle()" class="w-full text-xs font-medium bg-slate-50 border border-slate-300 rounded-lg p-2">
+                  <option value="none">None (Intact Double Helix)</option>
+                  <option value="repairable">Moderate UV/DSB Damage (Repairable)</option>
+                  <option value="severe">Catastrophic DNA Damage (Irreparable)</option>
+                </select>
+              </div>
+
+              <!-- Density & Anchorage -->
+              <div class="grid grid-cols-2 gap-2.5">
+                <label class="flex flex-col justify-between p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="font-semibold text-xs text-slate-900">Confluent Crowding</span>
+                    <input type="checkbox" id="in-crowded" onchange="evaluateCellCycle()" class="w-4 h-4 accent-amber-600 rounded">
+                  </div>
+                  <span class="text-[11px] text-slate-500">Density-dependent contact inhibition</span>
+                </label>
+
+                <label class="flex flex-col justify-between p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="font-semibold text-xs text-slate-900">ECM Attached</span>
+                    <input type="checkbox" id="in-anchored" checked onchange="evaluateCellCycle()" class="w-4 h-4 accent-blue-600 rounded">
+                  </div>
+                  <span class="text-[11px] text-slate-500">Anchorage dependence (uncheck = detached)</span>
+                </label>
+              </div>
+
+              <!-- Spindle Attachment -->
+              <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 cursor-pointer">
+                <div>
+                  <div class="font-semibold text-slate-900">Kinetochore Spindle Tension</div>
+                  <div class="text-xs text-slate-500">All sister chromatids attached to opposite poles</div>
+                </div>
+                <input type="checkbox" id="in-spindle" checked onchange="evaluateCellCycle()" class="w-5 h-5 accent-emerald-600 rounded cursor-pointer">
+              </label>
+            </div>
+          </div>
+
+          <!-- Mutation & Cancer Sandbox -->
+          <div class="studio-card p-5 space-y-3 border-rose-200/80">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-bold text-slate-900">2. Oncogene &amp; Tumor Suppressor Sandbox</h3>
+              <span class="px-2 py-0.5 text-[11px] font-bold rounded bg-rose-50 text-rose-700 border border-rose-200">Exam Focus</span>
+            </div>
+            <p class="text-xs text-slate-500">Test classic BIOS 110 loss-of-function vs. gain-of-function mutations:</p>
+
+            <div class="space-y-2 text-xs">
+              <select id="in-mutation" onchange="evaluateCellCycle()" class="w-full font-semibold bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-slate-900">
+                <option value="wildtype">Wild-Type Genome (Normal Regulation)</option>
+                <option value="rb_nonphos">Mutant Rb: Cannot be Phosphorylated (Locked to E2F)</option>
+                <option value="rb_deleted">Mutant Rb: Loss-of-Function / Deleted (Tumor Suppressor Loss)</option>
+                <option value="p53_lof">Mutant p53: Loss-of-Function (Cannot Activate p21/Apoptosis)</option>
+                <option value="oncogene_cyclin">Proto-Oncogene &rarr; Oncogene: Hyperactive Cyclin D/CDK</option>
+                <option value="transformed_metastatic">Full Cancer Transformation (Loss of Contact + Anchorage + p53)</option>
+              </select>
+            </div>
+
+            <!-- Diagnostic System Output Box -->
+            <div id="t1-diagnosis-box" class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs space-y-1.5">
+              <div id="t1-diag-title" class="font-extrabold text-emerald-900 text-sm">Normal Homeostatic Cell Cycle</div>
+              <p id="t1-diag-body" class="text-emerald-800 leading-relaxed">
+                With growth factors present, intact DNA, proper ECM anchorage, and bipolar spindle attachment, the cell passes all three checkpoints cleanly.
+              </p>
+              <div id="t1-tissue-visual" class="pt-2 border-t border-emerald-200/70 flex items-center justify-between font-mono text-[11px] text-emerald-900">
+                <span>Tissue Architecture: Single Monolayer</span>
+                <span>Apoptosis/Anoikis: Inactive</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cyclin Expression & MPF Wave Visualizer -->
+      <div class="studio-card p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div>
+            <h3 class="text-base sm:text-lg font-bold text-slate-900">Cyclin Oscillation &amp; MPF (Maturation-Promoting Factor) Wave</h3>
+            <p class="text-xs text-slate-500">CDK protein levels stay constant; Cyclins are synthesized and degraded via ubiquitin-proteasome pathways to drive phase transitions.</p>
+          </div>
+          <div class="flex items-center gap-3 bg-slate-100 px-3 py-2 rounded-xl">
+            <label for="cyclin-slider" class="text-xs font-bold text-slate-700 whitespace-nowrap">Cycle Time:</label>
+            <input type="range" id="cyclin-slider" min="0" max="100" value="72" oninput="updateCyclinChart(this.value)" class="w-32 sm:w-44 accent-slate-900 cursor-pointer">
+            <span id="cyclin-phase-badge" class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-purple-600 text-white">G₂ &rarr; M (MPF Peak)</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+          <div class="lg:col-span-8 bg-slate-50 rounded-xl border border-slate-200 p-3">
+            <svg id="cyclin-svg" viewBox="0 0 640 210" class="w-full h-auto">
+              <!-- Phase Background Zones -->
+              <rect x="45" y="20" width="180" height="150" fill="#eff6ff" />
+              <rect x="225" y="20" width="150" height="150" fill="#eef2ff" />
+              <rect x="375" y="20" width="110" height="150" fill="#f5f3ff" />
+              <rect x="485" y="20" width="135" height="150" fill="#fdf2f8" />
+
+              <!-- Phase Headers -->
+              <text x="135" y="36" text-anchor="middle" font-size="11" font-weight="800" fill="#1d4ed8">G₁ Phase</text>
+              <text x="300" y="36" text-anchor="middle" font-size="11" font-weight="800" fill="#4338ca">S Phase</text>
+              <text x="430" y="36" text-anchor="middle" font-size="11" font-weight="800" fill="#6d28d9">G₂ Phase</text>
+              <text x="552" y="36" text-anchor="middle" font-size="11" font-weight="800" fill="#be185d">M Phase</text>
+
+              <!-- Axes -->
+              <line x1="45" y1="170" x2="620" y2="170" stroke="#94a3b8" stroke-width="1.5" />
+              <line x1="45" y1="20" x2="45" y2="170" stroke="#94a3b8" stroke-width="1.5" />
+              <text x="16" y="95" transform="rotate(-90 16 95)" text-anchor="middle" font-size="10" font-weight="700" fill="#475569">Concentration</text>
+
+              <!-- Constant CDK Line -->
+              <line x1="45" y1="78" x2="620" y2="78" stroke="#64748b" stroke-width="2" stroke-dasharray="6,4" />
+              <text x="565" y="72" font-size="9.5" font-weight="700" fill="#475569">CDK (Constant)</text>
+
+              <!-- Cyclin D (rises in G1, stays moderate) -->
+              <path d="M 45 165 Q 110 95 190 95 T 480 105 L 620 155" fill="none" stroke="#2563eb" stroke-width="2.5" />
+              <!-- Cyclin E (peaks at G1/S) -->
+              <path d="M 120 168 Q 215 65 235 65 Q 260 165 300 168" fill="none" stroke="#059669" stroke-width="2.5" />
+              <!-- Cyclin A (rises in S, peaks in G2) -->
+              <path d="M 210 168 Q 330 70 435 62 Q 495 120 515 168" fill="none" stroke="#d97706" stroke-width="2.5" />
+              <!-- Cyclin B / G2 Cyclin (MPF) (rises G2, peaks M, degraded at Anaphase) -->
+              <path d="M 320 168 Q 440 120 505 46 Q 535 46 555 166 L 620 168" fill="none" stroke="#e11d48" stroke-width="3.2" />
+
+              <!-- Degradation Callout -->
+              <circle cx="548" cy="128" r="4" fill="#e11d48" />
+              <text x="556" y="131" font-size="9" font-weight="700" fill="#be185d">Cyclin B degraded &rarr; Anaphase/Exit</text>
+
+              <!-- Interactive Time Scrubber Line -->
+              <line id="cyclin-cursor" x1="460" y1="20" x2="460" y2="170" stroke="#0f172a" stroke-width="2" />
+              <circle id="cyclin-cursor-dot" cx="460" cy="20" r="5" fill="#0f172a" />
+
+              <!-- Legend -->
+              <g transform="translate(55, 185)" font-size="10" font-weight="700">
+                <rect x="0" y="0" width="12" height="4" fill="#2563eb" rx="2"/><text x="16" y="5" fill="#1e3a8a">Cyclin D (G₁)</text>
+                <rect x="105" y="0" width="12" height="4" fill="#059669" rx="2"/><text x="121" y="5" fill="#065f46">Cyclin E (G₁/S)</text>
+                <rect x="220" y="0" width="12" height="4" fill="#d97706" rx="2"/><text x="236" y="5" fill="#92400e">Cyclin A (S/G₂)</text>
+                <rect x="335" y="0" width="12" height="4" fill="#e11d48" rx="2"/><text x="351" y="5" fill="#9f1239">Cyclin B / G₂ Cyclin (MPF)</text>
+              </g>
+            </svg>
+          </div>
+
+          <div id="cyclin-readout" class="lg:col-span-4 studio-panel-subtle p-4 space-y-2 text-xs sm:text-sm">
+            <div class="font-bold text-slate-900" id="cyclin-readout-title">G₂ &rarr; M Transition: MPF Peak</div>
+            <p class="text-slate-600 leading-relaxed" id="cyclin-readout-text">
+              Accumulated <strong>G₂ Cyclin (Cyclin B)</strong> binds to constant <strong>CDK</strong> to form active <strong>MPF</strong>. MPF phosphorylates nuclear lamins (dissolving the nuclear envelope), condensins, and spindle assembly proteins to launch mitosis.
+            </p>
+            <div class="p-2.5 rounded-lg bg-white border border-slate-200 text-xs text-slate-700 font-medium">
+              <strong>Key Exam Concept:</strong> Destruction of G₂ cyclin inactivates MPF, allowing the cell to complete Anaphase/Telophase and return to G₁.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 2: CHROMOSOME ACCOUNTING, MITOSIS & CYTOKINESIS                   -->
+    <!-- ===================================================================== -->
+    <section id="tab2" class="tab-content hidden space-y-6">
+      <!-- Top Control Bar: Diploid Number Selector & Animal vs Plant Toggle -->
+      <div class="studio-card p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-base sm:text-lg font-bold text-slate-900">Chromosome Accounting &amp; Mitotic Division Engine</h2>
+          <p class="text-xs text-slate-500">Track exact centromere count (chromosomes), DNA molecules (chromatids), and ploidy across every stage.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- 2n Selector -->
+          <div class="flex items-center gap-2 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
+            <span class="text-xs font-bold text-slate-700 pl-2">Diploid (2n):</span>
+            <button onclick="setMitosis2n(4)" id="m2n-4" class="m2n-btn px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-900 text-white">2n = 4</button>
+            <button onclick="setMitosis2n(6)" id="m2n-6" class="m2n-btn px-2.5 py-1 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-200">2n = 6</button>
+            <button onclick="setMitosis2n(8)" id="m2n-8" class="m2n-btn px-2.5 py-1 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-200">2n = 8</button>
+            <div class="flex items-center gap-1 pl-1 border-l border-slate-300">
+              <input type="number" id="m2n-custom" min="2" max="46" step="2" value="46" class="w-12 text-center text-xs font-mono font-bold bg-white border border-slate-300 rounded-md py-1" title="Enter even diploid number">
+              <button onclick="applyCustomMitosis2n()" class="px-2 py-1 rounded-md text-xs font-bold bg-blue-600 text-white hover:bg-blue-700">Set</button>
+            </div>
+          </div>
+
+          <!-- Animal vs Plant Toggle -->
+          <div class="flex items-center bg-slate-100 p-1.5 rounded-xl border border-slate-200">
+            <button onclick="setCellType('animal')" id="ctype-animal" class="px-3 py-1 rounded-lg text-xs font-bold bg-blue-600 text-white shadow-sm">
+              Animal Cell (Cleavage Furrow)
+            </button>
+            <button onclick="setCellType('plant')" id="ctype-plant" class="px-3 py-1 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-200">
+              Plant Cell (Cell Plate)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Ploidy & Chromatid Accounting Strip -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="studio-card p-4 border-l-4 border-l-blue-600">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Ploidy Status</div>
+          <div id="acc-ploidy" class="text-xl sm:text-2xl font-extrabold font-mono text-slate-900 mt-1">2n (Diploid)</div>
+          <div id="acc-ploidy-note" class="text-xs text-slate-500 mt-0.5">Homologous pairs present</div>
+        </div>
+        <div class="studio-card p-4 border-l-4 border-l-emerald-600">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Chromosomes (Centromeres)</div>
+          <div id="acc-chromosomes" class="text-xl sm:text-2xl font-extrabold font-mono text-emerald-700 mt-1">4</div>
+          <div id="acc-chromosomes-note" class="text-xs text-slate-500 mt-0.5">Count centromeres, NOT chromatids!</div>
+        </div>
+        <div class="studio-card p-4 border-l-4 border-l-purple-600">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Chromatids (DNA Molecules)</div>
+          <div id="acc-chromatids" class="text-xl sm:text-2xl font-extrabold font-mono text-purple-700 mt-1">8</div>
+          <div id="acc-chromatids-note" class="text-xs text-slate-500 mt-0.5">2 sister chromatids per chromosome</div>
+        </div>
+        <div class="studio-card p-4 border-l-4 border-l-amber-500">
+          <div class="text-[11px] font-bold uppercase tracking-wider text-slate-500">DNA Packaging State</div>
+          <div id="acc-packaging" class="text-base sm:text-lg font-extrabold text-slate-900 mt-1">Loose Chromatin</div>
+          <div id="acc-packaging-note" class="text-xs text-slate-500 mt-0.5">DNA wrapped on histone nucleosomes</div>
+        </div>
+      </div>
+
+      <!-- Stage Stepper + Interactive Cell Canvas + Exam Diagnostic Mode -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Left 7 Cols: Interactive Stage Player -->
+        <div class="lg:col-span-7 studio-card p-5 space-y-4">
+          <!-- Stage Buttons -->
+          <div class="flex flex-wrap gap-1.5" id="mitosis-stage-buttons">
+            <button onclick="setMitosisStage(0)" class="m-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">1. G₁ (Pre-S)</button>
+            <button onclick="setMitosisStage(1)" class="m-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white">2. G₂ (Post-S)</button>
+            <button onclick="setMitosisStage(2)" class="m-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">3. Prophase</button>
+            <button onclick="setMitosisStage(3)" class="m-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">4. Prometaphase</button>
+            <button onclick="setMitosisStage(4)" class="m-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">5. Metaphase</button>
+            <button onclick="setMitosisStage(5)" class="m-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">6. Anaphase</button>
+            <button onclick="setMitosisStage(6)" class="m-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">7. Telophase &amp; Cytokinesis</button>
+          </div>
+
+          <!-- SVG Cell Visualization -->
+          <div class="bg-slate-50 rounded-xl border border-slate-200 p-3 flex flex-col items-center">
+            <svg id="mitosis-svg" viewBox="0 0 540 310" class="w-full h-auto"></svg>
+          </div>
+
+          <!-- Stage Mechanism Explanation -->
+          <div class="studio-panel-subtle p-4 space-y-2">
+            <div class="flex items-center justify-between">
+              <h3 id="m-stage-title" class="text-sm sm:text-base font-bold text-slate-900">G₂ Interphase (After DNA Replication)</h3>
+              <div class="flex gap-1.5">
+                <button onclick="stepMitosis(-1)" class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-xs font-bold hover:bg-slate-100">&larr; Prev</button>
+                <button onclick="stepMitosis(1)" class="px-2.5 py-1 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-slate-800">Next &rarr;</button>
+              </div>
+            </div>
+            <p id="m-stage-desc" class="text-xs sm:text-sm text-slate-700 leading-relaxed"></p>
+            <div id="m-cytokinesis-note" class="text-xs font-semibold text-blue-800 bg-blue-50 border border-blue-200 rounded-lg p-2.5"></div>
+          </div>
+        </div>
+
+        <!-- Right 5 Cols: DNA Packaging Hierarchy + Exam Diagram Diagnostic Mode -->
+        <div class="lg:col-span-5 space-y-5">
+          <!-- DNA Packaging & Chromosome Anatomy Card -->
+          <div class="studio-card p-5 space-y-3">
+            <h3 class="text-base font-bold text-slate-900">Chromosome Anatomy &amp; Packaging Hierarchy</h3>
+            <div class="grid grid-cols-4 gap-1.5 text-center text-[11px]">
+              <div class="p-2 rounded-lg bg-slate-50 border border-slate-200">
+                <div class="font-bold text-slate-900">1. DNA Helix</div>
+                <div class="text-slate-500">2 nm double strand</div>
+              </div>
+              <div class="p-2 rounded-lg bg-slate-50 border border-slate-200">
+                <div class="font-bold text-slate-900">2. Nucleosome</div>
+                <div class="text-slate-500">DNA + 8 Histones</div>
+              </div>
+              <div class="p-2 rounded-lg bg-slate-50 border border-slate-200">
+                <div class="font-bold text-slate-900">3. Chromatin</div>
+                <div class="text-slate-500">30 nm looped fiber</div>
+              </div>
+              <div class="p-2 rounded-lg bg-blue-50 border border-blue-200">
+                <div class="font-bold text-blue-900">4. Condensed</div>
+                <div class="text-blue-700">Metaphase X-shape</div>
+              </div>
+            </div>
+
+            <!-- Replicated Chromosome Anatomy SVG -->
+            <div class="bg-slate-50 rounded-xl border border-slate-200 p-3">
+              <svg viewBox="0 0 420 135" class="w-full h-auto">
+                <!-- Left Sister Chromatid (Blue) -->
+                <path d="M 135 20 Q 150 55 162 65 Q 150 75 135 115" fill="none" stroke="#2563eb" stroke-width="11" stroke-linecap="round"/>
+                <!-- Right Sister Chromatid (Blue) -->
+                <path d="M 195 20 Q 180 55 168 65 Q 180 75 195 115" fill="none" stroke="#3b82f6" stroke-width="11" stroke-linecap="round"/>
+                <!-- Cohesin & Centromere -->
+                <circle cx="165" cy="65" r="8" fill="#fbbf24" stroke="#0f172a" stroke-width="2" />
+                <!-- Labels -->
+                <line x1="135" y1="32" x2="90" y2="25" stroke="#64748b" stroke-width="1.2"/>
+                <text x="10" y="28" font-size="10" font-weight="700" fill="#0f172a">Short arm (p)</text>
+
+                <line x1="135" y1="98" x2="90" y2="105" stroke="#64748b" stroke-width="1.2"/>
+                <text x="10" y="108" font-size="10" font-weight="700" fill="#0f172a">Long arm (q)</text>
+
+                <line x1="173" y1="65" x2="225" y2="42" stroke="#d97706" stroke-width="1.5"/>
+                <text x="230" y="42" font-size="10" font-weight="800" fill="#b45309">Centromere + Kinetochore</text>
+                <text x="230" y="54" font-size="9" fill="#475569">(1 centromere = 1 chromosome)</text>
+
+                <line x1="195" y1="90" x2="225" y2="92" stroke="#2563eb" stroke-width="1.5"/>
+                <text x="230" y="92" font-size="10" font-weight="800" fill="#1d4ed8">2 Sister Chromatids</text>
+                <text x="230" y="104" font-size="9" fill="#475569">(Identical DNA held by Cohesin)</text>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Exam Diagram Diagnostic Mode (Slide-Style B&W/Schematic Sketches) -->
+          <div class="studio-card p-5 space-y-3 border-amber-200">
+            <div class="flex items-center justify-between">
+              <h3 class="text-base font-bold text-slate-900">Exam Diagram Diagnostic Mode</h3>
+              <span class="px-2 py-0.5 text-[11px] font-bold rounded bg-amber-100 text-amber-800">Slide Sketch Drill</span>
+            </div>
+            <p class="text-xs text-slate-500">Practice reading schematic exam sketches where centromere counting is tested:</p>
+
+            <div class="flex gap-1.5">
+              <button onclick="loadDiagSketch(0)" id="diag-btn-0" class="diag-btn flex-1 py-1.5 px-2 rounded-lg text-xs font-bold bg-slate-900 text-white">Sketch A</button>
+              <button onclick="loadDiagSketch(1)" id="diag-btn-1" class="diag-btn flex-1 py-1.5 px-2 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">Sketch B</button>
+              <button onclick="loadDiagSketch(2)" id="diag-btn-2" class="diag-btn flex-1 py-1.5 px-2 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">Sketch C</button>
+            </div>
+
+            <!-- Schematic Black & White Exam Sketch -->
+            <div class="bg-white border-2 border-slate-800 rounded-xl p-3 flex flex-col items-center">
+              <svg id="diag-sketch-svg" viewBox="0 0 320 140" class="w-full max-w-xs h-auto"></svg>
+            </div>
+
+            <div id="diag-question" class="text-xs font-bold text-slate-900"></div>
+            <div id="diag-options" class="grid grid-cols-1 gap-1.5 text-xs"></div>
+            <div id="diag-feedback" class="hidden p-2.5 rounded-lg text-xs leading-relaxed"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 3: MEIOSIS & GENETIC DIVERSITY ENGINE (MEIOSIS I VS. MEIOSIS II)  -->
+    <!-- ===================================================================== -->
+    <section id="tab3" class="tab-content hidden space-y-6">
+      <!-- Header & Controls -->
+      <div class="studio-card p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-base sm:text-lg font-bold text-slate-900">Meiosis I (Reductional) vs. Meiosis II (Equational) Simulator</h2>
+          <p class="text-xs text-slate-500">Explore how synapsis, crossing over, and independent assortment generate genetically unique haploid gametes.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <button onclick="setMeiosis2n(4)" id="meio2n-4" class="px-3 py-1 rounded-lg text-xs font-bold bg-slate-900 text-white">2n = 4 (2 pairs)</button>
+            <button onclick="setMeiosis2n(6)" id="meio2n-6" class="px-3 py-1 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-200">2n = 6 (3 pairs)</button>
+          </div>
+          <button onclick="toggleCrossingOver()" id="btn-crossover" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-600 text-white shadow-sm hover:bg-purple-700">
+            Crossing Over: ON (Chiasmata)
+          </button>
+          <button onclick="flipAssortment()" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-blue-600 text-white shadow-sm hover:bg-blue-700">
+            Flip Metaphase I Orientation
+          </button>
+        </div>
+      </div>
+
+      <!-- Meiosis Stage Stepper & Accounting Bar -->
+      <div class="studio-card p-5 space-y-4">
+        <div class="flex flex-wrap gap-1.5" id="meiosis-stage-buttons">
+          <button onclick="setMeiosisStage(0)" class="meio-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white">1. Interphase (After S)</button>
+          <button onclick="setMeiosisStage(1)" class="meio-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">2. Prophase I (Synapsis)</button>
+          <button onclick="setMeiosisStage(2)" class="meio-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">3. Metaphase I (Tetrads)</button>
+          <button onclick="setMeiosisStage(3)" class="meio-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">4. Anaphase I (Homologs Split)</button>
+          <button onclick="setMeiosisStage(4)" class="meio-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">5. Telophase I / Cytokinesis</button>
+          <button onclick="setMeiosisStage(5)" class="meio-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">6. Metaphase II (Single File)</button>
+          <button onclick="setMeiosisStage(6)" class="meio-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">7. Anaphase II (Sisters Split)</button>
+          <button onclick="setMeiosisStage(7)" class="meio-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">8. Telophase II &rarr; 4 Gametes</button>
+        </div>
+
+        <!-- Live Accounting Strip for Meiosis -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-slate-900 text-white p-3.5 rounded-xl font-mono text-xs">
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase">Division Phase</span>
+            <span id="meio-acc-div" class="font-bold text-amber-300 text-sm">Pre-Meiotic Interphase</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase">Ploidy Per Cell</span>
+            <span id="meio-acc-ploidy" class="font-bold text-emerald-300 text-sm">2n (Diploid)</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase">Chromosomes / Cell</span>
+            <span id="meio-acc-chr" class="font-bold text-blue-300 text-sm">4</span>
+          </div>
+          <div>
+            <span class="text-slate-400 block text-[10px] uppercase">Chromatids / Cell</span>
+            <span id="meio-acc-tid" class="font-bold text-rose-300 text-sm">8</span>
+          </div>
+        </div>
+
+        <!-- SVG Meiosis Canvas -->
+        <div class="bg-slate-50 rounded-xl border border-slate-200 p-3">
+          <svg id="meiosis-svg" viewBox="0 0 720 270" class="w-full h-auto"></svg>
+        </div>
+
+        <!-- Explanation + Independent Assortment Calculator -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
+          <div class="lg:col-span-7 studio-panel-subtle p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <h3 id="meio-stage-title" class="text-sm sm:text-base font-bold text-slate-900">Interphase (Post-S Phase)</h3>
+                <div class="flex gap-1.5">
+                  <button onclick="stepMeiosis(-1)" class="px-2.5 py-1 rounded-lg bg-white border border-slate-300 text-xs font-bold hover:bg-slate-100">&larr; Prev</button>
+                  <button onclick="stepMeiosis(1)" class="px-2.5 py-1 rounded-lg bg-slate-900 text-white text-xs font-bold hover:bg-slate-800">Next &rarr;</button>
+                </div>
+              </div>
+              <p id="meio-stage-desc" class="text-xs sm:text-sm text-slate-700 leading-relaxed"></p>
+            </div>
+            <div id="meio-key-rule" class="mt-3 p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-xs font-semibold text-amber-900"></div>
+          </div>
+
+          <!-- Independent Assortment (2^n) Calculator -->
+          <div class="lg:col-span-5 studio-card p-4 bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200 space-y-2.5">
+            <div class="flex items-center justify-between">
+              <h4 class="text-xs font-extrabold uppercase tracking-wider text-blue-900">Independent Assortment Engine (2ⁿ)</h4>
+              <span class="px-2 py-0.5 rounded bg-blue-600 text-white font-mono text-[11px] font-bold">2ⁿ Combinations</span>
+            </div>
+            <p class="text-xs text-slate-700">
+              Each homologous bivalent aligns randomly at the Metaphase I plate, producing <strong>2ⁿ</strong> possible chromosome combinations per gamete (before crossing over!):
+            </p>
+            <div class="grid grid-cols-3 gap-2 text-center font-mono text-xs pt-1">
+              <div class="bg-white p-2 rounded-lg border border-blue-200">
+                <div class="text-slate-500 text-[10px]">Model (n=2)</div>
+                <div class="font-extrabold text-slate-900">2² = 4</div>
+              </div>
+              <div class="bg-white p-2 rounded-lg border border-blue-200">
+                <div class="text-slate-500 text-[10px]">Model (n=3)</div>
+                <div class="font-extrabold text-slate-900">2³ = 8</div>
+              </div>
+              <div class="bg-blue-600 text-white p-2 rounded-lg shadow-sm">
+                <div class="text-blue-100 text-[10px]">Human (n=23)</div>
+                <div class="font-extrabold">8,388,608</div>
+              </div>
+            </div>
+            <div class="text-[11px] text-blue-900 font-medium">
+              Random fertilization of two human gametes yields (2²³)&sup2; &gt; <strong>70 trillion</strong> unique zygotes!
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filterable Mitosis vs. Meiosis Structural Comparator -->
+      <div class="studio-card p-5 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="text-base sm:text-lg font-bold text-slate-900">Mitosis vs. Meiosis I vs. Meiosis II Structural Comparator</h3>
+            <p class="text-xs text-slate-500">Filter by feature to master the exact structural contrasts tested on exams.</p>
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <button onclick="filterCompTable('all')" class="comp-filter px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-900 text-white">All Features</button>
+            <button onclick="filterCompTable('alignment')" class="comp-filter px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">Metaphase Alignment</button>
+            <button onclick="filterCompTable('separation')" class="comp-filter px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">Anaphase Separation</button>
+            <button onclick="filterCompTable('outcome')" class="comp-filter px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-700">Ploidy &amp; Outcome</button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs sm:text-sm">
+            <thead>
+              <tr class="bg-slate-100 text-slate-700 border-b border-slate-200">
+                <th class="p-3 font-bold">System Property</th>
+                <th class="p-3 font-bold text-blue-800">Mitosis</th>
+                <th class="p-3 font-bold text-purple-800">Meiosis I (Reductional)</th>
+                <th class="p-3 font-bold text-emerald-800">Meiosis II (Equational)</th>
+              </tr>
+            </thead>
+            <tbody id="comp-table-body" class="divide-y divide-slate-200">
+              <tr data-cat="outcome">
+                <td class="p-3 font-semibold text-slate-900">Starting Cell Ploidy</td>
+                <td class="p-3 text-slate-700">2n (Diploid) or n (Haploid in plants/fungi)</td>
+                <td class="p-3 text-slate-700">2n (Diploid germline cell)</td>
+                <td class="p-3 text-slate-700">n (Haploid, chromosomes still replicated)</td>
+              </tr>
+              <tr data-cat="alignment">
+                <td class="p-3 font-semibold text-slate-900">Synapsis &amp; Crossing Over</td>
+                <td class="p-3 text-slate-700">No synapsis; homologs act independently</td>
+                <td class="p-3 font-semibold text-purple-800 bg-purple-50/50">YES in Prophase I (tetrads + chiasmata)</td>
+                <td class="p-3 text-slate-700">No (homologs already separated)</td>
+              </tr>
+              <tr data-cat="alignment">
+                <td class="p-3 font-semibold text-slate-900">Metaphase Plate Alignment</td>
+                <td class="p-3 text-slate-700">Individual replicated chromosomes line up single-file</td>
+                <td class="p-3 font-semibold text-purple-800 bg-purple-50/50">Homologous pairs (tetrads) line up side-by-side</td>
+                <td class="p-3 text-slate-700">Individual replicated chromosomes line up single-file</td>
+              </tr>
+              <tr data-cat="separation">
+                <td class="p-3 font-semibold text-slate-900">What Separates at Anaphase?</td>
+                <td class="p-3 font-semibold text-blue-800 bg-blue-50/50">Sister chromatids (centromere cohesin cleaved)</td>
+                <td class="p-3 font-semibold text-purple-800 bg-purple-50/50">Homologous chromosomes (sister chromatids stay joined!)</td>
+                <td class="p-3 font-semibold text-emerald-800 bg-emerald-50/50">Sister chromatids (centromere cohesin cleaved)</td>
+              </tr>
+              <tr data-cat="outcome">
+                <td class="p-3 font-semibold text-slate-900">Daughter Cells Produced</td>
+                <td class="p-3 text-slate-700">2 genetically identical 2n somatic cells</td>
+                <td class="p-3 text-slate-700">2 haploid (n) cells with replicated chromosomes</td>
+                <td class="p-3 text-slate-700">4 genetically unique haploid (n) gametes</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- TAB 4: DIVISION ERRORS, NONDISJUNCTION & DRUG PERTURBATIONS (EXAM LAB)-->
+    <!-- ===================================================================== -->
+    <section id="tab4" class="tab-content hidden space-y-6">
+      <!-- 1. Interactive Nondisjunction & Aneuploidy Simulator (2n = 4) -->
+      <div class="studio-card p-5 space-y-4">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">Nondisjunction &amp; Aneuploidy Simulator (2n = 4 Parent Cell)</h2>
+            <p class="text-xs text-slate-500">Compare Normal Meiosis vs. Anaphase I Nondisjunction vs. Anaphase II Nondisjunction across both divisions.</p>
+          </div>
+
+          <div class="flex flex-wrap gap-1.5">
+            <button onclick="setNondisjunctionMode('normal')" id="nd-btn-normal" class="nd-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm">
+              Normal Meiosis
+            </button>
+            <button onclick="setNondisjunctionMode('anaphase1')" id="nd-btn-anaphase1" class="nd-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">
+              Error in Anaphase I (100% Abnormal)
+            </button>
+            <button onclick="setNondisjunctionMode('anaphase2')" id="nd-btn-anaphase2" class="nd-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">
+              Error in Anaphase II (50% Abnormal)
+            </button>
+          </div>
+        </div>
+
+        <!-- SVG Nondisjunction Pathway -->
+        <div class="bg-slate-50 rounded-xl border border-slate-200 p-3">
+          <svg id="nd-svg" viewBox="0 0 740 280" class="w-full h-auto"></svg>
+        </div>
+
+        <!-- Outcome Summary Cards -->
+        <div id="nd-summary-box" class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs sm:text-sm"></div>
+      </div>
+
+      <!-- 2. Maternal Age Oogenesis Explainer + Colchicine Polyploidy Lab -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- Maternal Age & Oogenesis Arrest -->
+        <div class="studio-card p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-base font-bold text-slate-900">Maternal Age &amp; Oogenesis Prophase I Arrest</h3>
+            <span class="px-2 py-0.5 text-[11px] font-bold rounded bg-rose-50 text-rose-700 border border-rose-200">Study Guide Q</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            Why does a 42-year-old woman carry a higher risk of trisomy (e.g., Trisomy 21 / Down syndrome) than a 22-year-old woman or a 42-year-old man? Drag the maternal age slider to inspect oocyte cohesion integrity:
+          </p>
+
+          <div class="studio-panel-subtle p-3.5 space-y-2">
+            <div class="flex items-center justify-between text-xs font-bold">
+              <span>Maternal Age at Ovulation: <span id="mat-age-val" class="text-blue-700 font-mono text-sm">22 yrs</span></span>
+              <span id="mat-risk-badge" class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Low Nondisjunction Risk (~1/1,500)</span>
+            </div>
+            <input type="range" id="mat-age-slider" min="18" max="45" value="22" oninput="updateMaternalAge(this.value)" class="w-full accent-rose-600 cursor-pointer">
+            <div class="flex justify-between text-[10px] font-mono text-slate-500">
+              <span>Fetal Prophase I Arrest (Age 0)</span>
+              <span>Age 25</span>
+              <span>Age 35</span>
+              <span>Age 45</span>
+            </div>
+          </div>
+
+          <div id="mat-explanation" class="text-xs text-slate-700 space-y-2 bg-white border border-slate-200 rounded-xl p-3.5 leading-relaxed">
+            <p><strong>Oogenesis Mechanism:</strong> Primary oocytes enter Meiosis I during fetal development and <strong>arrest in Prophase I</strong> for decades until ovulation. Over 35–40+ years, chromosomal <strong>cohesin</strong> proteins holding homologous chiasmata and sister chromatids gradually degrade, increasing Anaphase I/II nondisjunction.</p>
+            <p><strong>Why Older Men Have Lower Aneuploidy Risk:</strong> Spermatogenesis begins at puberty and produces fresh sperm continuously (~64–74 days from stem cell to mature sperm) without a multi-decade Prophase I arrest.</p>
+          </div>
+        </div>
+
+        <!-- Colchicine Microtubule Disruptor Lab -->
+        <div class="studio-card p-5 space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-base font-bold text-slate-900">Colchicine Microtubule Disruptor Lab</h3>
+            <span class="px-2 py-0.5 text-[11px] font-bold rounded bg-purple-50 text-purple-700 border border-purple-200">Polyploidy Induction</span>
+          </div>
+          <p class="text-xs text-slate-600 leading-relaxed">
+            <strong>Colchicine</strong> binds tubulin dimers and inhibits mitotic spindle microtubule polymerization. Toggle colchicine treatment in a diploid (<strong>2n = 4</strong>) plant meristem cell:
+          </p>
+
+          <div class="flex gap-2">
+            <button onclick="setColchicine(false)" id="colch-off" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-slate-900 text-white">
+              Control (No Drug &rarr; Normal 2n)
+            </button>
+            <button onclick="setColchicine(true)" id="colch-on" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">
+              Add Colchicine (+ Tubulin Inhibitor)
+            </button>
+          </div>
+
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+            <svg id="colch-svg" viewBox="0 0 420 120" class="w-full h-auto"></svg>
+          </div>
+
+          <div id="colch-output" class="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 leading-relaxed">
+            <strong>Control Output:</strong> S-phase replicates DNA (2n &rarr; 4 chromatids/pair). Intact spindle fibers separate sister chromatids in Anaphase, producing two diploid (<strong>2n = 4</strong>) daughter cells.
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Interactive Exam Reasoning Check (8 BIOS 110 Study Guide Scenarios) -->
+      <div class="studio-card p-5 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+          <div>
+            <h3 class="text-base sm:text-lg font-bold text-slate-900">BIOS 110 Exam Reasoning Check (8 Study Guide Scenarios)</h3>
+            <p class="text-xs text-slate-500">Test your causal mastery of checkpoints, cancer mutations, chromosome counting, and nondisjunction.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <span id="quiz-score-badge" class="px-3 py-1 rounded-full text-xs font-extrabold bg-slate-900 text-white font-mono">
+              Score: 0 / 8 Answered
+            </span>
+            <button onclick="resetQuiz()" class="text-xs font-semibold text-blue-600 hover:underline">Reset Quiz</button>
+          </div>
+        </div>
+
+        <div id="quiz-container" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 py-4 mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+      <span><strong>Cell Division &amp; Checkpoint Systems Studio</strong> &bull; Introductory Biology (BIOS 110)</span>
+      <span>Maternal Chromosomes: <span class="text-blue-600 font-bold">Blue</span> &bull; Paternal Chromosomes: <span class="text-rose-600 font-bold">Crimson</span></span>
+    </div>
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- JAVASCRIPT SYSTEMS ENGINE                                             -->
+  <!-- ===================================================================== -->
+  <script>
+    // =========================================================================
+    // GLOBAL NAVIGATION & TAB SWITCHING
+    // =========================================================================
+    const TAB_NAMES = {
+      tab1: 'Tab 1 (Checkpoints)',
+      tab2: 'Tab 2 (Mitosis & Counting)',
+      tab3: 'Tab 3 (Meiosis & Diversity)',
+      tab4: 'Tab 4 (Errors & Exam Lab)'
+    };
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(tabId).classList.remove('hidden');
+
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active', 'text-white');
+        btn.classList.add('text-slate-600');
+        const badge = btn.querySelector('span');
+        if (badge) {
+          badge.classList.remove('bg-white/20', 'text-white');
+          badge.classList.add('bg-slate-200/80', 'text-slate-700');
+        }
+      });
+
+      const activeBtn = document.getElementById('btn-' + tabId);
+      activeBtn.classList.add('active');
+      activeBtn.classList.remove('text-slate-600');
+      const activeBadge = activeBtn.querySelector('span');
+      if (activeBadge) {
+        activeBadge.classList.remove('bg-slate-200/80', 'text-slate-700');
+        activeBadge.classList.add('bg-white/20', 'text-white');
+      }
+
+      document.getElementById('header-live-badge').textContent = 'Active: ' + TAB_NAMES[tabId];
+    }
+
+    // =========================================================================
+    // TAB 1: CELL CYCLE, CHECKPOINTS & CYCLIN/MPF ENGINE
+    // =========================================================================
+    const CYCLE_NODES = {
+      G1: {
+        title: 'G₁ Phase (First Gap / Growth Phase)',
+        tag: 'Metabolic Growth & Signal Integration',
+        desc: 'Cell grows in volume, synthesizes proteins and organelles, and monitors external growth factors and neighbor density before committing to DNA replication.'
+      },
+      G0: {
+        title: 'G₀ Phase (Quiescent / Non-Dividing State)',
+        tag: 'Reversible or Permanent Exit',
+        desc: 'In the absence of growth factors (or when contact-inhibited), cells exit G₁ into G₀. Mature neurons and skeletal muscle cells remain permanently in G₀, whereas hepatocytes can re-enter G₁ if stimulated.'
+      },
+      S: {
+        title: 'S Phase (DNA Synthesis)',
+        tag: 'Genome & Centrosome Duplication',
+        desc: 'Each chromosome is semi-conservatively replicated into two identical sister chromatids joined by cohesin proteins. Chromosome (centromere) number stays 2n, while chromatid count doubles!'
+      },
+      G2: {
+        title: 'G₂ Phase (Second Gap)',
+        tag: 'MPF Accumulation & Repair',
+        desc: 'Cell synthesizes tubulin for the mitotic spindle, checks replicated DNA for errors, and accumulates G₂ Cyclin (Cyclin B) to activate MPF.'
+      },
+      M: {
+        title: 'M Phase (Mitosis) + C (Cytokinesis)',
+        tag: 'Nuclear & Cytoplasmic Division',
+        desc: 'MPF triggers nuclear envelope breakdown, chromosome condensation, spindle attachment, sister chromatid separation (Anaphase), and cytoplasmic division (Cytokinesis).'
+      },
+      CP_G1: {
+        title: 'G₁ Restriction Point (Start Checkpoint)',
+        tag: 'Primary Commitment Gate',
+        desc: 'Growth factors induce Cyclin D/E + CDK to phosphorylate Rb, freeing E2F to transcribe S-phase enzymes. If DNA damage is detected, p53 activates p21 to inhibit CDK and halt the cycle.'
+      },
+      CP_G2: {
+        title: 'G₂ Gateway (DNA Replication & MPF Checkpoint)',
+        tag: 'Pre-Mitotic Quality Control',
+        desc: 'Verifies that all DNA was replicated accurately without double-strand breaks. Once passed, active MPF (G₂ Cyclin + CDK) drives entry into Prophase.'
+      },
+      CP_M: {
+        title: 'Metaphase Spindle Assembly Checkpoint',
+        tag: 'Bipolar Kinetochore Tension Gate',
+        desc: 'Ensures every chromosome is attached to spindle microtubules from opposite poles before activating Anaphase-Promoting Complex (APC/C) to degrade G₂ cyclin and cleave cohesin.'
+      }
+    };
+
+    function selectCycleNode(nodeKey) {
+      const info = CYCLE_NODES[nodeKey];
+      if (!info) return;
+      document.getElementById('t1-node-title').textContent = info.title;
+      document.getElementById('t1-node-tag').textContent = info.tag;
+      document.getElementById('t1-node-desc').innerHTML = info.desc;
+    }
+
+    function resetT1Controls() {
+      document.getElementById('in-gf').checked = true;
+      document.getElementById('in-dna').value = 'none';
+      document.getElementById('in-crowded').checked = false;
+      document.getElementById('in-anchored').checked = true;
+      document.getElementById('in-spindle').checked = true;
+      document.getElementById('in-mutation').value = 'wildtype';
+      evaluateCellCycle();
+    }
+
+    function evaluateCellCycle() {
+      const gf = document.getElementById('in-gf').checked;
+      const dna = document.getElementById('in-dna').value;
+      const crowded = document.getElementById('in-crowded').checked;
+      const anchored = document.getElementById('in-anchored').checked;
+      const spindle = document.getElementById('in-spindle').checked;
+      const mut = document.getElementById('in-mutation').value;
+
+      // Update DNA label
+      const lblDna = document.getElementById('lbl-dna');
+      if (dna === 'none') {
+        lblDna.textContent = 'Intact DNA';
+        lblDna.className = 'text-xs font-bold text-emerald-700';
+      } else if (dna === 'repairable') {
+        lblDna.textContent = 'Moderate Damage (p53 Active)';
+        lblDna.className = 'text-xs font-bold text-amber-700';
+      } else {
+        lblDna.textContent = 'Irreparable Damage';
+        lblDna.className = 'text-xs font-bold text-rose-700';
+      }
+
+      // Molecular state determination
+      let cyclinActive = gf && !crowded && anchored;
+      if (mut === 'oncogene_cyclin' || mut === 'transformed_metastatic') {
+        cyclinActive = true;
+      }
+
+      let p53Active = (dna !== 'none') && (mut !== 'p53_lof') && (mut !== 'transformed_metastatic');
+      let p21Blocking = p53Active;
+
+      // Rb & E2F logic
+      let rbState = 'UNPHOSPHORYLATED (Active Brake)';
+      let e2fFree = false;
+
+      if (mut === 'rb_nonphos') {
+        rbState = 'MUTANT LOCKED (Non-phosphorylatable)';
+        e2fFree = false;
+      } else if (mut === 'rb_deleted') {
+        rbState = 'DELETED / LOSS-OF-FUNCTION';
+        e2fFree = true;
+      } else {
+        if (cyclinActive && !p21Blocking) {
+          rbState = 'PHOSPHORYLATED (Inactive)';
+          e2fFree = true;
+        } else {
+          rbState = 'UNPHOSPHORYLATED (Holding E2F)';
+          e2fFree = false;
+        }
+      }
+
+      // Update Molecular Cascade Cards
+      document.getElementById('state-cyclin').textContent = cyclinActive ? 'ACTIVE (Kinase ON)' : 'INACTIVE (Low Cyclin)';
+      document.getElementById('box-cyclin').className = cyclinActive
+        ? 'p-2.5 rounded-lg bg-blue-50 border border-blue-200'
+        : 'p-2.5 rounded-lg bg-slate-100 border border-slate-300';
+
+      if (mut === 'p53_lof' || mut === 'transformed_metastatic') {
+        document.getElementById('state-p53').textContent = 'MUTATED / LOSS OF FUNCTION';
+        document.getElementById('box-p53').className = 'p-2.5 rounded-lg bg-rose-50 border border-rose-300';
+      } else if (dna === 'severe') {
+        document.getElementById('state-p53').textContent = 'APOPTOSIS TRIGGERED';
+        document.getElementById('box-p53').className = 'p-2.5 rounded-lg bg-rose-100 border border-rose-400';
+      } else if (p53Active) {
+        document.getElementById('state-p53').textContent = 'ACTIVE &rarr; p21 Inhibits CDK';
+        document.getElementById('box-p53').className = 'p-2.5 rounded-lg bg-amber-50 border border-amber-300';
+      } else {
+        document.getElementById('state-p53').textContent = 'BASAL (No Damage)';
+        document.getElementById('box-p53').className = 'p-2.5 rounded-lg bg-slate-100 border border-slate-300';
+      }
+
+      document.getElementById('state-rb').textContent = rbState;
+      document.getElementById('box-rb').className = (mut === 'rb_nonphos')
+        ? 'p-2.5 rounded-lg bg-rose-50 border border-rose-300'
+        : (e2fFree ? 'p-2.5 rounded-lg bg-amber-50 border border-amber-200' : 'p-2.5 rounded-lg bg-slate-100 border border-slate-300');
+
+      document.getElementById('state-e2f').textContent = e2fFree ? 'FREE &rarr; S-Phase ON' : 'SEQUESTERED (Blocked)';
+      document.getElementById('box-e2f').className = e2fFree
+        ? 'p-2.5 rounded-lg bg-emerald-50 border border-emerald-300'
+        : 'p-2.5 rounded-lg bg-rose-50 border border-rose-200';
+
+      document.getElementById('t1-pathway-outcome').innerHTML = e2fFree
+        ? '<span class="text-emerald-700">E2F Released &rarr; S-Phase Genes ON</span>'
+        : '<span class="text-rose-700">E2F Sequestered &rarr; G₁/G₀ Arrest</span>';
+
+      // Update SVG Checkpoint Rings & Status
+      const cpG1Ring = document.getElementById('cp-G1-ring');
+      const cpG1Status = document.getElementById('cp-G1-status');
+      const cpG2Ring = document.getElementById('cp-G2-ring');
+      const cpG2Status = document.getElementById('cp-G2-status');
+      const cpMRing = document.getElementById('cp-M-ring');
+      const cpMStatus = document.getElementById('cp-M-status');
+
+      // G1 Gate
+      if (!anchored && mut !== 'transformed_metastatic') {
+        cpG1Ring.setAttribute('fill', '#e11d48');
+        cpG1Status.textContent = 'ANOIKIS (Detached)';
+        cpG1Status.setAttribute('fill', '#e11d48');
+      } else if (dna === 'severe' && p53Active) {
+        cpG1Ring.setAttribute('fill', '#e11d48');
+        cpG1Status.textContent = 'APOPTOSIS';
+        cpG1Status.setAttribute('fill', '#e11d48');
+      } else if (!e2fFree) {
+        cpG1Ring.setAttribute('fill', '#d97706');
+        cpG1Status.textContent = crowded ? 'CONTACT ARREST' : (!gf ? 'EXIT &rarr; G₀' : 'G₁ ARREST');
+        cpG1Status.setAttribute('fill', '#d97706');
+      } else {
+        cpG1Ring.setAttribute('fill', '#059669');
+        cpG1Status.textContent = 'PASS &rarr; S';
+        cpG1Status.setAttribute('fill', '#059669');
+      }
+
+      // G2 Gate
+      if (dna !== 'none' && p53Active) {
+        cpG2Ring.setAttribute('fill', '#d97706');
+        cpG2Status.textContent = 'HALT: Repair DNA';
+        cpG2Status.setAttribute('fill', '#d97706');
+      } else if (dna !== 'none' && !p53Active) {
+        cpG2Ring.setAttribute('fill', '#e11d48');
+        cpG2Status.textContent = 'BYPASSED (Mutant p53!)';
+        cpG2Status.setAttribute('fill', '#e11d48');
+      } else {
+        cpG2Ring.setAttribute('fill', '#059669');
+        cpG2Status.textContent = 'DNA Intact &rarr; Mitosis';
+        cpG2Status.setAttribute('fill', '#059669');
+      }
+
+      // M Spindle Gate
+      if (!spindle) {
+        cpMRing.setAttribute('fill', '#d97706');
+        cpMStatus.textContent = 'WAIT: Unattached!';
+        cpMStatus.setAttribute('fill', '#d97706');
+      } else {
+        cpMRing.setAttribute('fill', '#059669');
+        cpMStatus.textContent = 'Bipolar Tension &rarr; Anaphase';
+        cpMStatus.setAttribute('fill', '#059669');
+      }
+
+      // Diagnostic System Output Box
+      const badge = document.getElementById('t1-overall-badge');
+      const diagBox = document.getElementById('t1-diagnosis-box');
+      const diagTitle = document.getElementById('t1-diag-title');
+      const diagBody = document.getElementById('t1-diag-body');
+      const tissueVis = document.getElementById('t1-tissue-visual');
+
+      if (!anchored && mut !== 'transformed_metastatic') {
+        badge.textContent = 'ANOIKIS: ANCHORAGE-DEPENDENT DEATH';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300';
+        diagBox.className = 'p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs space-y-1.5';
+        diagTitle.className = 'font-extrabold text-rose-900 text-sm';
+        diagTitle.textContent = 'Anchorage Dependence Triggered (Anoikis)';
+        diagBody.className = 'text-rose-800 leading-relaxed';
+        diagBody.textContent = 'Normal somatic cells (like arterial endothelial or epithelial cells) require integrin attachment to the Extracellular Matrix (ECM). When detached, survival signaling stops and the cell undergoes programmed cell death (anoikis) rather than colonizing distant tissues.';
+        tissueVis.innerHTML = '<span>Tissue Architecture: Detached Cell</span><span>Outcome: Programmed Apoptosis</span>';
+      } else if (mut === 'rb_nonphos') {
+        badge.textContent = 'PERMANENT G₁ ARREST (SENESCENCE)';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300';
+        diagBox.className = 'p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs space-y-1.5';
+        diagTitle.className = 'font-extrabold text-amber-900 text-sm';
+        diagTitle.textContent = 'Gain-of-Repression Rb Mutation &rarr; Permanent G₁ Arrest';
+        diagBody.className = 'text-amber-900 leading-relaxed';
+        diagBody.textContent = 'Because mutant Rb cannot be phosphorylated by Cyclin-CDK, it permanently binds and sequesters E2F even when growth factors are abundant. S-phase genes are never transcribed, locking the cell permanently in G₁/G₀.';
+        tissueVis.innerHTML = '<span>Tissue Architecture: Hypoproliferative</span><span>E2F Transcription: Locked OFF</span>';
+      } else if (mut === 'rb_deleted' || mut === 'oncogene_cyclin' || mut === 'transformed_metastatic' || (dna !== 'none' && mut === 'p53_lof')) {
+        badge.textContent = 'ONCOGENIC / UNCHECKED PROLIFERATION';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300';
+        diagBox.className = 'p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs space-y-1.5';
+        diagTitle.className = 'font-extrabold text-rose-900 text-sm';
+        if (mut === 'rb_deleted') {
+          diagTitle.textContent = 'Loss of Tumor Suppressor Rb &rarr; Unchecked S-Phase Entry';
+          diagBody.textContent = 'Without functional Rb protein to sequester E2F, E2F remains constitutively free to transcribe DNA replication genes even in the absence of growth factors.';
+        } else if (mut === 'oncogene_cyclin') {
+          diagTitle.textContent = 'Oncogenic Cyclin/CDK &rarr; Hyper-Phosphorylation of Rb';
+          diagBody.textContent = 'A gain-of-function mutation in a proto-oncogene (e.g., overexpressed Cyclin D or constitutively active CDK) continuously phosphorylates Rb, forcing the cell past the G₁ restriction point.';
+        } else if (mut === 'p53_lof') {
+          diagTitle.textContent = 'Mutant p53 Failure &rarr; Damaged DNA Replicates!';
+          diagBody.textContent = 'With loss-of-function p53, DNA damage fails to induce p21 CDK inhibitor or apoptosis. The cell enters S phase and M phase with broken chromosomes, accumulating rapid cancer-driving mutations.';
+        } else {
+          diagTitle.textContent = 'Malignant Transformation &amp; Metastasis';
+          diagBody.textContent = 'Loss of contact inhibition creates multilayered tumor foci; loss of anchorage dependence allows survival in the bloodstream and metastasis to distant organs.';
+        }
+        diagBody.className = 'text-rose-800 leading-relaxed';
+        tissueVis.innerHTML = '<span>Tissue: Multilayered Tumor Cluster</span><span>Checkpoints: Bypassed</span>';
+      } else if (dna === 'severe') {
+        badge.textContent = 'P53-MEDIATED APOPTOSIS';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-300';
+        diagBox.className = 'p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-xs space-y-1.5';
+        diagTitle.className = 'font-extrabold text-rose-900 text-sm';
+        diagTitle.textContent = 'Irreparable DNA Damage &rarr; p53 Triggers Apoptosis';
+        diagBody.className = 'text-rose-800 leading-relaxed';
+        diagBody.textContent = 'Functional p53 ("Guardian of the Genome") detects catastrophic DNA damage that cannot be repaired and initiates programmed cell death (apoptosis) to protect the organism from mutated progeny.';
+        tissueVis.innerHTML = '<span>Genome Integrity: Protected</span><span>Cell Fate: Controlled Apoptosis</span>';
+      } else if (!e2fFree || dna === 'repairable' || !spindle) {
+        badge.textContent = 'CHECKPOINT ARREST (REPAIR / QUIESCENCE)';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-300';
+        diagBox.className = 'p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-xs space-y-1.5';
+        diagTitle.className = 'font-extrabold text-amber-900 text-sm';
+        if (dna === 'repairable') {
+          diagTitle.textContent = 'p53 &rarr; p21 Checkpoint Pause for DNA Repair';
+          diagBody.textContent = 'Moderate DNA damage activates p53, which transcribes p21. p21 binds and inhibits Cyclin-CDK complexes, keeping Rb active so the cell pauses to repair DNA before replicating.';
+        } else if (!spindle) {
+          diagTitle.textContent = 'Metaphase Spindle Checkpoint Arrest';
+          diagBody.textContent = 'At least one kinetochore lacks bipolar spindle attachment/tension. Anaphase-Promoting Complex (APC/C) remains inhibited so cohesin is not cleaved prematurely (preventing nondisjunction).';
+        } else if (crowded) {
+          diagTitle.textContent = 'Density-Dependent Contact Inhibition (G₀ Arrest)';
+          diagBody.textContent = 'Surface receptors sense neighboring cells on all sides, halting division once a single confluent monolayer is formed.';
+        } else {
+          diagTitle.textContent = 'Absence of Growth Factors &rarr; Exit to G₀';
+          diagBody.textContent = 'Without external mitogenic growth factors, Cyclin D is not synthesized, Rb remains unphosphorylated, and the cell enters quiescent G₀.';
+        }
+        diagBody.className = 'text-amber-900 leading-relaxed';
+        tissueVis.innerHTML = '<span>Tissue Architecture: Intact Monolayer</span><span>Division: Safely Paused</span>';
+      } else {
+        badge.textContent = 'SYSTEM STATUS: NORMAL PROLIFERATION';
+        badge.className = 'px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+        diagBox.className = 'p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs space-y-1.5';
+        diagTitle.className = 'font-extrabold text-emerald-900 text-sm';
+        diagTitle.textContent = 'Normal Homeostatic Cell Cycle';
+        diagBody.className = 'text-emerald-800 leading-relaxed';
+        diagBody.textContent = 'With growth factors present, intact DNA, proper ECM anchorage, and bipolar spindle attachment, the cell passes all three checkpoints cleanly.';
+        tissueVis.innerHTML = '<span>Tissue Architecture: Single Monolayer</span><span>Apoptosis/Anoikis: Inactive</span>';
+      }
+    }
+
+    function updateCyclinChart(val) {
+      const pct = Number(val);
+      const x = 45 + (pct / 100) * 575;
+      document.getElementById('cyclin-cursor').setAttribute('x1', x);
+      document.getElementById('cyclin-cursor').setAttribute('x2', x);
+      document.getElementById('cyclin-cursor-dot').setAttribute('cx', x);
+
+      const badge = document.getElementById('cyclin-phase-badge');
+      const title = document.getElementById('cyclin-readout-title');
+      const text = document.getElementById('cyclin-readout-text');
+
+      if (pct < 31) {
+        badge.textContent = 'G₁ Phase (Cyclin D/E Rising)';
+        badge.className = 'font-mono text-xs font-bold px-2 py-0.5 rounded bg-blue-600 text-white';
+        title.textContent = 'G₁ Phase: Cyclin D & Cyclin E Drive S-Phase Commitment';
+        text.innerHTML = 'Growth factors stimulate <strong>Cyclin D</strong> and <strong>Cyclin E</strong> synthesis. Bound to constant CDK, they phosphorylate <strong>Rb</strong>, liberating E2F to initiate DNA replication.';
+      } else if (pct < 57) {
+        badge.textContent = 'S Phase (Cyclin A Active)';
+        badge.className = 'font-mono text-xs font-bold px-2 py-0.5 rounded bg-indigo-600 text-white';
+        title.textContent = 'S Phase: Cyclin A-CDK Coordinates DNA Replication';
+        text.innerHTML = 'Cyclin E is degraded while <strong>Cyclin A</strong> rises to activate replication origins once per cycle and prevent re-replication of DNA.';
+      } else if (pct < 77) {
+        badge.textContent = 'G₂ &rarr; M (MPF Peak)';
+        badge.className = 'font-mono text-xs font-bold px-2 py-0.5 rounded bg-purple-600 text-white';
+        title.textContent = 'G₂ &rarr; M Transition: MPF Peak';
+        text.innerHTML = 'Accumulated <strong>G₂ Cyclin (Cyclin B)</strong> binds constant <strong>CDK</strong> to form active <strong>MPF</strong>, phosphorylating nuclear lamins and condensins to launch mitosis.';
+      } else if (pct < 87) {
+        badge.textContent = 'Metaphase &rarr; Anaphase (Cyclin B Degraded!)';
+        badge.className = 'font-mono text-xs font-bold px-2 py-0.5 rounded bg-rose-600 text-white';
+        title.textContent = 'Anaphase Trigger: Ubiquitin Degradation of G₂ Cyclin';
+        text.innerHTML = 'Once all kinetochores attach to the spindle, APC/C tags <strong>G₂ Cyclin (Cyclin B)</strong> for proteasome destruction. MPF activity drops sharply, allowing sister chromatids to separate.';
+      } else {
+        badge.textContent = 'Telophase & Cytokinesis (Low MPF)';
+        badge.className = 'font-mono text-xs font-bold px-2 py-0.5 rounded bg-emerald-600 text-white';
+        title.textContent = 'Mitotic Exit: Low MPF Allows Nuclear Envelope Re-assembly';
+        text.innerHTML = 'With MPF inactive, nuclear lamins are dephosphorylated so nuclear envelopes reform around daughter nuclei and chromosomes decondense back into chromatin.';
+      }
+    }
+
+    // =========================================================================
+    // TAB 2: CHROMOSOME ACCOUNTING, MITOSIS & CYTOKINESIS ENGINE
+    // =========================================================================
+    let m2n = 4;
+    let mStage = 1; // Default G2 (Post-S)
+    let mCellType = 'animal';
+
+    const MITOSIS_STAGES = [
+      {
+        name: 'G₁ Interphase (Before S Phase)',
+        replicated: false,
+        separated: false,
+        divided: false,
+        packaging: 'Loose Chromatin',
+        packagingNote: 'Unreplicated single DNA molecule per chromosome',
+        desc: 'Before DNA synthesis, each chromosome consists of a single unreplicated DNA double helix packaged as diffuse chromatin inside an intact nucleus. One centrosome is present in animal cells.'
+      },
+      {
+        name: 'G₂ Interphase (After S Phase)',
+        replicated: true,
+        separated: false,
+        divided: false,
+        packaging: 'Loose Chromatin (Replicated)',
+        packagingNote: '2 identical sister chromatids per centromere',
+        desc: 'Following S-phase DNA replication, every chromosome now consists of <strong>two identical sister chromatids</strong> joined at the centromere. Notice that the chromosome (centromere) count is still 2n, while the chromatid count has doubled!'
+      },
+      {
+        name: 'Prophase',
+        replicated: true,
+        separated: false,
+        divided: false,
+        packaging: 'Condensing Chromosomes',
+        packagingNote: 'Condensin coils chromatin into visible X-shapes',
+        desc: 'Chromatin condenses tightly into discrete X-shaped chromosomes (each with 2 sister chromatids). Nucleoli disappear, and duplicated centrosomes migrate toward opposite poles while forming the early mitotic spindle.'
+      },
+      {
+        name: 'Prometaphase',
+        replicated: true,
+        separated: false,
+        divided: false,
+        packaging: 'Condensed Chromosomes',
+        packagingNote: 'Kinetochore microtubules capture centromeres',
+        desc: 'MPF phosphorylates nuclear lamins, fragmenting the nuclear envelope. Spindle microtubules invade the nuclear area and attach to protein <strong>kinetochores</strong> at each centromere, initiating chromosome tug-of-war.'
+      },
+      {
+        name: 'Metaphase',
+        replicated: true,
+        separated: false,
+        divided: false,
+        packaging: 'Maximally Condensed',
+        packagingNote: 'Aligned single-file at the metaphase plate',
+        desc: 'All 2n replicated chromosomes align single-file along the cell equator (metaphase plate). Sister kinetochores face opposite spindle poles, satisfying the Metaphase Spindle Checkpoint.'
+      },
+      {
+        name: 'Anaphase',
+        replicated: false,
+        separated: true,
+        divided: false,
+        packaging: 'Condensed Daughter Chromosomes',
+        packagingNote: 'Cohesin cleaved &rarr; each chromatid is now a chromosome!',
+        desc: '<strong>Critical Counting Shift:</strong> Separase cleaves centromeric cohesin! Sister chromatids separate and are pulled toward opposite poles as independent chromosomes. Temporarily, the single elongating cell contains <strong>4n</strong> chromosomes!'
+      },
+      {
+        name: 'Telophase & Cytokinesis',
+        replicated: false,
+        separated: true,
+        divided: true,
+        packaging: 'Decondensing Chromatin',
+        packagingNote: 'Two genetically identical 2n daughter cells',
+        desc: 'Two new nuclear envelopes reassemble around the separated chromosome sets, chromosomes decondense back into chromatin, and cytokinesis physically splits the cytoplasm into two identical <strong>2n</strong> daughter cells.'
+      }
+    ];
+
+    function setMitosis2n(val) {
+      m2n = val;
+      document.querySelectorAll('.m2n-btn').forEach(b => {
+        b.classList.remove('bg-slate-900', 'text-white');
+        b.classList.add('text-slate-700');
+      });
+      const activeBtn = document.getElementById('m2n-' + val);
+      if (activeBtn) {
+        activeBtn.classList.add('bg-slate-900', 'text-white');
+        activeBtn.classList.remove('text-slate-700');
+      }
+      renderMitosis();
+    }
+
+    function applyCustomMitosis2n() {
+      let val = parseInt(document.getElementById('m2n-custom').value, 10);
+      if (isNaN(val) || val < 2) val = 2;
+      if (val % 2 !== 0) val += 1;
+      if (val > 46) val = 46;
+      document.getElementById('m2n-custom').value = val;
+      document.querySelectorAll('.m2n-btn').forEach(b => {
+        b.classList.remove('bg-slate-900', 'text-white');
+        b.classList.add('text-slate-700');
+      });
+      m2n = val;
+      renderMitosis();
+    }
+
+    function setCellType(type) {
+      mCellType = type;
+      const btnA = document.getElementById('ctype-animal');
+      const btnP = document.getElementById('ctype-plant');
+      if (type === 'animal') {
+        btnA.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-blue-600 text-white shadow-sm';
+        btnP.className = 'px-3 py-1 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-200';
+      } else {
+        btnP.className = 'px-3 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm';
+        btnA.className = 'px-3 py-1 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-200';
+      }
+      renderMitosis();
+    }
+
+    function setMitosisStage(idx) {
+      mStage = idx;
+      document.querySelectorAll('.m-stage-btn').forEach((btn, i) => {
+        if (i === idx) {
+          btn.className = 'm-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white';
+        } else {
+          btn.className = 'm-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200';
+        }
+      });
+      renderMitosis();
+    }
+
+    function stepMitosis(delta) {
+      let next = mStage + delta;
+      if (next < 0) next = MITOSIS_STAGES.length - 1;
+      if (next >= MITOSIS_STAGES.length) next = 0;
+      setMitosisStage(next);
+    }
+
+    function renderMitosis() {
+      const st = MITOSIS_STAGES[mStage];
+      let ploidyText, ploidyNote, chrCount, tidCount;
+
+      if (mStage === 0) {
+        ploidyText = `2n = ${m2n}`;
+        ploidyNote = 'Diploid somatic cell (pre-S)';
+        chrCount = m2n;
+        tidCount = m2n;
+      } else if (mStage >= 1 && mStage <= 4) {
+        ploidyText = `2n = ${m2n}`;
+        ploidyNote = 'Diploid (replicated chromosomes)';
+        chrCount = m2n;
+        tidCount = m2n * 2;
+      } else if (mStage === 5) {
+        ploidyText = `Temp 4n = ${m2n * 2}`;
+        ploidyNote = 'Sister chromatids separated in 1 cell';
+        chrCount = m2n * 2;
+        tidCount = m2n * 2;
+      } else {
+        ploidyText = `2n = ${m2n} / cell`;
+        ploidyNote = '2 identical diploid daughter cells';
+        chrCount = `${m2n} per daughter`;
+        tidCount = `${m2n} per daughter`;
+      }
+
+      document.getElementById('acc-ploidy').textContent = ploidyText;
+      document.getElementById('acc-ploidy-note').textContent = ploidyNote;
+      document.getElementById('acc-chromosomes').textContent = chrCount;
+      document.getElementById('acc-chromatids').textContent = tidCount;
+      document.getElementById('acc-packaging').textContent = st.packaging;
+      document.getElementById('acc-packaging-note').textContent = st.packagingNote;
+
+      document.getElementById('m-stage-title').textContent = st.name;
+      document.getElementById('m-stage-desc').innerHTML = st.desc;
+
+      const cytoNote = document.getElementById('m-cytokinesis-note');
+      if (mCellType === 'animal') {
+        cytoNote.className = 'text-xs font-semibold text-blue-800 bg-blue-50 border border-blue-200 rounded-lg p-2.5';
+        cytoNote.innerHTML = '<strong>Animal Cell Mechanism:</strong> Centrosomes with centrioles organize astral &amp; kinetochore microtubules. During Telophase/Cytokinesis, an intracellular <strong>actin-myosin contractile ring</strong> pinches the plasma membrane inward to form a <strong>cleavage furrow</strong>.';
+      } else {
+        cytoNote.className = 'text-xs font-semibold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-lg p-2.5';
+        cytoNote.innerHTML = '<strong>Plant Cell Mechanism:</strong> Lacks centrioles (microtubule-organizing centers nucleate the spindle). Because of the rigid cellulose cell wall, <strong>Golgi-derived vesicles</strong> coalesce at the equator to build a <strong>cell plate</strong> outward until it fuses with the parent wall.';
+      }
+
+      // Render SVG Cell
+      const svg = document.getElementById('mitosis-svg');
+      const displayCount = Math.min(m2n, 8); // Cap visual chromosomes at 8 for crisp clarity even if 2n=46
+      const isTruncated = m2n > 8;
+      let html = '';
+
+      // Cell membrane / wall outline
+      if (mStage === 6) {
+        // Divided / Cytokinesis view
+        if (mCellType === 'animal') {
+          html += `
+            <path d="M 160 55 C 245 55, 255 128, 270 128 C 285 128, 295 55, 380 55 C 455 55, 495 100, 495 155 C 495 210, 455 255, 380 255 C 295 255, 285 182, 270 182 C 255 182, 245 255, 160 255 C 85 255, 45 210, 45 155 C 45 100, 85 55, 160 55 Z"
+              fill="#ffffff" stroke="#2563eb" stroke-width="3.5" />
+            <line x1="270" y1="125" x2="270" y2="185" stroke="#e11d48" stroke-width="2.5" stroke-dasharray="4,3"/>
+            <text x="270" y="38" text-anchor="middle" font-size="10" font-weight="800" fill="#be185d">Actin Cleavage Furrow</text>
+          `;
+        } else {
+          html += `
+            <rect x="45" y="55" width="450" height="200" rx="18" fill="#ecfdf5" stroke="#059669" stroke-width="6" />
+            <rect x="52" y="62" width="436" height="186" rx="12" fill="#ffffff" stroke="#10b981" stroke-width="2" />
+            <!-- Golgi Vesicles forming Cell Plate -->
+            <line x1="270" y1="62" x2="270" y2="248" stroke="#059669" stroke-width="4" stroke-dasharray="8,5" />
+            <circle cx="270" cy="110" r="5" fill="#10b981" /><circle cx="270" cy="155" r="5" fill="#10b981" /><circle cx="270" cy="200" r="5" fill="#10b981" />
+            <text x="270" y="38" text-anchor="middle" font-size="10" font-weight="800" fill="#047857">Golgi Vesicles &rarr; Cell Plate</text>
+          `;
+        }
+        // Two reforming daughter nuclei
+        html += `
+          <circle cx="155" cy="155" r="65" fill="#f8fafc" stroke="#64748b" stroke-width="2" stroke-dasharray="5,3"/>
+          <circle cx="385" cy="155" r="65" fill="#f8fafc" stroke="#64748b" stroke-width="2" stroke-dasharray="5,3"/>
+        `;
+      } else {
+        // Single Cell Outline
+        const rx = mStage === 5 ? 235 : 210;
+        const ry = 110;
+        if (mCellType === 'animal') {
+          html += `<ellipse cx="270" cy="155" rx="${rx}" ry="${ry}" fill="#ffffff" stroke="#2563eb" stroke-width="3.5" />`;
+        } else {
+          html += `
+            <rect x="${270 - rx}" y="45" width="${rx * 2}" height="220" rx="22" fill="#ecfdf5" stroke="#059669" stroke-width="6" />
+            <rect x="${277 - rx}" y="52" width="${rx * 2 - 14}" height="206" rx="16" fill="#ffffff" stroke="#10b981" stroke-width="2" />
+          `;
+        }
+      }
+
+      // Spindle Poles (Stages 2..5)
+      if (mStage >= 2 && mStage <= 5) {
+        const leftPoleX = mStage === 5 ? 65 : 85;
+        const rightPoleX = mStage === 5 ? 475 : 455;
+        if (mCellType === 'animal') {
+          html += `
+            <rect x="${leftPoleX - 6}" y="148" width="12" height="5" fill="#d97706" rx="1"/>
+            <rect x="${leftPoleX - 2}" y="155" width="5" height="12" fill="#d97706" rx="1"/>
+            <rect x="${rightPoleX - 6}" y="148" width="12" height="5" fill="#d97706" rx="1"/>
+            <rect x="${rightPoleX - 2}" y="155" width="5" height="12" fill="#d97706" rx="1"/>
+          `;
+        } else {
+          html += `
+            <circle cx="${leftPoleX}" cy="155" r="6" fill="#059669" opacity="0.5"/>
+            <circle cx="${rightPoleX}" cy="155" r="6" fill="#059669" opacity="0.5"/>
+          `;
+        }
+      }
+
+      // Nuclear Envelope (Stages 0, 1, 2 intact; Stage 3 fragmenting)
+      if (mStage <= 2) {
+        html += `<circle cx="270" cy="155" r="78" fill="#f8fafc" stroke="#475569" stroke-width="2.5" />`;
+      } else if (mStage === 3) {
+        html += `<circle cx="270" cy="155" r="82" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6,8" />`;
+      }
+
+      // Draw Chromosomes
+      for (let i = 0; i < displayCount; i++) {
+        const isMaternal = i % 2 === 0;
+        const color = isMaternal ? '#2563eb' : '#e11d48';
+        const pairIdx = Math.floor(i / 2);
+        const len = 14 + (pairIdx % 3) * 4;
+
+        if (mStage === 0 || mStage === 1) {
+          // Chromatin squiggles inside nucleus
+          const angle = (i / displayCount) * Math.PI * 2;
+          const cx = 270 + Math.cos(angle) * 32;
+          const cy = 155 + Math.sin(angle) * 32;
+          html += `<path d="M ${cx - 12} ${cy - 8} Q ${cx} ${cy - 18} ${cx + 8} ${cy} T ${cx + 12} ${cy + 12}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/>`;
+          if (mStage === 1) {
+            html += `<path d="M ${cx - 9} ${cy - 5} Q ${cx + 3} ${cy - 15} ${cx + 11} ${cy + 3} T ${cx + 15} ${cy + 15}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round" opacity="0.85"/>`;
+          }
+        } else if (mStage === 2 || mStage === 3) {
+          // Prophase / Prometaphase condensed X-chromosomes
+          const angle = (i / displayCount) * Math.PI * 2 + 0.3;
+          const cx = 270 + Math.cos(angle) * 36;
+          const cy = 155 + Math.sin(angle) * 36;
+          if (mStage === 3) {
+            html += `<line x1="85" y1="155" x2="${cx}" y2="${cy}" stroke="#cbd5e1" stroke-width="1"/>`;
+            html += `<line x1="455" y1="155" x2="${cx}" y2="${cy}" stroke="#cbd5e1" stroke-width="1"/>`;
+          }
+          html += drawXChromosome(cx, cy, len, color);
+        } else if (mStage === 4) {
+          // Metaphase single-file alignment along x = 270
+          const spacing = 160 / (displayCount + 1);
+          const cy = 75 + spacing * (i + 1);
+          html += `<line x1="85" y1="155" x2="266" y2="${cy}" stroke="#94a3b8" stroke-width="1.2"/>`;
+          html += `<line x1="455" y1="155" x2="274" y2="${cy}" stroke="#94a3b8" stroke-width="1.2"/>`;
+          html += drawXChromosome(270, cy, len, color);
+        } else if (mStage === 5) {
+          // Anaphase: separated chromatids moving left and right
+          const spacing = 160 / (displayCount + 1);
+          const cy = 75 + spacing * (i + 1);
+          html += `<line x1="65" y1="155" x2="185" y2="${cy}" stroke="#94a3b8" stroke-width="1.2"/>`;
+          html += `<line x1="475" y1="155" x2="355" y2="${cy}" stroke="#94a3b8" stroke-width="1.2"/>`;
+          html += drawVChromatid(185, cy, len, color, -1);
+          html += drawVChromatid(355, cy, len, color, 1);
+        } else if (mStage === 6) {
+          // Telophase/Cytokinesis: chromatin inside both daughter nuclei
+          const angle = (i / displayCount) * Math.PI * 2;
+          const lx = 155 + Math.cos(angle) * 26;
+          const ly = 155 + Math.sin(angle) * 26;
+          const rxPos = 385 + Math.cos(angle) * 26;
+          const ryPos = 155 + Math.sin(angle) * 26;
+          html += `<path d="M ${lx - 10} ${ly - 6} Q ${lx} ${ly - 14} ${lx + 8} ${ly + 4}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/>`;
+          html += `<path d="M ${rxPos - 10} ${ryPos - 6} Q ${rxPos} ${ryPos - 14} ${rxPos + 8} ${ryPos + 4}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linecap="round"/>`;
+        }
+      }
+
+      if (isTruncated) {
+        html += `<rect x="175" y="274" width="190" height="22" rx="6" fill="#0f172a"/><text x="270" y="288" text-anchor="middle" font-size="10" font-weight="700" fill="#ffffff">Showing 8 of ${m2n} chromosomes</text>`;
+      }
+
+      svg.innerHTML = html;
+    }
+
+    function drawXChromosome(cx, cy, len, color) {
+      return `
+        <g>
+          <path d="M ${cx - 5} ${cy - len} Q ${cx - 2} ${cy} ${cx - 5} ${cy + len}" fill="none" stroke="${color}" stroke-width="3.5" stroke-linecap="round"/>
+          <path d="M ${cx + 5} ${cy - len} Q ${cx + 2} ${cy} ${cx + 5} ${cy + len}" fill="none" stroke="${color}" stroke-width="3.5" stroke-linecap="round"/>
+          <circle cx="${cx}" cy="${cy}" r="3" fill="#fbbf24" stroke="#0f172a" stroke-width="1"/>
+        </g>
+      `;
+    }
+
+    function drawVChromatid(cx, cy, len, color, dir) {
+      // dir = -1 (apex pointing left), dir = 1 (apex pointing right)
+      const tailX = cx - dir * 10;
+      return `
+        <g>
+          <path d="M ${tailX} ${cy - len * 0.7} L ${cx} ${cy} L ${tailX} ${cy + len * 0.7}" fill="none" stroke="${color}" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="${cx}" cy="${cy}" r="2.8" fill="#fbbf24" stroke="#0f172a" stroke-width="1"/>
+        </g>
+      `;
+    }
+
+    // Exam Diagram Diagnostic Mode Sketches
+    const DIAG_SKETCHES = [
+      {
+        question: 'Sketch A shows a cell at Mitotic Metaphase. What is the diploid number (2n) and chromatid count?',
+        options: [
+          { text: '2n = 8 chromosomes; 16 sister chromatids', correct: true, exp: 'Correct! Count the centromeres aligned single-file at the metaphase plate: there are 8 centromeres (2n = 8), each consisting of 2 sister chromatids (16 chromatids total).' },
+          { text: '2n = 16 chromosomes; 16 sister chromatids', correct: false, exp: 'Careful! Do not count individual arms/chromatids as chromosomes. Count the 8 centromeres: 2n = 8.' },
+          { text: '2n = 4 chromosomes; 8 sister chromatids', correct: false, exp: 'Look closer at the equator: there are 8 distinct X-shaped chromosomes (4 homologous pairs), so 2n = 8.' }
+        ],
+        draw: () => {
+          let s = `<ellipse cx="160" cy="70" rx="140" ry="58" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>`;
+          s += `<circle cx="32" cy="70" r="3" fill="#0f172a"/><circle cx="288" cy="70" r="3" fill="#0f172a"/>`;
+          for (let i = 0; i < 8; i++) {
+            const y = 22 + i * 13.5;
+            s += `<line x1="32" y1="70" x2="160" y2="${y}" stroke="#cbd5e1" stroke-width="1"/>`;
+            s += `<line x1="288" y1="70" x2="160" y2="${y}" stroke="#cbd5e1" stroke-width="1"/>`;
+            s += `<path d="M 156 ${y - 4.5} L 164 ${y + 4.5} M 164 ${y - 4.5} L 156 ${y + 4.5}" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/>`;
+            s += `<circle cx="160" cy="${y}" r="2" fill="#ffffff" stroke="#0f172a" stroke-width="1"/>`;
+          }
+          return s;
+        }
+      },
+      {
+        question: 'Sketch B shows a diploid cell in Mitotic Anaphase. What is the normal somatic diploid number (2n) of this species?',
+        options: [
+          { text: '2n = 4 (4 chromosomes moving to each pole)', correct: true, exp: 'Correct! During Anaphase of mitosis, sister chromatids separate, so 4 chromosomes move to the left pole and 4 move to the right pole. Each resulting daughter cell will have 2n = 4.' },
+          { text: '2n = 8 (8 chromosomes total in the figure)', correct: false, exp: 'In Anaphase, the cell temporarily holds 4n = 8 separated chromatids so that each daughter nucleus receives 2n = 4 chromosomes.' },
+          { text: '2n = 2 (haploid n = 2)', correct: false, exp: 'Each pole is receiving 4 chromosomes (two homologous pairs), meaning the somatic diploid number is 2n = 4.' }
+        ],
+        draw: () => {
+          let s = `<ellipse cx="160" cy="70" rx="145" ry="56" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>`;
+          s += `<circle cx="28" cy="70" r="3" fill="#0f172a"/><circle cx="292" cy="70" r="3" fill="#0f172a"/>`;
+          for (let i = 0; i < 4; i++) {
+            const y = 32 + i * 25;
+            s += `<line x1="28" y1="70" x2="110" y2="${y}" stroke="#cbd5e1" stroke-width="1"/>`;
+            s += `<line x1="292" y1="70" x2="210" y2="${y}" stroke="#cbd5e1" stroke-width="1"/>`;
+            s += `<path d="M 118 ${y - 6} L 110 ${y} L 118 ${y + 6}" fill="none" stroke="#0f172a" stroke-width="2.2" stroke-linecap="round"/>`;
+            s += `<path d="M 202 ${y - 6} L 210 ${y} L 202 ${y + 6}" fill="none" stroke="#0f172a" stroke-width="2.2" stroke-linecap="round"/>`;
+          }
+          return s;
+        }
+      },
+      {
+        question: 'Sketch C shows a cell at Metaphase I of Meiosis. How many chromosomes and tetrads are visible?',
+        options: [
+          { text: '2n = 6 chromosomes arranged into 3 homologous tetrads', correct: true, exp: 'Correct! In Metaphase I, homologous chromosomes pair side-by-side as tetrads (bivalents). There are 3 pairs = 6 chromosomes (and 12 sister chromatids).' },
+          { text: '2n = 3 chromosomes arranged single-file', correct: false, exp: 'Look closely: each unit at the equator is a pair of homologous chromosomes (a tetrad of 4 chromatids), so there are 6 chromosomes total.' },
+          { text: '2n = 12 chromosomes', correct: false, exp: 'There are 12 chromatids, grouped into 6 chromosomes (3 homologous pairs).' }
+        ],
+        draw: () => {
+          let s = `<ellipse cx="160" cy="70" rx="140" ry="58" fill="#ffffff" stroke="#0f172a" stroke-width="2"/>`;
+          for (let i = 0; i < 3; i++) {
+            const y = 32 + i * 38;
+            // Left homolog of tetrad
+            s += `<path d="M 149 ${y - 8} L 155 ${y + 8} M 155 ${y - 8} L 149 ${y + 8}" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/>`;
+            // Right homolog of tetrad
+            s += `<path d="M 165 ${y - 8} L 171 ${y + 8} M 171 ${y - 8} L 165 ${y + 8}" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/>`;
+          }
+          return s;
+        }
+      }
+    ];
+
+    function loadDiagSketch(idx) {
+      document.querySelectorAll('.diag-btn').forEach((b, i) => {
+        b.className = i === idx
+          ? 'diag-btn flex-1 py-1.5 px-2 rounded-lg text-xs font-bold bg-slate-900 text-white'
+          : 'diag-btn flex-1 py-1.5 px-2 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200';
+      });
+      const item = DIAG_SKETCHES[idx];
+      document.getElementById('diag-sketch-svg').innerHTML = item.draw();
+      document.getElementById('diag-question').textContent = item.question;
+      const fb = document.getElementById('diag-feedback');
+      fb.classList.add('hidden');
+
+      const optsDiv = document.getElementById('diag-options');
+      optsDiv.innerHTML = '';
+      item.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'text-left p-2 rounded-lg border border-slate-200 hover:bg-slate-50 font-medium text-slate-800 transition';
+        btn.textContent = opt.text;
+        btn.onclick = () => {
+          fb.classList.remove('hidden');
+          if (opt.correct) {
+            fb.className = 'p-2.5 rounded-lg text-xs leading-relaxed bg-emerald-50 border border-emerald-200 text-emerald-900 font-medium';
+          } else {
+            fb.className = 'p-2.5 rounded-lg text-xs leading-relaxed bg-rose-50 border border-rose-200 text-rose-900 font-medium';
+          }
+          fb.textContent = opt.exp;
+        };
+        optsDiv.appendChild(btn);
+      });
+    }
+
+    // =========================================================================
+    // TAB 3: MEIOSIS & GENETIC DIVERSITY ENGINE
+    // =========================================================================
+    let meio2n = 4;
+    let meioStage = 0;
+    let crossingOverOn = true;
+    let assortmentFlipped = false;
+
+    const MEIOSIS_STAGES = [
+      {
+        title: '1. Pre-Meiotic Interphase (After S Phase)',
+        div: 'Interphase (Post-S)',
+        desc: 'DNA replicates during S phase before Meiosis I begins. Each homologous pair consists of a maternal (blue) and paternal (crimson) chromosome, and each chromosome has 2 sister chromatids.',
+        rule: 'Ploidy is 2n (diploid). Chromosome count = 2n; Chromatid count = 4n.'
+      },
+      {
+        title: '2. Prophase I (Synapsis & Crossing Over)',
+        div: 'Meiosis I (Reductional)',
+        desc: 'Homologous chromosomes pair up gene-for-gene in <strong>synapsis</strong> to form a 4-chromatid <strong>tetrad (bivalent)</strong>. Non-sister chromatids exchange reciprocal DNA segments at <strong>chiasmata</strong> (crossing over), creating recombinant chromosomes.',
+        rule: 'Crossing over occurs ONLY in Prophase I between non-sister chromatids of homologous chromosomes.'
+      },
+      {
+        title: '3. Metaphase I (Independent Assortment of Tetrads)',
+        div: 'Meiosis I (Reductional)',
+        desc: 'Homologous tetrads align side-by-side along the Metaphase I plate. The maternal vs. paternal orientation of each pair is completely random (2ⁿ combinations). Try clicking "Flip Metaphase I Orientation" above!',
+        rule: 'KEY CONTRAST: Tetrads (homologous pairs) align at Metaphase I, whereas single chromosomes align in Mitosis.'
+      },
+      {
+        title: '4. Anaphase I (Homologous Chromosomes Separate)',
+        div: 'Meiosis I (Reductional)',
+        desc: 'Chiasmata resolve and spindle fibers pull <strong>whole homologous chromosomes</strong> to opposite poles. Crucially, centromeric cohesin remains intact so <strong>sister chromatids stay joined</strong>!',
+        rule: 'Homologs separate in Anaphase I; sister chromatids DO NOT separate yet.'
+      },
+      {
+        title: '5. Telophase I & Cytokinesis (Ploidy Halved: 2n &rarr; n)',
+        div: 'End of Meiosis I',
+        desc: 'Cytokinesis yields <strong>two haploid (n) daughter cells</strong>. Because each cell now has only one member of each homologous pair, ploidy has been reduced from 2n to n—even though each chromosome still consists of 2 sister chromatids!',
+        rule: 'No S-phase DNA replication occurs between Meiosis I and Meiosis II!'
+      },
+      {
+        title: '6. Metaphase II (Single-File Haploid Alignment)',
+        div: 'Meiosis II (Equational)',
+        desc: 'In both haploid (n) cells, the remaining replicated chromosomes align single-file along the Metaphase II plate, mechanically resembling mitosis inside a haploid cell.',
+        rule: 'Each cell is haploid (n), with 2 chromatids per chromosome.'
+      },
+      {
+        title: '7. Anaphase II (Sister Chromatids Separate)',
+        div: 'Meiosis II (Equational)',
+        desc: 'Centromeric cohesin is finally cleaved! Sister chromatids separate and move to opposite poles as independent unreplicated chromosomes.',
+        rule: 'Sister chromatids separate in Anaphase II (just like Mitotic Anaphase).'
+      },
+      {
+        title: '8. Telophase II & Cytokinesis &rarr; 4 Unique Haploid Gametes',
+        div: 'End of Meiosis II',
+        desc: 'Nuclear envelopes reform and cytokinesis divides both cells, yielding <strong>four genetically distinct haploid (n) gametes</strong> (or 1 functional ovum + polar bodies in female oogenesis).',
+        rule: 'Output: 4 haploid (n) cells, each with 1 unreplicated chromosome per homologous pair.'
+      }
+    ];
+
+    function setMeiosis2n(val) {
+      meio2n = val;
+      document.getElementById('meio2n-4').className = val === 4
+        ? 'px-3 py-1 rounded-lg text-xs font-bold bg-slate-900 text-white'
+        : 'px-3 py-1 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-200';
+      document.getElementById('meio2n-6').className = val === 6
+        ? 'px-3 py-1 rounded-lg text-xs font-bold bg-slate-900 text-white'
+        : 'px-3 py-1 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-200';
+      renderMeiosis();
+    }
+
+    function toggleCrossingOver() {
+      crossingOverOn = !crossingOverOn;
+      const btn = document.getElementById('btn-crossover');
+      btn.textContent = crossingOverOn ? 'Crossing Over: ON (Chiasmata)' : 'Crossing Over: OFF (No Recomb)';
+      btn.className = crossingOverOn
+        ? 'px-3 py-1.5 rounded-xl text-xs font-bold bg-purple-600 text-white shadow-sm hover:bg-purple-700'
+        : 'px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-200 text-slate-800 hover:bg-slate-300';
+      renderMeiosis();
+    }
+
+    function flipAssortment() {
+      assortmentFlipped = !assortmentFlipped;
+      renderMeiosis();
+    }
+
+    function setMeiosisStage(idx) {
+      meioStage = idx;
+      document.querySelectorAll('.meio-stage-btn').forEach((b, i) => {
+        b.className = i === idx
+          ? 'meio-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white'
+          : 'meio-stage-btn px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200';
+      });
+      renderMeiosis();
+    }
+
+    function stepMeiosis(delta) {
+      let next = meioStage + delta;
+      if (next < 0) next = MEIOSIS_STAGES.length - 1;
+      if (next >= MEIOSIS_STAGES.length) next = 0;
+      setMeiosisStage(next);
+    }
+
+    function drawRecombinantX(cx, cy, len, baseColor, tipColor, hasCross) {
+      // Draws a replicated X chromosome; if hasCross is true, right chromatid bottom tip has swapped color
+      let s = `<g>`;
+      // Left chromatid (pure baseColor)
+      s += `<path d="M ${cx - 5} ${cy - len} Q ${cx - 2} ${cy} ${cx - 5} ${cy + len}" fill="none" stroke="${baseColor}" stroke-width="3.5" stroke-linecap="round"/>`;
+      // Right chromatid (upper part baseColor, lower tip tipColor if crossed)
+      if (hasCross) {
+        s += `<path d="M ${cx + 5} ${cy - len} Q ${cx + 2} ${cy} ${cx + 3.5} ${cy + len * 0.45}" fill="none" stroke="${baseColor}" stroke-width="3.5" stroke-linecap="round"/>`;
+        s += `<path d="M ${cx + 3.5} ${cy + len * 0.45} L ${cx + 5} ${cy + len}" fill="none" stroke="${tipColor}" stroke-width="3.5" stroke-linecap="round"/>`;
+      } else {
+        s += `<path d="M ${cx + 5} ${cy - len} Q ${cx + 2} ${cy} ${cx + 5} ${cy + len}" fill="none" stroke="${baseColor}" stroke-width="3.5" stroke-linecap="round"/>`;
+      }
+      s += `<circle cx="${cx}" cy="${cy}" r="2.8" fill="#fbbf24" stroke="#0f172a" stroke-width="1"/>`;
+      s += `</g>`;
+      return s;
+    }
+
+    function drawSingleChromatid(cx, cy, len, baseColor, tipColor, hasCross) {
+      let s = `<g>`;
+      if (hasCross) {
+        s += `<line x1="${cx}" y1="${cy - len}" x2="${cx}" y2="${cy + len * 0.4}" stroke="${baseColor}" stroke-width="3.8" stroke-linecap="round"/>`;
+        s += `<line x1="${cx}" y1="${cy + len * 0.4}" x2="${cx}" y2="${cy + len}" stroke="${tipColor}" stroke-width="3.8" stroke-linecap="round"/>`;
+      } else {
+        s += `<line x1="${cx}" y1="${cy - len}" x2="${cx}" y2="${cy + len}" stroke="${baseColor}" stroke-width="3.8" stroke-linecap="round"/>`;
+      }
+      s += `<circle cx="${cx}" cy="${cy}" r="2.6" fill="#fbbf24" stroke="#0f172a" stroke-width="1"/>`;
+      s += `</g>`;
+      return s;
+    }
+
+    function renderMeiosis() {
+      const st = MEIOSIS_STAGES[meioStage];
+      const n = meio2n / 2;
+
+      document.getElementById('meio-stage-title').innerHTML = st.title;
+      document.getElementById('meio-stage-desc').innerHTML = st.desc;
+      document.getElementById('meio-key-rule').innerHTML = st.rule;
+      document.getElementById('meio-acc-div').textContent = st.div;
+
+      // Accounting per cell
+      let ploidyStr, chrStr, tidStr;
+      if (meioStage <= 3) {
+        ploidyStr = `2n = ${meio2n} (1 cell)`;
+        chrStr = `${meio2n}`;
+        tidStr = `${meio2n * 2}`;
+      } else if (meioStage === 4 || meioStage === 5) {
+        ploidyStr = `n = ${n} (2 cells)`;
+        chrStr = `${n} per cell`;
+        tidStr = `${n * 2} per cell`;
+      } else if (meioStage === 6) {
+        ploidyStr = `Temp 2n = ${meio2n} (in 2 cells)`;
+        chrStr = `${meio2n} per cell`;
+        tidStr = `${meio2n} per cell`;
+      } else {
+        ploidyStr = `n = ${n} (4 gametes)`;
+        chrStr = `${n} per gamete`;
+        tidStr = `${n} per gamete`;
+      }
+
+      document.getElementById('meio-acc-ploidy').textContent = ploidyStr;
+      document.getElementById('meio-acc-chr').textContent = chrStr;
+      document.getElementById('meio-acc-tid').textContent = tidStr;
+
+      const svg = document.getElementById('meiosis-svg');
+      let html = '';
+
+      if (meioStage <= 3) {
+        // Single diploid parent cell in Meiosis I
+        html += `<ellipse cx="360" cy="135" rx="260" ry="112" fill="#ffffff" stroke="#64748b" stroke-width="3"/>`;
+        if (meioStage === 0) {
+          html += `<circle cx="360" cy="135" r="88" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>`;
+        }
+
+        for (let p = 0; p < n; p++) {
+          const len = 16 + p * 4;
+          const yPos = n === 2 ? (92 + p * 86) : (68 + p * 66);
+          // Determine which homolog goes left vs right (pair 1 flips when assortmentFlipped is true)
+          const leftIsMat = (p === 1 && assortmentFlipped) ? false : true;
+          const leftCol = leftIsMat ? '#2563eb' : '#e11d48';
+          const rightCol = leftIsMat ? '#e11d48' : '#2563eb';
+          const cross = crossingOverOn && meioStage >= 1;
+
+          if (meioStage === 0) {
+            html += drawRecombinantX(315, yPos, len, '#2563eb', '#e11d48', false);
+            html += drawRecombinantX(405, yPos, len, '#e11d48', '#2563eb', false);
+          } else if (meioStage === 1) {
+            // Synapsis tetrad close together + chiasma marker
+            html += drawRecombinantX(348, yPos, len, '#2563eb', '#e11d48', cross);
+            html += drawRecombinantX(372, yPos, len, '#e11d48', '#2563eb', cross);
+            if (cross) {
+              html += `<circle cx="360" cy="${yPos + len * 0.55}" r="4.5" fill="#9333ea" stroke="#ffffff" stroke-width="1.2"/>`;
+              html += `<text x="415" y="${yPos + 4}" font-size="9.5" font-weight="700" fill="#7e22ce">Chiasma (Tetrad ${p + 1})</text>`;
+            }
+          } else if (meioStage === 2) {
+            // Metaphase I tetrad aligned at x=360
+            html += `<line x1="120" y1="135" x2="344" y2="${yPos}" stroke="#cbd5e1" stroke-width="1.2"/>`;
+            html += `<line x1="600" y1="135" x2="376" y2="${yPos}" stroke="#cbd5e1" stroke-width="1.2"/>`;
+            html += drawRecombinantX(346, yPos, len, leftCol, rightCol, cross);
+            html += drawRecombinantX(374, yPos, len, rightCol, leftCol, cross);
+          } else if (meioStage === 3) {
+            // Anaphase I: whole homologs pulled apart (still X-shaped!)
+            html += `<line x1="120" y1="135" x2="230" y2="${yPos}" stroke="#cbd5e1" stroke-width="1.2"/>`;
+            html += `<line x1="600" y1="135" x2="490" y2="${yPos}" stroke="#cbd5e1" stroke-width="1.2"/>`;
+            html += drawRecombinantX(235, yPos, len, leftCol, rightCol, cross);
+            html += drawRecombinantX(485, yPos, len, rightCol, leftCol, cross);
+          }
+        }
+      } else if (meioStage >= 4 && meioStage <= 6) {
+        // Two haploid daughter cells in Meiosis II
+        const centers = [195, 525];
+        centers.forEach((cx, cellIdx) => {
+          html += `<ellipse cx="${cx}" cy="135" rx="145" ry="105" fill="#ffffff" stroke="#64748b" stroke-width="3"/>`;
+          html += `<text x="${cx}" y="22" text-anchor="middle" font-size="11" font-weight="800" fill="#0f172a">Haploid Cell ${cellIdx + 1} (n = ${n})</text>`;
+
+          for (let p = 0; p < n; p++) {
+            const len = 15 + p * 4;
+            const yPos = n === 2 ? (92 + p * 86) : (68 + p * 66);
+            const leftIsMat = (p === 1 && assortmentFlipped) ? false : true;
+            const myCol = cellIdx === 0 ? (leftIsMat ? '#2563eb' : '#e11d48') : (leftIsMat ? '#e11d48' : '#2563eb');
+            const otherCol = myCol === '#2563eb' ? '#e11d48' : '#2563eb';
+            const cross = crossingOverOn;
+
+            if (meioStage === 4 || meioStage === 5) {
+              // Metaphase II single-file alignment
+              if (meioStage === 5) {
+                html += `<line x1="${cx - 125}" y1="135" x2="${cx}" y2="${yPos}" stroke="#cbd5e1" stroke-width="1.1"/>`;
+                html += `<line x1="${cx + 125}" y1="135" x2="${cx}" y2="${yPos}" stroke="#cbd5e1" stroke-width="1.1"/>`;
+              }
+              html += drawRecombinantX(cx, yPos, len, myCol, otherCol, cross);
+            } else if (meioStage === 6) {
+              // Anaphase II: sister chromatids separate! Left chromatid pure, right chromatid recombinant
+              html += `<line x1="${cx - 125}" y1="135" x2="${cx - 55}" y2="${yPos}" stroke="#cbd5e1" stroke-width="1.1"/>`;
+              html += `<line x1="${cx + 125}" y1="135" x2="${cx + 55}" y2="${yPos}" stroke="#cbd5e1" stroke-width="1.1"/>`;
+              html += drawSingleChromatid(cx - 55, yPos, len, myCol, otherCol, false);
+              html += drawSingleChromatid(cx + 55, yPos, len, myCol, otherCol, cross);
+            }
+          }
+        });
+      } else {
+        // Stage 7: 4 Haploid Gametes
+        const gameteX = [100, 273, 446, 620];
+        gameteX.forEach((gx, gIdx) => {
+          const isRecomb = gIdx % 2 === 1 && crossingOverOn;
+          html += `<circle cx="${gx}" cy="135" r="72" fill="#ffffff" stroke="${isRecomb ? '#7e22ce' : '#059669'}" stroke-width="3"/>`;
+          html += `<text x="${gx}" y="48" text-anchor="middle" font-size="10.5" font-weight="800" fill="#0f172a">Gamete ${gIdx + 1} (n=${n})</text>`;
+          html += `<text x="${gx}" y="226" text-anchor="middle" font-size="9.5" font-weight="700" fill="${isRecomb ? '#7e22ce' : '#059669'}">${isRecomb ? 'Recombinant' : 'Parental Type'}</text>`;
+
+          const cellIdx = gIdx < 2 ? 0 : 1;
+          const isRightChromatid = gIdx % 2 === 1;
+
+          for (let p = 0; p < n; p++) {
+            const len = 14 + p * 3.5;
+            const xOff = gx - ((n - 1) * 14) + p * 28;
+            const leftIsMat = (p === 1 && assortmentFlipped) ? false : true;
+            const myCol = cellIdx === 0 ? (leftIsMat ? '#2563eb' : '#e11d48') : (leftIsMat ? '#e11d48' : '#2563eb');
+            const otherCol = myCol === '#2563eb' ? '#e11d48' : '#2563eb';
+            drawSingleChromatid(xOff, 135, len, myCol, otherCol, isRightChromatid && crossingOverOn);
+            html += drawSingleChromatid(xOff, 135, len, myCol, otherCol, isRightChromatid && crossingOverOn);
+          }
+        });
+      }
+
+      svg.innerHTML = html;
+    }
+
+    function filterCompTable(cat) {
+      document.querySelectorAll('.comp-filter').forEach(btn => {
+        btn.className = 'comp-filter px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200';
+      });
+      event.target.className = 'comp-filter px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-900 text-white';
+
+      document.querySelectorAll('#comp-table-body tr').forEach(row => {
+        if (cat === 'all' || row.dataset.cat === cat) {
+          row.classList.remove('hidden');
+        } else {
+          row.classList.add('hidden');
+        }
+      });
+    }
+
+    // =========================================================================
+    // TAB 4: NONDISJUNCTION, COLCHICINE & EXAM REASONING LAB
+    // =========================================================================
+    let ndMode = 'normal';
+
+    function setNondisjunctionMode(mode) {
+      ndMode = mode;
+      document.getElementById('nd-btn-normal').className = mode === 'normal'
+        ? 'nd-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 text-white shadow-sm'
+        : 'nd-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200';
+      document.getElementById('nd-btn-anaphase1').className = mode === 'anaphase1'
+        ? 'nd-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-600 text-white shadow-sm'
+        : 'nd-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200';
+      document.getElementById('nd-btn-anaphase2').className = mode === 'anaphase2'
+        ? 'nd-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-600 text-white shadow-sm'
+        : 'nd-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200';
+      renderNondisjunction();
+    }
+
+    function renderNondisjunction() {
+      const svg = document.getElementById('nd-svg');
+      const summary = document.getElementById('nd-summary-box');
+
+      // Visualizes Parent (2n=4) -> Meiosis I (2 cells) -> Meiosis II (4 gametes)
+      let html = `
+        <!-- Stage Headers -->
+        <text x="85" y="20" text-anchor="middle" font-size="11" font-weight="800" fill="#0f172a">Parent Cell (2n = 4)</text>
+        <text x="320" y="20" text-anchor="middle" font-size="11" font-weight="800" fill="#0f172a">After Meiosis I</text>
+        <text x="615" y="20" text-anchor="middle" font-size="11" font-weight="800" fill="#0f172a">4 Resulting Gametes</text>
+
+        <!-- Parent Cell -->
+        <circle cx="85" cy="145" r="56" fill="#ffffff" stroke="#475569" stroke-width="2.5"/>
+        ${drawXChromosome(68, 122, 14, '#2563eb')}
+        ${drawXChromosome(102, 122, 14, '#e11d48')}
+        ${drawXChromosome(68, 168, 10, '#2563eb')}
+        ${drawXChromosome(102, 168, 10, '#e11d48')}
+
+        <!-- Arrows Parent -> M1 -->
+        <line x1="148" y1="125" x2="245" y2="85" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-slate)"/>
+        <line x1="148" y1="165" x2="245" y2="205" stroke="#64748b" stroke-width="2" marker-end="url(#arrow-slate)"/>
+      `;
+
+      if (ndMode === 'normal') {
+        html += `
+          <!-- M1 Top Cell (n=2) -->
+          <circle cx="320" cy="80" r="46" fill="#ffffff" stroke="#059669" stroke-width="2.5"/>
+          <text x="320" y="28" text-anchor="middle" font-size="9.5" font-weight="700" fill="#059669">n = 2</text>
+          ${drawXChromosome(305, 80, 14, '#2563eb')}
+          ${drawXChromosome(335, 80, 10, '#2563eb')}
+
+          <!-- M1 Bottom Cell (n=2) -->
+          <circle cx="320" cy="210" r="46" fill="#ffffff" stroke="#059669" stroke-width="2.5"/>
+          <text x="320" y="272" text-anchor="middle" font-size="9.5" font-weight="700" fill="#059669">n = 2</text>
+          ${drawXChromosome(305, 210, 14, '#e11d48')}
+          ${drawXChromosome(335, 210, 10, '#e11d48')}
+        `;
+
+        // 4 Normal Gametes (n=2)
+        const gYs = [42, 112, 178, 248];
+        gYs.forEach((gy, idx) => {
+          const col = idx < 2 ? '#2563eb' : '#e11d48';
+          const fromY = idx < 2 ? 80 : 210;
+          html += `<line x1="372" y1="${fromY}" x2="545" y2="${gy}" stroke="#64748b" stroke-width="1.5"/>`;
+          html += `<circle cx="585" cy="${gy}" r="28" fill="#ecfdf5" stroke="#059669" stroke-width="2.2"/>`;
+          html += drawSingleChromatid(576, gy, 12, col, col, false);
+          html += drawSingleChromatid(594, gy, 8, col, col, false);
+          html += `<text x="665" y="${gy + 4}" font-size="10.5" font-weight="800" fill="#059669">n = 2 (Normal)</text>`;
+        });
+
+        summary.innerHTML = `
+          <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200">
+            <div class="font-bold text-emerald-900">Meiosis I Outcome</div>
+            <p class="text-xs text-emerald-800 mt-1">Homologous pairs separate cleanly. Both daughter cells receive <strong>n = 2</strong> replicated chromosomes.</p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200">
+            <div class="font-bold text-emerald-900">Meiosis II Outcome</div>
+            <p class="text-xs text-emerald-800 mt-1">Sister chromatids separate cleanly in both cells, producing <strong>4 normal haploid (n = 2)</strong> gametes.</p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-100 border border-slate-200">
+            <div class="font-bold text-slate-900">Fertilization Result</div>
+            <p class="text-xs text-slate-700 mt-1">Fusion with a normal (n = 2) gamete yields 100% euploid diploid (<strong>2n = 4</strong>) zygotes.</p>
+          </div>
+        `;
+      } else if (ndMode === 'anaphase1') {
+        // Error in Anaphase I: large homologous pair both go to top cell!
+        html += `
+          <rect x="155" y="132" width="110" height="22" rx="6" fill="#ffe4e6" stroke="#e11d48"/>
+          <text x="210" y="146" text-anchor="middle" font-size="9" font-weight="800" fill="#be123c">Anaphase I Error!</text>
+
+          <!-- M1 Top Cell (n+1 = 3) -->
+          <circle cx="320" cy="80" r="48" fill="#fff1f2" stroke="#e11d48" stroke-width="2.5"/>
+          <text x="320" y="26" text-anchor="middle" font-size="9.5" font-weight="800" fill="#be123c">n + 1 = 3</text>
+          ${drawXChromosome(300, 78, 14, '#2563eb')}
+          ${drawXChromosome(322, 78, 14, '#e11d48')}
+          ${drawXChromosome(344, 82, 10, '#2563eb')}
+
+          <!-- M1 Bottom Cell (n-1 = 1) -->
+          <circle cx="320" cy="210" r="46" fill="#fff1f2" stroke="#e11d48" stroke-width="2.5"/>
+          <text x="320" y="272" text-anchor="middle" font-size="9.5" font-weight="800" fill="#be123c">n - 1 = 1</text>
+          ${drawXChromosome(320, 210, 10, '#e11d48')}
+        `;
+
+        const gYs = [42, 112, 178, 248];
+        gYs.forEach((gy, idx) => {
+          const fromY = idx < 2 ? 80 : 210;
+          html += `<line x1="372" y1="${fromY}" x2="545" y2="${gy}" stroke="#e11d48" stroke-width="1.5"/>`;
+          html += `<circle cx="585" cy="${gy}" r="28" fill="#fff1f2" stroke="#e11d48" stroke-width="2.2"/>`;
+          if (idx < 2) {
+            html += drawSingleChromatid(572, gy, 12, '#2563eb', '#2563eb', false);
+            html += drawSingleChromatid(585, gy, 12, '#e11d48', '#e11d48', false);
+            html += drawSingleChromatid(598, gy, 8, '#2563eb', '#2563eb', false);
+            html += `<text x="672" y="${gy + 4}" font-size="10.5" font-weight="800" fill="#be123c">n + 1 = 3 (Trisomic)</text>`;
+          } else {
+            html += drawSingleChromatid(585, gy, 8, '#e11d48', '#e11d48', false);
+            html += `<text x="672" y="${gy + 4}" font-size="10.5" font-weight="800" fill="#be123c">n - 1 = 1 (Monosomic)</text>`;
+          }
+        });
+
+        summary.innerHTML = `
+          <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200">
+            <div class="font-bold text-rose-900">Why 100% of Gametes Are Abnormal</div>
+            <p class="text-xs text-rose-800 mt-1">Because homologous chromosomes failed to separate in Anaphase I, <strong>both</strong> Meiosis I daughter cells start Meiosis II with the wrong chromosome count (<strong>n+1</strong> and <strong>n-1</strong>).</p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200">
+            <div class="font-bold text-rose-900">Gamete Ratio (2n = 4 Parent)</div>
+            <p class="text-xs text-rose-800 mt-1">Produces <strong>two (n + 1 = 3)</strong> gametes and <strong>two (n - 1 = 1)</strong> gametes. Zero normal (n = 2) gametes are formed!</p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-100 border border-slate-200">
+            <div class="font-bold text-slate-900">Fertilization Consequence</div>
+            <p class="text-xs text-slate-700 mt-1">Fertilization with a normal (n = 2) gamete yields 50% <strong>Trisomy (2n + 1 = 5)</strong> and 50% <strong>Monosomy (2n - 1 = 3)</strong>.</p>
+          </div>
+        `;
+      } else {
+        // Error in Anaphase II (in top cell only; bottom cell divides normally)
+        html += `
+          <!-- M1 Top Cell (Normal n=2) -->
+          <circle cx="320" cy="80" r="46" fill="#ffffff" stroke="#059669" stroke-width="2.5"/>
+          <text x="320" y="28" text-anchor="middle" font-size="9.5" font-weight="700" fill="#059669">n = 2 (Normal M1)</text>
+          ${drawXChromosome(305, 80, 14, '#2563eb')}
+          ${drawXChromosome(335, 80, 10, '#2563eb')}
+
+          <!-- M1 Bottom Cell (Normal n=2) -->
+          <circle cx="320" cy="210" r="46" fill="#ffffff" stroke="#059669" stroke-width="2.5"/>
+          <text x="320" y="272" text-anchor="middle" font-size="9.5" font-weight="700" fill="#059669">n = 2 (Normal M1)</text>
+          ${drawXChromosome(305, 210, 14, '#e11d48')}
+          ${drawXChromosome(335, 210, 10, '#e11d48')}
+
+          <rect x="392" y="68" width="122" height="22" rx="6" fill="#fef3c7" stroke="#d97706"/>
+          <text x="453" y="82" text-anchor="middle" font-size="9" font-weight="800" fill="#b45309">Anaphase II Error Here!</text>
+        `;
+
+        const gYs = [42, 112, 178, 248];
+        gYs.forEach((gy, idx) => {
+          const fromY = idx < 2 ? 80 : 210;
+          const isErr = idx < 2;
+          html += `<line x1="372" y1="${fromY}" x2="545" y2="${gy}" stroke="${isErr ? '#d97706' : '#059669'}" stroke-width="1.5"/>`;
+          html += `<circle cx="585" cy="${gy}" r="28" fill="${isErr ? '#fffbeb' : '#ecfdf5'}" stroke="${isErr ? '#d97706' : '#059669'}" stroke-width="2.2"/>`;
+          if (idx === 0) {
+            html += drawSingleChromatid(572, gy, 12, '#2563eb', '#2563eb', false);
+            html += drawSingleChromatid(585, gy, 12, '#2563eb', '#2563eb', false);
+            html += drawSingleChromatid(598, gy, 8, '#2563eb', '#2563eb', false);
+            html += `<text x="672" y="${gy + 4}" font-size="10.5" font-weight="800" fill="#b45309">n + 1 = 3 (Abnormal)</text>`;
+          } else if (idx === 1) {
+            html += drawSingleChromatid(585, gy, 8, '#2563eb', '#2563eb', false);
+            html += `<text x="672" y="${gy + 4}" font-size="10.5" font-weight="800" fill="#b45309">n - 1 = 1 (Abnormal)</text>`;
+          } else {
+            html += drawSingleChromatid(576, gy, 12, '#e11d48', '#e11d48', false);
+            html += drawSingleChromatid(594, gy, 8, '#e11d48', '#e11d48', false);
+            html += `<text x="672" y="${gy + 4}" font-size="10.5" font-weight="800" fill="#059669">n = 2 (Normal)</text>`;
+          }
+        });
+
+        summary.innerHTML = `
+          <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200">
+            <div class="font-bold text-amber-900">Why Only 50% of Gametes Are Abnormal</div>
+            <p class="text-xs text-amber-900 mt-1">Meiosis I separated homologs normally. Sister chromatid nondisjunction in <strong>one</strong> secondary cell affects only its two daughter gametes; the other cell divides normally.</p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200">
+            <div class="font-bold text-amber-900">Gamete Ratio (2n = 4 Parent)</div>
+            <p class="text-xs text-amber-900 mt-1">Produces <strong>one (n + 1 = 3)</strong>, <strong>one (n - 1 = 1)</strong>, and <strong>two normal (n = 2)</strong> gametes.</p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-slate-100 border border-slate-200">
+            <div class="font-bold text-slate-900">Exam Comparison Rule</div>
+            <p class="text-xs text-slate-700 mt-1"><strong>Meiosis I error</strong> = 100% aneuploid gametes; <strong>Meiosis II error</strong> = 50% aneuploid, 50% normal haploid gametes.</p>
+          </div>
+        `;
+      }
+
+      svg.innerHTML = html;
+    }
+
+    function updateMaternalAge(ageVal) {
+      const age = Number(ageVal);
+      document.getElementById('mat-age-val').textContent = age + ' yrs';
+      const badge = document.getElementById('mat-risk-badge');
+      if (age < 30) {
+        badge.textContent = 'Low Nondisjunction Risk (~1/1,500)';
+        badge.className = 'px-2 py-0.5 rounded bg-emerald-100 text-emerald-800';
+      } else if (age < 38) {
+        badge.textContent = 'Moderate Risk (~1/400) — Cohesin Weakening';
+        badge.className = 'px-2 py-0.5 rounded bg-amber-100 text-amber-800';
+      } else {
+        badge.textContent = 'Elevated Risk (~1/60 to 1/100) — Aged Prophase I Arrest';
+        badge.className = 'px-2 py-0.5 rounded bg-rose-100 text-rose-800';
+      }
+    }
+
+    function setColchicine(active) {
+      const btnOff = document.getElementById('colch-off');
+      const btnOn = document.getElementById('colch-on');
+      const out = document.getElementById('colch-output');
+      const svg = document.getElementById('colch-svg');
+
+      if (!active) {
+        btnOff.className = 'flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-slate-900 text-white';
+        btnOn.className = 'flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200';
+        out.className = 'p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-900 leading-relaxed';
+        out.innerHTML = '<strong>Control Output:</strong> S-phase replicates DNA (2n &rarr; 4 chromatids/pair). Intact spindle fibers separate sister chromatids in Anaphase, producing two diploid (<strong>2n = 4</strong>) daughter cells.';
+        svg.innerHTML = `
+          <rect x="15" y="25" width="95" height="70" rx="10" fill="#ffffff" stroke="#059669" stroke-width="2.5"/>
+          <text x="62" y="18" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0f172a">2n = 4 Parent</text>
+          ${drawXChromosome(48, 60, 12, '#2563eb')}
+          ${drawXChromosome(76, 60, 12, '#e11d48')}
+          <line x1="118" y1="60" x2="180" y2="60" stroke="#059669" stroke-width="2" marker-end="url(#arrow-emerald)"/>
+          <text x="149" y="50" text-anchor="middle" font-size="9" font-weight="700" fill="#059669">Spindle Intact</text>
+          <rect x="192" y="15" width="95" height="40" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+          <text x="345" y="39" font-size="10" font-weight="800" fill="#059669">Daughter 1 (2n = 4)</text>
+          <rect x="192" y="65" width="95" height="40" rx="8" fill="#ecfdf5" stroke="#059669" stroke-width="2"/>
+          <text x="345" y="89" font-size="10" font-weight="800" fill="#059669">Daughter 2 (2n = 4)</text>
+        `;
+      } else {
+        btnOn.className = 'flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-purple-600 text-white';
+        btnOff.className = 'flex-1 py-2 px-3 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200';
+        out.className = 'p-3 rounded-xl bg-purple-50 border border-purple-200 text-xs text-purple-900 leading-relaxed';
+        out.innerHTML = '<strong>Colchicine Output (Polyploidy):</strong> DNA replicates in S-phase and sister chromatids separate, but <strong>no mitotic spindle forms</strong> to pull them to opposite poles and cytokinesis fails. The cell re-enters interphase with double the chromosomes: a <strong>tetraploid (4n = 8)</strong> cell!';
+        svg.innerHTML = `
+          <rect x="15" y="25" width="95" height="70" rx="10" fill="#ffffff" stroke="#7e22ce" stroke-width="2.5"/>
+          <text x="62" y="18" text-anchor="middle" font-size="9.5" font-weight="700" fill="#0f172a">2n = 4 (Post-S)</text>
+          ${drawXChromosome(48, 60, 12, '#2563eb')}
+          ${drawXChromosome(76, 60, 12, '#e11d48')}
+          <line x1="118" y1="60" x2="195" y2="60" stroke="#e11d48" stroke-width="2" stroke-dasharray="4,3" marker-end="url(#arrow-rose)"/>
+          <text x="156" y="48" text-anchor="middle" font-size="9" font-weight="800" fill="#be123c">+ Colchicine</text>
+          <text x="156" y="74" text-anchor="middle" font-size="8.5" font-weight="700" fill="#be123c">No Spindle!</text>
+          <rect x="208" y="20" width="130" height="80" rx="12" fill="#f3e8ff" stroke="#7e22ce" stroke-width="2.5"/>
+          <text x="273" y="14" text-anchor="middle" font-size="10" font-weight="800" fill="#6b21a8">Single Tetraploid Cell (4n = 8)</text>
+          ${drawSingleChromatid(235, 60, 12, '#2563eb', '#2563eb', false)}
+          ${drawSingleChromatid(260, 60, 12, '#2563eb', '#2563eb', false)}
+          ${drawSingleChromatid(285, 60, 12, '#e11d48', '#e11d48', false)}
+          ${drawSingleChromatid(310, 60, 12, '#e11d48', '#e11d48', false)}
+        `;
+      }
+    }
+
+    // 8 BIOS 110 Study Guide Exam Reasoning Questions
+    const QUIZ_QUESTIONS = [
+      {
+        q: '1. A mutation alters the Rb protein so it can NO LONGER be phosphorylated by Cyclin-CDK. What happens to the cell?',
+        choices: [
+          'It permanently arrests in G₁/G₀ because mutant Rb stays bound to E2F',
+          'It divides uncontrollably because E2F is permanently free',
+          'It skips S phase and enters Mitosis immediately'
+        ],
+        correct: 0,
+        exp: 'Phosphorylation inactivates Rb so it releases E2F. If Rb cannot be phosphorylated, it permanently sequesters E2F and blocks transcription of S-phase genes.'
+      },
+      {
+        q: '2. If a cell sustains severe DNA damage in G₁ but carries a loss-of-function mutation in p53, what is the immediate system failure?',
+        choices: [
+          'p21 is overproduced and permanently halts the cell cycle',
+          'p21 is not induced, allowing the cell to replicate damaged DNA in S phase',
+          'MPF degrades prematurely during G₁'
+        ],
+        correct: 1,
+        exp: 'Functional p53 activates p21 (a CDK inhibitor) to pause the cycle or triggers apoptosis. Without p53, cells bypass DNA damage checkpoints and accumulate oncogenic mutations.'
+      },
+      {
+        q: '3. An epithelial/arterial cell is detached from its extracellular matrix (ECM) and suspended in fluid. In a healthy non-cancerous cell, what occurs?',
+        choices: [
+          'It undergoes anchorage-dependent programmed cell death (anoikis)',
+          'It divides rapidly to form a floating tumor spheroid',
+          'It enters Meiosis I to reduce its chromosome number'
+        ],
+        correct: 0,
+        exp: 'Normal animal cells exhibit anchorage dependence: detachment from the ECM shuts down integrin survival signals and triggers apoptosis (anoikis), preventing metastasis.'
+      },
+      {
+        q: '4. What molecular event directly allows a cell to exit Metaphase and complete Anaphase/Telophase of mitosis?',
+        choices: [
+          'Rapid synthesis of new Cyclin D',
+          'Ubiquitin-mediated degradation of G₂ cyclin (Cyclin B), inactivating MPF',
+          'Phosphorylation of p53 by RNA polymerase'
+        ],
+        correct: 1,
+        exp: 'Destruction of G₂ cyclin inactivates MPF kinase activity, allowing nuclear lamins to be dephosphorylated and sister chromatids to separate.'
+      },
+      {
+        q: '5. A diploid organism has 2n = 12. How many chromosomes and sister chromatids are present in a single cell at Metaphase I of meiosis?',
+        choices: [
+          '6 chromosomes and 12 sister chromatids',
+          '12 chromosomes and 24 sister chromatids',
+          '24 chromosomes and 24 sister chromatids'
+        ],
+        correct: 1,
+        exp: 'At Metaphase I, the cell is still diploid (2n = 12 centromeres) arranged as 6 homologous tetrads, and each chromosome has 2 sister chromatids (24 chromatids total).'
+      },
+      {
+        q: '6. Nondisjunction of a single homologous pair occurs during Anaphase I in a 2n = 6 primary spermatocyte. What gametes are produced?',
+        choices: [
+          'Two (n + 1 = 4) gametes and two (n - 1 = 2) gametes (100% abnormal)',
+          'One (n + 1 = 4), one (n - 1 = 2), and two normal (n = 3) gametes',
+          'Four normal (n = 3) gametes'
+        ],
+        correct: 0,
+        exp: 'Anaphase I nondisjunction disrupts both secondary cells from the start, yielding 100% aneuploid gametes: two with n+1 (4) and two with n-1 (2).'
+      },
+      {
+        q: '7. Why do women aged 40–43 have a significantly higher risk of conceiving a child with Trisomy 21 than women aged 22 or men aged 42?',
+        choices: [
+          'Primary oocytes remain arrested in Prophase I from fetal life until ovulation decades later, degrading cohesin',
+          'Female oogonia undergo mitosis continuously throughout adulthood',
+          'Sperm cells do not undergo Meiosis II until fertilization'
+        ],
+        correct: 0,
+        exp: 'Human primary oocytes arrest in Prophase I before birth and remain paused for up to 40+ years, leading to age-related degradation of cohesin proteins that hold tetrads together.'
+      },
+      {
+        q: '8. Why MUST DNA replication (S phase) occur before a cell enters Mitosis?',
+        choices: [
+          'So that each of the two daughter cells receives a complete, identical 2n copy of the genome rather than half',
+          'To stimulate crossing over between homologous chromosomes',
+          'To degrade histones into free nucleotides'
+        ],
+        correct: 0,
+        exp: 'Mitosis partitions one set of chromatids to each daughter pole; without prior S-phase duplication, daughter cells would only receive half a genome.'
+      }
+    ];
+
+    let quizAnswered = {};
+
+    function renderQuiz() {
+      const container = document.getElementById('quiz-container');
+      container.innerHTML = '';
+      QUIZ_QUESTIONS.forEach((item, qIdx) => {
+        const card = document.createElement('div');
+        card.className = 'p-4 rounded-xl bg-slate-50 border border-slate-200 flex flex-col justify-between space-y-3';
+        let choicesHtml = '';
+        item.choices.forEach((ch, cIdx) => {
+          choicesHtml += `
+            <button onclick="answerQuiz(${qIdx}, ${cIdx})" id="q-${qIdx}-c-${cIdx}"
+              class="w-full text-left p-2.5 rounded-lg bg-white border border-slate-200 hover:border-blue-400 text-xs font-medium text-slate-800 transition">
+              ${ch}
+            </button>
+          `;
+        });
+        card.innerHTML = `
+          <div class="space-y-2.5">
+            <div class="text-xs sm:text-sm font-bold text-slate-900 leading-snug">${item.q}</div>
+            <div class="space-y-1.5">${choicesHtml}</div>
+          </div>
+          <div id="q-fb-${qIdx}" class="hidden p-2.5 rounded-lg text-xs leading-relaxed"></div>
+        `;
+        container.appendChild(card);
+      });
+      updateQuizScore();
+    }
+
+    function answerQuiz(qIdx, cIdx) {
+      const item = QUIZ_QUESTIONS[qIdx];
+      const isCorrect = cIdx === item.correct;
+      quizAnswered[qIdx] = isCorrect;
+
+      item.choices.forEach((_, idx) => {
+        const btn = document.getElementById(`q-${qIdx}-c-${idx}`);
+        btn.className = 'w-full text-left p-2.5 rounded-lg border text-xs font-medium transition ';
+        if (idx === item.correct) {
+          btn.className += 'bg-emerald-50 border-emerald-500 text-emerald-900 font-bold';
+        } else if (idx === cIdx && !isCorrect) {
+          btn.className += 'bg-rose-50 border-rose-400 text-rose-900';
+        } else {
+          btn.className += 'bg-white border-slate-200 text-slate-500 opacity-75';
+        }
+      });
+
+      const fb = document.getElementById(`q-fb-${qIdx}`);
+      fb.classList.remove('hidden');
+      fb.className = isCorrect
+        ? 'p-2.5 rounded-lg text-xs leading-relaxed bg-emerald-100/80 border border-emerald-300 text-emerald-950 font-medium'
+        : 'p-2.5 rounded-lg text-xs leading-relaxed bg-rose-100/80 border border-rose-300 text-rose-950 font-medium';
+      fb.innerHTML = `<strong>${isCorrect ? 'Correct:' : 'Review Concept:'}</strong> ${item.exp}`;
+      updateQuizScore();
+    }
+
+    function updateQuizScore() {
+      const answeredCount = Object.keys(quizAnswered).length;
+      const correctCount = Object.values(quizAnswered).filter(Boolean).length;
+      document.getElementById('quiz-score-badge').textContent = `Score: ${correctCount} / ${answeredCount} Correct (${QUIZ_QUESTIONS.length} Total)`;
+    }
+
+    function resetQuiz() {
+      quizAnswered = {};
+      renderQuiz();
+    }
+
+    // =========================================================================
+    // INITIALIZATION ON LOAD
+    // =========================================================================
+    window.addEventListener('DOMContentLoaded', () => {
+      evaluateCellCycle();
+      updateCyclinChart(72);
+      renderMitosis();
+      loadDiagSketch(0);
+      renderMeiosis();
+      renderNondisjunction();
+      setColchicine(false);
+      renderQuiz();
+    });
+  </script>
+</body>
+</html>
