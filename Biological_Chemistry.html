@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BIOS 110: Biological Chemistry &amp; Macromolecules Explorer</title>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --surface: #ffffff;
+    --surface-alt: #f1f5f9;
+    --border: #cbd5e1;
+    --text: #0f172a;
+    --text-muted: #475569;
+    --polar: #0284c7;
+    --polar-bg: #e0f2fe;
+    --polar-border: #7dd3fc;
+    --nonpolar: #d97706;
+    --nonpolar-bg: #fef3c7;
+    --nonpolar-border: #fcd34d;
+    --energy: #059669;
+    --energy-bg: #d1fae5;
+    --energy-border: #6ee7b7;
+    --oxidized: #e11d48;
+    --oxidized-bg: #ffe4e6;
+    --oxidized-border: #fda4af;
+    --nucleic: #7c3aed;
+    --nucleic-bg: #ede9fe;
+    --nucleic-border: #c4b5fd;
+    --radius: 12px;
+    --shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+  }
+
+  /* Header & Navigation */
+  header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #fff;
+    padding: 1.15rem 1.5rem 0;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+  }
+  .header-top {
+    max-width: 1180px;
+    margin: 0 auto 0.9rem;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .brand h1 {
+    margin: 0;
+    font-size: 1.3rem;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .badge {
+    background: #0284c7;
+    color: #fff;
+    font-size: 0.74rem;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .brand p {
+    margin: 0.2rem 0 0;
+    font-size: 0.86rem;
+    color: #cbd5e1;
+  }
+  .golden-pill {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 0.42rem 0.85rem;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    color: #f8fafc;
+  }
+
+  nav.tabs {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: flex;
+    gap: 0.4rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  nav.tabs::-webkit-scrollbar { display: none; }
+  .tab-btn {
+    background: rgba(255,255,255,0.08);
+    color: #cbd5e1;
+    border: none;
+    padding: 0.72rem 1.1rem;
+    border-radius: 10px 10px 0 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .tab-btn:hover { background: rgba(255,255,255,0.16); color: #fff; }
+  .tab-btn.active {
+    background: var(--bg);
+    color: var(--text);
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
+  }
+
+  /* Main Container */
+  main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 1.4rem 1.25rem 3rem;
+  }
+  .lab-section { display: none; animation: fadeIn 0.22s ease; }
+  .lab-section.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Cards & Grids */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.3rem;
+    box-shadow: var(--shadow);
+    margin-bottom: 1.4rem;
+  }
+  .card-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid var(--surface-alt);
+    padding-bottom: 0.8rem;
+  }
+  .card-header h2 {
+    margin: 0;
+    font-size: 1.16rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .unit-tag {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.22rem 0.65rem;
+    border-radius: 999px;
+    background: var(--surface-alt);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+  }
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+  .grid-4 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 0.85rem;
+  }
+  @media (max-width: 860px) {
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+
+  /* Buttons & Controls */
+  .btn {
+    padding: 0.58rem 0.95rem;
+    border-radius: 9px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-weight: 600;
+    font-size: 0.86rem;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .btn:hover { background: var(--surface-alt); transform: translateY(-1px); }
+  .btn:active { transform: translateY(0); }
+  .btn-primary { background: #0f172a; color: #fff; border-color: #0f172a; }
+  .btn-primary:hover { background: #1e293b; }
+  .btn-polar { background: var(--polar-bg); color: #0369a1; border-color: var(--polar-border); }
+  .btn-polar.active, .btn-polar:hover { background: var(--polar); color: #fff; }
+  .btn-nonpolar { background: var(--nonpolar-bg); color: #b45309; border-color: var(--nonpolar-border); }
+  .btn-nonpolar.active, .btn-nonpolar:hover { background: var(--nonpolar); color: #fff; }
+  .btn-energy { background: var(--energy-bg); color: #047857; border-color: var(--energy-border); }
+  .btn-energy.active, .btn-energy:hover { background: var(--energy); color: #fff; }
+  .btn-oxidized { background: var(--oxidized-bg); color: #be123c; border-color: var(--oxidized-border); }
+  .btn-oxidized.active, .btn-oxidized:hover { background: var(--oxidized); color: #fff; }
+  .btn-nucleic { background: var(--nucleic-bg); color: #6d28d9; border-color: var(--nucleic-border); }
+  .btn-nucleic.active, .btn-nucleic:hover { background: var(--nucleic); color: #fff; }
+
+  /* Callout Boxes */
+  .callout {
+    padding: 0.88rem 1.05rem;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    margin-top: 0.75rem;
+    border-left: 4px solid #64748b;
+    background: var(--surface-alt);
+  }
+  .callout.polar { background: var(--polar-bg); border-color: var(--polar); color: #0c4a6e; }
+  .callout.nonpolar { background: var(--nonpolar-bg); border-color: var(--nonpolar); color: #78350f; }
+  .callout.energy { background: var(--energy-bg); border-color: var(--energy); color: #064e3b; }
+  .callout.oxidized { background: var(--oxidized-bg); border-color: var(--oxidized); color: #881337; }
+  .callout.nucleic { background: var(--nucleic-bg); border-color: var(--nucleic); color: #4c1d95; }
+
+  /* Tab 1: Bond & Molecule Cards */
+  .mol-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.6rem;
+  }
+  .mol-card {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 0.65rem;
+    background: var(--surface);
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.16s;
+  }
+  .mol-card:hover { border-color: #64748b; transform: translateY(-2px); }
+  .mol-card.selected {
+    border-color: #0f172a;
+    box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.14);
+    background: #f8fafc;
+  }
+  .mol-card .formula { font-weight: 800; font-size: 1.05rem; margin-bottom: 0.15rem; }
+  .mol-card .btype { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; }
+
+  /* Sliders */
+  input[type="range"] {
+    width: 100%;
+    accent-color: #0f172a;
+    cursor: pointer;
+    height: 8px;
+    border-radius: 4px;
+  }
+
+  /* Tab 3: Polymer Track */
+  .monomer-track {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.95rem;
+    background: var(--surface-alt);
+    border-radius: 10px;
+    min-height: 95px;
+    border: 1px solid var(--border);
+  }
+  .monomer-unit {
+    background: #fff;
+    border: 2px solid #0284c7;
+    border-radius: 8px;
+    padding: 0.45rem 0.7rem;
+    font-weight: 700;
+    font-size: 0.84rem;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .bond-link {
+    font-weight: 800;
+    font-size: 0.78rem;
+    padding: 0.2rem 0.45rem;
+    border-radius: 6px;
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+  }
+  .bond-link.beta {
+    background: #ede9fe;
+    color: #5b21b6;
+    border-color: #c4b5fd;
+  }
+
+  /* Protein Structure Level Cards */
+  .level-card {
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 0.85rem;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .level-card:hover { border-color: #64748b; }
+  .level-card.active {
+    border-color: var(--polar);
+    background: var(--polar-bg);
+  }
+
+  /* Tab 4: Base Pairing Builder */
+  .base-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0.45rem 0;
+  }
+  .end-cap {
+    width: 42px;
+    height: 46px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 0.9rem;
+    background: #0f172a;
+    color: #fff;
+  }
+  .base-box {
+    width: 44px;
+    height: 46px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1rem;
+    border: 2px solid var(--border);
+    background: #fff;
+    cursor: pointer;
+    user-select: none;
+    transition: all 0.15s;
+  }
+  .base-box small { font-size: 0.62rem; font-weight: 700; opacity: 0.8; }
+  .base-A { border-color: #059669; background: #d1fae5; color: #065f46; }
+  .base-T { border-color: #0284c7; background: #e0f2fe; color: #075985; }
+  .base-U { border-color: #e11d48; background: #ffe4e6; color: #9f1239; }
+  .base-C { border-color: #d97706; background: #fef3c7; color: #92400e; }
+  .base-G { border-color: #7c3aed; background: #ede9fe; color: #5b21b6; }
+  .base-empty { border-style: dashed; border-color: #94a3b8; color: #64748b; background: #fff; }
+  .base-correct { box-shadow: 0 0 0 2px #059669; }
+  .base-wrong { border-color: #e11d48 !important; background: #ffe4e6 !important; color: #be123c !important; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="brand">
+      <h1><span class="badge">BIOS 110</span> Biological Chemistry &amp; Macromolecules Explorer</h1>
+      <p>Interactive review aligned directly with BIOS 110 lecture slides &amp; Discussion Sheet 1</p>
+    </div>
+    <div class="golden-pill">
+      💡 <strong>Rule of Thumb:</strong> "Greedy" <strong>O</strong> or <strong>N</strong> → Polar (Hydrophilic) &nbsp;|&nbsp; Only <strong>C &amp; H</strong> → Non-polar (Hydrophobic)
+    </div>
+  </div>
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" onclick="switchTab('tab1', this)">1. Bonds, Polarity &amp; Water</button>
+    <button class="tab-btn" onclick="switchTab('tab2', this)">2. Redox &amp; The Energy Hill</button>
+    <button class="tab-btn" onclick="switchTab('tab3', this)">3. Macromolecules, Polymers &amp; Proteins</button>
+    <button class="tab-btn" onclick="switchTab('tab4', this)">4. DNA vs. RNA &amp; Discussion Sheet 1</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ==================== TAB 1: BONDS, POLARITY & WATER ==================== -->
+  <section id="tab1" class="lab-section active">
+    <!-- 1A: Rule of Thumb & Greedy Atoms -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2>1A. Chemical Bonds, Rule of Thumb &amp; "Greedy" Atoms</h2>
+          <p style="margin:0.25rem 0 0; color:var(--text-muted); font-size:0.9rem;">
+            Select a bond or molecule from the lecture slides to inspect electron sharing, partial/full charges (<strong>&delta;+</strong>, <strong>&delta;&minus;</strong>, <strong>+</strong>, <strong>&minus;</strong>), and solubility in water ("like dissolves like").
+          </p>
+        </div>
+        <span class="unit-tag">Covalent (Non-polar &amp; Polar) vs. Ionic</span>
+      </div>
+
+      <div class="grid-2">
+        <div>
+          <div style="font-weight:700; font-size:0.86rem; color:var(--text-muted); margin-bottom:0.5rem;">
+            Click any bond or molecule below:
+          </div>
+          <div class="mol-grid" id="bond-card-grid"></div>
+        </div>
+
+        <div style="background:var(--surface-alt); border:1px solid var(--border); border-radius:12px; padding:1rem;">
+          <div id="bond-svg-stage" style="background:#fff; border:1px solid var(--border); border-radius:10px; padding:0.75rem; text-align:center;"></div>
+          <div id="bond-detail-callout" class="callout polar" style="margin-top:0.75rem;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1B: Water & Hydrogen Bonds (Kitchen Sponge Analogy) -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2>1B. Water, Hydrogen Bonds &amp; The "Kitchen Sponge" Analogy</h2>
+          <p style="margin:0.25rem 0 0; color:var(--text-muted); font-size:0.9rem;">
+            Adjust heat energy to observe how hydrogen bonds between <strong>&delta;+ H</strong> and <strong>&delta;&minus; O</strong> absorb and release heat like a <strong>kitchen sponge</strong>—stabilizing organisms and climates, and explaining why ice floats.
+          </p>
+        </div>
+        <span class="unit-tag">Emergent Properties of Water</span>
+      </div>
+
+      <div class="grid-2" style="align-items:center;">
+        <div>
+          <label for="water-heat-slider" style="font-weight:700; font-size:0.9rem; display:flex; justify-content:space-between;">
+            <span>🌡️ Thermal State / Heat Content:</span>
+            <span id="water-temp-label" style="color:var(--polar);">25°C (Liquid Water)</span>
+          </label>
+          <input type="range" id="water-heat-slider" min="-10" max="105" value="25" oninput="updateWaterSlider(this.value)">
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">
+            <span>&minus;10°C (Ice Lattice)</span>
+            <span>25°C (Liquid)</span>
+            <span>75°C (Warm)</span>
+            <span>100°C+ (Steam / Gas)</span>
+          </div>
+
+          <div id="water-sponge-callout" class="callout polar" style="margin-top:0.9rem;"></div>
+        </div>
+
+        <div style="background:#fff; border:1px solid var(--border); border-radius:12px; padding:0.85rem; text-align:center;">
+          <svg id="water-hbond-svg" viewBox="0 0 360 200" style="width:100%; max-width:360px; height:auto;"></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1C: pH Scale & Buffers -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2>1C. The pH Scale (0–14) &amp; Biological Buffers</h2>
+          <p style="margin:0.25rem 0 0; color:var(--text-muted); font-size:0.9rem;">
+            Slide along the pH scale to compare <strong>H+</strong> vs. <strong>OH&minus;</strong> ion concentrations and toggle a <strong>Buffer</strong> to see how cells resist dangerous pH swings.
+          </p>
+        </div>
+        <span class="unit-tag">Acids, Bases &amp; Homeostasis</span>
+      </div>
+
+      <div class="grid-2" style="align-items:center;">
+        <div>
+          <label for="ph-slider" style="font-weight:700; font-size:0.9rem; display:flex; justify-content:space-between;">
+            <span>🧪 Solution pH:</span>
+            <span id="ph-readout" style="color:var(--energy);">pH 7.0 (Neutral — Pure Water / Blood ~7.4)</span>
+          </label>
+          <input type="range" id="ph-slider" min="0" max="14" step="1" value="7" oninput="updatePhSlider(this.value)">
+          <div style="display:flex; justify-content:space-between; font-size:0.75rem; color:var(--text-muted); margin-top:0.2rem;">
+            <span>0 (Acidic: High H+)</span>
+            <span>7 (Neutral: H+ = OH&minus;)</span>
+            <span>14 (Basic: High OH&minus;)</span>
+          </div>
+
+          <div style="margin-top:0.85rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button id="buffer-toggle-btn" class="btn btn-nucleic" onclick="toggleBufferMode()">🛡️ Buffer System: OFF</button>
+          </div>
+          <div id="ph-callout" class="callout energy" style="margin-top:0.75rem;"></div>
+        </div>
+
+        <div style="background:var(--surface-alt); border:1px solid var(--border); border-radius:12px; padding:1rem;">
+          <div style="font-weight:700; font-size:0.84rem; margin-bottom:0.4rem;">Relative Ion Balance in Solution:</div>
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.5rem;">
+            <span style="width:45px; font-weight:800; color:#e11d48; font-size:0.85rem;">H+</span>
+            <div style="flex:1; background:#e2e8f0; height:18px; border-radius:999px; overflow:hidden;">
+              <div id="h-bar" style="width:50%; height:100%; background:#e11d48; transition:width 0.2s;"></div>
+            </div>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <span style="width:45px; font-weight:800; color:#0284c7; font-size:0.85rem;">OH&minus;</span>
+            <div style="flex:1; background:#e2e8f0; height:18px; border-radius:999px; overflow:hidden;">
+              <div id="oh-bar" style="width:50%; height:100%; background:#0284c7; transition:width 0.2s;"></div>
+            </div>
+          </div>
+          <div id="buffer-visual-note" style="font-size:0.8rem; color:var(--text-muted); margin-top:0.65rem;">
+            Each 1-unit change on the pH scale represents a <strong>10-fold</strong> change in H+ concentration.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== TAB 2: REDOX & THE ENERGY HILL ==================== -->
+  <section id="tab2" class="lab-section">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2>2. Redox &amp; The Electron "Energy Hill" (OIL RIG)</h2>
+          <p style="margin:0.25rem 0 0; color:var(--text-muted); font-size:0.9rem;">
+            Electrons held equally between <strong>C and H</strong> sit at the top of the energy hill (high potential energy). When electrons move toward greedy <strong>Oxygen</strong>, they roll down the hill and release energy!
+          </p>
+        </div>
+        <span class="unit-tag">OIL RIG: Oxidation Is Loss, Reduction Is Gain</span>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
+        <button id="btn-resp" class="btn btn-energy active" onclick="setRedoxMode('respiration')">⚡ Cellular Respiration (Down the Hill)</button>
+        <button id="btn-photo" class="btn btn-nonpolar" onclick="setRedoxMode('photosynthesis')">☀️ Photosynthesis (Up the Hill)</button>
+      </div>
+
+      <div class="grid-2" style="align-items:center;">
+        <div>
+          <svg id="energy-hill-svg" viewBox="0 0 500 320" style="width:100%; height:auto; background:linear-gradient(180deg, #ecfdf5 0%, #fff1f2 100%); border-radius:12px; border:1px solid var(--border);">
+            <!-- Hill Slope -->
+            <path d="M 35 65 L 465 265 L 465 300 L 35 300 Z" fill="#e2e8f0" opacity="0.6"/>
+            <line x1="35" y1="65" x2="465" y2="265" stroke="#475569" stroke-width="4" stroke-linecap="round"/>
+
+            <!-- Top & Bottom Labels -->
+            <text x="35" y="30" font-size="13" font-weight="800" fill="#047857">⛰️ TOP OF HILL: High Potential Energy</text>
+            <text x="35" y="47" font-size="11" fill="#065f46">Electrons shared equally (C–H bonds in Glucose)</text>
+
+            <text x="230" y="285" font-size="13" font-weight="800" fill="#be123c">🕳️ BOTTOM: Low Potential Energy</text>
+            <text x="230" y="300" font-size="11" fill="#881337">Electrons held tight by greedy O (CO₂ &amp; H₂O)</text>
+
+            <!-- Respiration Arrow -->
+            <g id="arrow-respiration">
+              <line x1="145" y1="92" x2="365" y2="195" stroke="#059669" stroke-width="5" stroke-dasharray="8,5"/>
+              <polygon points="376,200 356,201 364,185" fill="#059669"/>
+              <rect x="155" y="95" width="195" height="44" rx="8" fill="#059669"/>
+              <text x="252" y="114" text-anchor="middle" fill="#fff" font-size="11" font-weight="800">ELECTRONS ROLL DOWN</text>
+              <text x="252" y="130" text-anchor="middle" fill="#d1fae5" font-size="10">Releases energy → Makes ATP!</text>
+            </g>
+
+            <!-- Photosynthesis Arrow -->
+            <g id="arrow-photosynthesis" style="display:none;">
+              <line x1="365" y1="195" x2="145" y2="92" stroke="#d97706" stroke-width="5" stroke-dasharray="8,5"/>
+              <polygon points="134,87 154,86 146,102" fill="#d97706"/>
+              <rect x="150" y="95" width="205" height="44" rx="8" fill="#d97706"/>
+              <text x="252" y="114" text-anchor="middle" fill="#fff" font-size="11" font-weight="800">☀️ LIGHT PUSHES ELECTRONS UP</text>
+              <text x="252" y="130" text-anchor="middle" fill="#fef3c7" font-size="10">Requires sunlight energy input!</text>
+            </g>
+
+            <!-- Top Molecule: Glucose -->
+            <g>
+              <rect x="42" y="68" width="110" height="42" rx="10" fill="#059669" stroke="#fff" stroke-width="2.5"/>
+              <text x="97" y="87" text-anchor="middle" fill="#fff" font-size="12" font-weight="800">Glucose</text>
+              <text x="97" y="102" text-anchor="middle" fill="#d1fae5" font-size="10.5" font-weight="700">C₆H₁₂O₆ (C–H)</text>
+            </g>
+
+            <!-- Bottom Molecules: CO2 & H2O -->
+            <g>
+              <rect x="345" y="212" width="122" height="44" rx="10" fill="#e11d48" stroke="#fff" stroke-width="2.5"/>
+              <text x="406" y="232" text-anchor="middle" fill="#fff" font-size="12" font-weight="800">CO₂ + H₂O</text>
+              <text x="406" y="247" text-anchor="middle" fill="#ffe4e6" font-size="10" font-weight="700">Electrons near O</text>
+            </g>
+          </svg>
+        </div>
+
+        <div id="redox-explanation-panel"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== TAB 3: MACROMOLECULES, POLYMERS & PROTEINS ==================== -->
+  <section id="tab3" class="lab-section">
+    <!-- 3A: Dehydration Synthesis & Hydrolysis -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2>3A. Macromolecules: Dehydration Synthesis &amp; Hydrolysis</h2>
+          <p style="margin:0.25rem 0 0; color:var(--text-muted); font-size:0.9rem;">
+            Build polymers by removing <strong>H₂O</strong> (Dehydration Synthesis) and break polymers by adding <strong>H₂O</strong> (Hydrolysis). Compare all 4 macromolecule classes from the lecture slides.
+          </p>
+        </div>
+        <span class="unit-tag">4 Classes of Biological Macromolecules</span>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; gap:0.45rem; margin-bottom:0.85rem;">
+        <button id="mac-carb" class="btn btn-energy active" onclick="selectMacroClass('carb')">1. Carbohydrates (Monosaccharides)</button>
+        <button id="mac-prot" class="btn btn-polar" onclick="selectMacroClass('prot')">2. Proteins (Amino Acids)</button>
+        <button id="mac-nuc" class="btn btn-nucleic" onclick="selectMacroClass('nuc')">3. Nucleic Acids (Nucleotides)</button>
+        <button id="mac-lip" class="btn btn-nonpolar" onclick="selectMacroClass('lip')">4. Lipids (Hydrophobic Assemblies)</button>
+      </div>
+
+      <div id="polymer-builder-controls" style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.75rem;">
+        <button class="btn btn-primary" onclick="changeMonomers(1)">➕ Dehydration Synthesis (Remove H₂O → Link Monomer)</button>
+        <button class="btn btn-oxidized" onclick="changeMonomers(-1)">💧 Hydrolysis (Add H₂O → Break Covalent Bond)</button>
+      </div>
+
+      <div class="monomer-track" id="macro-track"></div>
+
+      <div id="macro-counters" style="display:flex; flex-wrap:wrap; gap:1.25rem; margin-top:0.65rem; font-size:0.88rem; font-weight:700;">
+        <span>Monomers: <span id="m-count" style="color:var(--polar);">2</span></span>
+        <span>Covalent Bonds: <span id="b-count" style="color:var(--energy);">1</span></span>
+        <span>H₂O Molecules Released: <span id="w-count" style="color:#0284c7;">1</span></span>
+      </div>
+
+      <div id="macro-callout" class="callout energy" style="margin-top:0.75rem;"></div>
+    </div>
+
+    <!-- 3B: Carbohydrates: Starch vs Cellulose -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2>3B. Carbohydrates: Starch/Glycogen (&alpha;-Glucose) vs. Cellulose (&beta;-Glucose)</h2>
+          <p style="margin:0.25rem 0 0; color:var(--text-muted); font-size:0.9rem;">
+            Same glucose formula, different 3D glycosidic linkage! Toggle between &alpha;-linkages and &beta;-linkages to see why enzyme shape determines digestibility.
+          </p>
+        </div>
+        <span class="unit-tag">Structure Determines Function</span>
+      </div>
+
+      <div style="display:flex; gap:0.5rem; margin-bottom:0.85rem; flex-wrap:wrap;">
+        <button id="carb-alpha-btn" class="btn btn-energy active" onclick="setCarbType('alpha')">🥔 Starch &amp; Glycogen (&alpha;-Glucose Linkages)</button>
+        <button id="carb-beta-btn" class="btn btn-nucleic" onclick="setCarbType('beta')">🌿 Cellulose (&beta;-Glucose Linkages)</button>
+      </div>
+
+      <div class="grid-2" style="align-items:center;">
+        <div style="background:#fff; border:1px solid var(--border); border-radius:10px; padding:0.85rem; text-align:center;">
+          <svg id="carb-svg" viewBox="0 0 420 120" style="width:100%; max-width:420px; height:auto;"></svg>
+        </div>
+        <div id="carb-callout" class="callout energy" style="margin-top:0;"></div>
+      </div>
+    </div>
+
+    <!-- 3C: Protein Anatomy, 4 Levels & Denaturation -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2>3C. Protein Anatomy, 4 Structural Levels &amp; Denaturation</h2>
+          <p style="margin:0.25rem 0 0; color:var(--text-muted); font-size:0.9rem;">
+            Click parts of the polypeptide chain to identify termini, peptide bonds, and R-group categories; explore the 4 levels of structure; and test <strong>Temperature/pH denaturation</strong>.
+          </p>
+        </div>
+        <span class="unit-tag">Amino Acids → 3D Folded Protein</span>
+      </div>
+
+      <!-- Interactive Polypeptide Chain Clicker -->
+      <div style="font-weight:700; font-size:0.86rem; color:var(--text-muted); margin-bottom:0.45rem;">
+        Click any highlighted feature on the polypeptide chain below to inspect it:
+      </div>
+      <div style="overflow-x:auto; background:#fff; border:1px solid var(--border); border-radius:10px; padding:0.75rem;">
+        <svg viewBox="0 0 740 165" style="min-width:660px; width:100%; height:auto;">
+          <line x1="65" y1="88" x2="675" y2="88" stroke="#94a3b8" stroke-width="3"/>
+
+          <!-- N-Terminus -->
+          <g style="cursor:pointer;" onclick="inspectPepPart('nterm')">
+            <rect x="18" y="66" width="60" height="42" rx="8" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5"/>
+            <text x="48" y="92" text-anchor="middle" font-weight="800" font-size="13" fill="#0369a1">H₂N—</text>
+            <text x="48" y="124" text-anchor="middle" font-size="10" font-weight="700" fill="#0284c7">N-Terminus</text>
+          </g>
+
+          <!-- AA1 Nonpolar R-group -->
+          <text x="108" y="93" text-anchor="middle" font-weight="800" font-size="13">CH</text>
+          <line x1="108" y1="73" x2="108" y2="46" stroke="#64748b" stroke-width="2"/>
+          <g style="cursor:pointer;" onclick="inspectPepPart('r_nonpolar')">
+            <rect x="78" y="14" width="60" height="30" rx="7" fill="#fef3c7" stroke="#d97706" stroke-width="2.5"/>
+            <text x="108" y="34" text-anchor="middle" font-weight="800" font-size="12" fill="#92400e">–CH₃</text>
+          </g>
+          <text x="165" y="93" text-anchor="middle" font-weight="800" font-size="13">C=O</text>
+
+          <!-- Peptide Bond 1 -->
+          <g style="cursor:pointer;" onclick="inspectPepPart('peptide')">
+            <rect x="184" y="70" width="36" height="34" rx="6" fill="#ffe4e6" stroke="#e11d48" stroke-width="2.5"/>
+            <line x1="188" y1="88" x2="216" y2="88" stroke="#e11d48" stroke-width="3.5"/>
+          </g>
+
+          <!-- AA2 Polar R-group -->
+          <text x="238" y="93" text-anchor="middle" font-weight="800" font-size="13">NH</text>
+          <text x="292" y="93" text-anchor="middle" font-weight="800" font-size="13">CH</text>
+          <line x1="292" y1="73" x2="292" y2="46" stroke="#64748b" stroke-width="2"/>
+          <g style="cursor:pointer;" onclick="inspectPepPart('r_polar')">
+            <rect x="254" y="14" width="76" height="30" rx="7" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5"/>
+            <text x="292" y="34" text-anchor="middle" font-weight="800" font-size="12" fill="#0369a1">–CH₂–OH</text>
+          </g>
+          <text x="350" y="93" text-anchor="middle" font-weight="800" font-size="13">C=O</text>
+
+          <!-- Peptide Bond 2 -->
+          <g style="cursor:pointer;" onclick="inspectPepPart('peptide')">
+            <rect x="368" y="70" width="36" height="34" rx="6" fill="#ffe4e6" stroke="#e11d48" stroke-width="2.5"/>
+            <line x1="372" y1="88" x2="400" y2="88" stroke="#e11d48" stroke-width="3.5"/>
+          </g>
+
+          <!-- AA3 Charged R-group -->
+          <text x="422" y="93" text-anchor="middle" font-weight="800" font-size="13">NH</text>
+          <text x="480" y="93" text-anchor="middle" font-weight="800" font-size="13">CH</text>
+          <line x1="480" y1="73" x2="480" y2="46" stroke="#64748b" stroke-width="2"/>
+          <g style="cursor:pointer;" onclick="inspectPepPart('r_charged')">
+            <rect x="434" y="14" width="92" height="30" rx="7" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.5"/>
+            <text x="480" y="34" text-anchor="middle" font-weight="800" font-size="12" fill="#5b21b6">–CH₂–COO⁻</text>
+          </g>
+
+          <!-- C-Terminus -->
+          <g style="cursor:pointer;" onclick="inspectPepPart('cterm')">
+            <rect x="520" y="66" width="72" height="42" rx="8" fill="#d1fae5" stroke="#059669" stroke-width="2.5"/>
+            <text x="556" y="92" text-anchor="middle" font-weight="800" font-size="13" fill="#065f46">—COOH</text>
+            <text x="556" y="124" text-anchor="middle" font-size="10" font-weight="700" fill="#059669">C-Terminus</text>
+          </g>
+
+          <!-- Legend cue -->
+          <text x="665" y="76" text-anchor="middle" font-size="10" font-weight="700" fill="#e11d48">Red Boxes =</text>
+          <text x="665" y="90" text-anchor="middle" font-size="10" font-weight="700" fill="#e11d48">Peptide Bonds</text>
+          <text x="665" y="106" text-anchor="middle" font-size="9.5" fill="#475569">(Click any box)</text>
+        </svg>
+      </div>
+      <div id="pep-part-callout" class="callout" style="margin-top:0.65rem;">
+        Click the <strong>N-terminus</strong>, <strong>C-terminus</strong>, <strong>Peptide Bond</strong>, or any of the 3 <strong>R-groups (non-polar, polar, charged)</strong> above to review its role.
+      </div>
+
+      <!-- 4 Levels of Protein Structure -->
+      <div style="font-weight:700; font-size:0.88rem; color:var(--text-muted); margin:1.15rem 0 0.5rem;">
+        4 Levels of Protein Structure (Click each level):
+      </div>
+      <div class="grid-4">
+        <div class="level-card active" id="lvl-1" onclick="selectProtLevel(1)">
+          <strong>1° Primary Structure</strong>
+          <div style="font-size:0.82rem; color:var(--text-muted); margin-top:0.2rem;">Linear sequence of amino acids held by covalent peptide bonds.</div>
+        </div>
+        <div class="level-card" id="lvl-2" onclick="selectProtLevel(2)">
+          <strong>2° Secondary Structure</strong>
+          <div style="font-size:0.82rem; color:var(--text-muted); margin-top:0.2rem;">Local &alpha;-helices and &beta;-pleated sheets held by backbone H-bonds.</div>
+        </div>
+        <div class="level-card" id="lvl-3" onclick="selectProtLevel(3)">
+          <strong>3° Tertiary Structure</strong>
+          <div style="font-size:0.82rem; color:var(--text-muted); margin-top:0.2rem;">Overall 3D shape formed by R-group interactions (hydrophobic, H-bonds, ionic, disulfide).</div>
+        </div>
+        <div class="level-card" id="lvl-4" onclick="selectProtLevel(4)">
+          <strong>4° Quaternary Structure</strong>
+          <div style="font-size:0.82rem; color:var(--text-muted); margin-top:0.2rem;">Two or more folded polypeptide subunits assembled together (e.g., hemoglobin).</div>
+        </div>
+      </div>
+      <div id="prot-level-callout" class="callout polar" style="margin-top:0.65rem;">
+        <strong>Primary (1°) Structure:</strong> Determined directly by the DNA gene sequence. Even changing a single amino acid R-group can alter how the protein folds at higher levels!
+      </div>
+
+      <!-- Temperature & pH Denaturation Slider -->
+      <div style="margin-top:1.25rem; padding-top:1rem; border-top:1px solid var(--surface-alt);">
+        <div style="font-weight:800; font-size:0.95rem; margin-bottom:0.5rem;">🔥 Protein Denaturation Lab (Temperature &amp; pH):</div>
+        <div class="grid-2" style="align-items:center;">
+          <div>
+            <label style="font-weight:700; font-size:0.86rem; display:flex; justify-content:space-between;">
+              <span>🌡️ Temperature:</span>
+              <span id="denat-temp-lbl" style="color:var(--energy);">37°C (Normal)</span>
+            </label>
+            <input type="range" id="denat-temp-slider" min="20" max="90" value="37" oninput="updateDenatLab()">
+
+            <label style="font-weight:700; font-size:0.86rem; display:flex; justify-content:space-between; margin-top:0.75rem;">
+              <span>🧪 pH Level:</span>
+              <span id="denat-ph-lbl" style="color:var(--polar);">pH 7.4 (Normal)</span>
+            </label>
+            <input type="range" id="denat-ph-slider" min="1" max="14" step="0.5" value="7.4" oninput="updateDenatLab()">
+
+            <div style="margin-top:0.6rem; display:flex; gap:0.4rem; flex-wrap:wrap;">
+              <button class="btn" style="font-size:0.78rem;" onclick="resetDenat()">Reset Normal (37°C, pH 7.4)</button>
+              <button class="btn btn-nonpolar" style="font-size:0.78rem;" onclick="setDenatExtreme(45, 7.4)">High Heat (45°C+)</button>
+              <button class="btn btn-oxidized" style="font-size:0.78rem;" onclick="setDenatExtreme(37, 2.0)">Extreme Acid (pH 2)</button>
+            </div>
+          </div>
+
+          <div id="denat-result-box" class="callout energy" style="margin-top:0;"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== TAB 4: DNA VS. RNA & DISCUSSION SHEET 1 ==================== -->
+  <section id="tab4" class="lab-section">
+    <!-- 4A: Nucleotide & 2' Carbon Switch -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2>4A. Nucleotide Anatomy &amp; The 2' Carbon Switch (DNA vs. RNA)</h2>
+          <p style="margin:0.25rem 0 0; color:var(--text-muted); font-size:0.9rem;">
+            Every nucleotide has 3 parts: a <strong>Phosphate group (5')</strong>, a <strong>5-carbon pentose sugar</strong>, and a <strong>Nitrogenous base (1')</strong>. Toggle the <strong>2' carbon</strong> to compare DNA and RNA.
+          </p>
+        </div>
+        <span class="unit-tag">Nucleic Acids: Blueprint vs. Temporary Copy</span>
+      </div>
+
+      <div class="grid-2" style="align-items:center;">
+        <div style="background:#fff; border:1px solid var(--border); border-radius:12px; padding:0.9rem; text-align:center;">
+          <svg viewBox="0 0 360 225" style="width:100%; max-width:360px; height:auto;">
+            <!-- Pentose Ring -->
+            <polygon points="175,55 245,105 220,175 130,175 105,105" fill="#f8fafc" stroke="#475569" stroke-width="3"/>
+            <circle cx="175" cy="55" r="13" fill="#0284c7"/>
+            <text x="175" y="59" text-anchor="middle" fill="#fff" font-weight="800" font-size="11">O</text>
+
+            <!-- Carbon numbers -->
+            <text x="232" y="114" font-size="10" font-weight="800" fill="#64748b">1'</text>
+            <text x="208" y="166" font-size="10" font-weight="800" fill="#64748b">2'</text>
+            <text x="135" y="166" font-size="10" font-weight="800" fill="#64748b">3'</text>
+            <text x="115" y="114" font-size="10" font-weight="800" fill="#64748b">4'</text>
+
+            <!-- 5' Phosphate -->
+            <line x1="105" y1="105" x2="62" y2="75" stroke="#475569" stroke-width="3"/>
+            <circle cx="46" cy="64" r="18" fill="#fef3c7" stroke="#d97706" stroke-width="2.5"/>
+            <text x="46" y="68" text-anchor="middle" font-weight="800" font-size="10.5" fill="#92400e">5' PO₄</text>
+
+            <!-- 1' Nitrogenous Base -->
+            <line x1="245" y1="105" x2="285" y2="75" stroke="#475569" stroke-width="3"/>
+            <rect x="276" y="46" width="74" height="34" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.5"/>
+            <text id="nuc-bases-svg" x="313" y="67" text-anchor="middle" font-weight="800" font-size="11" fill="#5b21b6">A, T, C, G</text>
+
+            <!-- 3' OH -->
+            <line x1="130" y1="175" x2="108" y2="205" stroke="#475569" stroke-width="3"/>
+            <text x="95" y="218" text-anchor="middle" font-weight="800" font-size="12" fill="#0284c7">3' –OH</text>
+
+            <!-- 2' Carbon Group -->
+            <line x1="220" y1="175" x2="244" y2="202" stroke="#475569" stroke-width="3"/>
+            <rect id="nuc-c2-box" x="215" y="193" width="94" height="28" rx="8" fill="#d1fae5" stroke="#059669" stroke-width="2.5"/>
+            <text id="nuc-c2-txt" x="262" y="211" text-anchor="middle" font-weight="800" font-size="11.5" fill="#065f46">2' –H (DNA)</text>
+          </svg>
+        </div>
+
+        <div>
+          <div style="display:flex; gap:0.5rem; margin-bottom:0.85rem; flex-wrap:wrap;">
+            <button id="toggle-dna-btn" class="btn btn-energy active" onclick="setNucType('DNA')">🧬 DNA (Deoxyribose: 2' –H)</button>
+            <button id="toggle-rna-btn" class="btn btn-oxidized" onclick="setNucType('RNA')">📜 RNA (Ribose: 2' –OH)</button>
+          </div>
+          <div id="nuc-type-callout" class="callout energy"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4B: Interactive Discussion Sheet 1 Sequence Builder -->
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <h2>4B. Interactive Discussion Sheet 1 Practice: <code>5'-ATACCAGA-3'</code></h2>
+          <p style="margin:0.25rem 0 0; color:var(--text-muted); font-size:0.9rem;">
+            Tap each blank base slot below to cycle through bases and build: (1) the complementary antiparallel DNA strand, and (2) the transcribed complementary mRNA strand!
+          </p>
+        </div>
+        <span class="unit-tag">Antiparallel 5' ↔ 3' &amp; Base Pairing</span>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;">
+        <button id="ds-mode-dna" class="btn btn-nucleic active" onclick="setDsMode('DNA')">Task 1: Build Complementary DNA Strand</button>
+        <button id="ds-mode-rna" class="btn btn-oxidized" onclick="setDsMode('RNA')">Task 2: Transcribe Complementary mRNA Strand</button>
+        <button class="btn" onclick="autoFillDs()">✨ Reveal &amp; Check Answer</button>
+        <button class="btn" onclick="resetDs()">Reset Blanks</button>
+      </div>
+
+      <div style="background:var(--surface-alt); padding:1rem; border-radius:12px; border:1px solid var(--border); overflow-x:auto;">
+        <div style="font-weight:800; font-size:0.84rem; color:var(--text-muted);">Given DNA Template Strand (Discussion Sheet 1):</div>
+        <div class="base-row" id="ds-template-row"></div>
+
+        <div id="ds-hbonds-row" style="display:flex; gap:0.4rem; padding-left:48px; font-size:0.75rem; font-weight:800; color:#64748b; margin:0.2rem 0;"></div>
+
+        <div id="ds-target-title" style="font-weight:800; font-size:0.84rem; color:var(--nucleic); margin-top:0.35rem;">
+          Your Complementary Antiparallel DNA Strand (Tap each box to choose A, T, C, or G):
+        </div>
+        <div class="base-row" id="ds-student-row"></div>
+      </div>
+
+      <div id="ds-feedback" class="callout nucleic" style="margin-top:0.85rem;"></div>
+    </div>
+  </section>
+
+</main>
+
+<script>
+  /* ================= NAVIGATION ================= */
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.lab-section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  /* ================= TAB 1A: BONDS & RULE OF THUMB ================= */
+  const bondExamples = [
+    {
+      id: 'ch4',
+      formula: 'CH₄ / C–H / C–C',
+      type: 'Non-polar Covalent',
+      style: 'nonpolar',
+      svg: `<svg viewBox="0 0 280 95" width="260" height="88">
+              <circle cx="140" cy="48" r="18" fill="#fef3c7" stroke="#d97706" stroke-width="2.5"/>
+              <text x="140" y="53" text-anchor="middle" font-weight="800" font-size="13" fill="#92400e">C</text>
+              <line x1="140" y1="30" x2="140" y2="14" stroke="#64748b" stroke-width="2.5"/>
+              <text x="140" y="11" text-anchor="middle" font-weight="800" font-size="11">H</text>
+              <line x1="140" y1="66" x2="140" y2="82" stroke="#64748b" stroke-width="2.5"/>
+              <text x="140" y="92" text-anchor="middle" font-weight="800" font-size="11">H</text>
+              <line x1="122" y1="48" x2="98" y2="48" stroke="#64748b" stroke-width="2.5"/>
+              <text x="88" y="52" text-anchor="middle" font-weight="800" font-size="11">H</text>
+              <line x1="158" y1="48" x2="182" y2="48" stroke="#64748b" stroke-width="2.5"/>
+              <text x="192" y="52" text-anchor="middle" font-weight="800" font-size="11">H</text>
+              <text x="235" y="44" font-size="10" font-weight="700" fill="#b45309">Equal sharing</text>
+              <text x="235" y="58" font-size="10" font-weight="700" fill="#b45309">No δ+ or δ−</text>
+            </svg>`,
+      desc: '<strong>Non-polar Covalent (C–C, C–H, CH₄):</strong> Carbon and Hydrogen have nearly identical electronegativity, so electrons are shared equally. There are NO partial charges (&delta;+ or &delta;&minus;). Result: <strong>Hydrophobic</strong> (does not dissolve in water).'
+    },
+    {
+      id: 'o2_h2',
+      formula: 'O₂ & H₂',
+      type: 'Non-polar Covalent',
+      style: 'nonpolar',
+      svg: `<svg viewBox="0 0 280 95" width="260" height="88">
+              <circle cx="65" cy="48" r="17" fill="#fef3c7" stroke="#d97706" stroke-width="2.5"/>
+              <text x="65" y="53" text-anchor="middle" font-weight="800" font-size="13" fill="#92400e">O</text>
+              <line x1="82" y1="44" x2="112" y2="44" stroke="#64748b" stroke-width="2.5"/>
+              <line x1="82" y1="52" x2="112" y2="52" stroke="#64748b" stroke-width="2.5"/>
+              <circle cx="129" cy="48" r="17" fill="#fef3c7" stroke="#d97706" stroke-width="2.5"/>
+              <text x="129" y="53" text-anchor="middle" font-weight="800" font-size="13" fill="#92400e">O</text>
+              <circle cx="195" cy="48" r="14" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+              <text x="195" y="52" text-anchor="middle" font-weight="800" font-size="12">H</text>
+              <line x1="209" y1="48" x2="231" y2="48" stroke="#64748b" stroke-width="2.5"/>
+              <circle cx="245" cy="48" r="14" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+              <text x="245" y="52" text-anchor="middle" font-weight="800" font-size="12">H</text>
+            </svg>`,
+      desc: '<strong>Non-polar Covalent (O₂ and H₂):</strong> Even though Oxygen is greedy, two identical Oxygen atoms pull with equal strength! Electrons stay centered between them → <strong>Non-polar</strong>.'
+    },
+    {
+      id: 'h2o',
+      formula: 'H₂O (O–H)',
+      type: 'Polar Covalent',
+      style: 'polar',
+      svg: `<svg viewBox="0 0 280 95" width="260" height="88">
+              <circle cx="140" cy="34" r="19" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5"/>
+              <text x="140" y="39" text-anchor="middle" font-weight="800" font-size="14" fill="#0369a1">O</text>
+              <text x="140" y="11" text-anchor="middle" font-weight="800" font-size="11" fill="#e11d48">δ−</text>
+              <line x1="125" y1="47" x2="102" y2="68" stroke="#0284c7" stroke-width="3"/>
+              <circle cx="92" cy="76" r="13" fill="#f8fafc" stroke="#0284c7" stroke-width="2"/>
+              <text x="92" y="80" text-anchor="middle" font-weight="800" font-size="12">H</text>
+              <text x="68" y="80" font-weight="800" font-size="11" fill="#0284c7">δ+</text>
+              <line x1="155" y1="47" x2="178" y2="68" stroke="#0284c7" stroke-width="3"/>
+              <circle cx="188" cy="76" r="13" fill="#f8fafc" stroke="#0284c7" stroke-width="2"/>
+              <text x="188" y="80" text-anchor="middle" font-weight="800" font-size="12">H</text>
+              <text x="212" y="80" font-weight="800" font-size="11" fill="#0284c7">δ+</text>
+            </svg>`,
+      desc: '<strong>Polar Covalent (H₂O):</strong> Greedy Oxygen pulls shared electrons closer, giving O a partial negative charge (<strong>&delta;&minus;</strong>) and each H a partial positive charge (<strong>&delta;+</strong>). Bent shape makes water a polar magnet that forms hydrogen bonds!'
+    },
+    {
+      id: 'nh3_co',
+      formula: 'NH₃ & C=O',
+      type: 'Polar Covalent',
+      style: 'polar',
+      svg: `<svg viewBox="0 0 280 95" width="260" height="88">
+              <circle cx="75" cy="40" r="18" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5"/>
+              <text x="75" y="45" text-anchor="middle" font-weight="800" font-size="13" fill="#0369a1">N (δ−)</text>
+              <text x="75" y="78" text-anchor="middle" font-weight="700" font-size="11" fill="#0284c7">3 × H (δ+)</text>
+              <circle cx="175" cy="48" r="16" fill="#f1f5f9" stroke="#64748b" stroke-width="2"/>
+              <text x="175" y="53" text-anchor="middle" font-weight="800" font-size="12">C (δ+)</text>
+              <line x1="191" y1="44" x2="217" y2="44" stroke="#0284c7" stroke-width="2.5"/>
+              <line x1="191" y1="52" x2="217" y2="52" stroke="#0284c7" stroke-width="2.5"/>
+              <circle cx="235" cy="48" r="18" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5"/>
+              <text x="235" y="53" text-anchor="middle" font-weight="800" font-size="12" fill="#0369a1">O (δ−)</text>
+            </svg>`,
+      desc: '<strong>Rule of Thumb ("Greedy O or N"):</strong> Whenever you spot <strong>O</strong> or <strong>N</strong> bonded to C or H (like NH₃ or C=O carbonyls), unequal electron sharing creates partial charges (&delta;+ / &delta;&minus;) → <strong>Hydrophilic</strong> (water-loving).'
+    },
+    {
+      id: 'nacl',
+      formula: 'NaCl → Na⁺ + Cl⁻',
+      type: 'Ionic Bond',
+      style: 'nucleic',
+      svg: `<svg viewBox="0 0 280 95" width="260" height="88">
+              <circle cx="85" cy="48" r="22" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.5"/>
+              <text x="85" y="53" text-anchor="middle" font-weight="800" font-size="14" fill="#5b21b6">Na⁺</text>
+              <text x="140" y="44" text-anchor="middle" font-size="11" font-weight="800" fill="#7c3aed">e⁻ stolen!</text>
+              <text x="140" y="58" text-anchor="middle" font-size="14" font-weight="800" fill="#7c3aed">→</text>
+              <circle cx="195" cy="48" r="24" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5"/>
+              <text x="195" y="53" text-anchor="middle" font-weight="800" font-size="14" fill="#0369a1">Cl⁻</text>
+            </svg>`,
+      desc: '<strong>Ionic Bond (NaCl):</strong> Chlorine is so greedy it completely strips an electron from Sodium, forming full-charge ions (<strong>Na⁺</strong> and <strong>Cl⁻</strong>). In water, polar H₂O molecules surround each ion ("hydration shells") and dissolve salt easily!'
+    }
+  ];
+
+  let selectedBondId = 'h2o';
+  function renderBondCards() {
+    const grid = document.getElementById('bond-card-grid');
+    grid.innerHTML = bondExamples.map(b => `
+      <div class="mol-card ${b.id === selectedBondId ? 'selected' : ''}" onclick="selectBond('${b.id}')">
+        <div class="formula">${b.formula}</div>
+        <div class="btype">${b.type}</div>
+      </div>
+    `).join('');
+    const active = bondExamples.find(b => b.id === selectedBondId);
+    document.getElementById('bond-svg-stage').innerHTML = active.svg;
+    const callout = document.getElementById('bond-detail-callout');
+    callout.className = `callout ${active.style}`;
+    callout.innerHTML = active.desc;
+  }
+  function selectBond(id) {
+    selectedBondId = id;
+    renderBondCards();
+  }
+
+  /* ================= TAB 1B: WATER & KITCHEN SPONGE ================= */
+  function updateWaterSlider(temp) {
+    temp = Number(temp);
+    const label = document.getElementById('water-temp-label');
+    const callout = document.getElementById('water-sponge-callout');
+    const svg = document.getElementById('water-hbond-svg');
+
+    if (temp <= 0) {
+      label.textContent = `${temp}°C (Solid Ice — Rigid H-Bond Lattice)`;
+      callout.className = 'callout polar';
+      callout.innerHTML = `<strong>Ice (&le;0°C):</strong> Hydrogen bonds lock water molecules into an open crystalline lattice that is <em>less dense</em> than liquid water. Ice floats and insulates lakes below so aquatic life survives winter!`;
+      svg.innerHTML = `
+        <text x="180" y="22" text-anchor="middle" font-size="12" font-weight="800" fill="#0369a1">Rigid Crystal Lattice (4 stable H-bonds per H₂O)</text>
+        <line x1="110" y1="65" x2="250" y2="65" stroke="#0284c7" stroke-width="3" stroke-dasharray="5,4"/>
+        <line x1="110" y1="145" x2="250" y2="145" stroke="#0284c7" stroke-width="3" stroke-dasharray="5,4"/>
+        <line x1="110" y1="65" x2="110" y2="145" stroke="#0284c7" stroke-width="3" stroke-dasharray="5,4"/>
+        <line x1="250" y1="65" x2="250" y2="145" stroke="#0284c7" stroke-width="3" stroke-dasharray="5,4"/>
+        <circle cx="110" cy="65" r="18" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5"/><text x="110" y="70" text-anchor="middle" font-weight="800" font-size="11">H₂O</text>
+        <circle cx="250" cy="65" r="18" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5"/><text x="250" y="70" text-anchor="middle" font-weight="800" font-size="11">H₂O</text>
+        <circle cx="110" cy="145" r="18" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5"/><text x="110" y="150" text-anchor="middle" font-weight="800" font-size="11">H₂O</text>
+        <circle cx="250" cy="145" r="18" fill="#e0f2fe" stroke="#0284c7" stroke-width="2.5"/><text x="250" y="150" text-anchor="middle" font-weight="800" font-size="11">H₂O</text>
+        <text x="180" y="185" text-anchor="middle" font-size="11" fill="#475569">Spaced farther apart → Less dense → Ice floats!</text>
+      `;
+    } else if (temp < 100) {
+      label.textContent = `${temp}°C (Liquid Water — Kitchen Sponge Buffer)`;
+      callout.className = 'callout polar';
+      callout.innerHTML = `<strong>Kitchen Sponge Analogy (${temp}°C):</strong> Like a kitchen sponge soaking up water before dripping, water's network of hydrogen bonds absorbs huge amounts of heat energy just to break H-bonds before molecules move faster (temperature rises). When cooling, H-bonds reform and release heat—buffering cells and coastal climates!`;
+      svg.innerHTML = `
+        <text x="180" y="22" text-anchor="middle" font-size="12" font-weight="800" fill="#0369a1">Liquid Water (H-Bonds Continuously Breaking &amp; Reforming)</text>
+        <line x1="130" y1="75" x2="215" y2="95" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="4,4"/>
+        <line x1="145" y1="135" x2="215" y2="95" stroke="#0284c7" stroke-width="2.5" stroke-dasharray="4,4"/>
+        <line x1="130" y1="75" x2="145" y2="135" stroke="#94a3b8" stroke-width="2" stroke-dasharray="2,4"/>
+        <circle cx="130" cy="75" r="18" fill="#bae6fd" stroke="#0284c7" stroke-width="2.5"/><text x="130" y="80" text-anchor="middle" font-weight="800" font-size="11">H₂O</text>
+        <circle cx="215" cy="95" r="18" fill="#bae6fd" stroke="#0284c7" stroke-width="2.5"/><text x="215" y="100" text-anchor="middle" font-weight="800" font-size="11">H₂O</text>
+        <circle cx="145" cy="135" r="18" fill="#bae6fd" stroke="#0284c7" stroke-width="2.5"/><text x="145" y="140" text-anchor="middle" font-weight="800" font-size="11">H₂O</text>
+        <circle cx="255" cy="145" r="18" fill="#bae6fd" stroke="#0284c7" stroke-width="2.5"/><text x="255" y="150" text-anchor="middle" font-weight="800" font-size="11">H₂O</text>
+        <text x="180" y="185" text-anchor="middle" font-size="11" fill="#0369a1">High Specific Heat: Resists rapid temperature swings</text>
+      `;
+    } else {
+      label.textContent = `${temp}°C (Steam / Gas — All H-Bonds Broken)`;
+      callout.className = 'callout oxidized';
+      callout.innerHTML = `<strong>Evaporative Cooling (&ge;100°C):</strong> Enough heat was absorbed to completely snap all hydrogen bonds. Fast-moving H₂O molecules escape as gas, carrying away heat and cooling the remaining surface (e.g., sweating).`;
+      svg.innerHTML = `
+        <text x="180" y="22" text-anchor="middle" font-size="12" font-weight="800" fill="#be123c">Water Vapor / Gas (Zero Hydrogen Bonds Remaining)</text>
+        <circle cx="75" cy="60" r="17" fill="#ffe4e6" stroke="#e11d48" stroke-width="2"/><text x="75" y="65" text-anchor="middle" font-weight="800" font-size="11">H₂O</text>
+        <circle cx="285" cy="55" r="17" fill="#ffe4e6" stroke="#e11d48" stroke-width="2"/><text x="285" y="60" text-anchor="middle" font-weight="800" font-size="11">H₂O</text>
+        <circle cx="115" cy="150" r="17" fill="#ffe4e6" stroke="#e11d48" stroke-width="2"/><text x="115" y="155" text-anchor="middle" font-weight="800" font-size="11">H₂O</text>
+        <circle cx="255" cy="145" r="17" fill="#ffe4e6" stroke="#e11d48" stroke-width="2"/><text x="255" y="150" text-anchor="middle" font-weight="800" font-size="11">H₂O</text>
+        <text x="180" y="185" text-anchor="middle" font-size="11" fill="#881337">High Heat of Vaporization cools organisms via evaporation</text>
+      `;
+    }
+  }
+
+  /* ================= TAB 1C: pH & BUFFERS ================= */
+  let bufferOn = false;
+  function toggleBufferMode() {
+    bufferOn = !bufferOn;
+    const btn = document.getElementById('buffer-toggle-btn');
+    btn.textContent = bufferOn ? '🛡️ Buffer System: ON (Resisting Change)' : '🛡️ Buffer System: OFF';
+    btn.classList.toggle('active', bufferOn);
+    updatePhSlider(document.getElementById('ph-slider').value);
+  }
+
+  function updatePhSlider(rawVal) {
+    let ph = Number(rawVal);
+    if (bufferOn) {
+      // Buffer dampens swings toward pH 7.4
+      ph = Number((7.4 + (ph - 7.4) * 0.15).toFixed(1));
+    }
+    const readout = document.getElementById('ph-readout');
+    const callout = document.getElementById('ph-callout');
+    const hBar = document.getElementById('h-bar');
+    const ohBar = document.getElementById('oh-bar');
+
+    const hPct = Math.max(4, Math.min(96, ((14 - ph) / 14) * 100));
+    const ohPct = 100 - hPct;
+    hBar.style.width = `${hPct}%`;
+    ohBar.style.width = `${ohPct}%`;
+
+    if (ph < 6.8) {
+      readout.textContent = `pH ${ph} (Acidic — Excess H+)`;
+      callout.className = 'callout oxidized';
+      callout.innerHTML = bufferOn
+        ? `<strong>Buffer Active (pH held at ${ph}):</strong> Even though acid was added, the buffer accepted excess <strong>H+</strong> ions to protect cellular proteins from denaturing!`
+        : `<strong>Acidic (pH ${ph}):</strong> High concentration of free <strong>H+</strong> ions (donated by acids). In cells, unbuffered excess H+ disrupts ionic &amp; hydrogen bonds in proteins.`;
+    } else if (ph <= 7.6) {
+      readout.textContent = `pH ${ph} (Neutral / Physiological Blood ~7.4)`;
+      callout.className = 'callout energy';
+      callout.innerHTML = `<strong>Neutral / Homeostatic Range (pH ${ph}):</strong> At pH 7.0, <strong>[H+] = [OH&minus;]</strong>. Human blood is tightly buffered around <strong>pH 7.4</strong> by weak acid/base pairs that accept or donate H+ as needed.`;
+    } else {
+      readout.textContent = `pH ${ph} (Basic / Alkaline — Excess OH−)`;
+      callout.className = 'callout polar';
+      callout.innerHTML = bufferOn
+        ? `<strong>Buffer Active (pH held at ${ph}):</strong> Even though base was added, the buffer donated <strong>H+</strong> ions to neutralize excess <strong>OH&minus;</strong>!`
+        : `<strong>Basic / Alkaline (pH ${ph}):</strong> Low H+ and high <strong>OH&minus;</strong> concentration (bases remove H+ from solution).`;
+    }
+  }
+
+  /* ================= TAB 2: REDOX & ENERGY HILL ================= */
+  function setRedoxMode(mode) {
+    const isResp = mode === 'respiration';
+    document.getElementById('btn-resp').classList.toggle('active', isResp);
+    document.getElementById('btn-photo').classList.toggle('active', !isResp);
+    document.getElementById('arrow-respiration').style.display = isResp ? 'block' : 'none';
+    document.getElementById('arrow-photosynthesis').style.display = isResp ? 'none' : 'block';
+
+    const panel = document.getElementById('redox-explanation-panel');
+    if (isResp) {
+      panel.innerHTML = `
+        <div class="callout energy" style="margin-top:0;">
+          <strong>Cellular Respiration: C₆H₁₂O₆ + 6 O₂ → 6 CO₂ + 6 H₂O + ATP</strong>
+          <ul style="margin:0.5rem 0 0; padding-left:1.2rem;">
+            <li><strong>Electrons roll DOWN the hill:</strong> High-energy electrons shared equally in Glucose's <strong>C–H</strong> bonds are transferred to greedy <strong>O₂</strong>, forming low-energy <strong>CO₂</strong> and <strong>H₂O</strong>.</li>
+            <li><strong>OIL (Oxidation Is Loss):</strong> <strong>Glucose is oxidized</strong> (loses electrons/H).</li>
+            <li><strong>RIG (Reduction Is Gain):</strong> <strong>O₂ is reduced</strong> (gains electrons/H to become H₂O).</li>
+            <li><strong>Energy Consequence:</strong> Exergonic! Released potential energy is captured to synthesize <strong>ATP</strong>.</li>
+          </ul>
+        </div>
+      `;
+    } else {
+      panel.innerHTML = `
+        <div class="callout nonpolar" style="margin-top:0;">
+          <strong>Photosynthesis: 6 CO₂ + 6 H₂O + Sunlight → C₆H₁₂O₆ + 6 O₂</strong>
+          <ul style="margin:0.5rem 0 0; padding-left:1.2rem;">
+            <li><strong>Electrons are pushed UP the hill:</strong> Light energy boosts low-energy electrons from <strong>H₂O</strong> back up into equal-sharing <strong>C–H</strong> bonds in <strong>Glucose</strong>.</li>
+            <li><strong>OIL (Oxidation Is Loss):</strong> <strong>H₂O is oxidized</strong> (loses electrons/H, releasing O₂).</li>
+            <li><strong>RIG (Reduction Is Gain):</strong> <strong>CO₂ is reduced</strong> (gains electrons/H to become Glucose C₆H₁₂O₆).</li>
+            <li><strong>Energy Consequence:</strong> Endergonic! Requires continuous energy input from sunlight.</li>
+          </ul>
+        </div>
+      `;
+    }
+  }
+
+  /* ================= TAB 3A: MACROMOLECULES & POLYMERS ================= */
+  let currentMacro = 'carb';
+  let macroMonomers = 2;
+  let macroWater = 1;
+
+  function selectMacroClass(cls) {
+    currentMacro = cls;
+    macroMonomers = 2;
+    macroWater = 1;
+    ['carb', 'prot', 'nuc', 'lip'].forEach(k => {
+      document.getElementById(`mac-${k}`).classList.toggle('active', k === cls);
+    });
+    const isLip = cls === 'lip';
+    document.getElementById('polymer-builder-controls').style.display = isLip ? 'none' : 'flex';
+    document.getElementById('macro-counters').style.display = isLip ? 'none' : 'flex';
+    renderMacroUI();
+  }
+
+  function changeMonomers(delta) {
+    const next = macroMonomers + delta;
+    if (next < 1 || next > 7) return;
+    macroMonomers = next;
+    macroWater = Math.max(0, macroWater + delta);
+    renderMacroUI();
+  }
+
+  function renderMacroUI() {
+    const track = document.getElementById('macro-track');
+    const callout = document.getElementById('macro-callout');
+
+    if (currentMacro === 'lip') {
+      track.innerHTML = `
+        <div class="monomer-unit" style="border-color:#d97706; background:#fef3c7;">Triglyceride (Glycerol + 3 Fatty Acids)</div>
+        <div class="monomer-unit" style="border-color:#d97706; background:#fef3c7;">Phospholipid (Hydrophilic Head + 2 Hydrophobic Tails)</div>
+        <div class="monomer-unit" style="border-color:#d97706; background:#fef3c7;">Steroid (4 Fused Carbon Rings)</div>
+      `;
+      callout.className = 'callout nonpolar';
+      callout.innerHTML = `<strong>Lipids (Exception to True Polymers):</strong> Lipids are grouped together because they are <strong>hydrophobic</strong> (rich in non-polar C–H bonds), not because they form long repeating monomer chains. Includes fats/triglycerides (energy storage), phospholipids (cell membranes), and steroids.`;
+      return;
+    }
+
+    const configs = {
+      carb: {
+        unit: 'Monosaccharide (Glucose)',
+        bond: 'Glycosidic Linkage',
+        style: 'energy',
+        desc: '<strong>Carbohydrates:</strong> Built from <strong>monosaccharide</strong> monomers (e.g., glucose) joined by <strong>glycosidic linkages</strong> via dehydration synthesis. Used for quick fuel and structural support.'
+      },
+      prot: {
+        unit: 'Amino Acid',
+        bond: 'Peptide Bond',
+        style: 'polar',
+        desc: '<strong>Proteins:</strong> Built from <strong>amino acid</strong> monomers joined by covalent <strong>peptide bonds</strong> via dehydration synthesis. Fold into specific 3D shapes to act as enzymes, channels, and structural fibers.'
+      },
+      nuc: {
+        unit: 'Nucleotide',
+        bond: 'Phosphodiester Bond',
+        style: 'nucleic',
+        desc: '<strong>Nucleic Acids (DNA &amp; RNA):</strong> Built from <strong>nucleotide</strong> monomers joined by <strong>phosphodiester bonds</strong> (sugar-phosphate backbone) via dehydration synthesis.'
+      }
+    };
+
+    const cfg = configs[currentMacro];
+    let html = '';
+    for (let i = 0; i < macroMonomers; i++) {
+      html += `<div class="monomer-unit">${cfg.unit} #${i + 1}</div>`;
+      if (i < macroMonomers - 1) {
+        html += `<div class="bond-link">${cfg.bond}</div>`;
+      }
+    }
+    track.innerHTML = html;
+    document.getElementById('m-count').textContent = macroMonomers;
+    document.getElementById('b-count').textContent = Math.max(0, macroMonomers - 1);
+    document.getElementById('w-count').textContent = macroWater;
+    callout.className = `callout ${cfg.style}`;
+    callout.innerHTML = `${cfg.desc} <br><small><strong>Rule:</strong> Linking <em>n</em> monomers forms <em>n &minus; 1</em> covalent bonds and releases <em>n &minus; 1</em> H₂O molecules.</small>`;
+  }
+
+  /* ================= TAB 3B: STARCH VS CELLULOSE ================= */
+  function setCarbType(type) {
+    const isAlpha = type === 'alpha';
+    document.getElementById('carb-alpha-btn').classList.toggle('active', isAlpha);
+    document.getElementById('carb-beta-btn').classList.toggle('active', !isAlpha);
+    const svg = document.getElementById('carb-svg');
+    const callout = document.getElementById('carb-callout');
+
+    if (isAlpha) {
+      svg.innerHTML = `
+        <text x="210" y="20" text-anchor="middle" font-size="12" font-weight="800" fill="#065f46">Starch / Glycogen: All α-Glucose Units Oriented Same Way</text>
+        <rect x="35" y="45" width="70" height="36" rx="8" fill="#d1fae5" stroke="#059669" stroke-width="2.5"/><text x="70" y="67" text-anchor="middle" font-weight="800" font-size="11">α-Glc ↑</text>
+        <line x1="105" y1="63" x2="135" y2="63" stroke="#059669" stroke-width="3"/>
+        <rect x="135" y="45" width="70" height="36" rx="8" fill="#d1fae5" stroke="#059669" stroke-width="2.5"/><text x="170" y="67" text-anchor="middle" font-weight="800" font-size="11">α-Glc ↑</text>
+        <line x1="205" y1="63" x2="235" y2="63" stroke="#059669" stroke-width="3"/>
+        <rect x="235" y="45" width="70" height="36" rx="8" fill="#d1fae5" stroke="#059669" stroke-width="2.5"/><text x="270" y="67" text-anchor="middle" font-weight="800" font-size="11">α-Glc ↑</text>
+        <line x1="305" y1="63" x2="335" y2="63" stroke="#059669" stroke-width="3"/>
+        <rect x="335" y="45" width="60" height="36" rx="8" fill="#d1fae5" stroke="#059669" stroke-width="2.5"/><text x="365" y="67" text-anchor="middle" font-weight="800" font-size="11">α-Glc ↑</text>
+        <text x="210" y="105" text-anchor="middle" font-size="11" fill="#047857">Helical energy storage • Human digestive enzymes fit &amp; hydrolyze!</text>
+      `;
+      callout.className = 'callout energy';
+      callout.innerHTML = `<strong>Starch (Plants) &amp; Glycogen (Animals):</strong> Built from <strong>&alpha;-glucose</strong> monomers all facing the same direction. Human digestive enzymes (like amylase) recognize this shape and hydrolyze it into glucose for ATP.`;
+    } else {
+      svg.innerHTML = `
+        <text x="210" y="20" text-anchor="middle" font-size="12" font-weight="800" fill="#5b21b6">Cellulose: Every Other β-Glucose Flipped Upside Down</text>
+        <rect x="35" y="45" width="70" height="36" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.5"/><text x="70" y="67" text-anchor="middle" font-weight="800" font-size="11">β-Glc ↑</text>
+        <line x1="105" y1="63" x2="135" y2="63" stroke="#7c3aed" stroke-width="3"/>
+        <rect x="135" y="45" width="70" height="36" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.5"/><text x="170" y="67" text-anchor="middle" font-weight="800" font-size="11">β-Glc ↓</text>
+        <line x1="205" y1="63" x2="235" y2="63" stroke="#7c3aed" stroke-width="3"/>
+        <rect x="235" y="45" width="70" height="36" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.5"/><text x="270" y="67" text-anchor="middle" font-weight="800" font-size="11">β-Glc ↑</text>
+        <line x1="305" y1="63" x2="335" y2="63" stroke="#7c3aed" stroke-width="3"/>
+        <rect x="335" y="45" width="60" height="36" rx="8" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.5"/><text x="365" y="67" text-anchor="middle" font-weight="800" font-size="11">β-Glc ↓</text>
+        <text x="210" y="105" text-anchor="middle" font-size="11" fill="#5b21b6">Straight rigid fibers • Human enzymes CANNOT break β-linkages!</text>
+      `;
+      callout.className = 'callout nucleic';
+      callout.innerHTML = `<strong>Cellulose (Plant Cell Walls):</strong> Built from <strong>&beta;-glucose</strong> where every alternating monomer is flipped upside down. This creates straight, rigid fibers cross-linked by hydrogen bonds. Human enzymes lack the active-site shape to break &beta;-linkages, so cellulose passes through as dietary fiber.`;
+    }
+  }
+
+  /* ================= TAB 3C: PROTEIN ANATOMY & DENATURATION ================= */
+  function inspectPepPart(part) {
+    const box = document.getElementById('pep-part-callout');
+    const info = {
+      nterm: { style: 'polar', text: '<strong>N-Terminus (Amino Group, H₂N–):</strong> The starting end of a polypeptide chain carrying a free amino group.' },
+      cterm: { style: 'energy', text: '<strong>C-Terminus (Carboxyl Group, –COOH):</strong> The ending tip of a polypeptide chain carrying a free carboxyl group.' },
+      peptide: { style: 'oxidized', text: '<strong>Peptide Bond (C–N Covalent Bond):</strong> Formed by dehydration synthesis between the carboxyl group of one amino acid and the amino group of the next. Very strong covalent bond!' },
+      r_nonpolar: { style: 'nonpolar', text: '<strong>Non-polar R-Group (e.g., –CH₃):</strong> Contains only C and H. Hydrophobic—clusters toward the interior core of a folded protein away from water.' },
+      r_polar: { style: 'polar', text: '<strong>Polar R-Group (e.g., –CH₂–OH):</strong> Contains greedy O or N. Hydrophilic—forms hydrogen bonds on the outside of the protein or with other polar R-groups.' },
+      r_charged: { style: 'nucleic', text: '<strong>Charged / Ionic R-Group (e.g., –CH₂–COO⁻ or –NH₃⁺):</strong> Carries a full negative (acidic) or positive (basic) charge at cellular pH, forming strong ionic bonds and interacting with water.' }
+    };
+    box.className = `callout ${info[part].style}`;
+    box.innerHTML = info[part].text;
+  }
+
+  function selectProtLevel(lvl) {
+    [1, 2, 3, 4].forEach(i => document.getElementById(`lvl-${i}`).classList.toggle('active', i === lvl));
+    const box = document.getElementById('prot-level-callout');
+    const details = {
+      1: '<strong>Primary (1°) Structure:</strong> The unique linear order of amino acids linked by strong covalent <strong>peptide bonds</strong>. Encoded by DNA.',
+      2: '<strong>Secondary (2°) Structure:</strong> Regular local coils (<strong>&alpha;-helix</strong>) and folds (<strong>&beta;-pleated sheet</strong>) stabilized by <strong>hydrogen bonds</strong> between atoms of the repeating polypeptide backbone (not R-groups).',
+      3: '<strong>Tertiary (3°) Structure:</strong> The overall 3D globular shape created by interactions between <strong>R-groups</strong>: hydrophobic clustering, hydrogen bonds, ionic bonds, and covalent disulfide bridges.',
+      4: '<strong>Quaternary (4°) Structure:</strong> Present when a functional protein consists of <strong>two or more separate polypeptide subunits</strong> assembled together (such as hemoglobin).'
+    };
+    box.innerHTML = details[lvl];
+  }
+
+  function setDenatExtreme(t, p) {
+    document.getElementById('denat-temp-slider').value = t;
+    document.getElementById('denat-ph-slider').value = p;
+    updateDenatLab();
+  }
+  function resetDenat() { setDenatExtreme(37, 7.4); }
+
+  function updateDenatLab() {
+    const temp = Number(document.getElementById('denat-temp-slider').value);
+    const ph = Number(document.getElementById('denat-ph-slider').value);
+    document.getElementById('denat-temp-lbl').textContent = `${temp}°C`;
+    document.getElementById('denat-ph-lbl').textContent = `pH ${ph}`;
+
+    const box = document.getElementById('denat-result-box');
+    const denatured = temp >= 42 || ph <= 4.5 || ph >= 10.5;
+    if (!denatured) {
+      box.className = 'callout energy';
+      box.innerHTML = `<strong>Folded &amp; Functional (${temp}°C, pH ${ph}):</strong> Weak R-group interactions and backbone hydrogen bonds hold the 3°/2° structure in its native 3D shape.`;
+    } else {
+      box.className = 'callout oxidized';
+      box.innerHTML = `<strong>⚠️ DENATURED (${temp}°C, pH ${ph}):</strong> Excessive heat or extreme pH disrupts weak <strong>hydrogen bonds, ionic bonds, and hydrophobic R-group interactions</strong>, unfolding the 3° and 2° structure so the protein loses function. However, strong covalent <strong>peptide bonds (1° primary sequence) remain intact!</strong>`;
+    }
+  }
+
+  /* ================= TAB 4A: DNA VS RNA ================= */
+  function setNucType(type) {
+    const isDNA = type === 'DNA';
+    document.getElementById('toggle-dna-btn').classList.toggle('active', isDNA);
+    document.getElementById('toggle-rna-btn').classList.toggle('active', !isDNA);
+
+    const box = document.getElementById('nuc-c2-box');
+    const txt = document.getElementById('nuc-c2-txt');
+    const bases = document.getElementById('nuc-bases-svg');
+    const callout = document.getElementById('nuc-type-callout');
+
+    if (isDNA) {
+      box.setAttribute('fill', '#d1fae5');
+      box.setAttribute('stroke', '#059669');
+      txt.setAttribute('fill', '#065f46');
+      txt.textContent = "2' –H (DNA)";
+      bases.textContent = 'A, T, C, G';
+      callout.className = 'callout energy';
+      callout.innerHTML = `<strong>DNA (Deoxyribonucleic Acid):</strong> Uses <strong>deoxyribose</strong> sugar (lacks an oxygen at the <strong>2' carbon: –H</strong>), bases <strong>A, T, C, G</strong>, and forms a <strong>double-stranded antiparallel helix</strong>. Lack of the reactive 2'–OH makes DNA chemically stable for long-term genetic storage.`;
+    } else {
+      box.setAttribute('fill', '#ffe4e6');
+      box.setAttribute('stroke', '#e11d48');
+      txt.setAttribute('fill', '#9f1239');
+      txt.textContent = "2' –OH (RNA)";
+      bases.textContent = 'A, U, C, G';
+      callout.className = 'callout oxidized';
+      callout.innerHTML = `<strong>RNA (Ribonucleic Acid):</strong> Uses <strong>ribose</strong> sugar (has a reactive <strong>–OH group at the 2' carbon</strong>), uses <strong>Uracil (U)</strong> instead of Thymine (T), and is typically <strong>single-stranded</strong>. The reactive 2'–OH makes RNA less stable—ideal as a temporary messenger copy.`;
+    }
+  }
+
+  /* ================= TAB 4B: DISCUSSION SHEET 1 BUILDER ================= */
+  const dsTemplate = ['A', 'T', 'A', 'C', 'C', 'A', 'G', 'A'];
+  let dsMode = 'DNA';
+  let studentBases = Array(8).fill('?');
+
+  function setDsMode(mode) {
+    dsMode = mode;
+    document.getElementById('ds-mode-dna').classList.toggle('active', mode === 'DNA');
+    document.getElementById('ds-mode-rna').classList.toggle('active', mode === 'RNA');
+    studentBases = Array(8).fill('?');
+    renderDsBuilder();
+  }
+
+  function cycleBase(idx) {
+    const options = dsMode === 'DNA' ? ['A', 'T', 'C', 'G'] : ['A', 'U', 'C', 'G'];
+    const cur = studentBases[idx];
+    const nextIdx = cur === '?' ? 0 : (options.indexOf(cur) + 1) % options.length;
+    studentBases[idx] = options[nextIdx];
+    renderDsBuilder();
+  }
+
+  function autoFillDs() {
+    const map = dsMode === 'DNA'
+      ? { A: 'T', T: 'A', C: 'G', G: 'C' }
+      : { A: 'U', T: 'A', C: 'G', G: 'C' };
+    studentBases = dsTemplate.map(b => map[b]);
+    renderDsBuilder();
+  }
+
+  function resetDs() {
+    studentBases = Array(8).fill('?');
+    renderDsBuilder();
+  }
+
+  function renderDsBuilder() {
+    const tRow = document.getElementById('ds-template-row');
+    const hRow = document.getElementById('ds-hbonds-row');
+    const sRow = document.getElementById('ds-student-row');
+    const title = document.getElementById('ds-target-title');
+    const fb = document.getElementById('ds-feedback');
+
+    tRow.innerHTML = `<div class="end-cap">5'</div>` +
+      dsTemplate.map(b => `<div class="base-box base-${b}">${b}<small>DNA</small></div>`).join('') +
+      `<div class="end-cap">3'</div>`;
+
+    hRow.innerHTML = dsTemplate.map(b => {
+      const bonds = (b === 'G' || b === 'C') ? '3 H-bonds' : '2 H-bonds';
+      return `<div style="width:44px; text-align:center;">${bonds}</div>`;
+    }).join('');
+
+    const expectedMap = dsMode === 'DNA'
+      ? { A: 'T', T: 'A', C: 'G', G: 'C' }
+      : { A: 'U', T: 'A', C: 'G', G: 'C' };
+
+    let allFilled = true;
+    let allCorrect = true;
+
+    sRow.innerHTML = `<div class="end-cap" style="background:#7c3aed;">3'</div>` +
+      studentBases.map((sb, i) => {
+        const exp = expectedMap[dsTemplate[i]];
+        if (sb === '?') {
+          allFilled = false;
+          allCorrect = false;
+          return `<div class="base-box base-empty" onclick="cycleBase(${i})">?<small>Tap</small></div>`;
+        }
+        const ok = sb === exp;
+        if (!ok) allCorrect = false;
+        return `<div class="base-box base-${sb} ${ok ? 'base-correct' : 'base-wrong'}" onclick="cycleBase(${i})">${sb}<small>${ok ? '✓' : '✗'}</small></div>`;
+      }).join('') +
+      `<div class="end-cap" style="background:#7c3aed;">5'</div>`;
+
+    title.textContent = dsMode === 'DNA'
+      ? 'Your Complementary Antiparallel DNA Strand (Tap each box to choose A, T, C, or G):'
+      : 'Your Transcribed Complementary mRNA Strand (Tap each box to choose A, U, C, or G):';
+
+    if (allFilled && allCorrect) {
+      fb.className = 'callout energy';
+      fb.innerHTML = dsMode === 'DNA'
+        ? `✅ <strong>Perfect Complementary DNA!</strong> Aligned antiparallel to <code>5'-ATACCAGA-3'</code>, the complement is <code>3'-TATGGTCT-5'</code> (or written in standard <code>5' → 3'</code> order: <code>5'-TCTGGTAT-3'</code>). Notice A=T has 2 H-bonds and G≡C has 3 H-bonds.`
+        : `✅ <strong>Perfect Complementary mRNA!</strong> Aligned antiparallel to <code>5'-ATACCAGA-3'</code>, RNA polymerase pairs <strong>U</strong> with template A, giving <code>3'-UAUGGUCU-5'</code> (or written in standard <code>5' → 3'</code> order: <code>5'-UCUGGUAU-3'</code>).`;
+    } else {
+      fb.className = 'callout nucleic';
+      fb.innerHTML = dsMode === 'DNA'
+        ? `<strong>Antiparallel DNA Rule:</strong> Strands run in opposite directions (<strong>5'</strong> pairs across from <strong>3'</strong>). Pair <strong>A ↔ T</strong> (2 hydrogen bonds) and <strong>C ↔ G</strong> (3 hydrogen bonds).`
+        : `<strong>mRNA Transcription Rule:</strong> Complementary and antiparallel to the DNA template, except <strong>Uracil (U)</strong> replaces Thymine (T) across from DNA Adenine (A).`;
+    }
+  }
+
+  /* Initialize all sections on load */
+  window.onload = function() {
+    renderBondCards();
+    updateWaterSlider(25);
+    updatePhSlider(7);
+    setRedoxMode('respiration');
+    selectMacroClass('carb');
+    setCarbType('alpha');
+    updateDenatLab();
+    setNucType('DNA');
+    setDsMode('DNA');
+  };
+</script>
+</body>
+</html>
