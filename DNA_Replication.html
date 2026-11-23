@@ -1,0 +1,2353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BIOS 110: DNA Structure, Replication &amp; Telomere Studio</title>
+  <style>
+    :root {
+      --navy-900: #0f172a;
+      --navy-800: #1e293b;
+      --slate-700: #334155;
+      --slate-600: #475569;
+      --slate-500: #64748b;
+      --slate-300: #cbd5e1;
+      --slate-200: #e2e8f0;
+      --slate-100: #f1f5f9;
+      --slate-50: #f8fafc;
+      --white: #ffffff;
+
+      /* Scientific Domain Palette */
+      --lead-600: #2563eb;   /* Cobalt Blue: Leading Strand / 5'->3' */
+      --lead-100: #dbeafe;
+      --lead-50: #eff6ff;
+
+      --lag-600: #d97706;    /* Amber/Coral: Lagging Strand / Okazaki */
+      --lag-500: #ea580c;
+      --lag-100: #fef3c7;
+      --lag-50: #fffbeb;
+
+      --telo-600: #0d9488;   /* Teal: Telomerase / RNA Template */
+      --telo-100: #ccfbf1;
+      --telo-50: #f0fdfa;
+
+      --enz-600: #7c3aed;    /* Violet: Enzymes / Helicase / Topoisomerase */
+      --enz-100: #ede9fe;
+      --enz-50: #f5f3ff;
+
+      --rose-600: #e11d48;
+      --rose-100: #ffe4e6;
+      --rose-50: #fff1f2;
+
+      --emerald-600: #059669;
+      --emerald-100: #d1fae5;
+      --emerald-50: #ecfdf5;
+
+      --radius-lg: 14px;
+      --radius-md: 10px;
+      --radius-sm: 6px;
+      --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+      --shadow-md: 0 4px 12px -2px rgba(15, 23, 42, 0.08), 0 2px 6px -2px rgba(15, 23, 42, 0.04);
+      --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--slate-50);
+      background-image:
+        radial-gradient(var(--slate-300) 0.75px, transparent 0.75px),
+        radial-gradient(var(--slate-300) 0.75px, var(--slate-50) 0.75px);
+      background-size: 24px 24px;
+      background-position: 0 0, 12px 12px;
+      color: var(--navy-900);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Sticky Dark Navy Header */
+    header.studio-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: linear-gradient(135deg, var(--navy-900) 0%, var(--navy-800) 100%);
+      color: var(--white);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.2);
+    }
+
+    .header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0.85rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.85rem;
+    }
+
+    .brand-box {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 11px;
+      background: linear-gradient(135deg, var(--lead-600), var(--telo-600));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+    }
+
+    .brand-subtitle {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #93c5fd;
+    }
+
+    .brand-title {
+      font-size: 1.08rem;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      color: var(--white);
+    }
+
+    nav.module-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .tab-btn {
+      appearance: none;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: rgba(255, 255, 255, 0.07);
+      color: #e2e8f0;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 0.5rem 0.8rem;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .tab-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+      color: var(--white);
+    }
+
+    .tab-btn.active {
+      background: var(--lead-600);
+      border-color: #60a5fa;
+      color: var(--white);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.45);
+    }
+
+    /* Main Container */
+    main.workspace {
+      flex: 1;
+      max-width: 1280px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 2.5rem;
+    }
+
+    .module-panel {
+      display: none;
+      flex-direction: column;
+      gap: 1.35rem;
+    }
+
+    .module-panel.active {
+      display: flex;
+    }
+
+    /* Cards & Layout Utilities */
+    .card {
+      background: var(--white);
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 1.25rem 1.4rem;
+    }
+
+    .card-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--slate-100);
+    }
+
+    .card-title {
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: var(--navy-900);
+      letter-spacing: -0.01em;
+    }
+
+    .card-desc {
+      font-size: 0.84rem;
+      color: var(--slate-600);
+      margin-top: 0.2rem;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 0.22rem 0.55rem;
+      border-radius: 6px;
+    }
+
+    .badge-lead { background: var(--lead-100); color: #1e40af; }
+    .badge-lag { background: var(--lag-100); color: #9a3412; }
+    .badge-telo { background: var(--telo-100); color: #115e59; }
+    .badge-enz { background: var(--enz-100); color: #5b21b6; }
+    .badge-rose { background: var(--rose-100); color: #9f1239; }
+    .badge-emerald { background: var(--emerald-100); color: #065f46; }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.1rem;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1rem;
+    }
+
+    /* Buttons & Inputs */
+    .btn {
+      appearance: none;
+      border: 1px solid var(--slate-300);
+      background: var(--white);
+      color: var(--navy-900);
+      font-family: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.48rem 0.85rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .btn:hover {
+      background: var(--slate-100);
+      border-color: var(--slate-400);
+    }
+
+    .btn-primary {
+      background: var(--lead-600);
+      border-color: var(--lead-600);
+      color: var(--white);
+    }
+    .btn-primary:hover {
+      background: #1d4ed8;
+      border-color: #1d4ed8;
+    }
+
+    .btn-lag {
+      background: var(--lag-600);
+      border-color: var(--lag-600);
+      color: var(--white);
+    }
+    .btn-lag:hover {
+      background: #b45309;
+    }
+
+    .btn-telo {
+      background: var(--telo-600);
+      border-color: var(--telo-600);
+      color: var(--white);
+    }
+    .btn-telo:hover {
+      background: #0f766e;
+    }
+
+    .btn-enz {
+      background: var(--enz-600);
+      border-color: var(--enz-600);
+      color: var(--white);
+    }
+    .btn-enz:hover {
+      background: #6d28d9;
+    }
+
+    .btn-dark {
+      background: var(--navy-900);
+      border-color: var(--navy-900);
+      color: var(--white);
+    }
+    .btn-dark:hover {
+      background: var(--navy-800);
+    }
+
+    select, input[type="text"] {
+      font-family: inherit;
+      font-size: 0.84rem;
+      padding: 0.48rem 0.7rem;
+      border: 1px solid var(--slate-300);
+      border-radius: 8px;
+      background: var(--white);
+      color: var(--navy-900);
+    }
+
+    select:focus, input[type="text"]:focus {
+      outline: none;
+      border-color: var(--lead-600);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .mono {
+      font-family: var(--font-mono);
+    }
+
+    /* Tables */
+    table.lab-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+    }
+
+    table.lab-table th {
+      background: var(--navy-900);
+      color: var(--white);
+      text-align: left;
+      padding: 0.65rem 0.85rem;
+      font-weight: 700;
+    }
+
+    table.lab-table th:first-child { border-top-left-radius: 8px; }
+    table.lab-table th:last-child { border-top-right-radius: 8px; }
+
+    table.lab-table td {
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--slate-200);
+      vertical-align: middle;
+    }
+
+    table.lab-table tr:nth-child(even) td {
+      background: var(--slate-50);
+    }
+
+    /* Sequence Base Pills */
+    .seq-strip {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      overflow-x: auto;
+      padding: 0.45rem 0;
+    }
+
+    .end-tag {
+      font-family: var(--font-mono);
+      font-size: 0.76rem;
+      font-weight: 800;
+      padding: 0.25rem 0.5rem;
+      border-radius: 6px;
+      background: var(--navy-900);
+      color: var(--white);
+      flex-shrink: 0;
+    }
+
+    .base-box {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 800;
+      width: 28px;
+      height: 30px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid transparent;
+    }
+
+    .base-A { background: #dbeafe; color: #1e3a8a; border-color: #93c5fd; }
+    .base-T { background: #fef3c7; color: #78350f; border-color: #fcd34d; }
+    .base-G { background: #d1fae5; color: #064e3b; border-color: #6ee7b7; }
+    .base-C { background: #ede9fe; color: #4c1d95; border-color: #c4b5fd; }
+    .base-U { background: #ffe4e6; color: #881337; border-color: #fda4af; }
+
+    /* Alert Callouts */
+    .callout {
+      padding: 0.85rem 1rem;
+      border-radius: var(--radius-md);
+      border-left: 4px solid;
+      font-size: 0.83rem;
+      line-height: 1.5;
+    }
+    .callout-lead { background: var(--lead-50); border-color: var(--lead-600); color: #1e3a8a; }
+    .callout-lag { background: var(--lag-50); border-color: var(--lag-600); color: #7c2d12; }
+    .callout-telo { background: var(--telo-50); border-color: var(--telo-600); color: #134e4a; }
+    .callout-enz { background: var(--enz-50); border-color: var(--enz-600); color: #4c1d95; }
+    .callout-rose { background: var(--rose-50); border-color: var(--rose-600); color: #881337; }
+    .callout-emerald { background: var(--emerald-50); border-color: var(--emerald-600); color: #064e3b; }
+
+    /* SVG Container */
+    .svg-stage {
+      width: 100%;
+      background: #0f172a;
+      border-radius: var(--radius-md);
+      padding: 0.85rem;
+      overflow-x: auto;
+      border: 1px solid var(--navy-800);
+    }
+
+    .svg-stage-light {
+      width: 100%;
+      background: var(--slate-50);
+      border-radius: var(--radius-md);
+      padding: 0.85rem;
+      overflow-x: auto;
+      border: 1px solid var(--slate-200);
+    }
+
+    /* Range Slider */
+    input[type="range"] {
+      accent-color: var(--lead-600);
+      cursor: pointer;
+    }
+
+    /* Quiz Styling */
+    .quiz-item {
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 1.1rem;
+      background: var(--slate-50);
+    }
+
+    .quiz-option {
+      width: 100%;
+      text-align: left;
+      padding: 0.65rem 0.85rem;
+      margin-top: 0.45rem;
+      border-radius: 8px;
+      border: 1px solid var(--slate-300);
+      background: var(--white);
+      font-family: inherit;
+      font-size: 0.84rem;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      transition: all 0.14s ease;
+    }
+
+    .quiz-option:hover {
+      border-color: var(--lead-600);
+      background: var(--lead-50);
+    }
+
+    .quiz-option.correct {
+      background: var(--emerald-50);
+      border-color: var(--emerald-600);
+      color: #064e3b;
+      font-weight: 600;
+    }
+
+    .quiz-option.wrong {
+      background: var(--rose-50);
+      border-color: var(--rose-600);
+      color: #881337;
+      font-weight: 600;
+    }
+
+    .opt-letter {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1.5px solid currentColor;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* Myth Cards */
+    .myth-card {
+      border: 1px solid var(--slate-200);
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      background: var(--white);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .myth-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    footer.studio-footer {
+      background: var(--white);
+      border-top: 1px solid var(--slate-200);
+      padding: 1rem 1.25rem;
+      font-size: 0.78rem;
+      color: var(--slate-500);
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      .brand-title { font-size: 0.96rem; }
+      .tab-btn { font-size: 0.73rem; padding: 0.42rem 0.62rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- STICKY HEADER -->
+  <header class="studio-header">
+    <div class="header-inner">
+      <div class="brand-box">
+        <div class="brand-icon" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 15c6.667-6 13.333 0 20-6"/>
+            <path d="M9 22c1.798-1.998 2.518-3.995 2.807-5.993"/>
+            <path d="M15 2c-1.798 1.998-2.518 3.995-2.807 5.993"/>
+            <path d="M17 6l-2.5-2.5"/>
+            <path d="M14 8l-1-1"/>
+            <path d="M7 18l2.5 2.5"/>
+            <path d="M3.5 14.5l.5.5"/>
+            <path d="M20 9l.5.5"/>
+            <path d="M6.5 12.5l1 1"/>
+            <path d="M16.5 10.5l1 1"/>
+            <path d="M10 16l1.5 1.5"/>
+          </svg>
+        </div>
+        <div>
+          <div class="brand-subtitle">UIC BIOS 110 • Unit 2 Interactive Mastery Lab</div>
+          <h1 class="brand-title">BIOS 110: DNA Structure, Replication &amp; Telomere Studio</h1>
+        </div>
+      </div>
+
+      <nav class="module-tabs" aria-label="Studio Modules">
+        <button class="tab-btn active" data-tab="mod1">1. DNA Structure &amp; Antiparallel</button>
+        <button class="tab-btn" data-tab="mod2">2. Replication Fork &amp; Bubble</button>
+        <button class="tab-btn" data-tab="mod3">3. End-Replication &amp; Telomeres</button>
+        <button class="tab-btn" data-tab="mod4">4. Replisome &amp; Knockout Matrix</button>
+        <button class="tab-btn" data-tab="mod5">5. Misconceptions &amp; Exam Quiz</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="workspace">
+
+    <!-- =================================================================== -->
+    <!-- MODULE 1: DNA STRUCTURE, CENTRAL DOGMA & ANTIPARALLEL WORKBENCH     -->
+    <!-- =================================================================== -->
+    <section id="mod1" class="module-panel active">
+
+      <!-- 1A. Central Dogma Table Builder -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <span class="badge badge-lead">Study Guide Part 1</span>
+            <h2 class="card-title">Central Dogma of Molecular Biology &amp; Where Replication Fits</h2>
+            <p class="card-desc">Complete the BIOS 110 Study Guide table below, then click <strong>Check Table</strong> to verify each molecular flow pathway.</p>
+          </div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button id="cd-check-btn" class="btn btn-primary">Check Table</button>
+            <button id="cd-fill-btn" class="btn">Auto-Fill Answers</button>
+            <button id="cd-reset-btn" class="btn">Reset</button>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="lab-table">
+            <thead>
+              <tr>
+                <th style="width:22%;">Process</th>
+                <th style="width:28%;">Starts With (Template)</th>
+                <th style="width:28%;">Produces (Product)</th>
+                <th style="width:22%;">Key Enzyme / Location</th>
+              </tr>
+            </thead>
+            <tbody id="cd-table-body">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <div id="cd-feedback" style="margin-top:0.9rem;"></div>
+
+        <div class="callout callout-lead" style="margin-top:0.9rem;">
+          <strong>Where does DNA Replication fit in the Central Dogma (DNA → RNA → Protein)?</strong><br />
+          DNA replication is the <em>self-perpetuating horizontal loop</em> at the start of the framework (<strong>DNA → DNA</strong>). Before a cell divides (during S phase of interphase), it must duplicate its entire genome with extreme fidelity so each daughter cell inherits a complete copy of the genetic blueprint required to run <strong>DNA → RNA → Protein</strong>.
+        </div>
+      </div>
+
+      <!-- 1B. Base Chemistry & Watson-Crick Pairing Explorer -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <span class="badge badge-enz">Study Guide Part 2</span>
+            <h2 class="card-title">Nitrogenous Base Chemistry &amp; Watson-Crick Base Pairing</h2>
+            <p class="card-desc">Click any DNA base pair or individual base to inspect ring structure, hydrogen bonds, and why Purine–Pyrimidine pairing preserves a uniform 2 nm double-helix diameter.</p>
+          </div>
+          <div style="display:flex; gap:0.45rem; flex-wrap:wrap;" id="base-pair-btns">
+            <button class="btn btn-primary" data-pair="AT">A = T Pair (2 H-Bonds)</button>
+            <button class="btn" data-pair="GC">G ≡ C Pair (3 H-Bonds)</button>
+            <button class="btn" data-pair="purine-trap">Why Not Purine–Purine (A–G)?</button>
+            <button class="btn" data-pair="pyr-trap">Why Not Pyrimidine–Pyrimidine (C–T)?</button>
+          </div>
+        </div>
+
+        <div class="grid-2" style="align-items:center;">
+          <div class="svg-stage-light">
+            <svg id="base-pair-svg" viewBox="0 0 460 220" style="width:100%; height:auto; display:block;"></svg>
+          </div>
+          <div id="base-pair-explanation" style="display:flex; flex-direction:column; gap:0.7rem;">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 1C. Antiparallel & Strand-Relationship Analyzer (Study Guide & Discussion Q3) -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <span class="badge badge-lag">Discussion Sheet Q3 &amp; Study Guide</span>
+            <h2 class="card-title">Antiparallel &amp; Strand-Relationship Analyzer</h2>
+            <p class="card-desc">
+              Test the Study Guide template (<code>5'-ATGCCGTA-3'</code>) or the Discussion Sheet Q3 challenge (<code>5'-ATCGGATCAGCCAG-3'</code> vs. its 4 candidate strands) to distinguish <strong>Identical</strong>, <strong>Complementary</strong>, and <strong>Unrelated</strong> strands.
+            </p>
+          </div>
+          <div style="display:flex; gap:0.45rem; flex-wrap:wrap;">
+            <button id="preset-disc-q3" class="btn btn-lag">Load Discussion Sheet Q3</button>
+            <button id="preset-sg-atgccgta" class="btn btn-primary">Load Study Guide 5'-ATGCCGTA-3'</button>
+          </div>
+        </div>
+
+        <!-- Reference Strand Input -->
+        <div style="background:var(--slate-50); border:1px solid var(--slate-200); border-radius:10px; padding:0.9rem; margin-bottom:1rem;">
+          <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:0.75rem;">
+            <div>
+              <span style="font-size:0.75rem; font-weight:800; text-transform:uppercase; color:var(--lead-600);">Reference DNA Strand (Given)</span>
+              <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.35rem; flex-wrap:wrap;">
+                <select id="ref-dir">
+                  <option value="5to3" selected>5' → 3'</option>
+                  <option value="3to5">3' → 5'</option>
+                </select>
+                <input id="ref-seq" type="text" class="mono" value="ATCGGATCAGCCAG" style="width:240px; font-weight:700; text-transform:uppercase;" />
+              </div>
+            </div>
+            <div style="font-size:0.8rem; color:var(--slate-600); max-width:520px;">
+              <strong>Antiparallel Rule:</strong> The two strands of a DNA double helix run in opposite chemical directions (one <code>5' → 3'</code>, the partner <code>3' → 5'</code>) so nitrogenous bases face inward and form Watson-Crick hydrogen bonds.
+            </div>
+          </div>
+          <div id="ref-visual-strip" class="seq-strip" style="margin-top:0.5rem;"></div>
+        </div>
+
+        <!-- Candidate Strands Evaluation List -->
+        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:0.5rem; margin-bottom:0.65rem;">
+          <h3 style="font-size:0.92rem; font-weight:800;">Candidate DNA Strands to Classify:</h3>
+          <div style="display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap;">
+            <select id="cand-add-dir">
+              <option value="3to5">3' → 5'</option>
+              <option value="5to3">5' → 3'</option>
+            </select>
+            <input id="cand-add-seq" type="text" class="mono" placeholder="Custom candidate bases..." style="width:200px; text-transform:uppercase;" />
+            <button id="cand-add-btn" class="btn btn-dark">+ Test Candidate</button>
+          </div>
+        </div>
+
+        <div id="candidates-list" style="display:flex; flex-direction:column; gap:0.75rem;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- MODULE 2: REPLICATION FORK & BUBBLE SIMULATOR                       -->
+    <!-- =================================================================== -->
+    <section id="mod2" class="module-panel">
+
+      <!-- 2A. Interactive Bidirectional Replication Bubble Simulator (Sample Q1 & Q2) -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <span class="badge badge-lead">Study Guide Sample Q1 &amp; Q2 Simulator</span>
+            <h2 class="card-title">Bidirectional Replication Bubble: Leading vs. Lagging &amp; Okazaki Order</h2>
+            <p class="card-desc">
+              Scrub replication fork progression from Origin (0%) to full opening (100%) and toggle molecular layers to master the exact BIOS 110 replication bubble diagram.
+            </p>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.65rem; flex-wrap:wrap;">
+            <label style="font-size:0.8rem; font-weight:700; display:flex; align-items:center; gap:0.4rem;">
+              Fork Opening:
+              <input id="fork-slider" type="range" min="15" max="100" value="85" />
+              <span id="fork-pct" class="mono" style="min-width:38px;">85%</span>
+            </label>
+            <button id="fork-play-btn" class="btn btn-primary">▶ Animate Fork</button>
+          </div>
+        </div>
+
+        <!-- Layer Toggle Chips -->
+        <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.85rem;">
+          <label class="btn" style="padding:0.35rem 0.65rem; font-size:0.76rem;">
+            <input type="checkbox" id="tog-polarity" checked /> 5' &amp; 3' Polarity Ends
+          </label>
+          <label class="btn" style="padding:0.35rem 0.65rem; font-size:0.76rem;">
+            <input type="checkbox" id="tog-okazaki" checked /> Okazaki Order (C → B → A)
+          </label>
+          <label class="btn" style="padding:0.35rem 0.65rem; font-size:0.76rem;">
+            <input type="checkbox" id="tog-primers" checked /> RNA Primers (Primase)
+          </label>
+          <label class="btn" style="padding:0.35rem 0.65rem; font-size:0.76rem;">
+            <input type="checkbox" id="tog-enzymes" checked /> Replisome Proteins (Helicase, Topo, SSBPs)
+          </label>
+        </div>
+
+        <!-- Interactive Replication Bubble SVG -->
+        <div class="svg-stage">
+          <svg id="bubble-sim-svg" viewBox="0 0 860 360" style="width:100%; min-width:680px; height:auto; display:block;"></svg>
+        </div>
+
+        <!-- Sample Question Q1 & Q2 Proof Cards -->
+        <div class="grid-2" style="margin-top:1rem;">
+          <div class="callout callout-lead">
+            <strong>Study Guide Sample Q1 Proof (Upper-Right Template End):</strong><br />
+            In the upper-right quadrant, the new <strong>Leading strand</strong> (blue) is synthesized continuously <em>toward</em> the right-moving replication fork. Because DNA Polymerase III can ONLY synthesize new DNA in the <strong>5' → 3' direction</strong>, the growing tip at the right fork is the <strong>3' end</strong> of the new strand. By antiparallel base pairing, the parental template strand at the right fork MUST be its <strong>5' end</strong>!
+          </div>
+          <div class="callout callout-lag">
+            <strong>Study Guide Sample Q2 Proof (Okazaki Fragment Order: C → B → A):</strong><br />
+            In the upper-left quadrant, the fork moves <strong>leftward</strong> while the lagging strand must grow <strong>5' → 3' rightward</strong> (away from the fork). When the bubble first opened at the Origin, fragment <strong>C</strong> was synthesized first. As the fork opened further left, <strong>B</strong> was synthesized next, and <strong>A</strong> (closest to the moving fork) was synthesized most recently!
+          </div>
+        </div>
+      </div>
+
+      <!-- 2B. Interactive Discussion Sheet Q1 Bubble Drawer -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <span class="badge badge-enz">Discussion Sheet Q1 Interactive Practice</span>
+            <h2 class="card-title">Interactive Bubble Builder: Assign Leading vs. Lagging in All 4 Quadrants</h2>
+            <p class="card-desc">
+              Notice the Discussion Sheet bubble has <strong>Top Template: 3' (left) → 5' (right)</strong> and <strong>Bottom Template: 5' (left) → 3' (right)</strong>. Click each quadrant selector below to assign Leading or Lagging synthesis and check your diagram!
+            </p>
+          </div>
+          <div style="display:flex; gap:0.45rem;">
+            <button id="disc-bubble-check" class="btn btn-primary">Check My Bubble</button>
+            <button id="disc-bubble-solve" class="btn">Show Solution</button>
+            <button id="disc-bubble-reset" class="btn">Clear</button>
+          </div>
+        </div>
+
+        <div class="grid-2" style="align-items:center;">
+          <div class="svg-stage-light">
+            <svg id="disc-bubble-svg" viewBox="0 0 540 260" style="width:100%; height:auto; display:block;"></svg>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:0.65rem;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.6rem;">
+              <div style="background:var(--slate-50); padding:0.65rem; border-radius:8px; border:1px solid var(--slate-200);">
+                <div style="font-size:0.74rem; font-weight:800; color:var(--slate-700);">1. Upper-Left Quadrant</div>
+                <div style="font-size:0.72rem; color:var(--slate-500); margin-bottom:0.35rem;">Template: 3' at left fork → 5' at origin</div>
+                <select id="q-ul" style="width:100%;">
+                  <option value="">-- Choose --</option>
+                  <option value="leading">Leading (5'→3' toward left fork)</option>
+                  <option value="lagging">Lagging (Okazaki 5'→3' toward origin)</option>
+                </select>
+              </div>
+
+              <div style="background:var(--slate-50); padding:0.65rem; border-radius:8px; border:1px solid var(--slate-200);">
+                <div style="font-size:0.74rem; font-weight:800; color:var(--slate-700);">2. Upper-Right Quadrant</div>
+                <div style="font-size:0.72rem; color:var(--slate-500); margin-bottom:0.35rem;">Template: 3' at origin → 5' at right fork</div>
+                <select id="q-ur" style="width:100%;">
+                  <option value="">-- Choose --</option>
+                  <option value="leading">Leading (5'→3' toward right fork)</option>
+                  <option value="lagging">Lagging (Okazaki 5'→3' toward origin)</option>
+                </select>
+              </div>
+
+              <div style="background:var(--slate-50); padding:0.65rem; border-radius:8px; border:1px solid var(--slate-200);">
+                <div style="font-size:0.74rem; font-weight:800; color:var(--slate-700);">3. Lower-Left Quadrant</div>
+                <div style="font-size:0.72rem; color:var(--slate-500); margin-bottom:0.35rem;">Template: 5' at left fork → 3' at origin</div>
+                <select id="q-ll" style="width:100%;">
+                  <option value="">-- Choose --</option>
+                  <option value="leading">Leading (5'→3' toward left fork)</option>
+                  <option value="lagging">Lagging (Okazaki 5'→3' toward origin)</option>
+                </select>
+              </div>
+
+              <div style="background:var(--slate-50); padding:0.65rem; border-radius:8px; border:1px solid var(--slate-200);">
+                <div style="font-size:0.74rem; font-weight:800; color:var(--slate-700);">4. Lower-Right Quadrant</div>
+                <div style="font-size:0.72rem; color:var(--slate-500); margin-bottom:0.35rem;">Template: 5' at origin → 3' at right fork</div>
+                <select id="q-lr" style="width:100%;">
+                  <option value="">-- Choose --</option>
+                  <option value="leading">Leading (5'→3' toward right fork)</option>
+                  <option value="lagging">Lagging (Okazaki 5'→3' toward origin)</option>
+                </select>
+              </div>
+            </div>
+
+            <div id="disc-bubble-feedback"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2C. Why Three Unwinding Proteins & Prokaryotic vs Eukaryotic Origins -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <span class="badge badge-enz">Mechanistic Reasoning</span>
+            <h2 class="card-title">Why Helicase Alone Isn't Enough &amp; Prokaryotic vs. Eukaryotic Chromosomes</h2>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <div style="background:var(--enz-50); border:1px solid #ddd6fe; border-radius:10px; padding:0.95rem;">
+            <div style="font-weight:800; color:#5b21b6; font-size:0.9rem;">1. Helicase (Unzips H-Bonds)</div>
+            <p style="font-size:0.8rem; color:var(--slate-700); margin-top:0.35rem;">
+              Uses ATP hydrolysis to break hydrogen bonds between complementary base pairs at the replication fork, separating the parental double helix into two single-stranded templates.
+            </p>
+          </div>
+          <div style="background:var(--lead-50); border:1px solid #bfdbfe; border-radius:10px; padding:0.95rem;">
+            <div style="font-weight:800; color:#1e40af; font-size:0.9rem;">2. Single-Strand Binding Proteins (SSBPs)</div>
+            <p style="font-size:0.8rem; color:var(--slate-700); margin-top:0.35rem;">
+              Coat the separated single DNA strands to prevent them from spontaneously re-annealing (snapping back together) or forming hairpin loops before DNA Polymerase III can read them.
+            </p>
+          </div>
+          <div style="background:var(--lag-50); border:1px solid #fde68a; border-radius:10px; padding:0.95rem;">
+            <div style="font-weight:800; color:#9a3412; font-size:0.9rem;">3. Topoisomerase (Relieves Supercoiling)</div>
+            <p style="font-size:0.8rem; color:var(--slate-700); margin-top:0.35rem;">
+              Unwinding a twisted helix creates overwound tension (positive supercoiling) ahead of the fork. Topoisomerase transiently nicks, swivels, and rejoins DNA strands to prevent snapping.
+            </p>
+          </div>
+        </div>
+
+        <div style="margin-top:1rem; overflow-x:auto;">
+          <table class="lab-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>Prokaryotes (e.g., <em>E. coli</em>)</th>
+                <th>Eukaryotes (e.g., Humans)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Chromosome Shape &amp; Number</strong></td>
+                <td>Single circular chromosome (no free ends)</td>
+                <td>Multiple linear chromosomes (2 free telomeric ends per chromosome)</td>
+              </tr>
+              <tr>
+                <td><strong>Origins of Replication</strong></td>
+                <td><strong>1 single origin (<em>oriC</em>)</strong>; two forks travel bidirectionally around the circle</td>
+                <td><strong>Hundreds to thousands of origins</strong> per chromosome so huge genomes replicate rapidly during S phase</td>
+              </tr>
+              <tr>
+                <td><strong>Chromatin Packaging</strong></td>
+                <td>Nucleoid-associated proteins (no true histones/nucleosomes); very fast (~1,000 nt/sec)</td>
+                <td>Tightly wrapped around <strong>histone octamers (nucleosomes)</strong>; chromatin remodeling must temporarily unwrap nucleosomes ahead of the fork (~50 nt/sec)</td>
+              </tr>
+              <tr>
+                <td><strong>Termination &amp; Telomeres</strong></td>
+                <td>Two forks meet on opposite side of circle; <strong>no telomeres needed</strong></td>
+                <td>Multiple bubbles fuse; terminal lagging strand suffers the <strong>end-replication problem</strong>, requiring <strong>telomerase</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- MODULE 3: END-REPLICATION PROBLEM & TELOMERASE LAB                  -->
+    <!-- =================================================================== -->
+    <section id="mod3" class="module-panel">
+
+      <!-- 3A. Step-by-Step Linear Chromosome Shortening & Telomerase Rescue -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <span class="badge badge-telo">Study Guide Q3–Q5 &amp; Discussion Sheet Q2</span>
+            <h2 class="card-title">End-Replication Problem &amp; Telomerase Rescue Simulator</h2>
+            <p class="card-desc">
+              Step through primer removal at the end of a linear eukaryotic chromosome to see why the <strong>new strand is shorter on its 5' end</strong>—and how <strong>telomerase lengthens the 3' end of the template strand</strong>!
+            </p>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:0.4rem;" id="telo-step-btns">
+            <button class="btn btn-primary" data-tstep="0">1. Last Okazaki Fragment + Primer</button>
+            <button class="btn" data-tstep="1">2. Remove Terminal RNA Primer</button>
+            <button class="btn" data-tstep="2">3. Why DNA Pol III Cannot Fill Gap</button>
+            <button class="btn btn-telo" data-tstep="3">4. Telomerase Extends Template 3' End</button>
+            <button class="btn btn-enz" data-tstep="4">5. Primase + Pol III + Ligase Complete</button>
+          </div>
+        </div>
+
+        <div class="svg-stage">
+          <svg id="telomere-svg" viewBox="0 0 840 310" style="width:100%; min-width:660px; height:auto; display:block;"></svg>
+        </div>
+
+        <div id="telomere-narration" style="margin-top:0.95rem;"></div>
+
+        <!-- Discussion Sheet Q2 Direct Answer Box -->
+        <div class="callout callout-lag" style="margin-top:0.95rem;">
+          <strong>Discussion Sheet Q2 Verification:</strong><br />
+          <code>New Strand: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;5' ------------------------------------------ 3'</code><br />
+          <code>Template Strand: 3' ------------------------------------------ 5'</code><br />
+          <strong>Which end of the new DNA will be shorter? Why?</strong><br />
+          The <strong>5' end</strong> of the newly synthesized strand will be shorter! At the extreme 5' end of the new lagging strand, Primase places an RNA primer opposite the 3' end of the template strand. When DNA Polymerase I removes that terminal RNA primer, there is <strong>no upstream DNA strand with an exposed 3'-OH group</strong> for DNA Polymerase III or I to extend from. Thus, the 5' gap cannot be filled, leaving a 3' single-stranded overhang on the template and a shorter 5' end on the new strand.
+        </div>
+      </div>
+
+      <!-- 3B. Cell-Type Telomerase Activity Meter (Study Guide Q5 & Q7) -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <span class="badge badge-rose">Study Guide Sample Q5 &amp; Q7</span>
+            <h2 class="card-title">Telomerase Activity Across Human Cell Types &amp; Prokaryotes</h2>
+            <p class="card-desc">Select a cell type below to compare telomerase expression, telomere length over cell divisions, and biological consequences.</p>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-bottom:1rem;" id="celltype-btns">
+          <button class="btn btn-primary" data-cell="germ">Germline Cells (Ovaries &amp; Testes)</button>
+          <button class="btn" data-cell="somatic">Adult Somatic Cells (Muscle / Neurons / Skin)</button>
+          <button class="btn" data-cell="cancer">Cancer Cells (Malignant Tumor)</button>
+          <button class="btn" data-cell="prok">Prokaryotic Bacterial Cell (Circular DNA)</button>
+        </div>
+
+        <div id="celltype-panel">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- MODULE 4: LEADING VS. LAGGING & ENZYME KNOCKOUT MATRIX              -->
+    <!-- =================================================================== -->
+    <section id="mod4" class="module-panel">
+
+      <!-- 4A. Leading vs Lagging Side-by-Side Comparison -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <span class="badge badge-lead">Study Guide Synthesis</span>
+            <h2 class="card-title">Leading Strand vs. Lagging Strand Comparison Matrix</h2>
+            <p class="card-desc">Both strands are synthesized by DNA Polymerase III in the <strong>5' → 3' direction</strong>, yet their orientation relative to the replication fork creates distinct enzymatic workflows.</p>
+          </div>
+        </div>
+
+        <div style="overflow-x:auto;">
+          <table class="lab-table">
+            <thead>
+              <tr>
+                <th style="width:22%;">Property</th>
+                <th style="width:39%; background:#1e3a8a;">Leading Strand</th>
+                <th style="width:39%; background:#9a3412;">Lagging Strand</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>Template Strand Orientation (toward fork)</strong></td>
+                <td><code>3' → 5'</code> toward the replication fork</td>
+                <td><code>5' → 3'</code> toward the replication fork</td>
+              </tr>
+              <tr>
+                <td><strong>Direction of New DNA Synthesis</strong></td>
+                <td><code>5' → 3'</code> (<strong>toward</strong> the opening fork)</td>
+                <td><code>5' → 3'</code> (<strong>away</strong> from the opening fork)</td>
+              </tr>
+              <tr>
+                <td><strong>Continuity</strong></td>
+                <td><strong>Continuous</strong> single strand</td>
+                <td><strong>Discontinuous</strong> short segments (<strong>Okazaki fragments</strong>: ~1,000–2,000 nt in bacteria; ~100–200 nt in eukaryotes)</td>
+              </tr>
+              <tr>
+                <td><strong>RNA Primers Needed (Primase)</strong></td>
+                <td><strong>Only 1 RNA primer</strong> at the origin of replication</td>
+                <td><strong>Multiple RNA primers</strong> (one at the 5' start of <em>every</em> Okazaki fragment)</td>
+              </tr>
+              <tr>
+                <td><strong>DNA Polymerase III Role</strong></td>
+                <td>Continuously adds dNTPs to the single 3'-OH end</td>
+                <td>Synthesizes each Okazaki fragment until hitting the 5' RNA primer of the previous fragment</td>
+              </tr>
+              <tr>
+                <td><strong>DNA Polymerase I &amp; DNA Ligase</strong></td>
+                <td>DNA Pol I removes the single origin primer; Ligase seals the final nick when forks meet</td>
+                <td><strong>Heavily required:</strong> DNA Pol I removes every RNA primer and replaces it with DNA; <strong>DNA Ligase</strong> forms phosphodiester bonds sealing nicks between Okazaki fragments</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 4B. "What-If" Replisome Enzyme Knockout Predictor -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <span class="badge badge-enz">Exam Prediction Lab</span>
+            <h2 class="card-title">Replisome Enzyme Knockout &amp; Inhibitor Predictor</h2>
+            <p class="card-desc">Click any replication protein below to predict the exact molecular phenotype if that enzyme is mutated or blocked by a drug.</p>
+          </div>
+        </div>
+
+        <div style="display:flex; flex-wrap:wrap; gap:0.45rem; margin-bottom:1rem;" id="knockout-btns">
+          <button class="btn btn-enz" data-ko="helicase">Helicase Mutated</button>
+          <button class="btn" data-ko="topo">Topoisomerase Inhibited</button>
+          <button class="btn" data-ko="ssbp">SSBPs Absent</button>
+          <button class="btn" data-ko="primase">Primase Blocked</button>
+          <button class="btn" data-ko="pol3">DNA Pol III Proofreading Lost</button>
+          <button class="btn" data-ko="pol1">DNA Pol I Nonfunctional</button>
+          <button class="btn" data-ko="ligase">DNA Ligase Mutated</button>
+          <button class="btn" data-ko="telomerase">Telomerase Knocked Out</button>
+        </div>
+
+        <div id="knockout-output">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- MODULE 5: MISCONCEPTION BUSTER & BIOS 110 EXAM REASONING QUIZ       -->
+    <!-- =================================================================== -->
+    <section id="mod5" class="module-panel">
+
+      <!-- 5A. Top 8 DNA Replication & Telomere Misconceptions -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <span class="badge badge-rose">Exam Trap Radar</span>
+            <h2 class="card-title">Top 8 BIOS 110 DNA Replication &amp; Telomere Misconceptions</h2>
+            <p class="card-desc">Master these 8 classic traps from the BIOS 110 Study Guide and Discussion Sheet.</p>
+          </div>
+        </div>
+
+        <div class="grid-2" id="rep-myths-grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- 5B. 10-Question BIOS 110 Exam Reasoning Quiz -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <span class="badge badge-lead">Study Guide Q1–Q7 + Discussion Q1–Q3</span>
+            <h2 class="card-title">10-Question BIOS 110 DNA Structure &amp; Replication Quiz</h2>
+            <p class="card-desc">Every answer choice provides immediate mechanistic feedback explaining why it is right or which trap it represents.</p>
+          </div>
+          <div style="display:flex; align-items:center; gap:0.65rem;">
+            <span style="background:var(--navy-900); color:#fff; padding:0.45rem 0.85rem; border-radius:8px; font-size:0.82rem; font-weight:700;">
+              Score: <span id="rep-quiz-score" class="mono" style="color:#34d399;">0</span> / 10
+            </span>
+            <button id="rep-quiz-reset" class="btn">Reset Quiz</button>
+          </div>
+        </div>
+
+        <div id="rep-quiz-list" style="display:flex; flex-direction:column; gap:1rem;">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer class="studio-footer">
+    <strong>UIC BIOS 110: DNA Structure, Replication &amp; Telomere Studio</strong> • 5' → 3' Polymerization • Antiparallel Base Pairing • Semiconservative Replication
+  </footer>
+
+  <!-- ===================================================================== -->
+  <!-- SELF-CONTAINED JAVASCRIPT ENGINE                                      -->
+  <!-- ===================================================================== -->
+  <script>
+    /*************************************************************************
+     * NAVIGATION TABS
+     *************************************************************************/
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.module-panel');
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const target = btn.dataset.tab;
+        tabBtns.forEach(b => b.classList.toggle('active', b === btn));
+        panels.forEach(p => p.classList.toggle('active', p.id === target));
+      });
+    });
+
+    /*************************************************************************
+     * MODULE 1A: CENTRAL DOGMA TABLE BUILDER
+     *************************************************************************/
+    const CD_ROWS = [
+      {
+        process: 'Replication',
+        starts: 'DNA',
+        produces: 'DNA',
+        enzyme: 'DNA Polymerase III (Nucleus in euk / Cytoplasm in prok)'
+      },
+      {
+        process: 'Transcription',
+        starts: 'DNA',
+        produces: 'RNA (mRNA, tRNA, rRNA)',
+        enzyme: 'RNA Polymerase (Nucleus in euk / Cytoplasm in prok)'
+      },
+      {
+        process: 'Reverse Transcription',
+        starts: 'RNA',
+        produces: 'DNA (cDNA / Telomere repeats)',
+        enzyme: 'Reverse Transcriptase (Retroviruses) & Telomerase (Eukaryotes)'
+      },
+      {
+        process: 'Translation',
+        starts: 'mRNA',
+        produces: 'Polypeptide (Protein)',
+        enzyme: 'Ribosome (rRNA + proteins) & tRNA (Cytoplasm)'
+      }
+    ];
+
+    const CD_OPTIONS = [
+      '-- Select Molecule --',
+      'DNA',
+      'RNA (mRNA, tRNA, rRNA)',
+      'RNA',
+      'DNA (cDNA / Telomere repeats)',
+      'mRNA',
+      'Polypeptide (Protein)'
+    ];
+
+    function renderCentralDogmaTable(autoFill = false) {
+      const tbody = document.getElementById('cd-table-body');
+      tbody.innerHTML = CD_ROWS.map((r, idx) => `
+        <tr>
+          <td><strong>${r.process}</strong></td>
+          <td>
+            <select id="cd-start-${idx}" style="width:100%;">
+              ${CD_OPTIONS.map(opt => `<option value="${opt}" ${autoFill && opt === r.starts ? 'selected' : ''}>${opt}</option>`).join('')}
+            </select>
+          </td>
+          <td>
+            <select id="cd-prod-${idx}" style="width:100%;">
+              ${CD_OPTIONS.map(opt => `<option value="${opt}" ${autoFill && opt === r.produces ? 'selected' : ''}>${opt}</option>`).join('')}
+            </select>
+          </td>
+          <td style="font-size:0.78rem; color:var(--slate-600);">${r.enzyme}</td>
+        </tr>
+      `).join('');
+      document.getElementById('cd-feedback').innerHTML = '';
+    }
+
+    document.getElementById('cd-check-btn').addEventListener('click', () => {
+      let correctCount = 0;
+      let notes = [];
+      CD_ROWS.forEach((r, idx) => {
+        const sVal = document.getElementById(`cd-start-${idx}`).value;
+        const pVal = document.getElementById(`cd-prod-${idx}`).value;
+        const sOk = sVal === r.starts || (r.process === 'Reverse Transcription' && sVal.startsWith('RNA'));
+        const pOk = pVal === r.produces || (r.process === 'Reverse Transcription' && pVal.startsWith('DNA'));
+        if (sOk && pOk) {
+          correctCount++;
+        } else {
+          notes.push(`<strong>${r.process}:</strong> Starts with <em>${r.starts}</em> and produces <em>${r.produces}</em>.`);
+        }
+      });
+
+      const fb = document.getElementById('cd-feedback');
+      if (correctCount === 4) {
+        fb.innerHTML = `<div class="callout callout-emerald"><strong>✓ All 4 Central Dogma rows verified!</strong> Notice that <em>Reverse Transcription</em> (RNA → DNA) is catalyzed both by viral reverse transcriptase and by eukaryotic <strong>telomerase</strong> using its internal RNA template!</div>`;
+      } else {
+        fb.innerHTML = `<div class="callout callout-rose"><strong>${correctCount} / 4 rows complete.</strong> Check these entries:<br/>${notes.join('<br/>')}</div>`;
+      }
+    });
+
+    document.getElementById('cd-fill-btn').addEventListener('click', () => renderCentralDogmaTable(true));
+    document.getElementById('cd-reset-btn').addEventListener('click', () => renderCentralDogmaTable(false));
+
+    /*************************************************************************
+     * MODULE 1B: BASE CHEMISTRY & WATSON-CRICK PAIRING EXPLORER
+     *************************************************************************/
+    const PAIR_DATA = {
+      AT: {
+        title: 'Adenine (Purine) = Thymine (Pyrimidine) — 2 Hydrogen Bonds',
+        desc: 'Adenine has a two-ring purine structure, while Thymine has a single-ring pyrimidine structure. Together, one double-ring purine + one single-ring pyrimidine spans the exact 2.0 nm width of the DNA double helix and forms 2 hydrogen bonds.',
+        examTip: 'Because A=T has 2 hydrogen bonds (vs. 3 in G≡C), AT-rich regions require less energy to separate and are commonly found at Origins of Replication and TATA boxes!'
+      },
+      GC: {
+        title: 'Guanine (Purine) ≡ Cytosine (Pyrimidine) — 3 Hydrogen Bonds',
+        desc: 'Guanine (double-ring purine) pairs specifically with Cytosine (single-ring pyrimidine) via 3 hydrogen bonds, maintaining the exact same 2.0 nm helix diameter as an A=T pair.',
+        examTip: 'Higher GC content increases the melting temperature (Tm) of a DNA double helix because 3 hydrogen bonds provide greater thermal stability.'
+      },
+      'purine-trap': {
+        title: 'Why Purine–Purine Pairing (e.g., A–G) Fails',
+        desc: 'Both Adenine and Guanine are bulky double-ring purines. Pairing two purines together creates a wide bulge (> 2.0 nm) that distorts the sugar-phosphate backbone and prevents proper hydrogen bonding.',
+        examTip: 'Mnemonic: "PURE As Gold" → Purines = Adenine & Guanine (2 rings; shorter word = bigger molecule!).'
+      },
+      'pyr-trap': {
+        title: 'Why Pyrimidine–Pyrimidine Pairing (e.g., C–T) Fails',
+        desc: 'Both Cytosine and Thymine are smaller single-ring pyrimidines. Two pyrimidines across from each other are too narrow (< 2.0 nm) to reach across the helix interior and form stable hydrogen bonds.',
+        examTip: 'Mnemonic: "CUT the Py" → Pyrimidines = Cytosine, Uracil, Thymine (1 ring; longer word = smaller single-ring molecule!).'
+      }
+    };
+
+    function renderBasePair(mode = 'AT') {
+      document.querySelectorAll('#base-pair-btns button').forEach(b => {
+        b.className = b.dataset.pair === mode ? 'btn btn-primary' : 'btn';
+      });
+      const info = PAIR_DATA[mode];
+      document.getElementById('base-pair-explanation').innerHTML = `
+        <h3 style="font-size:0.96rem; font-weight:800; color:var(--navy-900);">${info.title}</h3>
+        <p style="font-size:0.83rem; color:var(--slate-700);">${info.desc}</p>
+        <div class="callout callout-enz"><strong>BIOS 110 Exam Tip:</strong> ${info.examTip}</div>
+      `;
+
+      const svg = document.getElementById('base-pair-svg');
+      if (mode === 'AT') {
+        svg.innerHTML = `
+          <!-- Sugar-Phosphate Backbones -->
+          <rect x="25" y="20" width="24" height="180" rx="10" fill="#2563eb"/>
+          <text x="37" y="15" text-anchor="middle" fill="#1e3a8a" font-family="monospace" font-size="12" font-weight="bold">5'</text>
+          <text x="37" y="214" text-anchor="middle" fill="#1e3a8a" font-family="monospace" font-size="12" font-weight="bold">3'</text>
+
+          <rect x="411" y="20" width="24" height="180" rx="10" fill="#0d9488"/>
+          <text x="423" y="15" text-anchor="middle" fill="#115e59" font-family="monospace" font-size="12" font-weight="bold">3'</text>
+          <text x="423" y="214" text-anchor="middle" fill="#115e59" font-family="monospace" font-size="12" font-weight="bold">5'</text>
+
+          <!-- Purine A (2 rings) -->
+          <polygon points="75,75 110,55 145,75 145,125 110,145 75,125" fill="#dbeafe" stroke="#2563eb" stroke-width="3"/>
+          <polygon points="145,75 182,65 202,100 182,135 145,125" fill="#bfdbfe" stroke="#2563eb" stroke-width="3"/>
+          <text x="128" y="105" text-anchor="middle" fill="#1e3a8a" font-size="15" font-weight="bold">Adenine (Purine)</text>
+          <line x1="49" y1="100" x2="75" y2="100" stroke="#334155" stroke-width="4"/>
+
+          <!-- 2 Hydrogen Bonds -->
+          <line x1="206" y1="86" x2="294" y2="86" stroke="#e11d48" stroke-width="3" stroke-dasharray="6 4"/>
+          <line x1="206" y1="114" x2="294" y2="114" stroke="#e11d48" stroke-width="3" stroke-dasharray="6 4"/>
+          <text x="250" y="74" text-anchor="middle" fill="#be123c" font-size="11" font-weight="bold">2 H-Bonds</text>
+
+          <!-- Pyrimidine T (1 ring) -->
+          <polygon points="300,75 342,55 384,75 384,125 342,145 300,125" fill="#fef3c7" stroke="#d97706" stroke-width="3"/>
+          <text x="342" y="105" text-anchor="middle" fill="#78350f" font-size="13" font-weight="bold">Thymine (Pyr)</text>
+          <line x1="384" y1="100" x2="411" y2="100" stroke="#334155" stroke-width="4"/>
+
+          <text x="230" y="185" text-anchor="middle" fill="#0f172a" font-size="12" font-weight="bold">Constant Helix Width = 2.0 nm (3 Rings Total)</text>
+        `;
+      } else if (mode === 'GC') {
+        svg.innerHTML = `
+          <rect x="25" y="20" width="24" height="180" rx="10" fill="#2563eb"/>
+          <text x="37" y="15" text-anchor="middle" fill="#1e3a8a" font-family="monospace" font-size="12" font-weight="bold">5'</text>
+          <text x="37" y="214" text-anchor="middle" fill="#1e3a8a" font-family="monospace" font-size="12" font-weight="bold">3'</text>
+
+          <rect x="411" y="20" width="24" height="180" rx="10" fill="#0d9488"/>
+          <text x="423" y="15" text-anchor="middle" fill="#115e59" font-family="monospace" font-size="12" font-weight="bold">3'</text>
+          <text x="423" y="214" text-anchor="middle" fill="#115e59" font-family="monospace" font-size="12" font-weight="bold">5'</text>
+
+          <!-- Purine G (2 rings) -->
+          <polygon points="75,75 110,55 145,75 145,125 110,145 75,125" fill="#d1fae5" stroke="#059669" stroke-width="3"/>
+          <polygon points="145,75 182,65 202,100 182,135 145,125" fill="#a7f3d0" stroke="#059669" stroke-width="3"/>
+          <text x="128" y="105" text-anchor="middle" fill="#064e3b" font-size="15" font-weight="bold">Guanine (Purine)</text>
+          <line x1="49" y1="100" x2="75" y2="100" stroke="#334155" stroke-width="4"/>
+
+          <!-- 3 Hydrogen Bonds -->
+          <line x1="206" y1="80" x2="294" y2="80" stroke="#059669" stroke-width="3" stroke-dasharray="6 4"/>
+          <line x1="206" y1="100" x2="294" y2="100" stroke="#059669" stroke-width="3" stroke-dasharray="6 4"/>
+          <line x1="206" y1="120" x2="294" y2="120" stroke="#059669" stroke-width="3" stroke-dasharray="6 4"/>
+          <text x="250" y="68" text-anchor="middle" fill="#065f46" font-size="11" font-weight="bold">3 H-Bonds</text>
+
+          <!-- Pyrimidine C (1 ring) -->
+          <polygon points="300,75 342,55 384,75 384,125 342,145 300,125" fill="#ede9fe" stroke="#7c3aed" stroke-width="3"/>
+          <text x="342" y="105" text-anchor="middle" fill="#4c1d95" font-size="13" font-weight="bold">Cytosine (Pyr)</text>
+          <line x1="384" y1="100" x2="411" y2="100" stroke="#334155" stroke-width="4"/>
+
+          <text x="230" y="185" text-anchor="middle" fill="#0f172a" font-size="12" font-weight="bold">Constant Helix Width = 2.0 nm (3 Rings Total — Higher Stability)</text>
+        `;
+      } else if (mode === 'purine-trap') {
+        svg.innerHTML = `
+          <path d="M35,20 Q10,110 35,200" fill="none" stroke="#e11d48" stroke-width="8" stroke-linecap="round"/>
+          <path d="M425,20 Q450,110 425,200" fill="none" stroke="#e11d48" stroke-width="8" stroke-linecap="round"/>
+          <rect x="65" y="70" width="145" height="60" rx="12" fill="#dbeafe" stroke="#2563eb" stroke-width="2.5"/>
+          <text x="137" y="105" text-anchor="middle" fill="#1e3a8a" font-size="13" font-weight="bold">Purine (2 Rings)</text>
+          <rect x="250" y="70" width="145" height="60" rx="12" fill="#d1fae5" stroke="#059669" stroke-width="2.5"/>
+          <text x="322" y="105" text-anchor="middle" fill="#064e3b" font-size="13" font-weight="bold">Purine (2 Rings)</text>
+          <text x="230" y="105" text-anchor="middle" fill="#e11d48" font-size="18" font-weight="bold">✕</text>
+          <text x="230" y="175" text-anchor="middle" fill="#be123c" font-size="13" font-weight="bold">4 Rings = Bulges Backbone (&gt; 2.0 nm)!</text>
+        `;
+      } else {
+        svg.innerHTML = `
+          <path d="M35,20 Q65,110 35,200" fill="none" stroke="#e11d48" stroke-width="8" stroke-linecap="round"/>
+          <path d="M425,20 Q395,110 425,200" fill="none" stroke="#e11d48" stroke-width="8" stroke-linecap="round"/>
+          <rect x="85" y="75" width="105" height="50" rx="12" fill="#fef3c7" stroke="#d97706" stroke-width="2.5"/>
+          <text x="137" y="104" text-anchor="middle" fill="#78350f" font-size="12" font-weight="bold">Pyrimidine (1)</text>
+          <rect x="270" y="75" width="105" height="50" rx="12" fill="#ede9fe" stroke="#7c3aed" stroke-width="2.5"/>
+          <text x="322" y="104" text-anchor="middle" fill="#4c1d95" font-size="12" font-weight="bold">Pyrimidine (1)</text>
+          <text x="230" y="104" text-anchor="middle" fill="#e11d48" font-size="13" font-weight="bold">Too Far!</text>
+          <text x="230" y="175" text-anchor="middle" fill="#be123c" font-size="13" font-weight="bold">2 Rings = Pinches Backbone (&lt; 2.0 nm)!</text>
+        `;
+      }
+    }
+
+    document.querySelectorAll('#base-pair-btns button').forEach(btn => {
+      btn.addEventListener('click', () => renderBasePair(btn.dataset.pair));
+    });
+
+    /*************************************************************************
+     * MODULE 1C: ANTIPARALLEL & STRAND-RELATIONSHIP ANALYZER (DISCUSSION Q3)
+     *************************************************************************/
+    function cleanDNA(str) {
+      return (str || '').toUpperCase().replace(/[^ATCG]/g, '');
+    }
+    function revStr(s) {
+      return s.split('').reverse().join('');
+    }
+    function compDNA(s) {
+      const m = { A: 'T', T: 'A', C: 'G', G: 'C' };
+      return s.split('').map(b => m[b] || '').join('');
+    }
+
+    let strandState = {
+      refDir: '5to3',
+      refSeq: 'ATCGGATCAGCCAG',
+      candidates: [
+        { dir: '3to5', seq: 'ATCGGATCAGCCAG' }, // a: Unrelated (same letters but reversed polarity!)
+        { dir: '3to5', seq: 'GACCGACTAGGCTA' }, // b: Identical! (5' ATCGGATCAGCCAG 3' written backwards 3'->5')
+        { dir: '3to5', seq: 'TAGCCTAGTCGGTC' }, // c: Complementary! (antiparallel Watson-Crick partner)
+        { dir: '5to3', seq: 'TAGCCTAGTCGGTC' }  // d: Unrelated (parallel complement trap!)
+      ]
+    };
+
+    function classifyCandidate(refSeq, refDir, candSeq, candDir) {
+      // Normalize reference to 5' -> 3'
+      const ref5to3 = refDir === '5to3' ? refSeq : revStr(refSeq);
+      // Normalize candidate to 5' -> 3'
+      const cand5to3 = candDir === '5to3' ? candSeq : revStr(candSeq);
+      // True Watson-Crick complement in 5' -> 3' orientation
+      const trueComp5to3 = compDNA(revStr(ref5to3));
+
+      if (cand5to3 === ref5to3) {
+        return {
+          status: 'IDENTICAL STRAND',
+          badge: 'badge-lead',
+          border: '#93c5fd',
+          bg: '#eff6ff',
+          reason: candDir === refDir
+            ? `Exact same nucleotide sequence in the same ${refDir === '5to3' ? "5' → 3'" : "3' → 5'"} orientation.`
+            : `When read in the same 5' → 3' direction, both strands have the exact sequence 5'-${ref5to3}-3' (simply written right-to-left as 3'→5').`
+        };
+      }
+
+      if (cand5to3 === trueComp5to3) {
+        return {
+          status: 'COMPLEMENTARY PARTNER STRAND',
+          badge: 'badge-emerald',
+          border: '#6ee7b7',
+          bg: '#ecfdf5',
+          reason: `Antiparallel Watson-Crick match! Aligning 5'-${ref5to3}-3' antiparallel with 3'-${revStr(cand5to3)}-5' pairs every A with T and every C with G.`
+        };
+      }
+
+      // Diagnose specific exam traps
+      if (cand5to3 === compDNA(ref5to3)) {
+        return {
+          status: 'UNRELATED (Parallel Complement Trap!)',
+          badge: 'badge-rose',
+          border: '#fda4af',
+          bg: '#fff1f2',
+          reason: `Classic Exam Trap! Someone complemented each base (A↔T, C↔G) WITHOUT accounting for antiparallel polarity (both strands run ${candDir === '5to3' ? "5'→3'" : "3'→5'"}) — parallel DNA strands cannot base-pair!`
+        };
+      }
+
+      if (cand5to3 === revStr(ref5to3)) {
+        return {
+          status: 'UNRELATED (Reversed Polarity Trap!)',
+          badge: 'badge-rose',
+          border: '#fda4af',
+          bg: '#fff1f2',
+          reason: `Exam Trap! It uses the same base letters left-to-right as the reference, but flipped the 3' and 5' labels—making its actual 5'→3' sequence 5'-${cand5to3}-3', which is neither identical nor complementary.`
+        };
+      }
+
+      return {
+        status: 'UNRELATED SEQUENCE',
+        badge: 'badge-rose',
+        border: '#cbd5e1',
+        bg: '#f8fafc',
+        reason: `When normalized to 5' → 3' (5'-${cand5to3}-3'), this sequence is neither identical to 5'-${ref5to3}-3' nor its antiparallel complement.`
+      };
+    }
+
+    function renderBasePills(seq, dir) {
+      const left = dir === '5to3' ? "5'" : "3'";
+      const right = dir === '5to3' ? "3'" : "5'";
+      return `
+        <div class="seq-strip">
+          <span class="end-tag">${left}</span>
+          ${seq.split('').map(b => `<span class="base-box base-${b}">${b}</span>`).join('')}
+          <span class="end-tag">${right}</span>
+        </div>
+      `;
+    }
+
+    function renderStrandAnalyzer() {
+      const refSeq = cleanDNA(document.getElementById('ref-seq').value) || 'A';
+      const refDir = document.getElementById('ref-dir').value;
+      strandState.refSeq = refSeq;
+      strandState.refDir = refDir;
+
+      document.getElementById('ref-visual-strip').innerHTML = renderBasePills(refSeq, refDir);
+
+      const list = document.getElementById('candidates-list');
+      list.innerHTML = strandState.candidates.map((c, idx) => {
+        const res = classifyCandidate(refSeq, refDir, c.seq, c.dir);
+        return `
+          <div style="border:1.5px solid ${res.border}; background:${res.bg}; border-radius:10px; padding:0.85rem 1rem;">
+            <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:0.5rem;">
+              <div style="display:flex; align-items:center; gap:0.5rem;">
+                <span style="font-weight:800; font-size:0.82rem;">Candidate ${String.fromCharCode(97 + idx).toUpperCase()}:</span>
+                <span class="badge ${res.badge}">${res.status}</span>
+              </div>
+              <button onclick="removeCandidate(${idx})" class="btn" style="padding:0.2rem 0.5rem; font-size:0.72rem;">Remove</button>
+            </div>
+            ${renderBasePills(c.seq, c.dir)}
+            <p style="font-size:0.8rem; color:var(--slate-700); margin-top:0.25rem;">${res.reason}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.removeCandidate = function(idx) {
+      strandState.candidates.splice(idx, 1);
+      renderStrandAnalyzer();
+    };
+
+    document.getElementById('ref-seq').addEventListener('input', renderStrandAnalyzer);
+    document.getElementById('ref-dir').addEventListener('change', renderStrandAnalyzer);
+
+    document.getElementById('cand-add-btn').addEventListener('click', () => {
+      const seq = cleanDNA(document.getElementById('cand-add-seq').value);
+      const dir = document.getElementById('cand-add-dir').value;
+      if (!seq) return;
+      strandState.candidates.push({ dir, seq });
+      document.getElementById('cand-add-seq').value = '';
+      renderStrandAnalyzer();
+    });
+
+    document.getElementById('preset-disc-q3').addEventListener('click', () => {
+      document.getElementById('ref-dir').value = '5to3';
+      document.getElementById('ref-seq').value = 'ATCGGATCAGCCAG';
+      strandState.candidates = [
+        { dir: '3to5', seq: 'ATCGGATCAGCCAG' },
+        { dir: '3to5', seq: 'GACCGACTAGGCTA' },
+        { dir: '3to5', seq: 'TAGCCTAGTCGGTC' },
+        { dir: '5to3', seq: 'TAGCCTAGTCGGTC' }
+      ];
+      renderStrandAnalyzer();
+    });
+
+    document.getElementById('preset-sg-atgccgta').addEventListener('click', () => {
+      document.getElementById('ref-dir').value = '5to3';
+      document.getElementById('ref-seq').value = 'ATGCCGTA';
+      strandState.candidates = [
+        { dir: '3to5', seq: 'TACGGCAT' },
+        { dir: '5to3', seq: 'TACGGCAT' },
+        { dir: '5to3', seq: 'ATGCCGTA' }
+      ];
+      renderStrandAnalyzer();
+    });
+
+    /*************************************************************************
+     * MODULE 2A: REPLICATION BUBBLE SIMULATOR (STUDY GUIDE Q1 & Q2)
+     *************************************************************************/
+    const forkSlider = document.getElementById('fork-slider');
+    const forkPct = document.getElementById('fork-pct');
+    let forkAnimTimer = null;
+
+    function renderBubbleSimulator() {
+      const pct = Number(forkSlider.value);
+      forkPct.textContent = pct + '%';
+      const showPol = document.getElementById('tog-polarity').checked;
+      const showOka = document.getElementById('tog-okazaki').checked;
+      const showPri = document.getElementById('tog-primers').checked;
+      const showEnz = document.getElementById('tog-enzymes').checked;
+
+      // Bubble geometry based on pct (15..100)
+      const center = 430;
+      const halfSpan = 70 + (pct / 100) * 260; // 96 .. 330
+      const leftFork = center - halfSpan;
+      const rightFork = center + halfSpan;
+      const topY = 100;
+      const botY = 260;
+      const midY = 180;
+
+      const svg = document.getElementById('bubble-sim-svg');
+      svg.innerHTML = `
+        <defs>
+          <marker id="arr-blue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#3b82f6"/>
+          </marker>
+          <marker id="arr-amber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#f59e0b"/>
+          </marker>
+        </defs>
+
+        <!-- Origin Vertical Guide -->
+        <line x1="${center}" y1="35" x2="${center}" y2="325" stroke="#475569" stroke-width="1.5" stroke-dasharray="5 5"/>
+        <rect x="${center - 34}" y="14" width="68" height="22" rx="6" fill="#059669"/>
+        <text x="${center}" y="29" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">ORIGIN</text>
+
+        <!-- Fork Movement Arrows -->
+        <text x="${leftFork - 15}" y="140" text-anchor="end" fill="#e879f9" font-size="11" font-weight="bold">◀ Fork Moves Left</text>
+        <text x="${rightFork + 15}" y="140" text-anchor="start" fill="#e879f9" font-size="11" font-weight="bold">Fork Moves Right ▶</text>
+
+        <!-- Unreplicated Parental Duplex Left & Right -->
+        <line x1="30" y1="${midY - 8}" x2="${leftFork}" y2="${midY - 8}" stroke="#cbd5e1" stroke-width="3.5"/>
+        <line x1="30" y1="${midY + 8}" x2="${leftFork}" y2="${midY + 8}" stroke="#cbd5e1" stroke-width="3.5"/>
+
+        <line x1="${rightFork}" y1="${midY - 8}" x2="830" y2="${midY - 8}" stroke="#cbd5e1" stroke-width="3.5"/>
+        <line x1="${rightFork}" y1="${midY + 8}" x2="830" y2="${midY + 8}" stroke="#cbd5e1" stroke-width="3.5"/>
+
+        <!-- Opened Parental Template Strands (Top & Bottom) -->
+        <path d="M ${leftFork},${midY - 8} Q ${leftFork + 35},${topY} ${center},${topY} Q ${rightFork - 35},${topY} ${rightFork},${midY - 8}"
+              fill="none" stroke="#f8fafc" stroke-width="3.5"/>
+        <path d="M ${leftFork},${midY + 8} Q ${leftFork + 35},${botY} ${center},${botY} Q ${rightFork - 35},${botY} ${rightFork},${midY + 8}"
+              fill="none" stroke="#f8fafc" stroke-width="3.5"/>
+
+        <!-- Polarity Labels (Matches Sample Q1 Diagram!) -->
+        ${showPol ? `
+          <text x="22" y="${midY - 12}" text-anchor="end" fill="#93c5fd" font-family="monospace" font-size="13" font-weight="bold">5'</text>
+          <text x="22" y="${midY + 18}" text-anchor="end" fill="#fcd34d" font-family="monospace" font-size="13" font-weight="bold">3'</text>
+
+          <text x="838" y="${midY - 12}" text-anchor="start" fill="#fcd34d" font-family="monospace" font-size="13" font-weight="bold">3'</text>
+          <text x="838" y="${midY + 18}" text-anchor="start" fill="#93c5fd" font-family="monospace" font-size="13" font-weight="bold">5'</text>
+
+          <!-- Q1 Highlight Callout at Upper-Right Fork -->
+          <circle cx="${rightFork - 12}" cy="${topY + 18}" r="14" fill="rgba(244,63,94,0.28)" stroke="#fb7185" stroke-width="2"/>
+          <text x="${rightFork + 10}" y="${topY - 6}" fill="#fda4af" font-size="11" font-weight="bold">Q1: 5' Template End Here!</text>
+        ` : ''}
+
+        <!-- UPPER-RIGHT LEADING STRAND (Grows 5'->3' toward Right Fork) -->
+        <line x1="${center + 8}" y1="${topY + 15}" x2="${rightFork - 22}" y2="${topY + 15}"
+              stroke="#3b82f6" stroke-width="4.5" marker-end="url(#arr-blue)"/>
+        ${showPri ? `<rect x="${center + 8}" y="${topY + 11}" width="18" height="8" rx="2" fill="#f43f5e"/>` : ''}
+        <text x="${(center + rightFork) / 2}" y="${topY + 34}" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="bold">
+          LEADING (5' → 3')
+        </text>
+
+        <!-- LOWER-LEFT LEADING STRAND (Grows 5'->3' toward Left Fork) -->
+        <line x1="${center - 8}" y1="${botY - 15}" x2="${leftFork + 22}" y2="${botY - 15}"
+              stroke="#3b82f6" stroke-width="4.5" marker-end="url(#arr-blue)"/>
+        ${showPri ? `<rect x="${center - 26}" y="${botY - 19}" width="18" height="8" rx="2" fill="#f43f5e"/>` : ''}
+        <text x="${(center + leftFork) / 2}" y="${botY - 26}" text-anchor="middle" fill="#60a5fa" font-size="11" font-weight="bold">
+          LEADING (3' ← 5')
+        </text>
+
+        <!-- UPPER-LEFT LAGGING STRAND (Okazaki Fragments C, B, A growing 5'->3' Rightward!) -->
+        ${renderOkazakiTrack(leftFork + 24, center - 8, topY + 15, 'right', showOka, showPri)}
+        <text x="${(center + leftFork) / 2}" y="${topY + 46}" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="bold">
+          LAGGING (Okazaki 5' → 3')
+        </text>
+
+        <!-- LOWER-RIGHT LAGGING STRAND (Okazaki Fragments growing 5'->3' Leftward!) -->
+        ${renderOkazakiTrack(center + 8, rightFork - 24, botY - 15, 'left', false, showPri)}
+        <text x="${(center + rightFork) / 2}" y="${botY - 36}" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="bold">
+          LAGGING (Okazaki 3' ← 5')
+        </text>
+
+        <!-- REPLISOME PROTEINS (Helicase, Topoisomerase, SSBPs) -->
+        ${showEnz ? `
+          <!-- Helicase Triangles at Both Forks -->
+          <polygon points="${leftFork - 10},${midY} ${leftFork + 14},${midY - 16} ${leftFork + 14},${midY + 16}" fill="#8b5cf6" stroke="#ddd6fe" stroke-width="1.5"/>
+          <polygon points="${rightFork + 10},${midY} ${rightFork - 14},${midY - 16} ${rightFork - 14},${midY + 16}" fill="#8b5cf6" stroke="#ddd6fe" stroke-width="1.5"/>
+          <text x="${leftFork}" y="${midY + 34}" text-anchor="middle" fill="#c4b5fd" font-size="10" font-weight="bold">Helicase</text>
+          <text x="${rightFork}" y="${midY + 34}" text-anchor="middle" fill="#c4b5fd" font-size="10" font-weight="bold">Helicase</text>
+
+          <!-- Topoisomerase Rings Ahead of Forks -->
+          <ellipse cx="${Math.max(55, leftFork - 34)}" cy="${midY}" rx="12" ry="18" fill="none" stroke="#f43f5e" stroke-width="3"/>
+          <text x="${Math.max(55, leftFork - 34)}" y="${midY - 24}" text-anchor="middle" fill="#fda4af" font-size="9" font-weight="bold">Topo</text>
+
+          <ellipse cx="${Math.min(805, rightFork + 34)}" cy="${midY}" rx="12" ry="18" fill="none" stroke="#f43f5e" stroke-width="3"/>
+          <text x="${Math.min(805, rightFork + 34)}" y="${midY - 24}" text-anchor="middle" fill="#fda4af" font-size="9" font-weight="bold">Topo</text>
+        ` : ''}
+      `;
+    }
+
+    function renderOkazakiTrack(xStart, xEnd, y, dir, showLabels, showPrimers) {
+      const span = xEnd - xStart;
+      if (span < 35) return '';
+      const count = span > 175 ? 3 : span > 100 ? 2 : 1;
+      const gap = 10;
+      const fragLen = (span - gap * (count - 1)) / count;
+      let out = '';
+
+      for (let i = 0; i < count; i++) {
+        const fx1 = xStart + i * (fragLen + gap);
+        const fx2 = fx1 + fragLen;
+        if (dir === 'right') {
+          // Leftmost is A (newest), rightmost is C (oldest)
+          const label = count === 3 ? ['A (3rd)', 'B (2nd)', 'C (1st)'][i] : count === 2 ? ['B (2nd)', 'C (1st)'][i] : 'C (1st)';
+          out += `<line x1="${fx1}" y1="${y}" x2="${fx2 - 4}" y2="${y}" stroke="#f59e0b" stroke-width="4.5" marker-end="url(#arr-amber)"/>`;
+          if (showPrimers) {
+            out += `<rect x="${fx1}" y="${y - 4}" width="12" height="8" rx="2" fill="#f43f5e"/>`;
+          }
+          if (showLabels) {
+            out += `<text x="${(fx1 + fx2) / 2}" y="${y + 16}" text-anchor="middle" fill="#fde047" font-size="10" font-weight="bold">${label}</text>`;
+          }
+        } else {
+          out += `<line x1="${fx2}" y1="${y}" x2="${fx1 + 4}" y2="${y}" stroke="#f59e0b" stroke-width="4.5" marker-end="url(#arr-amber)"/>`;
+          if (showPrimers) {
+            out += `<rect x="${fx2 - 12}" y="${y - 4}" width="12" height="8" rx="2" fill="#f43f5e"/>`;
+          }
+        }
+      }
+      return out;
+    }
+
+    forkSlider.addEventListener('input', renderBubbleSimulator);
+    ['tog-polarity', 'tog-okazaki', 'tog-primers', 'tog-enzymes'].forEach(id => {
+      document.getElementById(id).addEventListener('change', renderBubbleSimulator);
+    });
+
+    document.getElementById('fork-play-btn').addEventListener('click', (e) => {
+      if (forkAnimTimer) {
+        clearInterval(forkAnimTimer);
+        forkAnimTimer = null;
+        e.target.textContent = '▶ Animate Fork';
+        return;
+      }
+      forkSlider.value = 15;
+      e.target.textContent = '⏸ Pause';
+      forkAnimTimer = setInterval(() => {
+        let v = Number(forkSlider.value) + 2;
+        if (v > 100) {
+          v = 100;
+          clearInterval(forkAnimTimer);
+          forkAnimTimer = null;
+          e.target.textContent = '▶ Animate Fork';
+        }
+        forkSlider.value = v;
+        renderBubbleSimulator();
+      }, 45);
+    });
+
+    /*************************************************************************
+     * MODULE 2B: INTERACTIVE DISCUSSION SHEET BUBBLE DRAWER
+     *************************************************************************/
+    const DISC_SOLUTIONS = {
+      ul: 'leading',
+      ur: 'lagging',
+      ll: 'lagging',
+      lr: 'leading'
+    };
+
+    function renderDiscBubbleSVG() {
+      const ul = document.getElementById('q-ul').value;
+      const ur = document.getElementById('q-ur').value;
+      const ll = document.getElementById('q-ll').value;
+      const lr = document.getElementById('q-lr').value;
+
+      const svg = document.getElementById('disc-bubble-svg');
+
+      function quadArrow(qKey, val) {
+        if (!val) return '';
+        const isLead = val === 'leading';
+        const col = isLead ? '#2563eb' : '#d97706';
+        const mId = isLead ? 'url(#d-blue)' : 'url(#d-amber)';
+
+        if (qKey === 'ul') {
+          return isLead
+            ? `<line x1="262" y1="74" x2="145" y2="112" stroke="${col}" stroke-width="4" marker-end="${mId}"/>
+               <text x="195" y="75" fill="${col}" font-size="10" font-weight="bold">Leading 5'→3'</text>`
+            : `<line x1="150" y1="112" x2="260" y2="74" stroke="${col}" stroke-width="4" stroke-dasharray="14 6" marker-end="${mId}"/>
+               <text x="195" y="75" fill="${col}" font-size="10" font-weight="bold">Lagging 5'→3'</text>`;
+        }
+        if (qKey === 'ur') {
+          return isLead
+            ? `<line x1="278" y1="74" x2="395" y2="112" stroke="${col}" stroke-width="4" marker-end="${mId}"/>
+               <text x="345" y="75" fill="${col}" font-size="10" font-weight="bold">Leading 5'→3'</text>`
+            : `<line x1="395" y1="112" x2="280" y2="74" stroke="${col}" stroke-width="4" stroke-dasharray="14 6" marker-end="${mId}"/>
+               <text x="345" y="75" fill="${col}" font-size="10" font-weight="bold">Lagging 5'→3'</text>`;
+        }
+        if (qKey === 'll') {
+          return isLead
+            ? `<line x1="262" y1="186" x2="145" y2="148" stroke="${col}" stroke-width="4" marker-end="${mId}"/>
+               <text x="195" y="202" fill="${col}" font-size="10" font-weight="bold">Leading 5'→3'</text>`
+            : `<line x1="150" y1="148" x2="260" y2="186" stroke="${col}" stroke-width="4" stroke-dasharray="14 6" marker-end="${mId}"/>
+               <text x="195" y="202" fill="${col}" font-size="10" font-weight="bold">Lagging 5'→3'</text>`;
+        }
+        if (qKey === 'lr') {
+          return isLead
+            ? `<line x1="278" y1="186" x2="395" y2="148" stroke="${col}" stroke-width="4" marker-end="${mId}"/>
+               <text x="345" y="202" fill="${col}" font-size="10" font-weight="bold">Leading 5'→3'</text>`
+            : `<line x1="395" y1="148" x2="280" y2="186" stroke="${col}" stroke-width="4" stroke-dasharray="14 6" marker-end="${mId}"/>
+               <text x="345" y="202" fill="${col}" font-size="10" font-weight="bold">Lagging 5'→3'</text>`;
+        }
+        return '';
+      }
+
+      svg.innerHTML = `
+        <defs>
+          <marker id="d-blue" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#2563eb"/>
+          </marker>
+          <marker id="d-amber" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 1 L 10 5 L 0 9 z" fill="#d97706"/>
+          </marker>
+        </defs>
+
+        <!-- Origin line -->
+        <line x1="270" y1="24" x2="270" y2="236" stroke="#94a3b8" stroke-dasharray="4 4" stroke-width="1.5"/>
+        <text x="270" y="18" text-anchor="middle" fill="#059669" font-size="11" font-weight="bold">Origin</text>
+
+        <!-- Left & Right Duplexes -->
+        <line x1="35" y1="115" x2="130" y2="115" stroke="#0f172a" stroke-width="3"/>
+        <line x1="35" y1="145" x2="130" y2="145" stroke="#0f172a" stroke-width="3"/>
+        ${[50, 70, 90, 110].map(x => `<line x1="${x}" y1="115" x2="${x}" y2="145" stroke="#0f172a" stroke-width="2"/>`).join('')}
+
+        <line x1="410" y1="115" x2="505" y2="115" stroke="#0f172a" stroke-width="3"/>
+        <line x1="410" y1="145" x2="505" y2="145" stroke="#0f172a" stroke-width="3"/>
+        ${[430, 450, 470, 490].map(x => `<line x1="${x}" y1="115" x2="${x}" y2="145" stroke="#0f172a" stroke-width="2"/>`).join('')}
+
+        <!-- Diamond Bubble Strands (Matches Discussion Sheet Q1!) -->
+        <polyline points="130,115 270,58 410,115" fill="none" stroke="#0f172a" stroke-width="3"/>
+        <polyline points="130,145 270,202 410,145" fill="none" stroke="#0f172a" stroke-width="3"/>
+
+        <!-- Given Discussion Sheet Polarity Ends -->
+        <text x="24" y="119" text-anchor="end" fill="#0f172a" font-family="monospace" font-size="13" font-weight="bold">3'</text>
+        <text x="24" y="149" text-anchor="end" fill="#0f172a" font-family="monospace" font-size="13" font-weight="bold">5'</text>
+        <text x="516" y="119" text-anchor="start" fill="#0f172a" font-family="monospace" font-size="13" font-weight="bold">5'</text>
+        <text x="516" y="149" text-anchor="start" fill="#0f172a" font-family="monospace" font-size="13" font-weight="bold">3'</text>
+
+        ${quadArrow('ul', ul)}
+        ${quadArrow('ur', ur)}
+        ${quadArrow('ll', ll)}
+        ${quadArrow('lr', lr)}
+      `;
+    }
+
+    ['q-ul', 'q-ur', 'q-ll', 'q-lr'].forEach(id => {
+      document.getElementById(id).addEventListener('change', renderDiscBubbleSVG);
+    });
+
+    document.getElementById('disc-bubble-check').addEventListener('click', () => {
+      const vals = {
+        ul: document.getElementById('q-ul').value,
+        ur: document.getElementById('q-ur').value,
+        ll: document.getElementById('q-ll').value,
+        lr: document.getElementById('q-lr').value
+      };
+      const allRight = Object.keys(DISC_SOLUTIONS).every(k => vals[k] === DISC_SOLUTIONS[k]);
+      const fb = document.getElementById('disc-bubble-feedback');
+      if (allRight) {
+        fb.innerHTML = `<div class="callout callout-emerald"><strong>✓ Perfect!</strong> Because the top template is <code>3' (left) → 5' (right)</code>, the upper-left quadrant synthesizes <code>5' → 3'</code> continuously into the left fork (Leading), while the upper-right quadrant synthesizes <code>5' → 3'</code> back toward the origin (Lagging). The bottom strand is antiparallel (<code>5' → 3'</code>), reversing the pattern!</div>`;
+      } else {
+        fb.innerHTML = `<div class="callout callout-rose"><strong>Not quite yet!</strong> Remember: New DNA ALWAYS grows <code>5' → 3'</code> antiparallel to the template. Check which direction points <code>5' → 3'</code> toward the opening fork (Leading) vs. back toward the origin (Lagging).</div>`;
+      }
+    });
+
+    document.getElementById('disc-bubble-solve').addEventListener('click', () => {
+      document.getElementById('q-ul').value = 'leading';
+      document.getElementById('q-ur').value = 'lagging';
+      document.getElementById('q-ll').value = 'lagging';
+      document.getElementById('q-lr').value = 'leading';
+      renderDiscBubbleSVG();
+      document.getElementById('disc-bubble-check').click();
+    });
+
+    document.getElementById('disc-bubble-reset').addEventListener('click', () => {
+      ['q-ul', 'q-ur', 'q-ll', 'q-lr'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('disc-bubble-feedback').innerHTML = '';
+      renderDiscBubbleSVG();
+    });
+
+    /*************************************************************************
+     * MODULE 3A: END-REPLICATION PROBLEM & TELOMERASE RESCUE SIMULATOR
+     *************************************************************************/
+    const TELO_STEPS = [
+      {
+        title: 'Step 1: Terminal Okazaki Fragment Initiated by RNA Primer at Chromosome End',
+        text: 'Near the extreme 3\' end of the linear parental template strand (bottom), Primase synthesizes a short RNA primer (red), and DNA Polymerase III extends the new lagging strand 5\' → 3\' away from the end.',
+        badge: 'Lagging Strand Terminus'
+      },
+      {
+        title: 'Step 2: Terminal RNA Primer Is Removed (Leaving a 5\' Gap)',
+        text: 'DNA Polymerase I removes the RNA primer at the extreme 5\' end of the newly synthesized strand. Notice that the template strand\'s 3\' end now overhangs as single-stranded DNA.',
+        badge: 'Primer Removed'
+      },
+      {
+        title: 'Step 3: End-Replication Problem — Why DNA Polymerase Cannot Fill the 5\' Gap!',
+        text: 'DNA Polymerase III (and Pol I) can ONLY add nucleotides to an existing 3\'-OH group! Because there is no DNA strand upstream of the removed terminal primer, no 3\'-OH exists—so the new strand remains SHORTER ON ITS 5\' END (Study Guide Q3 & Discussion Q2)!',
+        badge: 'New Strand Shorter at 5\' End'
+      },
+      {
+        title: 'Step 4: Telomerase Lengthens the 3\' End of the TEMPLATE Strand!',
+        text: 'In germline and stem cells, Telomerase (a ribonucleoprotein reverse transcriptase) binds the 3\' overhang of the TEMPLATE strand (Study Guide Q4!) and uses its built-in RNA template (3\'-AAUCCC-5\') to add repetitive TTAGGG DNA repeats onto the template\'s 3\' end.',
+        badge: 'Telomerase Extends Template 3\' End'
+      },
+      {
+        title: 'Step 5: Primase, DNA Pol III & Ligase Complete the Extended Chromosome!',
+        text: 'Now that the template strand is longer at its 3\' end, Primase can place a new RNA primer further out, allowing DNA Pol III and DNA Ligase to synthesize the complementary strand and preserve internal coding genes!',
+        badge: 'Genes Protected!'
+      }
+    ];
+
+    function renderTelomereStep(step = 0) {
+      document.querySelectorAll('#telo-step-btns button').forEach(b => {
+        const isCurrent = Number(b.dataset.tstep) === step;
+        b.style.outline = isCurrent ? '3px solid #93c5fd' : 'none';
+      });
+
+      const info = TELO_STEPS[step];
+      document.getElementById('telomere-narration').innerHTML = `
+        <div class="callout ${step === 2 ? 'callout-rose' : step >= 3 ? 'callout-telo' : 'callout-lead'}">
+          <div style="font-weight:800; font-size:0.9rem; margin-bottom:0.2rem;">${info.title}</div>
+          <div>${info.text}</div>
+        </div>
+      `;
+
+      const svg = document.getElementById('telomere-svg');
+      // Template strand (bottom: 3' right -> 5' left, or oriented 5' left -> 3' right for clear right-end view)
+      // Let's orient Parental Template on bottom: 5' (left) -------------------> 3' (right end of chromosome)
+      // And New Lagging Strand on top:      3' (left) <------------------- 5' (right end of chromosome)
+      const baseRightX = 600;
+      const extendedRightX = 760;
+
+      let topStrand = '';
+      let botStrand = '';
+      let annotations = '';
+
+      if (step === 0) {
+        botStrand = `
+          <line x1="70" y1="205" x2="${baseRightX}" y2="205" stroke="#f8fafc" stroke-width="6"/>
+          <text x="52" y="210" text-anchor="end" fill="#93c5fd" font-family="monospace" font-size="14" font-weight="bold">5'</text>
+          <text x="${baseRightX + 14}" y="210" text-anchor="start" fill="#fcd34d" font-family="monospace" font-size="14" font-weight="bold">3'</text>
+          <text x="330" y="232" text-anchor="middle" fill="#cbd5e1" font-size="12" font-weight="bold">Parental Template Strand (Linear Chromosome End)</text>
+        `;
+        topStrand = `
+          <line x1="70" y1="155" x2="${baseRightX - 95}" y2="155" stroke="#3b82f6" stroke-width="6"/>
+          <rect x="${baseRightX - 95}" y="150" width="95" height="10" rx="3" fill="#f43f5e"/>
+          <text x="52" y="160" text-anchor="end" fill="#fcd34d" font-family="monospace" font-size="14" font-weight="bold">3'</text>
+          <text x="${baseRightX + 14}" y="160" text-anchor="start" fill="#fb7185" font-family="monospace" font-size="14" font-weight="bold">5'</text>
+          <text x="${baseRightX - 47}" y="138" text-anchor="middle" fill="#fda4af" font-size="11" font-weight="bold">Terminal RNA Primer</text>
+          <text x="270" y="138" text-anchor="middle" fill="#60a5fa" font-size="12" font-weight="bold">Newly Synthesized Lagging Strand</text>
+        `;
+      } else if (step === 1 || step === 2) {
+        botStrand = `
+          <line x1="70" y1="205" x2="${baseRightX}" y2="205" stroke="#f8fafc" stroke-width="6"/>
+          <text x="52" y="210" text-anchor="end" fill="#93c5fd" font-family="monospace" font-size="14" font-weight="bold">5'</text>
+          <text x="${baseRightX + 14}" y="210" text-anchor="start" fill="#fcd34d" font-family="monospace" font-size="14" font-weight="bold">3'</text>
+          <text x="${baseRightX - 47}" y="232" text-anchor="middle" fill="#fde047" font-size="11" font-weight="bold">3' Single-Stranded Overhang</text>
+        `;
+        topStrand = `
+          <line x1="70" y1="155" x2="${baseRightX - 95}" y2="155" stroke="#3b82f6" stroke-width="6"/>
+          <rect x="${baseRightX - 95}" y="150" width="95" height="10" rx="3" fill="none" stroke="#fb7185" stroke-width="2" stroke-dasharray="5 4"/>
+          <text x="52" y="160" text-anchor="end" fill="#fcd34d" font-family="monospace" font-size="14" font-weight="bold">3'</text>
+          <text x="${baseRightX - 88}" y="138" text-anchor="start" fill="#fb7185" font-family="monospace" font-size="13" font-weight="bold">5' (Shorter End!)</text>
+        `;
+        if (step === 2) {
+          annotations = `
+            <rect x="360" y="45" width="420" height="62" rx="10" fill="rgba(225,29,72,0.22)" stroke="#fb7185" stroke-width="2"/>
+            <text x="570" y="70" text-anchor="middle" fill="#fda4af" font-size="12" font-weight="bold">
+              NO 3'-OH Group Upstream of the 5' Gap!
+            </text>
+            <text x="570" y="90" text-anchor="middle" fill="#fecdd3" font-size="11">
+              DNA Pol III only synthesizes 5'→3' → New strand is permanently shorter at its 5' end.
+            </text>
+          `;
+        }
+      } else if (step === 3) {
+        botStrand = `
+          <line x1="70" y1="205" x2="${baseRightX}" y2="205" stroke="#f8fafc" stroke-width="6"/>
+          <line x1="${baseRightX}" y1="205" x2="${extendedRightX}" y2="205" stroke="#14b8a6" stroke-width="6"/>
+          <text x="52" y="210" text-anchor="end" fill="#93c5fd" font-family="monospace" font-size="14" font-weight="bold">5'</text>
+          <text x="${extendedRightX + 14}" y="210" text-anchor="start" fill="#5eead4" font-family="monospace" font-size="14" font-weight="bold">3'</text>
+          <text x="${(baseRightX + extendedRightX) / 2}" y="232" text-anchor="middle" fill="#5eead4" font-size="11" font-weight="bold">Added TTAGGG Repeats</text>
+        `;
+        topStrand = `
+          <line x1="70" y1="155" x2="${baseRightX - 95}" y2="155" stroke="#3b82f6" stroke-width="6"/>
+          <text x="52" y="160" text-anchor="end" fill="#fcd34d" font-family="monospace" font-size="14" font-weight="bold">3'</text>
+          <text x="${baseRightX - 88}" y="140" text-anchor="start" fill="#93c5fd" font-family="monospace" font-size="13" font-weight="bold">5'</text>
+        `;
+        annotations = `
+          <!-- Telomerase Ribonucleoprotein Complex -->
+          <ellipse cx="${baseRightX + 65}" cy="245" rx="115" ry="42" fill="rgba(13,148,136,0.35)" stroke="#2dd4bf" stroke-width="2.5"/>
+          <text x="${baseRightX + 65}" y="255" text-anchor="middle" fill="#ffffff" font-size="12" font-weight="bold">TELOMERASE Enzyme</text>
+          <text x="${baseRightX + 65}" y="272" text-anchor="middle" fill="#99f6e4" font-family="monospace" font-size="11" font-weight="bold">Internal RNA: 3'-AAUCCC-5'</text>
+          <text x="410" y="65" text-anchor="middle" fill="#5eead4" font-size="13" font-weight="bold">
+            Study Guide Q4: Telomerase lengthens the 3' end of the TEMPLATE strand!
+          </text>
+        `;
+      } else if (step === 4) {
+        botStrand = `
+          <line x1="70" y1="205" x2="${baseRightX}" y2="205" stroke="#f8fafc" stroke-width="6"/>
+          <line x1="${baseRightX}" y1="205" x2="${extendedRightX}" y2="205" stroke="#14b8a6" stroke-width="6"/>
+          <text x="52" y="210" text-anchor="end" fill="#93c5fd" font-family="monospace" font-size="14" font-weight="bold">5'</text>
+          <text x="${extendedRightX + 14}" y="210" text-anchor="start" fill="#5eead4" font-family="monospace" font-size="14" font-weight="bold">3'</text>
+        `;
+        topStrand = `
+          <line x1="70" y1="155" x2="${extendedRightX - 65}" y2="155" stroke="#3b82f6" stroke-width="6"/>
+          <rect x="${extendedRightX - 65}" y="150" width="65" height="10" rx="3" fill="#f43f5e"/>
+          <text x="52" y="160" text-anchor="end" fill="#fcd34d" font-family="monospace" font-size="14" font-weight="bold">3'</text>
+          <text x="${extendedRightX + 14}" y="160" text-anchor="start" fill="#60a5fa" font-family="monospace" font-size="14" font-weight="bold">5'</text>
+          <text x="430" y="128" text-anchor="middle" fill="#93c5fd" font-size="12" font-weight="bold">
+            Primase + DNA Pol III + DNA Ligase Fill the Former Gap (Coding Genes Preserved!)
+          </text>
+        `;
+      }
+
+      svg.innerHTML = `${topStrand}${botStrand}${annotations}`;
+    }
+
+    document.querySelectorAll('#telo-step-btns button').forEach(b => {
+      b.addEventListener('click', () => renderTelomereStep(Number(b.dataset.tstep)));
+    });
+
+    /*************************************************************************
+     * MODULE 3B: CELL-TYPE TELOMERASE ACTIVITY METER
+     *************************************************************************/
+    const CELL_TYPES = {
+      germ: {
+        name: 'Germline Cells (Ovaries & Testes — Study Guide Sample Q5)',
+        level: 'HIGH (95%)',
+        barColor: 'var(--telo-600)',
+        width: '95%',
+        summary: 'Cells in the ovaries and testes produce gametes (eggs and sperm). High telomerase activity ensures full-length telomeres are passed on to offspring so each new generation starts with intact chromosomes.',
+        examNote: 'Study Guide Q5 Answer: Both C (Ovaries) & D (Testes) have high levels of telomerase activity!'
+      },
+      somatic: {
+        name: 'Adult Somatic Cells (Neurons, Muscle, Skin Fibroblasts)',
+        level: 'VERY LOW / SILENCED (5%)',
+        barColor: 'var(--slate-500)',
+        width: '8%',
+        summary: 'In most differentiated adult somatic cells, the telomerase gene is turned off. Telomeres progressively shorten with each mitotic cell division until reaching a critical threshold (Hayflick limit), triggering cellular senescence (aging) or apoptosis.',
+        examNote: 'Progressive telomere shortening acts as a natural mitotic tumor-suppressor clock in somatic tissues.'
+      },
+      cancer: {
+        name: 'Cancer Cells (Study Guide Sample Q7)',
+        level: 'REACTIVATED / HIGH (90%)',
+        barColor: 'var(--rose-600)',
+        width: '90%',
+        summary: '~85–90% of human cancers reactivate telomerase expression! By rebuilding telomeres after every cell division, cancer cells bypass senescence and achieve replicative immortality.',
+        examNote: 'Study Guide Q7 Answer: Telomerase activity in cancerous cells is GREATER THAN telomerase activity in normal somatic cells.'
+      },
+      prok: {
+        name: 'Prokaryotic Bacterial Cell (Circular Chromosome)',
+        level: 'NONE NEEDED (0% — Circular DNA)',
+        barColor: 'var(--lead-600)',
+        width: '0%',
+        summary: 'Prokaryotes have circular chromosomes with NO free 5\' or 3\' ends! When DNA Polymerase I removes the final RNA primer on a circular chromosome, there is ALWAYS an adjacent upstream DNA strand providing a free 3\'-OH group for DNA Pol I and Ligase to close the circle completely.',
+        examNote: 'No linear ends = No end-replication problem = No telomeres or telomerase required in bacteria!'
+      }
+    };
+
+    function renderCellType(key = 'germ') {
+      document.querySelectorAll('#celltype-btns button').forEach(b => {
+        b.className = b.dataset.cell === key ? 'btn btn-primary' : 'btn';
+      });
+      const c = CELL_TYPES[key];
+      document.getElementById('celltype-panel').innerHTML = `
+        <div style="background:var(--slate-50); border:1px solid var(--slate-200); border-radius:10px; padding:1rem; display:flex; flex-direction:column; gap:0.65rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+            <strong style="font-size:0.95rem;">${c.name}</strong>
+            <span class="mono" style="font-size:0.8rem; font-weight:800; color:${c.barColor};">Telomerase Activity: ${c.level}</span>
+          </div>
+          <div style="width:100%; height:14px; background:var(--slate-200); border-radius:999px; overflow:hidden;">
+            <div style="width:${c.width}; height:100%; background:${c.barColor}; transition:width 0.3s ease;"></div>
+          </div>
+          <p style="font-size:0.83rem; color:var(--slate-700);">${c.summary}</p>
+          <div class="callout callout-telo"><strong>Exam Key Takeaway:</strong> ${c.examNote}</div>
+        </div>
+      `;
+    }
+
+    document.querySelectorAll('#celltype-btns button').forEach(b => {
+      b.addEventListener('click', () => renderCellType(b.dataset.cell));
+    });
+
+    /*************************************************************************
+     * MODULE 4B: REPLISOME ENZYME KNOCKOUT PREDICTOR
+     *************************************************************************/
+    const KNOCKOUTS = {
+      helicase: {
+        title: 'Helicase Mutated / Knocked Out',
+        phenotype: 'Replication fork cannot open; parental double helix remains zipped.',
+        detail: 'Without helicase breaking hydrogen bonds between base pairs, single-stranded templates are never exposed to Primase or DNA Polymerase III. DNA synthesis completely halts at the origin.'
+      },
+      topo: {
+        title: 'Topoisomerase Inhibited (e.g., Fluoroquinolone / Camptothecin)',
+        phenotype: 'Extreme positive supercoiling builds up ahead of the replication fork, stalling Helicase and causing double-strand DNA breaks.',
+        detail: 'As Helicase unwinds the double helix, overwound torsional stress accumulates downstream. Without Topoisomerase cutting and rejoining DNA to relieve tension, the fork jams and chromosomes fragment.'
+      },
+      ssbp: {
+        title: 'Single-Strand Binding Proteins (SSBPs) Absent',
+        phenotype: 'Separated single DNA strands immediately re-anneal (snap back together) or form intrastrand hairpins.',
+        detail: 'Even though Helicase separates the strands, exposed bases rapidly re-form hydrogen bonds before DNA Polymerase III can read them, severely blocking elongation.'
+      },
+      primase: {
+        title: 'Primase Blocked / Mutated',
+        phenotype: 'Neither the leading strand nor any Okazaki fragment on the lagging strand can initiate synthesis!',
+        detail: 'DNA Polymerase III CANNOT start a new strand from scratch—it strictly requires a pre-existing free 3\'-OH group. Without Primase laying down short RNA primers, DNA Pol III cannot add a single nucleotide.'
+      },
+      pol3: {
+        title: 'DNA Polymerase III 3\'→5\' Exonuclease Proofreading Lost',
+        phenotype: 'Replication still proceeds rapidly, but spontaneous mutation rate skyrockets ~100–1,000-fold!',
+        detail: 'Normal DNA Pol III has an error rate of ~1 in 100,000,000 (10⁻⁸) bases (Study Guide Q6) because its 3\'→5\' exonuclease backs up to excise mismatched nucleotides before continuing 5\'→3\' polymerization.'
+      },
+      pol1: {
+        title: 'DNA Polymerase I Nonfunctional',
+        phenotype: 'RNA primers remain embedded inside the newly synthesized DNA strands (especially across every Okazaki fragment on the lagging strand).',
+        detail: 'DNA Pol I uses its 5\'→3\' exonuclease activity to remove RNA primers and its 5\'→3\' polymerase activity to replace them with DNA nucleotides. Without it, RNA segments persist and Ligase cannot seal DNA-to-RNA junctions.'
+      },
+      ligase: {
+        title: 'DNA Ligase Mutated / Inhibited',
+        phenotype: 'Intact leading strand, but the lagging strand remains fragmented into unjoined Okazaki DNA pieces separated by sugar-phosphate nicks!',
+        detail: 'Even after DNA Pol I replaces all RNA primers with DNA, adjacent Okazaki fragments are separated by a missing phosphodiester bond ("nick"). DNA Ligase catalyzes that final covalent bond.'
+      },
+      telomerase: {
+        title: 'Telomerase Knocked Out in Germline / Stem Cells',
+        phenotype: 'Progressive telomere shortening across cell divisions and generations, eventually eroding essential coding genes and causing infertility/premature aging.',
+        detail: 'Without telomerase extending the 3\' end of linear template strands, each S phase loses terminal nucleotides from the 5\' end of lagging strands.'
+      }
+    };
+
+    function renderKnockout(key = 'helicase') {
+      document.querySelectorAll('#knockout-btns button').forEach(b => {
+        b.className = b.dataset.ko === key ? 'btn btn-enz' : 'btn';
+      });
+      const k = KNOCKOUTS[key];
+      document.getElementById('knockout-output').innerHTML = `
+        <div class="callout callout-enz" style="display:flex; flex-direction:column; gap:0.4rem;">
+          <div style="font-size:0.95rem; font-weight:800;">${k.title}</div>
+          <div><strong>Predicted Phenotype:</strong> ${k.phenotype}</div>
+          <div style="color:var(--slate-700);"><strong>Mechanistic Explanation:</strong> ${k.detail}</div>
+        </div>
+      `;
+    }
+
+    document.querySelectorAll('#knockout-btns button').forEach(b => {
+      b.addEventListener('click', () => renderKnockout(b.dataset.ko));
+    });
+
+    /*************************************************************************
+     * MODULE 5: MISCONCEPTION CARDS & 10-QUESTION EXAM QUIZ
+     *************************************************************************/
+    const REP_MYTHS = [
+      {
+        num: 1,
+        myth: '“The leading strand is synthesized 5\' → 3\', while the lagging strand is synthesized 3\' → 5\’.”',
+        reality: 'BOTH the leading and lagging strands are synthesized strictly 5\' → 3\' by DNA Polymerase III! The lagging strand only appears "backwards" because it grows 5\' → 3\' away from the opening fork in short Okazaki fragments.'
+      },
+      {
+        num: 2,
+        myth: '“Okazaki fragment A (closest to the replication fork) was synthesized first.”',
+        reality: 'False! Synthesis begins at the Origin of Replication. The fragment closest to the Origin (C) was synthesized FIRST; as the fork opened further outward, B and then A were synthesized later (Order: C → B → A).'
+      },
+      {
+        num: 3,
+        myth: '“Telomerase lengthens the 5\' end of the newly synthesized lagging strand.”',
+        reality: 'Classic BIOS 110 Trap (Sample Q4)! Telomerase binds and lengthens the 3\' end of the parental TEMPLATE strand using its internal RNA template, creating space for Primase + Pol III to fill in the new strand afterward.'
+      },
+      {
+        num: 4,
+        myth: '“After replication of a linear chromosome without telomerase, the new strand is shorter on its 3\' end.”',
+        reality: 'False (Sample Q3 & Discussion Q2)! Because DNA Pol III grows strands 5\' → 3\', the terminal RNA primer sits at the extreme 5\' end of the new lagging strand. Removing that primer leaves the new strand shorter on its 5\' end.'
+      },
+      {
+        num: 5,
+        myth: '“DNA Polymerase III can start synthesizing a new DNA strand on a bare single-stranded template.”',
+        reality: 'DNA Pol III can ONLY extend an existing 3\'-OH group. Primase must first synthesize a short complementary RNA primer (with a free 3\'-OH) before DNA Pol III can add deoxyribonucleotides.'
+      },
+      {
+        num: 6,
+        myth: '“Helicase is the only enzyme needed to unwind and prepare the DNA double helix at the fork.”',
+        reality: 'Helicase breaks H-bonds, but SSBPs are required to keep separated strands from re-annealing, and Topoisomerase is required ahead of the fork to relieve torsional supercoiling.'
+      },
+      {
+        num: 7,
+        myth: '“Prokaryotic bacteria use telomerase to protect the ends of their chromosomes.”',
+        reality: 'Prokaryotes have circular chromosomes with NO free ends! Every removed primer has an adjacent upstream 3\'-OH group around the circle, so bacteria have no end-replication problem and no telomeres.'
+      },
+      {
+        num: 8,
+        myth: '“Two DNA strands with the sequence 5\'-ATCGGATCAGCCAG-3\' and 3\'-ATCGGATCAGCCAG-5\' are identical.”',
+        reality: 'False (Discussion Q3)! Polarity matters: 3\'-ATCGGATCAGCCAG-5\' read from 5\' → 3\' is 5\'-GACCGACTAGGCTA-3\', which is completely different from 5\'-ATCGGATCAGCCAG-3\'.'
+      }
+    ];
+
+    function renderRepMyths() {
+      document.getElementById('rep-myths-grid').innerHTML = REP_MYTHS.map(m => `
+        <div class="myth-card">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="badge badge-rose">Exam Trap #${m.num}</span>
+            <span style="font-size:0.72rem; color:var(--slate-500); font-weight:600;">BIOS 110 Concept Check</span>
+          </div>
+          <div class="callout callout-rose" style="padding:0.65rem 0.8rem;">
+            <strong>MYTH:</strong> ${m.myth}
+          </div>
+          <div class="callout callout-emerald" style="padding:0.65rem 0.8rem;">
+            <strong>REALITY:</strong> ${m.reality}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    const REP_QUIZ = [
+      {
+        q: '1. (Study Guide Sample Q1) In a standard bidirectional replication bubble where the upper-right quadrant shows a continuous Leading strand growing toward the right fork, is the parental template end at that right fork its 5\' end or 3\' end?',
+        options: [
+          'The 5\' end of the template strand',
+          'The 3\' end of the template strand',
+          'Either end, because leading strands grow bidirectionally',
+          'Neither end, because circular chromosomes have no ends'
+        ],
+        correct: 0,
+        explanations: [
+          'Correct! The leading strand grows 5\' → 3\' toward the right fork, so its growing tip at the right fork is 3\'. By antiparallel base pairing, the parental template strand at that right fork must be its 5\' end.',
+          'Trap! If the template were 3\' at the right fork, the new strand would have to be 5\' at the fork and grow away (lagging).',
+          'Leading strands only grow in the 5\' → 3\' direction.',
+          'Even within a replication bubble, every strand segment has defined 5\' and 3\' chemical polarity.'
+        ]
+      },
+      {
+        q: '2. (Study Guide Sample Q2) In the upper-left quadrant of a replication bubble, Okazaki fragments C (closest to origin), B (middle), and A (closest to left fork) are shown. In what chronological order were they synthesized?',
+        options: [
+          'A first, then B, then C',
+          'C first, then B, then A',
+          'B first, then A and C simultaneously',
+          'All three were synthesized simultaneously by one DNA Pol III'
+        ],
+        correct: 1,
+        explanations: [
+          'Trap! A is closest to the moving fork, meaning that region of DNA was unwound most recently.',
+          'Correct! The bubble opens starting at the Origin. Fragment C (nearest the origin) was synthesized first; as the fork opened further left, B was synthesized second, and A was synthesized third.',
+          'Synthesis proceeds sequentially as Helicase exposes new template DNA moving outward from the origin.',
+          'Okazaki fragments are synthesized sequentially as the fork advances.'
+        ]
+      },
+      {
+        q: '3. (Study Guide Sample Q3 & Discussion Q2) After DNA replication of a linear eukaryotic chromosome (without telomerase), how does the length of the newly synthesized strand compare to the template strand?',
+        options: [
+          'Both the new strand and template strand are the exact same length',
+          'The new strand is shorter on its 5\' end',
+          'The new strand is shorter on its 3\' end',
+          'The template strand is shorter on its 5\' end'
+        ],
+        correct: 1,
+        explanations: [
+          'Only true if telomerase extends the template first or in circular prokaryotic chromosomes.',
+          'Correct! Removal of the terminal RNA primer leaves an unfillable gap at the extreme 5\' end of the newly synthesized lagging strand because there is no upstream 3\'-OH group.',
+          'Trap! The 3\' end of the new strand is synthesized all the way to the 5\' end of its template.',
+          'The parental template strand remains intact at its full original length.'
+        ]
+      },
+      {
+        q: '4. (Study Guide Sample Q4) Which strand and end does the enzyme telomerase directly lengthen?',
+        options: [
+          'Telomerase lengthens the 5\' end of the newly synthesized strand',
+          'Telomerase lengthens the 3\' end of the newly synthesized strand',
+          'Telomerase lengthens the 5\' end of the template strand',
+          'Telomerase lengthens the 3\' end of the template strand'
+        ],
+        correct: 3,
+        explanations: [
+          'Classic Trap! Telomerase cannot add nucleotides in the 3\' → 5\' direction to the new strand\'s 5\' end.',
+          'The new lagging strand\'s 3\' end is pointed away from the telomere terminus.',
+          'The 5\' end of the template strand is already blunt-paired with the 3\' end of the leading strand.',
+          'Correct! Telomerase binds the 3\' overhang of the parental TEMPLATE strand and uses its internal RNA template to extend that template\'s 3\' end with TTAGGG repeats.'
+        ]
+      },
+      {
+        q: '5. (Study Guide Sample Q5 & Q7) Which statement accurately compares telomerase activity across human cells?',
+        options: [
+          'High in adult brain neurons and skeletal muscle; absent in ovaries and testes',
+          'High in germline cells (both ovaries and testes) and greater in cancer cells than in normal somatic cells',
+          'Equal across all somatic, germline, and cancer cells',
+          'Only active in prokaryotic cells with circular DNA'
+        ],
+        correct: 1,
+        explanations: [
+          'Reversed! Neurons and muscle cells are differentiated somatic cells with silenced telomerase.',
+          'Correct! Both ovaries and testes (Sample Q5: Both C & D) maintain high telomerase for gamete production, and cancer cells reactivate telomerase to levels greater than normal somatic cells (Sample Q7).',
+          'Somatic cells silence telomerase, whereas germline and cancer cells express high levels.',
+          'Prokaryotes lack telomeres and telomerase.'
+        ]
+      },
+      {
+        q: '6. (Study Guide Sample Q6) Due to its 3\' → 5\' exonuclease proofreading activity, what is the approximate error rate of DNA Polymerase III?',
+        options: [
+          '1 in 100 bases',
+          '1 in 10,000 bases',
+          '1 in 100,000,000 bases (10⁻⁸)',
+          'DNA Polymerase III is 100% error-free'
+        ],
+        correct: 2,
+        explanations: [
+          'Far too high—that would destroy genetic information in a single generation.',
+          'That is closer to initial base selection before proofreading (~1 in 10⁵).',
+          'Correct! Proofreading reduces errors to roughly 1 in 100,000,000 bases (and mismatch repair reduces it even further to ~1 in 10¹⁰).',
+          'No biological polymerase is 100% error-free; rare uncorrected errors provide the raw genetic variation for evolution.'
+        ]
+      },
+      {
+        q: '7. (Discussion Sheet Q3) Given the DNA strand 5\'-ATCGGATCAGCCAG-3\', which of the following is its true complementary DNA strand?',
+        options: [
+          '3\'-ATCGGATCAGCCAG-5\'',
+          '3\'-GACCGACTAGGCTA-5\'',
+          '3\'-TAGCCTAGTCGGTC-5\'',
+          '5\'-TAGCCTAGTCGGTC-3\''
+        ],
+        correct: 2,
+        explanations: [
+          'Unrelated: same letters left-to-right, but reversed polarity.',
+          'Identical! Reading 3\'-GACCGACTAGGCTA-5\' from 5\' → 3\' gives 5\'-ATCGGATCAGCCAG-3\'.',
+          'Correct! Antiparallel polarity (3\' → 5\') paired with Watson-Crick complements (A↔T, C↔G) yields 3\'-TAGCCTAGTCGGTC-5\'.',
+          'Trap! Parallel complement—bases are complemented, but 5\'→3\' orientation is parallel rather than antiparallel.'
+        ]
+      },
+      {
+        q: '8. Why are helicase, single-strand binding proteins (SSBPs), and topoisomerase ALL required to open the DNA double helix during replication?',
+        options: [
+          'Helicase synthesizes RNA primers, SSBPs proofread mismatches, and topoisomerase seals Okazaki nicks',
+          'Helicase breaks H-bonds to unwind DNA, SSBPs prevent separated strands from re-annealing, and topoisomerase relieves overwound supercoiling ahead of the fork',
+          'Helicase replicates the leading strand while topoisomerase replicates the lagging strand',
+          'All three enzymes are only found in eukaryotes to unwrap histones'
+        ],
+        correct: 1,
+        explanations: [
+          'Those roles belong to Primase, DNA Pol III, and DNA Ligase.',
+          'Correct! Each protein solves a distinct physical problem of unwinding a double-helical polymer.',
+          'DNA Polymerase III synthesizes both leading and lagging strands.',
+          'Both prokaryotes and eukaryotes require helicase, SSBPs, and topoisomerase.'
+        ]
+      },
+      {
+        q: '9. Which enzyme removes RNA primers from Okazaki fragments and replaces them with DNA nucleotides, and which enzyme seals the remaining sugar-phosphate nick?',
+        options: [
+          'Primase removes primers; DNA Polymerase III seals the nick',
+          'DNA Polymerase I removes primers and fills with DNA; DNA Ligase seals the nick',
+          'Helicase removes primers; Topoisomerase seals the nick',
+          'DNA Ligase removes primers; DNA Polymerase I seals the nick'
+        ],
+        correct: 1,
+        explanations: [
+          'Primase synthesizes RNA primers rather than removing them.',
+          'Correct! DNA Pol I excises RNA primers and inserts dNTPs, and DNA Ligase forms the final phosphodiester bond between adjacent DNA fragments.',
+          'Helicase and Topoisomerase act ahead of/at the replication fork.',
+          'Reversed roles.'
+        ]
+      },
+      {
+        q: '10. If you have the DNA template strand 5\'-ATGCCGTA-3\' (Study Guide Part 2), what is the complementary DNA strand written in standard 5\' → 3\' orientation?',
+        options: [
+          '5\'-TACGGCAT-3\'',
+          '5\'-TACGGCAU-3\'',
+          '5\'-ATGCCGTA-3\'',
+          '3\'-TACGGCAT-5\' is the only valid way to write it, which equals 5\'-TACGGCAT-3\''
+        ],
+        correct: 0,
+        explanations: [
+          'Correct! Antiparallel pairing gives 3\'-TACGGCAT-5\', which when read in the 5\' → 3\' direction is 5\'-TACGGCAT-3\' (a palindrome-like self-complementary sequence!).',
+          'Trap! DNA contains Thymine (T), not Uracil (U).',
+          'That is the identical strand, not the complement.',
+          'Be careful: 3\'-TACGGCAT-5\' is equivalent to 5\'-TACGGCAT-3\' only because this specific 8-mer happens to be a reverse complement of itself.'
+        ]
+      }
+    ];
+
+    let repQuizState = {};
+
+    function renderRepQuiz() {
+      let score = 0;
+      Object.keys(repQuizState).forEach(k => {
+        if (repQuizState[k] === REP_QUIZ[k].correct) score++;
+      });
+      document.getElementById('rep-quiz-score').textContent = score;
+
+      document.getElementById('rep-quiz-list').innerHTML = REP_QUIZ.map((item, qIdx) => {
+        const chosen = repQuizState[qIdx];
+        const answered = chosen !== undefined;
+        return `
+          <div class="quiz-item">
+            <div style="font-weight:700; font-size:0.9rem; color:var(--navy-900); margin-bottom:0.4rem;">${item.q}</div>
+            <div>
+              ${item.options.map((opt, oIdx) => {
+                let cls = 'quiz-option';
+                if (answered) {
+                  if (oIdx === item.correct) cls += ' correct';
+                  else if (oIdx === chosen) cls += ' wrong';
+                }
+                return `
+                  <button class="${cls}" onclick="answerRepQuiz(${qIdx}, ${oIdx})">
+                    <span class="opt-letter">${String.fromCharCode(65 + oIdx)}</span>
+                    <span>${opt}</span>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+            ${answered ? `
+              <div class="callout ${chosen === item.correct ? 'callout-emerald' : 'callout-rose'}" style="margin-top:0.65rem;">
+                <strong>${chosen === item.correct ? '✓ Correct:' : '✗ Reasoning Check:'}</strong> ${item.explanations[chosen]}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.answerRepQuiz = function(qIdx, oIdx) {
+      repQuizState[qIdx] = oIdx;
+      renderRepQuiz();
+    };
+
+    document.getElementById('rep-quiz-reset').addEventListener('click', () => {
+      repQuizState = {};
+      renderRepQuiz();
+    });
+
+    /*************************************************************************
+     * INITIALIZE ALL MODULES
+     *************************************************************************/
+    window.addEventListener('DOMContentLoaded', () => {
+      renderCentralDogmaTable(false);
+      renderBasePair('AT');
+      renderStrandAnalyzer();
+      renderBubbleSimulator();
+      renderDiscBubbleSVG();
+      renderTelomereStep(0);
+      renderCellType('germ');
+      renderKnockout('helicase');
+      renderRepMyths();
+      renderRepQuiz();
+    });
+  </script>
+</body>
+</html>
