@@ -1,0 +1,2315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BIOS 110: Central Dogma & Protein Synthesis Studio</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          colors: {
+            lab: {
+              bg: '#f8fafc',
+              card: '#ffffff',
+              border: '#e2e8f0',
+              template: '#0284c7',   // Sky/Blue for DNA Template
+              coding: '#4f46e5',     // Indigo for Non-template/Coding
+              mrna: '#059669',       // Emerald for mRNA
+              trna: '#d97706',       // Amber for tRNA
+              protein: '#7c3aed',    // Violet for Polypeptide
+              trap: '#e11d48',       // Rose for Misconception Trap
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #f8fafc;
+      background-image:
+        radial-gradient(#cbd5e1 0.75px, transparent 0.75px),
+        radial-gradient(#cbd5e1 0.75px, #f8fafc 0.75px);
+      background-size: 24px 24px;
+      background-position: 0 0, 12px 12px;
+    }
+    .base-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 1.75rem;
+      height: 1.85rem;
+      padding: 0 0.35rem;
+      border-radius: 0.375rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 0.875rem;
+      transition: all 0.15s ease;
+    }
+    .codon-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      padding: 3px 5px;
+      border-radius: 0.5rem;
+      border: 1.5px solid transparent;
+      transition: all 0.15s ease;
+      cursor: pointer;
+    }
+    .codon-group:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px -2px rgba(15, 23, 42, 0.1);
+    }
+    .scrollbar-thin::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 4px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- Top Workbench Header & Module Navigation -->
+  <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between py-3 gap-3">
+        <!-- Brand Identity -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-600 to-indigo-700 text-white flex items-center justify-center shadow-md shrink-0">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0112 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider bg-sky-100 text-sky-800 rounded-md">BIOS 110 Lab Studio</span>
+              <span class="hidden sm:inline-block text-xs text-slate-500 font-medium">Interactive Molecular Genetics</span>
+            </div>
+            <h1 class="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight">Central Dogma &amp; Protein Synthesis Studio</h1>
+          </div>
+        </div>
+
+        <!-- 5 Module Navigation Tabs -->
+        <nav id="module-nav" class="flex items-center gap-1.5 overflow-x-auto scrollbar-thin pb-1 lg:pb-0" aria-label="Studio Modules">
+          <button data-module="mod1" class="nav-tab px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all bg-sky-600 text-white shadow-sm">
+            1. Strand &amp; Polarity Lab
+          </button>
+          <button data-module="mod2" class="nav-tab px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all bg-slate-100 text-slate-700 hover:bg-slate-200">
+            2. tRNA &amp; Ribosome E-P-A
+          </button>
+          <button data-module="mod3" class="nav-tab px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all bg-slate-100 text-slate-700 hover:bg-slate-200">
+            3. Mutation Sandbox
+          </button>
+          <button data-module="mod4" class="nav-tab px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all bg-slate-100 text-slate-700 hover:bg-slate-200">
+            4. Prok vs. Euk &amp; Splicing
+          </button>
+          <button data-module="mod5" class="nav-tab px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all bg-slate-100 text-slate-700 hover:bg-slate-200">
+            5. Misconception Buster &amp; Quiz
+          </button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- ===================================================================== -->
+    <!-- MODULE 1: CENTRAL DOGMA & STRAND POLARITY WORKBENCH                   -->
+    <!-- ===================================================================== -->
+    <section id="mod1" class="module-panel space-y-6">
+      <!-- Misconception Alert Banner -->
+      <div class="bg-white rounded-2xl border border-rose-200 shadow-sm overflow-hidden">
+        <div class="bg-gradient-to-r from-rose-600 to-amber-600 px-5 py-3 flex flex-wrap items-center justify-between gap-2 text-white">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 bg-white/20 rounded text-xs font-bold uppercase tracking-wider">Exam Trap Radar</span>
+            <h2 class="font-bold text-sm sm:text-base">3 Classic BIOS 110 Strand &amp; Reading Frame Traps</h2>
+          </div>
+          <button id="toggle-trap-cards" class="text-xs font-semibold bg-white/20 hover:bg-white/30 px-3 py-1 rounded-lg transition">
+            Hide Details
+          </button>
+        </div>
+        <div id="trap-cards-body" class="p-4 sm:p-5 grid grid-cols-1 md:grid-cols-3 gap-4 bg-rose-50/40">
+          <div class="bg-white p-4 rounded-xl border border-rose-100 shadow-xs">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="w-6 h-6 rounded-full bg-rose-100 text-rose-700 font-bold text-xs flex items-center justify-center">1</span>
+              <h3 class="font-bold text-slate-900 text-sm">5'→3' DNA Template Trap</h3>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              RNA Polymerase reads the <strong>template strand 3' → 5'</strong> to synthesize mRNA <strong>5' → 3'</strong>. If an exam gives you a <code>5' → 3'</code> template strand (like Study Guide Q3), you <em>must</em> reverse it to <code>3' → 5'</code> first! Never confuse the <strong>template strand</strong> with the <strong>non-template (coding) strand</strong>.
+            </p>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-amber-100 shadow-xs">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="w-6 h-6 rounded-full bg-amber-100 text-amber-700 font-bold text-xs flex items-center justify-center">2</span>
+              <h3 class="font-bold text-slate-900 text-sm">5' UTR &amp; AUG Start Trap</h3>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              Do <strong>not</strong> start translating at the very first 3 bases of mRNA! The ribosome binds the 5' end and scans <code>5' → 3'</code> until it finds the first <code>5' AUG 3'</code> start codon. Bases before <code>AUG</code> form the <strong>5' UTR</strong>, and <code>AUG</code> itself IS translated into <strong>Met</strong>.
+            </p>
+          </div>
+          <div class="bg-white p-4 rounded-xl border border-violet-100 shadow-xs">
+            <div class="flex items-center gap-2 mb-1.5">
+              <span class="w-6 h-6 rounded-full bg-violet-100 text-violet-700 font-bold text-xs flex items-center justify-center">3</span>
+              <h3 class="font-bold text-slate-900 text-sm">Stop Codon ≠ Amino Acid</h3>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              <code>UAA</code>, <code>UAG</code>, and <code>UGA</code> do <strong>not</strong> code for an amino acid named "Stop." They recruit a protein <strong>Release Factor</strong> that terminates translation. Never count the stop codon in your polypeptide amino acid length!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sequence Selector & Custom Input Card -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900">Strand-to-Protein Decoder Workbench</h2>
+            <p class="text-xs sm:text-sm text-slate-500">Select an authentic BIOS 110 Study Guide / Exam sequence or enter your own DNA strand.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <label class="inline-flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-xl cursor-pointer select-none border border-slate-200">
+              <input type="checkbox" id="guided-trap-toggle" class="rounded text-sky-600 focus:ring-sky-500" checked />
+              <span class="text-xs font-bold text-slate-700">Guided Trap-Check Callouts</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Preset Pills -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5" id="preset-buttons">
+          <button data-preset="sg_q1" class="preset-btn text-left p-3 rounded-xl border-2 border-sky-600 bg-sky-50/70 transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-sky-800">Study Guide Q1 (Standard)</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 bg-sky-200/70 text-sky-900 rounded">3'→5' Template</span>
+            </div>
+            <div class="font-mono text-xs text-slate-700 mt-1 truncate">3' AGCTTACGGGAGTCTCTACATTGGGTAACT 5'</div>
+          </button>
+
+          <button data-preset="sg_q3" class="preset-btn text-left p-3 rounded-xl border border-slate-200 hover:border-rose-400 bg-white transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-rose-700">Study Guide Q3 (Polarity Trap!)</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 bg-rose-100 text-rose-800 rounded">5'→3' Template</span>
+            </div>
+            <div class="font-mono text-xs text-slate-700 mt-1 truncate">5' CACTTACGGGAGTCTCTACATTGGCATACT 3'</div>
+          </button>
+
+          <button data-preset="sg_q4" class="preset-btn text-left p-3 rounded-xl border border-slate-200 hover:border-indigo-400 bg-white transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-indigo-700">Study Guide Q4 (Coding Strand)</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 bg-indigo-100 text-indigo-800 rounded">5'→3' Non-Template</span>
+            </div>
+            <div class="font-mono text-xs text-slate-700 mt-1 truncate">5' ACAGCAAGAATGCCGACGTGGACGTTGTAACCC 3'</div>
+          </button>
+
+          <button data-preset="exam_q7" class="preset-btn text-left p-3 rounded-xl border border-slate-200 hover:border-sky-400 bg-white transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-slate-800">Exam Q7–9 Sequence</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 bg-sky-100 text-sky-800 rounded">3'→5' Template</span>
+            </div>
+            <div class="font-mono text-xs text-slate-700 mt-1 truncate">3' GGGTACCTGGCGTTACTCACTCGTATT 5'</div>
+          </button>
+
+          <button data-preset="exam_q11" class="preset-btn text-left p-3 rounded-xl border border-slate-200 hover:border-rose-400 bg-white transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-rose-700">Exam Q11–12 (Reverse Trap!)</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 bg-rose-100 text-rose-800 rounded">5'→3' Template</span>
+            </div>
+            <div class="font-mono text-xs text-slate-700 mt-1 truncate">5' CATTTATGCTACCGGCATACCACTGCGAGA 3'</div>
+          </button>
+
+          <button data-preset="custom" class="preset-btn text-left p-3 rounded-xl border border-slate-200 hover:border-emerald-400 bg-white transition">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-bold text-emerald-700">Custom DNA Input</span>
+              <span class="text-[10px] font-mono px-1.5 py-0.5 bg-emerald-100 text-emerald-800 rounded">Interactive</span>
+            </div>
+            <div class="text-xs text-slate-500 mt-1">Test any DNA sequence, strand &amp; polarity</div>
+          </button>
+        </div>
+
+        <!-- Custom Input Bar -->
+        <div id="custom-input-panel" class="hidden bg-slate-50 p-4 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-12 gap-3 items-end">
+          <div class="md:col-span-6">
+            <label class="block text-xs font-bold text-slate-700 mb-1">DNA Nucleotide Sequence (A, T, C, G)</label>
+            <input id="custom-dna-seq" type="text" value="3' TAC GGG CAT ACT 5'" placeholder="e.g., TACGGGCATACT" class="w-full font-mono text-sm px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-sky-500 focus:border-sky-500 uppercase" />
+          </div>
+          <div class="md:col-span-3">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Strand Role</label>
+            <select id="custom-strand-role" class="w-full text-sm px-3 py-2 rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-sky-500">
+              <option value="template">Template Strand (Transcribed)</option>
+              <option value="coding">Non-Template / Coding Strand</option>
+            </select>
+          </div>
+          <div class="md:col-span-3">
+            <label class="block text-xs font-bold text-slate-700 mb-1">Given Polarity (Left → Right)</label>
+            <select id="custom-strand-dir" class="w-full text-sm px-3 py-2 rounded-lg border border-slate-300 bg-white focus:ring-2 focus:ring-sky-500">
+              <option value="3to5">3' → 5'</option>
+              <option value="5to3">5' → 3'</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Step Controller Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100">
+          <div class="flex flex-wrap items-center gap-1.5" id="step-pills">
+            <button data-step="1" class="step-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-600 text-white">Step 1: Strand Polarity</button>
+            <button data-step="2" class="step-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Step 2: Transcription</button>
+            <button data-step="3" class="step-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Step 3: Reading Frame</button>
+            <button data-step="4" class="step-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Step 4: Polypeptide</button>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="step-prev-btn" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-300 bg-white hover:bg-slate-50 text-slate-700">← Prev</button>
+            <button id="step-next-btn" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-900 hover:bg-slate-800 text-white">Next Step →</button>
+            <button id="step-all-btn" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white">Show All Steps</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dynamic 4-Step Pipeline Output -->
+      <div id="pipeline-output" class="space-y-4"></div>
+
+      <!-- Interactive 64-Codon Standard Genetic Code Chart -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+          <div>
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-900">Standard mRNA Genetic Code Table (5' → 3')</h3>
+            <p class="text-xs text-slate-500">Click any mRNA codon above (or any cell below) to inspect codon redundancy/degeneracy and amino acid properties.</p>
+          </div>
+          <div id="codon-inspector-badge" class="px-3 py-2 rounded-xl bg-slate-100 border border-slate-200 text-xs font-medium text-slate-700">
+            Click any codon to highlight all synonymous codons!
+          </div>
+        </div>
+
+        <div class="overflow-x-auto scrollbar-thin">
+          <table id="genetic-code-table" class="w-full min-w-[680px] border-collapse text-xs">
+            <!-- Populated by JS -->
+          </table>
+        </div>
+
+        <!-- Legend & Degeneracy Note -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-slate-100 text-xs">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="font-bold text-slate-600">R-Group Classes:</span>
+            <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-900 font-semibold">Nonpolar / Hydrophobic</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 font-semibold">Polar Uncharged</span>
+            <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-900 font-semibold">Basic (+ Charge)</span>
+            <span class="px-2 py-0.5 rounded bg-rose-100 text-rose-900 font-semibold">Acidic (− Charge)</span>
+            <span class="px-2 py-0.5 rounded bg-slate-800 text-white font-semibold">Start / Stop</span>
+          </div>
+          <p class="text-slate-500"><strong>Redundant (Degenerate) ≠ Ambiguous:</strong> Multiple codons can specify 1 amino acid, but 1 codon <em>never</em> specifies &gt;1 amino acid.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- MODULE 2: tRNA ANTICODON & RIBOSOME E-P-A DYNAMICS SIMULATOR          -->
+    <!-- ===================================================================== -->
+    <section id="mod2" class="module-panel hidden space-y-6">
+      <!-- Part A: Anticodon Polarity & Wobble Trap Buster -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-5">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-amber-100 text-amber-800 text-xs font-bold uppercase">Anticodon Trap Buster</span>
+              <h2 class="text-lg font-extrabold text-slate-900">tRNA Anticodon ↔ mRNA Codon Polarity Converter</h2>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+              Never look up a tRNA anticodon directly in the mRNA codon table! Always align antiparallel (<code>3'→5'</code> tRNA with <code>5'→3'</code> mRNA) and read the mRNA codon <code>5' → 3'</code>.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-1.5" id="anticodon-presets">
+            <button data-ac="CCC" data-dir="3to5" class="ac-preset px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-amber-600 text-white">3' CCC 5'</button>
+            <button data-ac="UCA" data-dir="3to5" class="ac-preset px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">3' UCA 5' (Q2)</button>
+            <button data-ac="CGU" data-dir="5to3" class="ac-preset px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">5' CGU 3' (Trap!)</button>
+            <button data-ac="CAT" data-dir="5to3" class="ac-preset px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">5' CAT 3' (DNA Trap!)</button>
+            <button data-ac="AUG" data-dir="3to5" class="ac-preset px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">3' AUG 5'</button>
+            <button data-ac="GAU" data-dir="5to3" class="ac-preset px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">5' GAU 3' (Exam Q15)</button>
+          </div>
+        </div>
+
+        <!-- Custom Anticodon Controls & Visual Base-Pairing Diagram -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+          <div class="lg:col-span-5 space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Anticodon Bases (3 nt)</label>
+                <input id="ac-input" type="text" maxlength="3" value="CCC" class="w-full font-mono text-base font-bold uppercase px-3 py-2 rounded-lg border border-slate-300 focus:ring-2 focus:ring-amber-500" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Given Polarity</label>
+                <select id="ac-dir-select" class="w-full text-sm font-semibold px-3 py-2 rounded-lg border border-slate-300 bg-white">
+                  <option value="3to5">3' → 5' (Standard)</option>
+                  <option value="5to3">5' → 3' (Reversed Trap)</option>
+                </select>
+              </div>
+            </div>
+            <p class="text-xs text-slate-600 leading-relaxed">
+              <strong>Wobble Rule Note:</strong> The 3rd base of the mRNA codon (3' end) pairs with the 1st base of the tRNA anticodon (5' end), allowing flexible "wobble" pairing so ~45 tRNAs can recognize all 61 sense codons.
+            </p>
+          </div>
+
+          <div id="anticodon-visual-output" class="lg:col-span-7">
+            <!-- Rendered by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Part B: Interactive Ribosome E-P-A Translation Stepper -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-5">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-violet-100 text-violet-800 text-xs font-bold uppercase">Ribosome E-P-A Simulator</span>
+              <h2 class="text-lg font-extrabold text-slate-900">Initiation, Elongation Cycle &amp; Termination</h2>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+              Remember: <strong>A</strong> = Aminoacyl (Arrival), <strong>P</strong> = Peptidyl (Polypeptide chain), <strong>E</strong> = Exit (NOT Entry!).
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-1.5" id="ribo-stage-buttons">
+            <button data-stage="0" class="ribo-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-violet-600 text-white">0. Initiation (AUG at P)</button>
+            <button data-stage="1" class="ribo-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">1. Codon Recognition (A-Site)</button>
+            <button data-stage="2" class="ribo-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">2. Peptide Bond (rRNA)</button>
+            <button data-stage="3" class="ribo-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">3. Translocation (5'→3')</button>
+            <button data-stage="4" class="ribo-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">4. Termination (Release Factor)</button>
+          </div>
+        </div>
+
+        <!-- SVG Ribosome Stage Canvas -->
+        <div class="bg-slate-900 rounded-2xl p-4 sm:p-6 text-white overflow-x-auto">
+          <svg id="ribosome-svg" viewBox="0 0 820 330" class="w-full min-w-[660px] h-auto select-none">
+            <!-- Dynamically drawn by JS -->
+          </svg>
+        </div>
+
+        <!-- Narration & Molecular Roles Cards -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div id="ribo-narration" class="lg:col-span-7 bg-violet-50/70 border border-violet-200 rounded-xl p-4 space-y-2">
+            <!-- Populated by JS -->
+          </div>
+          <div class="lg:col-span-5 bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2 text-xs">
+            <h4 class="font-extrabold text-slate-900 uppercase tracking-wider text-[11px]">The 3 RNA Workers in Translation</h4>
+            <div class="p-2 rounded-lg bg-white border border-slate-200">
+              <span class="font-bold text-emerald-700">mRNA (The Blueprint):</span> Carries codons read <code>5' → 3'</code> from <code>AUG</code> to stop codon.
+            </div>
+            <div class="p-2 rounded-lg bg-white border border-slate-200">
+              <span class="font-bold text-amber-700">tRNA (The Adapter):</span> Specific aminoacyl-tRNA synthetases charge each tRNA with its matching amino acid using ATP.
+            </div>
+            <div class="p-2 rounded-lg bg-white border border-slate-200">
+              <span class="font-bold text-violet-700">rRNA (The Factory &amp; Ribozyme):</span> Structural core of ribosome subunits AND catalyzes peptide bond formation (peptidyl transferase)!
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- MODULE 3: MUTATION SANDBOX & DOWNSTREAM IMPACT LAB                    -->
+    <!-- ===================================================================== -->
+    <section id="mod3" class="module-panel hidden space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-5">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900">Mutation Sandbox &amp; Reading Frame Impact Lab</h2>
+            <p class="text-xs sm:text-sm text-slate-500">
+              Click any base in the <strong>Wild-Type DNA Template (3' → 5')</strong> below or test authentic BIOS 110 exam mutations to see real-time effects on mRNA and polypeptide sequence.
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-1.5">
+            <button data-mut="wt" class="mut-preset px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-white">Reset Wild-Type</button>
+            <button data-mut="sg_q1_sub" class="mut-preset px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-100 text-sky-900 hover:bg-sky-200">SG Q1: Base #14 A→C</button>
+            <button data-mut="sg_q2_ins" class="mut-preset px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-100 text-rose-900 hover:bg-rose-200">SG Q2: Insert "AA" (Frameshift)</button>
+            <button data-mut="silent_wobble" class="mut-preset px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-900 hover:bg-emerald-200">Silent Wobble Sub</button>
+            <button data-mut="nonsense_premature" class="mut-preset px-3 py-1.5 rounded-lg text-xs font-bold bg-amber-100 text-amber-900 hover:bg-amber-200">Premature Stop (Nonsense)</button>
+            <button data-mut="inframe_3bp" class="mut-preset px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-100 text-indigo-900 hover:bg-indigo-200">3-bp In-Frame Deletion</button>
+          </div>
+        </div>
+
+        <!-- Interactive Base Editor Grid -->
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <span class="text-xs font-bold text-slate-700">1. Click a DNA Template Base (3' → 5') to Select Position:</span>
+            <span id="mut-selected-info" class="text-xs font-mono font-bold text-sky-700 bg-sky-100 px-2.5 py-1 rounded-md">Position 14 selected</span>
+          </div>
+          <div id="mut-dna-clickable" class="flex flex-wrap items-center gap-1.5 py-1">
+            <!-- Clickable bases populated by JS -->
+          </div>
+
+          <!-- Mutation Operation Toolbar -->
+          <div class="pt-3 border-t border-slate-200 flex flex-wrap items-center gap-3">
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs font-bold text-slate-600">Substitute to:</span>
+              <button data-op="sub" data-val="A" class="mut-op-btn px-2.5 py-1 rounded bg-white border border-slate-300 hover:border-sky-500 font-mono text-xs font-bold">A</button>
+              <button data-op="sub" data-val="T" class="mut-op-btn px-2.5 py-1 rounded bg-white border border-slate-300 hover:border-sky-500 font-mono text-xs font-bold">T</button>
+              <button data-op="sub" data-val="C" class="mut-op-btn px-2.5 py-1 rounded bg-white border border-slate-300 hover:border-sky-500 font-mono text-xs font-bold">C</button>
+              <button data-op="sub" data-val="G" class="mut-op-btn px-2.5 py-1 rounded bg-white border border-slate-300 hover:border-sky-500 font-mono text-xs font-bold">G</button>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs font-bold text-slate-600">Insert after pos:</span>
+              <button data-op="ins" data-val="A" class="mut-op-btn px-2.5 py-1 rounded bg-rose-50 border border-rose-300 hover:bg-rose-100 font-mono text-xs font-bold text-rose-800">+1 bp (A)</button>
+              <button data-op="ins" data-val="AA" class="mut-op-btn px-2.5 py-1 rounded bg-rose-50 border border-rose-300 hover:bg-rose-100 font-mono text-xs font-bold text-rose-800">+2 bp (AA)</button>
+              <button data-op="ins" data-val="GCA" class="mut-op-btn px-2.5 py-1 rounded bg-indigo-50 border border-indigo-300 hover:bg-indigo-100 font-mono text-xs font-bold text-indigo-800">+3 bp (GCA)</button>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs font-bold text-slate-600">Delete:</span>
+              <button data-op="del" data-val="1" class="mut-op-btn px-2.5 py-1 rounded bg-amber-50 border border-amber-300 hover:bg-amber-100 font-mono text-xs font-bold text-amber-900">−1 bp</button>
+              <button data-op="del" data-val="3" class="mut-op-btn px-2.5 py-1 rounded bg-indigo-50 border border-indigo-300 hover:bg-indigo-100 font-mono text-xs font-bold text-indigo-800">−3 bp</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mutation Classification Diagnosis Banner -->
+        <div id="mut-diagnosis-card" class="rounded-xl p-4 border">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Side-by-Side Wild-Type vs. Mutant Comparison -->
+        <div id="mut-comparison-output" class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- MODULE 4: PROKARYOTES VS EUKARYOTES & PRE-mRNA PROCESSING STUDIO      -->
+    <!-- ===================================================================== -->
+    <section id="mod4" class="module-panel hidden space-y-6">
+      <!-- Part A: Prokaryotic vs. Eukaryotic Gene Expression Perturbation Lab -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-5">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-lg font-extrabold text-slate-900">Prokaryotic vs. Eukaryotic Gene Expression Lab</h2>
+            <p class="text-xs sm:text-sm text-slate-500">
+              Compare coupled transcription-translation in prokaryotes with nuclear compartmentalization and RNA processing in eukaryotes. Toggle perturbations to test functional consequences!
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-2" id="perturbation-toggles">
+            <button data-pert="normal" class="pert-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white">Normal Wild-Type</button>
+            <button data-pert="no_cap" class="pert-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Delete 5' GTP Cap</button>
+            <button data-pert="no_tail" class="pert-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Remove 3' Poly-A Tail</button>
+            <button data-pert="no_splice" class="pert-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Inhibit Spliceosome</button>
+            <button data-pert="add_nucleus" class="pert-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Hypothetical Prokaryote Nucleus</button>
+          </div>
+        </div>
+
+        <!-- Perturbation Outcome Alert -->
+        <div id="perturbation-banner" class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs sm:text-sm text-emerald-950">
+          <!-- Populated by JS -->
+        </div>
+
+        <!-- Side-by-Side Architecture SVG Diagram -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <!-- Prokaryote Card -->
+          <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="font-extrabold text-slate-900 text-sm">Prokaryotes (Bacteria &amp; Archaea)</h3>
+              <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-[11px] font-bold">Coupled in Cytoplasm</span>
+            </div>
+            <svg id="prok-svg" viewBox="0 0 420 230" class="w-full h-auto bg-white rounded-lg border border-slate-200"></svg>
+            <ul class="text-xs text-slate-600 space-y-1 list-disc pl-4">
+              <li><strong>No nuclear envelope:</strong> Ribosomes attach to the 5' end of mRNA while RNA Polymerase is still transcribing the 3' end!</li>
+              <li><strong>No introns, no 5' cap, no poly-A tail:</strong> Primary transcript is immediately mature mRNA.</li>
+              <li>Often organized into <strong>operons</strong> (polycistronic mRNA encoding multiple proteins).</li>
+            </ul>
+          </div>
+
+          <!-- Eukaryote Card -->
+          <div class="rounded-xl border border-slate-200 bg-slate-50/70 p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="font-extrabold text-slate-900 text-sm">Eukaryotes (Nucleus + Cytoplasm)</h3>
+              <span class="px-2 py-0.5 rounded bg-indigo-100 text-indigo-800 text-[11px] font-bold">Spatially &amp; Temporally Separated</span>
+            </div>
+            <svg id="euk-svg" viewBox="0 0 420 230" class="w-full h-auto bg-white rounded-lg border border-slate-200"></svg>
+            <ul class="text-xs text-slate-600 space-y-1 list-disc pl-4">
+              <li><strong>Nuclear Envelope Barrier:</strong> Transcription &amp; RNA processing occur inside the nucleus; translation occurs in the cytoplasm.</li>
+              <li><strong>5' Cap + 3' Poly-A Tail:</strong> Protect mRNA from exonucleases, aid nuclear pore export, and help small ribosomal subunit bind.</li>
+              <li><strong>Spliceosome (snRNPs + proteins):</strong> Excises noncoding <strong>introns</strong> and joins expressed <strong>exons</strong>.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Part B: Interactive Eukaryotic Pre-mRNA Splicing & Alternative Splicing Builder -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-2">
+          <div>
+            <h3 class="text-base sm:text-lg font-extrabold text-slate-900">Eukaryotic Pre-mRNA Splicing &amp; Alternative Splicing Studio</h3>
+            <p class="text-xs text-slate-500">Toggle exons ON/OFF or test intron retention to see how one eukaryotic gene generates multiple protein isoforms.</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button id="splice-all-exons" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white">Constitutive (Exons 1-2-3-4)</button>
+            <button id="splice-alt-skip3" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">Alternative Isoform B (Skip Exon 3)</button>
+            <button id="splice-retain-intron" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-rose-100 text-rose-800 hover:bg-rose-200">Splicing Error (Retain Intron 2)</button>
+          </div>
+        </div>
+
+        <div id="splicing-workbench" class="space-y-4">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================================== -->
+    <!-- MODULE 5: BIOS 110 MISCONCEPTION BUSTER & EXAM REASONING LAB          -->
+    <!-- ===================================================================== -->
+    <section id="mod5" class="module-panel hidden space-y-6">
+      <!-- Top 8 Myth vs. Reality Cards -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+        <div>
+          <span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 text-xs font-bold uppercase">Concept Check</span>
+          <h2 class="text-lg font-extrabold text-slate-900 mt-1">Top 8 BIOS 110 Misconceptions — Myth vs. Reality</h2>
+          <p class="text-xs sm:text-sm text-slate-500">Click any card to flip between the common exam trap and the molecular reality.</p>
+        </div>
+        <div id="myth-cards-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- 10-Question Interactive Exam Reasoning Quiz -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-5">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+          <div>
+            <span class="px-2 py-0.5 rounded bg-sky-100 text-sky-800 text-xs font-bold uppercase">Exam Practice Mode</span>
+            <h2 class="text-lg font-extrabold text-slate-900 mt-1">10-Question BIOS 110 Exam Reasoning Quiz</h2>
+            <p class="text-xs sm:text-sm text-slate-500">Each choice diagnoses the exact molecular reasoning—and the specific trap behind wrong options.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="px-4 py-2 rounded-xl bg-slate-900 text-white text-xs font-bold">
+              Score: <span id="quiz-score" class="text-emerald-400 font-mono text-sm">0</span> / 10
+            </div>
+            <button id="quiz-reset-btn" class="px-3 py-2 rounded-xl border border-slate-300 hover:bg-slate-50 text-xs font-bold text-slate-700">
+              Reset Quiz
+            </button>
+          </div>
+        </div>
+
+        <div id="quiz-container" class="space-y-5">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-4 mt-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+      <span><strong>BIOS 110:</strong> Central Dogma &amp; Protein Synthesis Studio — Built for Introductory Cell &amp; Molecular Biology</span>
+      <span>Antiparallel Base Pairing • 5'→3' Synthesis • Unambiguous Genetic Code</span>
+    </div>
+  </footer>
+
+  <!-- ======================================================================= -->
+  <!-- APPLICATION JAVASCRIPT ENGINE                                           -->
+  <!-- ======================================================================= -->
+  <script>
+    /***************************************************************************
+     * 1. CORE GENETIC CODE & MOLECULAR BIOLOGY ENGINE
+     ***************************************************************************/
+    const GENETIC_CODE = {
+      UUU: { aa: 'Phe', full: 'Phenylalanine', group: 'nonpolar' },
+      UUC: { aa: 'Phe', full: 'Phenylalanine', group: 'nonpolar' },
+      UUA: { aa: 'Leu', full: 'Leucine', group: 'nonpolar' },
+      UUG: { aa: 'Leu', full: 'Leucine', group: 'nonpolar' },
+      CUU: { aa: 'Leu', full: 'Leucine', group: 'nonpolar' },
+      CUC: { aa: 'Leu', full: 'Leucine', group: 'nonpolar' },
+      CUA: { aa: 'Leu', full: 'Leucine', group: 'nonpolar' },
+      CUG: { aa: 'Leu', full: 'Leucine', group: 'nonpolar' },
+      AUU: { aa: 'Ile', full: 'Isoleucine', group: 'nonpolar' },
+      AUC: { aa: 'Ile', full: 'Isoleucine', group: 'nonpolar' },
+      AUA: { aa: 'Ile', full: 'Isoleucine', group: 'nonpolar' },
+      AUG: { aa: 'Met', full: 'Methionine (Start)', group: 'start' },
+      GUU: { aa: 'Val', full: 'Valine', group: 'nonpolar' },
+      GUC: { aa: 'Val', full: 'Valine', group: 'nonpolar' },
+      GUA: { aa: 'Val', full: 'Valine', group: 'nonpolar' },
+      GUG: { aa: 'Val', full: 'Valine', group: 'nonpolar' },
+
+      UCU: { aa: 'Ser', full: 'Serine', group: 'polar' },
+      UCC: { aa: 'Ser', full: 'Serine', group: 'polar' },
+      UCA: { aa: 'Ser', full: 'Serine', group: 'polar' },
+      UCG: { aa: 'Ser', full: 'Serine', group: 'polar' },
+      CCU: { aa: 'Pro', full: 'Proline', group: 'nonpolar' },
+      CCC: { aa: 'Pro', full: 'Proline', group: 'nonpolar' },
+      CCA: { aa: 'Pro', full: 'Proline', group: 'nonpolar' },
+      CCG: { aa: 'Pro', full: 'Proline', group: 'nonpolar' },
+      ACU: { aa: 'Thr', full: 'Threonine', group: 'polar' },
+      ACC: { aa: 'Thr', full: 'Threonine', group: 'polar' },
+      ACA: { aa: 'Thr', full: 'Threonine', group: 'polar' },
+      ACG: { aa: 'Thr', full: 'Threonine', group: 'polar' },
+      GCU: { aa: 'Ala', full: 'Alanine', group: 'nonpolar' },
+      GCC: { aa: 'Ala', full: 'Alanine', group: 'nonpolar' },
+      GCA: { aa: 'Ala', full: 'Alanine', group: 'nonpolar' },
+      GCG: { aa: 'Ala', full: 'Alanine', group: 'nonpolar' },
+
+      UAU: { aa: 'Tyr', full: 'Tyrosine', group: 'polar' },
+      UAC: { aa: 'Tyr', full: 'Tyrosine', group: 'polar' },
+      UAA: { aa: 'STOP', full: 'Stop (Ochre)', group: 'stop' },
+      UAG: { aa: 'STOP', full: 'Stop (Amber)', group: 'stop' },
+      CAU: { aa: 'His', full: 'Histidine', group: 'basic' },
+      CAC: { aa: 'His', full: 'Histidine', group: 'basic' },
+      CAA: { aa: 'Gln', full: 'Glutamine', group: 'polar' },
+      CAG: { aa: 'Gln', full: 'Glutamine', group: 'polar' },
+      AAU: { aa: 'Asn', full: 'Asparagine', group: 'polar' },
+      AAC: { aa: 'Asn', full: 'Asparagine', group: 'polar' },
+      AAA: { aa: 'Lys', full: 'Lysine', group: 'basic' },
+      AAG: { aa: 'Lys', full: 'Lysine', group: 'basic' },
+      GAU: { aa: 'Asp', full: 'Aspartate', group: 'acidic' },
+      GAC: { aa: 'Asp', full: 'Aspartate', group: 'acidic' },
+      GAA: { aa: 'Glu', full: 'Glutamate', group: 'acidic' },
+      GAG: { aa: 'Glu', full: 'Glutamate', group: 'acidic' },
+
+      UGU: { aa: 'Cys', full: 'Cysteine', group: 'polar' },
+      UGC: { aa: 'Cys', full: 'Cysteine', group: 'polar' },
+      UGA: { aa: 'STOP', full: 'Stop (Opal)', group: 'stop' },
+      UGG: { aa: 'Trp', full: 'Tryptophan', group: 'nonpolar' },
+      CGU: { aa: 'Arg', full: 'Arginine', group: 'basic' },
+      CGC: { aa: 'Arg', full: 'Arginine', group: 'basic' },
+      CGA: { aa: 'Arg', full: 'Arginine', group: 'basic' },
+      CGG: { aa: 'Arg', full: 'Arginine', group: 'basic' },
+      AGU: { aa: 'Ser', full: 'Serine', group: 'polar' },
+      AGC: { aa: 'Ser', full: 'Serine', group: 'polar' },
+      AGA: { aa: 'Arg', full: 'Arginine', group: 'basic' },
+      AGG: { aa: 'Arg', full: 'Arginine', group: 'basic' },
+      GGU: { aa: 'Gly', full: 'Glycine', group: 'nonpolar' },
+      GGC: { aa: 'Gly', full: 'Glycine', group: 'nonpolar' },
+      GGA: { aa: 'Gly', full: 'Glycine', group: 'nonpolar' },
+      GGG: { aa: 'Gly', full: 'Glycine', group: 'nonpolar' },
+    };
+
+    const GROUP_STYLES = {
+      nonpolar: 'bg-amber-100 text-amber-900 border-amber-300',
+      polar: 'bg-emerald-100 text-emerald-900 border-emerald-300',
+      basic: 'bg-sky-100 text-sky-900 border-sky-300',
+      acidic: 'bg-rose-100 text-rose-900 border-rose-300',
+      start: 'bg-violet-600 text-white border-violet-700',
+      stop: 'bg-slate-800 text-white border-slate-900',
+    };
+
+    function cleanBases(str, allowU = false) {
+      const regex = allowU ? /[^AUCG]/g : /[^ATCG]/g;
+      return (str || '').toUpperCase().replace(regex, '');
+    }
+
+    function reverseSeq(seq) {
+      return seq.split('').reverse().join('');
+    }
+
+    function complementDNA(seq) {
+      const map = { A: 'T', T: 'A', C: 'G', G: 'C' };
+      return seq.split('').map(b => map[b] || '').join('');
+    }
+
+    function transcribeTemplate3to5(template3to5) {
+      const map = { A: 'U', T: 'A', C: 'G', G: 'C' };
+      return template3to5.split('').map(b => map[b] || '').join('');
+    }
+
+    function complementRNA(seq) {
+      const map = { A: 'U', U: 'A', C: 'G', G: 'C' };
+      return seq.split('').map(b => map[b] || '').join('');
+    }
+
+    /**
+     * Full Central Dogma Pipeline Solver
+     * Takes raw DNA bases, role ('template' | 'coding'), and given polarity ('3to5' | '5to3').
+     * Always normalizes to:
+     *   - template3to5: 3' -> 5' DNA template strand read by RNA Pol
+     *   - coding5to3:   5' -> 3' DNA non-template (coding) strand
+     *   - mrna5to3:     5' -> 3' mRNA transcript
+     */
+    function solveCentralDogma(rawSeq, role, dir) {
+      const bases = cleanBases(rawSeq, false);
+      let template3to5 = '';
+      let coding5to3 = '';
+      let trapNotes = [];
+
+      if (role === 'template') {
+        if (dir === '3to5') {
+          template3to5 = bases;
+          coding5to3 = complementDNA(template3to5);
+        } else {
+          // Trap! Template given 5' -> 3'. Must flip to 3' -> 5' first!
+          template3to5 = reverseSeq(bases);
+          coding5to3 = complementDNA(template3to5);
+          trapNotes.push({
+            type: 'polarity_flip',
+            title: 'Polarity Flip Applied (5\'→3\' Template Reversed to 3\'→5\')',
+            detail: `Because the template strand was given 5'→3' (${bases.slice(0, 8)}...), we reversed it to 3'→5' (${template3to5.slice(0, 8)}...) before transcribing 5'→3' mRNA.`
+          });
+        }
+      } else {
+        // Non-template / Coding strand
+        if (dir === '5to3') {
+          coding5to3 = bases;
+          template3to5 = complementDNA(coding5to3);
+          trapNotes.push({
+            type: 'coding_strand',
+            title: 'Non-Template (Coding) Strand Detected',
+            detail: `The 5'→3' non-template strand has the exact same sequence as 5'→3' mRNA (with T instead of U). Its complementary 3'→5' strand is the actual template transcribed by RNA Polymerase.`
+          });
+        } else {
+          coding5to3 = reverseSeq(bases);
+          template3to5 = complementDNA(coding5to3);
+          trapNotes.push({
+            type: 'coding_flip',
+            title: '3\'→5\' Non-Template Strand Reversed to 5\'→3\'',
+            detail: `Flipped the 3'→5' non-template strand to 5'→3' coding orientation, then derived the complementary 3'→5' template strand.`
+          });
+        }
+      }
+
+      const mrna5to3 = transcribeTemplate3to5(template3to5);
+
+      // Scan 5' -> 3' for first AUG start codon
+      const startIndex = mrna5to3.indexOf('AUG');
+      let utr5 = '';
+      let codingCodons = [];
+      let utr3 = '';
+      let aminoAcids = [];
+      let hitStop = false;
+
+      if (startIndex === -1) {
+        utr5 = mrna5to3;
+      } else {
+        utr5 = mrna5to3.slice(0, startIndex);
+        if (utr5.length > 0) {
+          trapNotes.push({
+            type: 'utr5',
+            title: `${utr5.length}-nt 5' UTR Skipped Before AUG`,
+            detail: `The ribosome scans past "${utr5}" (the 5' untranslated leader) and initiates translation at the first 5' AUG 3' start codon.`
+          });
+        }
+
+        let i = startIndex;
+        while (i + 3 <= mrna5to3.length) {
+          const triplet = mrna5to3.slice(i, i + 3);
+          const info = GENETIC_CODE[triplet];
+          codingCodons.push({ codon: triplet, startPos: i, ...info });
+          if (info.aa === 'STOP') {
+            hitStop = true;
+            utr3 = mrna5to3.slice(i + 3);
+            break;
+          } else {
+            aminoAcids.push({ codon: triplet, ...info });
+          }
+          i += 3;
+        }
+        if (!hitStop && i < mrna5to3.length) {
+          utr3 = mrna5to3.slice(i); // trailing incomplete bases
+        }
+      }
+
+      return {
+        inputBases: bases,
+        role,
+        dir,
+        template3to5,
+        coding5to3,
+        mrna5to3,
+        startIndex,
+        utr5,
+        codingCodons,
+        utr3,
+        aminoAcids,
+        hitStop,
+        trapNotes
+      };
+    }
+
+    /***************************************************************************
+     * 2. MODULE NAVIGATION
+     ***************************************************************************/
+    const navTabs = document.querySelectorAll('.nav-tab');
+    const modulePanels = document.querySelectorAll('.module-panel');
+
+    function switchModule(modId) {
+      navTabs.forEach(btn => {
+        if (btn.dataset.module === modId) {
+          btn.className = 'nav-tab px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all bg-sky-600 text-white shadow-sm';
+        } else {
+          btn.className = 'nav-tab px-3 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition-all bg-slate-100 text-slate-700 hover:bg-slate-200';
+        }
+      });
+      modulePanels.forEach(panel => {
+        panel.classList.toggle('hidden', panel.id !== modId);
+      });
+    }
+
+    navTabs.forEach(btn => {
+      btn.addEventListener('click', () => switchModule(btn.dataset.module));
+    });
+
+    /***************************************************************************
+     * 3. MODULE 1: STRAND & POLARITY WORKBENCH + GENETIC CODE TABLE
+     ***************************************************************************/
+    const PRESETS = {
+      sg_q1: {
+        label: 'Study Guide Q1 (Standard 3\'→5\' Template)',
+        seq: 'AGCTTACGGGAGTCTCTACATTGGGTAACT',
+        role: 'template',
+        dir: '3to5'
+      },
+      sg_q3: {
+        label: 'Study Guide Q3 (5\'→3\' Template Trap)',
+        seq: 'CACTTACGGGAGTCTCTACATTGGCATACT',
+        role: 'template',
+        dir: '5to3'
+      },
+      sg_q4: {
+        label: 'Study Guide Q4 (5\'→3\' Non-Template / Coding Strand)',
+        seq: 'ACAGCAAGAATGCCGACGTGGACGTTGTAACCC',
+        role: 'coding',
+        dir: '5to3'
+      },
+      exam_q7: {
+        label: 'Exam Q7–9 Sequence (3\'→5\' Template)',
+        seq: 'GGGTACCTGGCGTTACTCACTCGTATT',
+        role: 'template',
+        dir: '3to5'
+      },
+      exam_q11: {
+        label: 'Exam Q11–12 Sequence (5\'→3\' Template Trap)',
+        seq: 'CATTTATGCTACCGGCATACCACTGCGAGA',
+        role: 'template',
+        dir: '5to3'
+      }
+    };
+
+    let mod1State = {
+      preset: 'sg_q1',
+      seq: PRESETS.sg_q1.seq,
+      role: PRESETS.sg_q1.role,
+      dir: PRESETS.sg_q1.dir,
+      step: 4, // 1..4 (default show all 4 so students immediately see full pipeline, or step through)
+      guidedTraps: true,
+      highlightedCodon: null
+    };
+
+    // Toggle Trap Alert Banner
+    const toggleTrapBtn = document.getElementById('toggle-trap-cards');
+    const trapCardsBody = document.getElementById('trap-cards-body');
+    toggleTrapBtn.addEventListener('click', () => {
+      const isHidden = trapCardsBody.classList.toggle('hidden');
+      toggleTrapBtn.textContent = isHidden ? 'Show Details' : 'Hide Details';
+    });
+
+    // Preset Selection
+    const presetButtons = document.querySelectorAll('.preset-btn');
+    const customInputPanel = document.getElementById('custom-input-panel');
+    const customDnaSeq = document.getElementById('custom-dna-seq');
+    const customStrandRole = document.getElementById('custom-strand-role');
+    const customStrandDir = document.getElementById('custom-strand-dir');
+
+    presetButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const key = btn.dataset.preset;
+        mod1State.preset = key;
+        presetButtons.forEach(b => {
+          b.className = b === btn
+            ? 'preset-btn text-left p-3 rounded-xl border-2 border-sky-600 bg-sky-50/70 transition'
+            : 'preset-btn text-left p-3 rounded-xl border border-slate-200 hover:border-sky-400 bg-white transition';
+        });
+
+        if (key === 'custom') {
+          customInputPanel.classList.remove('hidden');
+          mod1State.seq = cleanBases(customDnaSeq.value) || 'TACGGGCATACT';
+          mod1State.role = customStrandRole.value;
+          mod1State.dir = customStrandDir.value;
+        } else {
+          customInputPanel.classList.add('hidden');
+          mod1State.seq = PRESETS[key].seq;
+          mod1State.role = PRESETS[key].role;
+          mod1State.dir = PRESETS[key].dir;
+        }
+        renderMod1Pipeline();
+      });
+    });
+
+    [customDnaSeq, customStrandRole, customStrandDir].forEach(el => {
+      el.addEventListener('input', () => {
+        mod1State.seq = cleanBases(customDnaSeq.value) || 'TAC';
+        mod1State.role = customStrandRole.value;
+        mod1State.dir = customStrandDir.value;
+        renderMod1Pipeline();
+      });
+    });
+
+    document.getElementById('guided-trap-toggle').addEventListener('change', (e) => {
+      mod1State.guidedTraps = e.target.checked;
+      renderMod1Pipeline();
+    });
+
+    // Step Controls
+    function setMod1Step(s) {
+      mod1State.step = Math.max(1, Math.min(4, s));
+      document.querySelectorAll('.step-pill').forEach(pill => {
+        const ps = Number(pill.dataset.step);
+        pill.className = ps <= mod1State.step
+          ? 'step-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-sky-600 text-white transition'
+          : 'step-pill px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 transition';
+      });
+      renderMod1Pipeline();
+    }
+
+    document.querySelectorAll('.step-pill').forEach(pill => {
+      pill.addEventListener('click', () => setMod1Step(Number(pill.dataset.step)));
+    });
+    document.getElementById('step-prev-btn').addEventListener('click', () => setMod1Step(mod1State.step - 1));
+    document.getElementById('step-next-btn').addEventListener('click', () => setMod1Step(mod1State.step + 1));
+    document.getElementById('step-all-btn').addEventListener('click', () => setMod1Step(4));
+
+    function renderBaseTrack(seq, leftEnd, rightEnd, colorClass) {
+      const pills = seq.split('').map(b => `<span class="base-pill ${colorClass}">${b}</span>`).join('');
+      return `
+        <div class="flex items-center gap-1.5 overflow-x-auto scrollbar-thin py-1">
+          <span class="font-mono text-xs font-extrabold px-2 py-1 rounded bg-slate-800 text-white shrink-0">${leftEnd}</span>
+          <div class="flex items-center gap-1">${pills}</div>
+          <span class="font-mono text-xs font-extrabold px-2 py-1 rounded bg-slate-800 text-white shrink-0">${rightEnd}</span>
+        </div>
+      `;
+    }
+
+    function renderMod1Pipeline() {
+      const res = solveCentralDogma(mod1State.seq, mod1State.role, mod1State.dir);
+      const container = document.getElementById('pipeline-output');
+      let html = '';
+
+      // Guided Trap Callout Banner if active
+      if (mod1State.guidedTraps && res.trapNotes.length > 0) {
+        html += `
+          <div class="bg-amber-50 border border-amber-300 rounded-2xl p-4 space-y-2">
+            <div class="flex items-center gap-2 text-amber-900 font-extrabold text-xs uppercase tracking-wider">
+              <svg class="w-4 h-4 text-amber-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+              Guided Trap-Check Alert for Active Sequence
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+              ${res.trapNotes.map(n => `
+                <div class="bg-white/90 p-3 rounded-xl border border-amber-200 text-xs">
+                  <div class="font-bold text-slate-900">${n.title}</div>
+                  <p class="text-slate-600 mt-0.5 leading-relaxed">${n.detail}</p>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      // STEP 1: DNA Double Helix Orientation
+      if (mod1State.step >= 1) {
+        const wasFlipped = (res.role === 'template' && res.dir === '5to3') || (res.role === 'coding' && res.dir === '3to5');
+        html += `
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-sky-600 text-white font-bold text-xs flex items-center justify-center">1</span>
+                <h3 class="font-extrabold text-slate-900 text-sm sm:text-base">Step 1: Double-Stranded DNA Orientation &amp; Template Alignment</h3>
+              </div>
+              <span class="text-xs font-semibold px-2.5 py-1 rounded-full ${wasFlipped ? 'bg-rose-100 text-rose-800' : 'bg-sky-100 text-sky-800'}">
+                ${wasFlipped ? 'Reversed to proper 3\'→5\' template polarity' : 'Aligned 3\'→5\' for RNA Polymerase'}
+              </span>
+            </div>
+
+            <div class="space-y-2 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+              <div>
+                <div class="text-[11px] font-bold uppercase tracking-wider text-indigo-700 mb-0.5">Non-Template / Coding Strand (5' → 3') — Matches mRNA sequence (with T instead of U)</div>
+                ${renderBaseTrack(res.coding5to3, "5'", "3'", 'bg-indigo-100 text-indigo-900 border border-indigo-200')}
+              </div>
+              <div class="flex items-center gap-1 pl-9 overflow-x-auto scrollbar-thin">
+                ${res.template3to5.split('').map(() => `<span class="inline-flex justify-center min-w-[1.75rem] text-[10px] font-mono text-slate-400">⋮</span>`).join('')}
+              </div>
+              <div>
+                <div class="text-[11px] font-bold uppercase tracking-wider text-sky-700 mb-0.5">Template Strand (3' → 5') — Read by RNA Polymerase</div>
+                ${renderBaseTrack(res.template3to5, "3'", "5'", 'bg-sky-100 text-sky-900 border border-sky-300')}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      // STEP 2: Transcription (5' -> 3' mRNA)
+      if (mod1State.step >= 2) {
+        html += `
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">2</span>
+                <h3 class="font-extrabold text-slate-900 text-sm sm:text-base">Step 2: Transcription by RNA Polymerase (5' → 3' mRNA Synthesis)</h3>
+              </div>
+              <span class="text-xs font-mono font-semibold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-full">
+                A→U, T→A, C→G, G→C
+              </span>
+            </div>
+            <p class="text-xs text-slate-600">
+              RNA Polymerase reads the <strong>3'→5' template</strong> and builds complementary <strong>5'→3' mRNA</strong> (using Uracil <code>U</code> instead of Thymine <code>T</code>). Notice that the mRNA sequence is identical to the <code>5'→3'</code> non-template strand with <code>U</code> replacing <code>T</code>!
+            </p>
+            <div class="bg-emerald-50/60 p-3.5 rounded-xl border border-emerald-200">
+              ${renderBaseTrack(res.mrna5to3, "5'", "3'", 'bg-emerald-100 text-emerald-900 border border-emerald-300')}
+            </div>
+          </div>
+        `;
+      }
+
+      // STEP 3: Ribosome Reading Frame Scanner
+      if (mod1State.step >= 3) {
+        let frameHtml = '';
+        if (res.startIndex === -1) {
+          frameHtml = `
+            <div class="p-4 rounded-xl bg-rose-50 border border-rose-200 text-xs text-rose-900 font-semibold">
+              No <code>5' AUG 3'</code> start codon found in this mRNA! Without an in-frame <code>AUG</code>, the ribosome cannot initiate translation.
+            </div>
+          `;
+        } else {
+          const utr5Pills = res.utr5.split('').map(b => `<span class="base-pill bg-slate-200 text-slate-500 border border-slate-300 opacity-75" title="5' UTR (Untranslated Leader)">${b}</span>`).join('');
+          const codonGroups = res.codingCodons.map(c => {
+            const isStart = c.group === 'start';
+            const isStop = c.group === 'stop';
+            const borderCol = isStart ? 'border-violet-500 bg-violet-50' : isStop ? 'border-slate-800 bg-slate-100' : 'border-emerald-300 bg-white';
+            const pillCol = isStart ? 'bg-violet-600 text-white' : isStop ? 'bg-slate-800 text-white' : 'bg-emerald-100 text-emerald-900';
+            return `
+              <div onclick="highlightGeneticCodeCodon('${c.codon}')" class="codon-group ${borderCol}" title="Click to inspect ${c.codon} (${c.full}) in Genetic Code Table">
+                ${c.codon.split('').map(b => `<span class="base-pill ${pillCol}">${b}</span>`).join('')}
+                <span class="text-[10px] font-extrabold px-1 ${isStop ? 'text-rose-700' : 'text-slate-700'}">${c.aa}</span>
+              </div>
+            `;
+          }).join('');
+          const utr3Pills = res.utr3.split('').map(b => `<span class="base-pill bg-slate-200 text-slate-500 border border-slate-300 opacity-75" title="3' UTR (Untranslated Trailer)">${b}</span>`).join('');
+
+          frameHtml = `
+            <div class="space-y-3">
+              <div class="flex flex-wrap items-center gap-2 text-xs">
+                <span class="px-2 py-0.5 rounded bg-slate-200 text-slate-700 font-semibold">5' UTR (${res.utr5.length} nt skipped)</span>
+                <span class="px-2 py-0.5 rounded bg-violet-600 text-white font-semibold">Start Codon (5' AUG 3' = Met)</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-900 font-semibold">Non-Overlapping Reading Frame</span>
+                <span class="px-2 py-0.5 rounded bg-slate-800 text-white font-semibold">Stop Codon (Release Factor)</span>
+              </div>
+              <div class="flex flex-wrap items-center gap-2 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                <span class="font-mono text-xs font-extrabold px-2 py-1 rounded bg-slate-800 text-white">5'</span>
+                ${utr5Pills}
+                ${codonGroups}
+                ${utr3Pills}
+                <span class="font-mono text-xs font-extrabold px-2 py-1 rounded bg-slate-800 text-white">3'</span>
+              </div>
+            </div>
+          `;
+        }
+
+        html += `
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-amber-600 text-white font-bold text-xs flex items-center justify-center">3</span>
+                <h3 class="font-extrabold text-slate-900 text-sm sm:text-base">Step 3: Ribosome Reading Frame Scanner (Click Any Codon to Highlight Below)</h3>
+              </div>
+            </div>
+            ${frameHtml}
+          </div>
+        `;
+      }
+
+      // STEP 4: Polypeptide Output & Amino Acid Counter
+      if (mod1State.step >= 4) {
+        const aaCount = res.aminoAcids.length;
+        const aaChainHtml = aaCount === 0
+          ? `<span class="text-xs text-slate-500 italic">No polypeptide synthesized (no start codon).</span>`
+          : `
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="px-2.5 py-1.5 rounded-lg bg-violet-900 text-white font-mono text-xs font-bold">N-terminus</span>
+              ${res.aminoAcids.map((a, idx) => `
+                <div class="flex items-center gap-1.5">
+                  <div onclick="highlightGeneticCodeCodon('${a.codon}')" class="cursor-pointer px-3 py-1.5 rounded-xl border font-bold text-xs shadow-2xs transition hover:scale-105 ${GROUP_STYLES[a.group]}">
+                    <div>${idx + 1}. ${a.aa}</div>
+                    <div class="text-[10px] font-mono opacity-80">${a.codon}</div>
+                  </div>
+                  ${idx < aaCount - 1 ? '<span class="text-slate-400 font-bold">—</span>' : ''}
+                </div>
+              `).join('')}
+              <span class="px-2.5 py-1.5 rounded-lg bg-violet-900 text-white font-mono text-xs font-bold">C-terminus</span>
+              ${res.hitStop ? `<span class="px-2.5 py-1.5 rounded-lg bg-rose-100 text-rose-800 border border-rose-300 text-xs font-bold">Halted at Stop Codon (0 aa added)</span>` : ''}
+            </div>
+          `;
+
+        html += `
+          <div class="bg-white rounded-2xl border-2 border-violet-200 shadow-sm p-5 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg bg-violet-600 text-white font-bold text-xs flex items-center justify-center">4</span>
+                <h3 class="font-extrabold text-slate-900 text-sm sm:text-base">Step 4: Translated Polypeptide Chain &amp; Exam Verification</h3>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="px-3 py-1 rounded-full bg-violet-100 text-violet-900 font-extrabold text-xs">
+                  Exact Polypeptide Length: ${aaCount} Amino Acid${aaCount === 1 ? '' : 's'}
+                </span>
+              </div>
+            </div>
+
+            <div class="bg-violet-50/50 p-4 rounded-xl border border-violet-100">
+              ${aaChainHtml}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+              <div>
+                <span class="font-bold text-slate-700">Polypeptide Sequence (N → C):</span>
+                <div class="font-mono font-bold text-violet-900 mt-1">
+                  ${aaCount > 0 ? 'N - ' + res.aminoAcids.map(a => a.aa).join(' - ') + ' - C' : 'None'}
+                </div>
+              </div>
+              <div>
+                <span class="font-bold text-slate-700">Why isn't it ${aaCount + (res.hitStop ? 1 : 0)} amino acids?</span>
+                <p class="text-slate-600 mt-1">
+                  ${res.hitStop
+                    ? `The stop codon (${res.codingCodons[res.codingCodons.length - 1].codon}) binds a Release Factor protein, NOT a tRNA with an amino acid. Always exclude the stop codon from your count!`
+                    : `Translation runs through all available triplets (no stop codon reached before the 3' end).`}
+                </p>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = html;
+    }
+
+    // Build 64-Codon Standard Genetic Code Table
+    function buildGeneticCodeTable() {
+      const bases = ['U', 'C', 'A', 'G'];
+      const table = document.getElementById('genetic-code-table');
+      let html = `
+        <thead>
+          <tr class="bg-slate-900 text-white">
+            <th class="p-2 border border-slate-700 text-center">1st Base (5')</th>
+            ${bases.map(b2 => `<th class="p-2 border border-slate-700 text-center">2nd Base = <span class="text-amber-300 font-mono text-sm">${b2}</span></th>`).join('')}
+            <th class="p-2 border border-slate-700 text-center">3rd Base (3')</th>
+          </tr>
+        </thead>
+        <tbody>
+      `;
+
+      bases.forEach(b1 => {
+        bases.forEach((b3, idx3) => {
+          html += `<tr>`;
+          if (idx3 === 0) {
+            html += `<td rowspan="4" class="p-2 border border-slate-200 bg-slate-100 text-center font-mono font-extrabold text-base text-slate-900">${b1}</td>`;
+          }
+          bases.forEach(b2 => {
+            const codon = b1 + b2 + b3;
+            const info = GENETIC_CODE[codon];
+            const isHighlighted = mod1State.highlightedCodon && (
+              mod1State.highlightedCodon === codon ||
+              GENETIC_CODE[mod1State.highlightedCodon].aa === info.aa
+            );
+            const isExact = mod1State.highlightedCodon === codon;
+            const ringStyle = isExact
+              ? 'ring-3 ring-sky-600 scale-[1.03] z-10 relative font-extrabold'
+              : isHighlighted
+                ? 'ring-2 ring-amber-500 bg-amber-50'
+                : '';
+
+            html += `
+              <td onclick="highlightGeneticCodeCodon('${codon}')"
+                  class="p-1.5 border border-slate-200 cursor-pointer transition hover:bg-slate-50 ${ringStyle}">
+                <div class="flex items-center justify-between gap-1">
+                  <span class="font-mono font-bold text-slate-800">${codon}</span>
+                  <span class="px-1.5 py-0.5 rounded text-[11px] font-bold border ${GROUP_STYLES[info.group]}">${info.aa}</span>
+                </div>
+              </td>
+            `;
+          });
+          html += `<td class="p-2 border border-slate-200 bg-slate-50 text-center font-mono font-bold text-slate-700">${b3}</td>`;
+          html += `</tr>`;
+        });
+      });
+
+      html += `</tbody>`;
+      table.innerHTML = html;
+    }
+
+    window.highlightGeneticCodeCodon = function(codon) {
+      mod1State.highlightedCodon = codon;
+      const info = GENETIC_CODE[codon];
+      const synonymous = Object.keys(GENETIC_CODE).filter(c => GENETIC_CODE[c].aa === info.aa);
+      const badge = document.getElementById('codon-inspector-badge');
+      badge.className = 'px-3 py-2 rounded-xl bg-sky-50 border border-sky-300 text-xs text-sky-950';
+      badge.innerHTML = `
+        <strong>5' ${codon} 3' → ${info.full} (${info.aa})</strong> |
+        Synonymous codons (${synonymous.length}): <span class="font-mono font-bold">${synonymous.join(', ')}</span>
+      `;
+      buildGeneticCodeTable();
+    };
+
+    /***************************************************************************
+     * 4. MODULE 2: tRNA ANTICODON CONVERTER & RIBOSOME E-P-A SIMULATOR
+     ***************************************************************************/
+    const acInput = document.getElementById('ac-input');
+    const acDirSelect = document.getElementById('ac-dir-select');
+    const acVisualOutput = document.getElementById('anticodon-visual-output');
+
+    function renderAnticodonConverter() {
+      const raw = acInput.value.toUpperCase().replace(/[^A-Z]/g, '');
+      const dir = acDirSelect.value;
+
+      if (raw.includes('T')) {
+        acVisualOutput.innerHTML = `
+          <div class="p-4 rounded-xl bg-rose-50 border-2 border-rose-300 text-rose-950 space-y-1.5">
+            <div class="font-extrabold text-sm flex items-center gap-2">
+              <span class="px-2 py-0.5 rounded bg-rose-600 text-white text-xs">INVALID RNA BASE DETECTED</span>
+              tRNA is RNA — It Contains Uracil (U), Never Thymine (T)!
+            </div>
+            <p class="text-xs leading-relaxed">
+              You entered <code>${raw}</code> containing <strong>T</strong>. On BIOS 110 exams, choices with <code>T</code> in a tRNA anticodon or mRNA codon are immediate distractors! Replace <code>T</code> with <code>U</code> to test an RNA anticodon.
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      const cleanRNA = cleanBases(raw, true);
+      if (cleanRNA.length !== 3) {
+        acVisualOutput.innerHTML = `
+          <div class="p-4 rounded-xl bg-slate-100 border border-slate-200 text-xs text-slate-600">
+            Enter a 3-nucleotide RNA anticodon (using A, U, C, G) to see antiparallel mRNA codon pairing and amino acid identity.
+          </div>
+        `;
+        return;
+      }
+
+      // Normalize anticodon to 3' -> 5'
+      const anticodon3to5 = dir === '3to5' ? cleanRNA : reverseSeq(cleanRNA);
+      const mrna5to3 = complementRNA(anticodon3to5);
+      const info = GENETIC_CODE[mrna5to3];
+
+      acVisualOutput.innerHTML = `
+        <div class="bg-amber-50/60 border border-amber-200 rounded-xl p-4 space-y-3">
+          ${dir === '5to3' ? `
+            <div class="text-xs font-bold text-rose-700 bg-rose-100 px-3 py-1.5 rounded-lg">
+              Polarity Trap Caught! Given 5'→3' anticodon (${cleanRNA}) was first reversed to 3'→5' (${anticodon3to5}) before pairing with 5'→3' mRNA!
+            </div>
+          ` : ''}
+
+          <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <!-- Antiparallel Pairing Diagram -->
+            <div class="bg-white px-5 py-3 rounded-xl border border-slate-200 shadow-2xs text-center space-y-1">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-amber-700">tRNA Anticodon (3' → 5')</div>
+              <div class="flex items-center justify-center gap-2 font-mono font-extrabold text-base">
+                <span class="text-xs bg-amber-700 text-white px-1.5 py-0.5 rounded">3'</span>
+                ${anticodon3to5.split('').map(b => `<span class="w-8 h-8 rounded-lg bg-amber-100 text-amber-900 border border-amber-300 flex items-center justify-center">${b}</span>`).join('')}
+                <span class="text-xs bg-amber-700 text-white px-1.5 py-0.5 rounded">5'</span>
+              </div>
+              <div class="flex items-center justify-center gap-2 font-mono text-slate-400 text-xs">
+                <span class="w-5"></span>
+                <span class="w-8">⋮</span><span class="w-8">⋮</span><span class="w-8">⋮</span>
+                <span class="w-5"></span>
+              </div>
+              <div class="flex items-center justify-center gap-2 font-mono font-extrabold text-base">
+                <span class="text-xs bg-emerald-700 text-white px-1.5 py-0.5 rounded">5'</span>
+                ${mrna5to3.split('').map(b => `<span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-900 border border-emerald-300 flex items-center justify-center">${b}</span>`).join('')}
+                <span class="text-xs bg-emerald-700 text-white px-1.5 py-0.5 rounded">3'</span>
+              </div>
+              <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">mRNA Codon (5' → 3') — Look Up This One!</div>
+            </div>
+
+            <!-- Resulting Amino Acid -->
+            <div class="flex-1 bg-white p-4 rounded-xl border border-slate-200 space-y-1.5">
+              <div class="text-xs text-slate-500 font-semibold">Charged Amino Acid Carried by This tRNA:</div>
+              <div class="inline-block px-3 py-1.5 rounded-xl border text-sm font-extrabold ${GROUP_STYLES[info.group]}">
+                ${info.full} (${info.aa})
+              </div>
+              <p class="text-xs text-slate-600 pt-1">
+                {info.aa === 'STOP'
+                  ? 'Note: Normal cells do not have a tRNA for STOP codons; instead, a Release Factor protein recognizes 5\' ' + mrna5to3 + ' 3\'.'
+                  : 'Aminoacyl-tRNA synthetase attaches ' + info.aa + ' to the 3\' CCA acceptor stem of this tRNA.'}
+              </p>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    document.querySelectorAll('.ac-preset').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.ac-preset').forEach(b => {
+          b.className = b === btn
+            ? 'ac-preset px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-amber-600 text-white'
+            : 'ac-preset px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-slate-100 text-slate-700 hover:bg-slate-200';
+        });
+        acInput.value = btn.dataset.ac;
+        acDirSelect.value = btn.dataset.dir;
+        renderAnticodonConverter();
+      });
+    });
+
+    acInput.addEventListener('input', renderAnticodonConverter);
+    acDirSelect.addEventListener('change', renderAnticodonConverter);
+
+    // Ribosome E-P-A Interactive Stepper
+    const RIBO_STAGES = [
+      {
+        title: 'Stage 0: Initiation Complex Assembled (Initiator tRNA in P-Site)',
+        summary: 'The small ribosomal subunit binds the 5\' end of mRNA, scans 5\'→3\' to the start codon (5\' AUG 3\'), and positions the initiator Met-tRNA (anticodon 3\' UAC 5\') directly in the P-site. The large subunit then joins, leaving the A-site open for the second codon (5\' GGC 3\').',
+        keyCheck: 'Exception Rule: The initiator tRNA is the ONLY tRNA that enters directly into the P-site; all subsequent charged tRNAs enter at the A-site!'
+      },
+      {
+        title: 'Stage 1: Codon Recognition at the A-Site (Requires GTP)',
+        summary: 'An incoming aminoacyl-tRNA (Gly-tRNA with anticodon 3\' CCG 5\') enters the A-site (Aminoacyl site) and base-pairs antiparallel with the mRNA codon 5\' GGC 3\'. Elongation factors hydrolyze GTP to verify accurate codon-anticodon hydrogen bonding.',
+        keyCheck: 'Trap Alert: "E" stands for EXIT, not Entry! Incoming tRNAs arrive at the A-site.'
+      },
+      {
+        title: 'Stage 2: Peptide Bond Formation (Catalyzed by rRNA Ribozyme)',
+        summary: 'The large ribosomal subunit\'s rRNA (peptidyl transferase ribozyme) catalyzes a dehydration reaction forming a peptide bond between Met (in the P-site) and Gly (in the A-site). The growing polypeptide is transferred onto the tRNA in the A-site.',
+        keyCheck: 'Ribozyme Fact: Peptide bond catalysis is performed by ribosomal RNA (rRNA), not a ribosomal protein!'
+      },
+      {
+        title: 'Stage 3: Translocation (Ribosome Moves 1 Codon 5\' → 3\' along mRNA)',
+        summary: 'Using GTP hydrolysis, the ribosome shifts 3 nucleotides toward the 3\' end of mRNA. The deacylated (empty) initiator tRNA moves from P → E-site and exits; the peptidyl-tRNA (Met-Gly) shifts from A → P-site; the A-site is now vacant over the next codon (5\' UGA 3\').',
+        keyCheck: 'Directionality: Ribosome moves 5\' → 3\' along mRNA, synthesizing protein from N-terminus to C-terminus.'
+      },
+      {
+        title: 'Stage 4: Termination (Release Factor Binds Stop Codon in A-Site)',
+        summary: 'When the A-site reaches a stop codon (5\' UGA 3\'), NO tRNA binds. Instead, a protein Release Factor enters the A-site, promotes hydrolysis of the bond between the polypeptide and the P-site tRNA, releases the completed protein, and dissociates the ribosomal subunits.',
+        keyCheck: 'Exam Favorite: A Release Factor is a PROTEIN shaped like a tRNA—not an RNA molecule!'
+      }
+    ];
+
+    let currentRiboStage = 0;
+
+    function renderRibosomeStage(stage) {
+      currentRiboStage = stage;
+      document.querySelectorAll('.ribo-btn').forEach(btn => {
+        btn.className = Number(btn.dataset.stage) === stage
+          ? 'ribo-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-violet-600 text-white shadow-sm'
+          : 'ribo-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200';
+      });
+
+      const info = RIBO_STAGES[stage];
+      document.getElementById('ribo-narration').innerHTML = `
+        <div class="text-xs font-extrabold uppercase tracking-wider text-violet-700">Active Step</div>
+        <h3 class="text-base font-extrabold text-slate-900">${info.title}</h3>
+        <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">${info.summary}</p>
+        <div class="p-2.5 rounded-lg bg-amber-100/80 border border-amber-300 text-xs font-semibold text-amber-950">
+          ${info.keyCheck}
+        </div>
+      `;
+
+      // Render SVG Diagram
+      const svg = document.getElementById('ribosome-svg');
+      // Shift mRNA codons on stage 3 & 4 to illustrate translocation
+      const shifted = stage >= 3;
+      const codons = shifted
+        ? [
+            { txt: 'AUG', label: 'Exited', x: 170, col: '#475569' },
+            { txt: 'GGC', label: 'P-site', x: 350, col: '#10b981' },
+            { txt: 'UGA', label: 'A-site (STOP)', x: 510, col: '#f43f5e' },
+            { txt: 'AAA', label: "3' UTR", x: 670, col: '#64748b' }
+          ]
+        : [
+            { txt: '5\' UTR', label: '', x: 90, col: '#64748b' },
+            { txt: 'AUG', label: 'P-site', x: 350, col: '#8b5cf6' },
+            { txt: 'GGC', label: 'A-site', x: 510, col: '#10b981' },
+            { txt: 'UGA', label: 'STOP', x: 670, col: '#f43f5e' }
+          ];
+
+      let dynamicActors = '';
+      if (stage === 0) {
+        dynamicActors = `
+          <!-- P-site Met-tRNA -->
+          <rect x="360" y="95" width="70" height="95" rx="12" fill="#7c3aed" stroke="#c4b5fd" stroke-width="2"/>
+          <text x="395" y="130" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">tRNA</text>
+          <text x="395" y="178" text-anchor="middle" fill="#fde047" font-family="monospace" font-size="13" font-weight="bold">3'UAC5'</text>
+          <circle cx="395" cy="70" r="22" fill="#f59e0b" stroke="#fff" stroke-width="2"/>
+          <text x="395" y="74" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Met</text>
+          <!-- Empty A-site indicator -->
+          <text x="555" y="145" text-anchor="middle" fill="#94a3b8" font-size="12" font-style="italic">Open A-Site</text>
+        `;
+      } else if (stage === 1) {
+        dynamicActors = `
+          <!-- P-site Met-tRNA -->
+          <rect x="360" y="95" width="70" height="95" rx="12" fill="#7c3aed" stroke="#c4b5fd" stroke-width="2"/>
+          <text x="395" y="130" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">tRNA</text>
+          <text x="395" y="178" text-anchor="middle" fill="#fde047" font-family="monospace" font-size="13" font-weight="bold">3'UAC5'</text>
+          <circle cx="395" cy="70" r="22" fill="#f59e0b" stroke="#fff" stroke-width="2"/>
+          <text x="395" y="74" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Met</text>
+
+          <!-- A-site Gly-tRNA arriving -->
+          <rect x="520" y="95" width="70" height="95" rx="12" fill="#059669" stroke="#6ee7b7" stroke-width="2"/>
+          <text x="555" y="130" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">tRNA</text>
+          <text x="555" y="178" text-anchor="middle" fill="#fde047" font-family="monospace" font-size="13" font-weight="bold">3'CCG5'</text>
+          <circle cx="555" cy="70" r="22" fill="#38bdf8" stroke="#fff" stroke-width="2"/>
+          <text x="555" y="74" text-anchor="middle" fill="#0f172a" font-size="12" font-weight="bold">Gly</text>
+          <text x="555" y="36" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="bold">↓ Enters A-Site (GTP)</text>
+        `;
+      } else if (stage === 2) {
+        dynamicActors = `
+          <!-- Empty P-site tRNA -->
+          <rect x="360" y="95" width="70" height="95" rx="12" fill="#475569" stroke="#94a3b8" stroke-width="2"/>
+          <text x="395" y="135" text-anchor="middle" fill="#cbd5e1" font-size="11">Uncharged</text>
+          <text x="395" y="178" text-anchor="middle" fill="#cbd5e1" font-family="monospace" font-size="13">3'UAC5'</text>
+
+          <!-- A-site tRNA now holding Met-Gly dipeptide -->
+          <rect x="520" y="95" width="70" height="95" rx="12" fill="#059669" stroke="#6ee7b7" stroke-width="2"/>
+          <text x="555" y="130" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">tRNA</text>
+          <text x="555" y="178" text-anchor="middle" fill="#fde047" font-family="monospace" font-size="13" font-weight="bold">3'CCG5'</text>
+          <circle cx="555" cy="70" r="20" fill="#38bdf8" stroke="#fff" stroke-width="2"/>
+          <text x="555" y="74" text-anchor="middle" fill="#0f172a" font-size="11" font-weight="bold">Gly</text>
+          <line x1="555" y1="50" x2="555" y2="38" stroke="#fde047" stroke-width="3"/>
+          <circle cx="555" cy="24" r="18" fill="#f59e0b" stroke="#fff" stroke-width="2"/>
+          <text x="555" y="28" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Met</text>
+          <text x="475" y="55" text-anchor="middle" fill="#fde047" font-size="11" font-weight="bold">Peptide Bond (rRNA)</text>
+        `;
+      } else if (stage === 3) {
+        dynamicActors = `
+          <!-- Exiting tRNA at E-site -->
+          <rect x="200" y="85" width="65" height="85" rx="12" fill="#475569" stroke="#94a3b8" stroke-width="2" stroke-dasharray="4 2"/>
+          <text x="232" y="122" text-anchor="middle" fill="#e2e8f0" font-size="11" font-weight="bold">E-Site Exit</text>
+          <text x="232" y="68" text-anchor="middle" fill="#fca5a5" font-size="11" font-weight="bold">↑ Exits Ribosome</text>
+
+          <!-- P-site tRNA now holding Met-Gly -->
+          <rect x="360" y="95" width="70" height="95" rx="12" fill="#059669" stroke="#6ee7b7" stroke-width="2"/>
+          <text x="395" y="130" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">tRNA</text>
+          <text x="395" y="178" text-anchor="middle" fill="#fde047" font-family="monospace" font-size="13" font-weight="bold">3'CCG5'</text>
+          <circle cx="395" cy="70" r="20" fill="#38bdf8" stroke="#fff" stroke-width="2"/>
+          <text x="395" y="74" text-anchor="middle" fill="#0f172a" font-size="11" font-weight="bold">Gly</text>
+          <line x1="395" y1="50" x2="395" y2="38" stroke="#fde047" stroke-width="3"/>
+          <circle cx="395" cy="24" r="18" fill="#f59e0b" stroke="#fff" stroke-width="2"/>
+          <text x="395" y="28" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Met</text>
+
+          <text x="555" y="145" text-anchor="middle" fill="#fda4af" font-size="12" font-weight="bold">Stop Codon in A-Site</text>
+        `;
+      } else if (stage === 4) {
+        dynamicActors = `
+          <!-- Released Polypeptide -->
+          <g transform="translate(330, 15)">
+            <rect x="0" y="0" width="130" height="38" rx="19" fill="#7c3aed" stroke="#fde047" stroke-width="2"/>
+            <text x="65" y="23" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">Met — Gly (Released!)</text>
+          </g>
+          <!-- Uncharged tRNA in P-site -->
+          <rect x="360" y="105" width="70" height="85" rx="12" fill="#475569" stroke="#94a3b8" stroke-width="2"/>
+          <text x="395" y="150" text-anchor="middle" fill="#cbd5e1" font-size="11">tRNA Freed</text>
+
+          <!-- Protein Release Factor in A-site -->
+          <path d="M520,185 L535,95 L575,95 L590,185 Z" fill="#e11d48" stroke="#fda4af" stroke-width="2"/>
+          <text x="555" y="138" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Release</text>
+          <text x="555" y="153" text-anchor="middle" fill="#fff" font-size="11" font-weight="bold">Factor</text>
+          <text x="555" y="168" text-anchor="middle" fill="#fecdd3" font-size="9">(Protein)</text>
+        `;
+      }
+
+      svg.innerHTML = `
+        <!-- Large Ribosomal Subunit -->
+        <path d="M165,195 C165,65 625,65 625,195 Z" fill="#1e293b" stroke="#475569" stroke-width="3"/>
+        <text x="195" y="110" fill="#64748b" font-size="11" font-weight="bold">LARGE SUBUNIT (rRNA + Proteins)</text>
+
+        <!-- E, P, A Site Columns -->
+        <rect x="190" y="118" width="85" height="75" rx="8" fill="#0f172a" stroke="#64748b" stroke-dasharray="3 3"/>
+        <text x="232" y="185" text-anchor="middle" fill="#94a3b8" font-size="11" font-weight="bold">E (Exit)</text>
+
+        <rect x="352" y="118" width="86" height="75" rx="8" fill="#0f172a" stroke="#a78bfa" stroke-width="1.5"/>
+        <text x="395" y="185" text-anchor="middle" fill="#c4b5fd" font-size="11" font-weight="bold">P (Peptidyl)</text>
+
+        <rect x="512" y="118" width="86" height="75" rx="8" fill="#0f172a" stroke="#34d399" stroke-width="1.5"/>
+        <text x="555" y="185" text-anchor="middle" fill="#6ee7b7" font-size="11" font-weight="bold">A (Aminoacyl)</text>
+
+        <!-- mRNA Track -->
+        <rect x="40" y="200" width="740" height="36" rx="8" fill="#064e3b" stroke="#10b981" stroke-width="2"/>
+        <text x="58" y="223" fill="#6ee7b7" font-family="monospace" font-size="14" font-weight="bold">5'</text>
+        <text x="752" y="223" fill="#6ee7b7" font-family="monospace" font-size="14" font-weight="bold">3'</text>
+
+        ${codons.map(c => `
+          <g transform="translate(${c.x}, 204)">
+            <rect x="0" y="0" width="90" height="28" rx="6" fill="${c.col}"/>
+            <text x="45" y="19" text-anchor="middle" fill="#fff" font-family="monospace" font-size="14" font-weight="bold">${c.txt}</text>
+          </g>
+        `).join('')}
+
+        <!-- Small Ribosomal Subunit -->
+        <rect x="180" y="242" width="430" height="44" rx="22" fill="#334155" stroke="#64748b" stroke-width="2.5"/>
+        <text x="395" y="269" text-anchor="middle" fill="#e2e8f0" font-size="12" font-weight="bold">SMALL RIBOSOMAL SUBUNIT (Binds 5' mRNA &amp; Scans 5' → 3')</text>
+
+        <!-- Direction Arrow -->
+        <text x="395" y="312" text-anchor="middle" fill="#38bdf8" font-size="12" font-weight="bold">Ribosome Translocation Direction: 5' ───────────────▶ 3'</text>
+
+        ${dynamicActors}
+      `;
+    }
+
+    document.querySelectorAll('.ribo-btn').forEach(btn => {
+      btn.addEventListener('click', () => renderRibosomeStage(Number(btn.dataset.stage)));
+    });
+
+    /***************************************************************************
+     * 5. MODULE 3: MUTATION SANDBOX & DOWNSTREAM IMPACT LAB
+     ***************************************************************************/
+    // Wild-type sequence based on Study Guide Q1 (3' -> 5' template)
+    const WT_TEMPLATE_3TO5 = 'AGCTTACGGGAGTCTCTACATTGGGTAACT';
+    let mutState = {
+      selectedIdx: 13, // 0-indexed (base #14)
+      mutantTemplate: WT_TEMPLATE_3TO5,
+      opDescription: 'Wild-Type Reference Sequence (No Mutation Applied)'
+    };
+
+    function classifyMutation(wtRes, mutRes, wtSeq, mutSeq) {
+      if (wtSeq === mutSeq) {
+        return {
+          badge: 'WILD-TYPE (NO CHANGE)',
+          color: 'bg-slate-100 border-slate-300 text-slate-900',
+          explanation: 'No nucleotide alteration is present. Both mRNA and polypeptide match the wild-type reference.'
+        };
+      }
+
+      const lenDiff = mutSeq.length - wtSeq.length;
+      const wtAA = wtRes.aminoAcids.map(a => a.aa);
+      const mutAA = mutRes.aminoAcids.map(a => a.aa);
+
+      // Check if mutation occurred in 5' UTR or 3' UTR without changing coding codons
+      if (wtAA.join('-') === mutAA.join('-') && wtRes.hitStop === mutRes.hitStop) {
+        if (lenDiff === 0) {
+          return {
+            badge: 'SILENT / NEUTRAL MUTATION (Same Polypeptide)',
+            color: 'bg-emerald-50 border-emerald-300 text-emerald-950',
+            explanation: 'Due to redundancy (degeneracy) in the genetic code—or because the base change occurred outside the translated coding region (in the 5\' or 3\' UTR)—the exact same amino acid sequence is produced!'
+          };
+        } else {
+          return {
+            badge: 'UTR INDEL (Outside Coding Sequence)',
+            color: 'bg-sky-50 border-sky-300 text-sky-950',
+            explanation: `The ${Math.abs(lenDiff)}-bp ${lenDiff > 0 ? 'insertion' : 'deletion'} occurred in an untranslated region (5' UTR before AUG or 3' UTR after the stop codon), leaving the translated polypeptide unchanged (though regulatory UTR elements may be affected).`
+          };
+        }
+      }
+
+      // Check Indels
+      if (lenDiff !== 0) {
+        if (Math.abs(lenDiff) % 3 === 0) {
+          return {
+            badge: `IN-FRAME ${lenDiff > 0 ? 'INSERTION' : 'DELETION'} (${Math.abs(lenDiff)} bp = Multiple of 3)`,
+            color: 'bg-indigo-50 border-indigo-300 text-indigo-950',
+            explanation: `Because ${Math.abs(lenDiff)} nucleotides is a multiple of 3, one or more whole codons were ${lenDiff > 0 ? 'added' : 'removed'} WITHOUT shifting the downstream triplet reading frame! Downstream amino acids remain intact.`
+          };
+        } else {
+          return {
+            badge: `FRAMESHIFT ${lenDiff > 0 ? 'INSERTION' : 'DELETION'} (${Math.abs(lenDiff)} bp — Not a Multiple of 3!)`,
+            color: 'bg-rose-50 border-rose-300 text-rose-950',
+            explanation: `Adding or deleting ${Math.abs(lenDiff)} base(s) shifts the 3-nucleotide reading frame for every downstream codon! This scrambles all subsequent amino acids and frequently creates a premature stop codon.`
+          };
+        }
+      }
+
+      // Base-pair substitution (lenDiff === 0)
+      if (mutAA.length < wtAA.length && mutRes.hitStop) {
+        return {
+          badge: 'NONSENSE MUTATION (Premature Stop Codon)',
+          color: 'bg-amber-50 border-amber-300 text-amber-950',
+          explanation: `The base substitution converted an amino-acid-coding codon into a premature STOP codon (${mutRes.codingCodons[mutRes.codingCodons.length - 1].codon}), truncating the polypeptide from ${wtAA.length} down to ${mutAA.length} amino acids!`
+        };
+      }
+
+      if (mutAA.length > wtAA.length && wtRes.hitStop && !mutRes.hitStop) {
+        return {
+          badge: 'READTHROUGH MUTATION (Stop Codon Lost)',
+          color: 'bg-purple-50 border-purple-300 text-purple-950',
+          explanation: 'The base substitution mutated the original stop codon into an amino-acid codon, causing translation to continue past the normal termination site!'
+        };
+      }
+
+      return {
+        badge: 'MISSENSE MUTATION (Amino Acid Substitution)',
+        color: 'bg-orange-50 border-orange-300 text-orange-950',
+        explanation: 'The single-nucleotide substitution changed one mRNA codon so that it now specifies a different amino acid in the polypeptide chain.'
+      };
+    }
+
+    function renderModule3() {
+      const wtRes = solveCentralDogma(WT_TEMPLATE_3TO5, 'template', '3to5');
+      const mutRes = solveCentralDogma(mutState.mutantTemplate, 'template', '3to5');
+      const diag = classifyMutation(wtRes, mutRes, WT_TEMPLATE_3TO5, mutState.mutantTemplate);
+
+      // Render clickable wild-type bases
+      const clickableDiv = document.getElementById('mut-dna-clickable');
+      clickableDiv.innerHTML = `
+        <span class="font-mono text-xs font-extrabold px-2 py-1 rounded bg-slate-800 text-white">3'</span>
+        ${WT_TEMPLATE_3TO5.split('').map((b, idx) => {
+          const isSel = idx === mutState.selectedIdx;
+          return `
+            <button onclick="selectMutBase(${idx})"
+              class="flex flex-col items-center px-1.5 py-1 rounded-lg border transition ${isSel ? 'bg-sky-600 text-white border-sky-700 scale-110 shadow' : 'bg-white text-slate-800 border-slate-300 hover:border-sky-400'}">
+              <span class="text-[9px] font-mono opacity-75">${idx + 1}</span>
+              <span class="font-mono font-extrabold text-xs">${b}</span>
+            </button>
+          `;
+        }).join('')}
+        <span class="font-mono text-xs font-extrabold px-2 py-1 rounded bg-slate-800 text-white">5'</span>
+      `;
+
+      document.getElementById('mut-selected-info').textContent =
+        `Position #${mutState.selectedIdx + 1} (${WT_TEMPLATE_3TO5[mutState.selectedIdx]}) selected`;
+
+      // Diagnosis Card
+      const diagCard = document.getElementById('mut-diagnosis-card');
+      diagCard.className = `rounded-xl p-4 border-2 space-y-1.5 ${diag.color}`;
+      diagCard.innerHTML = `
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="text-xs font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded bg-white/80 border border-current">${diag.badge}</span>
+          <span class="text-xs font-mono font-semibold">${mutState.opDescription}</span>
+        </div>
+        <p class="text-xs sm:text-sm leading-relaxed pt-1">${diag.explanation}</p>
+      `;
+
+      // Side-by-Side Comparison
+      function buildSeqPanel(title, res, isMutant) {
+        const aaText = res.aminoAcids.length > 0
+          ? res.aminoAcids.map((a, i) => {
+              const changed = isMutant && (!wtRes.aminoAcids[i] || wtRes.aminoAcids[i].aa !== a.aa);
+              return `<span class="px-2 py-1 rounded-lg border text-xs font-bold ${changed ? 'bg-rose-600 text-white border-rose-700 ring-2 ring-rose-300' : GROUP_STYLES[a.group]}">${a.aa}</span>`;
+            }).join(' ')
+          : '<span class="text-xs text-rose-600 font-bold">No start codon (No protein)</span>';
+
+        return `
+          <div class="rounded-xl border ${isMutant ? 'border-rose-200 bg-rose-50/30' : 'border-slate-200 bg-slate-50/70'} p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="font-extrabold text-sm text-slate-900">${title}</h3>
+              <span class="text-xs font-bold px-2 py-0.5 rounded bg-white border border-slate-200">
+                ${res.aminoAcids.length} Amino Acids
+              </span>
+            </div>
+            <div>
+              <div class="text-[11px] font-bold text-sky-800 uppercase">DNA Template (3' → 5')</div>
+              <div class="font-mono text-xs bg-white p-2 rounded-lg border border-slate-200 overflow-x-auto mt-1">
+                3' ${res.template3to5} 5'
+              </div>
+            </div>
+            <div>
+              <div class="text-[11px] font-bold text-emerald-800 uppercase">mRNA Codons (5' → 3')</div>
+              <div class="font-mono text-xs bg-white p-2 rounded-lg border border-slate-200 overflow-x-auto mt-1">
+                5' ${res.utr5 ? `<span class="text-slate-400">${res.utr5}</span> ` : ''}${res.codingCodons.map(c => `<span class="px-1 rounded ${c.group === 'stop' ? 'bg-slate-800 text-white' : 'bg-emerald-50 text-emerald-900 border border-emerald-200'}">${c.codon}</span>`).join(' ')} 3'
+              </div>
+            </div>
+            <div>
+              <div class="text-[11px] font-bold text-violet-800 uppercase mb-1">Polypeptide (N → C)</div>
+              <div class="flex flex-wrap items-center gap-1.5">
+                ${aaText}
+                ${res.hitStop ? '<span class="px-2 py-1 rounded bg-slate-800 text-white text-[11px] font-bold">STOP</span>' : ''}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      document.getElementById('mut-comparison-output').innerHTML =
+        buildSeqPanel('Wild-Type Reference', wtRes, false) +
+        buildSeqPanel('Mutant Outcome', mutRes, true);
+    }
+
+    window.selectMutBase = function(idx) {
+      mutState.selectedIdx = idx;
+      renderModule3();
+    };
+
+    document.querySelectorAll('.mut-op-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const op = btn.dataset.op;
+        const val = btn.dataset.val;
+        const idx = mutState.selectedIdx;
+        const arr = WT_TEMPLATE_3TO5.split('');
+
+        if (op === 'sub') {
+          const orig = arr[idx];
+          arr[idx] = val;
+          mutState.mutantTemplate = arr.join('');
+          mutState.opDescription = `Substitution at pos #${idx + 1}: ${orig} → ${val}`;
+        } else if (op === 'ins') {
+          arr.splice(idx + 1, 0, val);
+          mutState.mutantTemplate = arr.join('');
+          mutState.opDescription = `Insertion of "${val}" after pos #${idx + 1}`;
+        } else if (op === 'del') {
+          const count = Number(val);
+          const removed = arr.splice(idx, count).join('');
+          mutState.mutantTemplate = arr.join('');
+          mutState.opDescription = `Deletion of ${count} bp ("${removed}") starting at pos #${idx + 1}`;
+        }
+        renderModule3();
+      });
+    });
+
+    document.querySelectorAll('.mut-preset').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const m = btn.dataset.mut;
+        if (m === 'wt') {
+          mutState.mutantTemplate = WT_TEMPLATE_3TO5;
+          mutState.opDescription = 'Wild-Type Reference Sequence (No Mutation Applied)';
+        } else if (m === 'sg_q1_sub') {
+          // Base #14 (0-idx 13) A -> C
+          mutState.selectedIdx = 13;
+          const arr = WT_TEMPLATE_3TO5.split('');
+          arr[13] = 'C';
+          mutState.mutantTemplate = arr.join('');
+          mutState.opDescription = 'Study Guide Q1: Base #14 (A → C) substitution';
+        } else if (m === 'sg_q2_ins') {
+          // Insert AA after pos #9 (inside coding region)
+          mutState.selectedIdx = 8;
+          const arr = WT_TEMPLATE_3TO5.split('');
+          arr.splice(9, 0, 'AA');
+          mutState.mutantTemplate = arr.join('');
+          mutState.opDescription = 'Study Guide Q2: 2-bp Insertion ("AA") → Frameshift!';
+        } else if (m === 'silent_wobble') {
+          // Pos #10 (0-idx 9) G -> A changes mRNA CCC (Pro) to CCU (Pro)
+          mutState.selectedIdx = 9;
+          const arr = WT_TEMPLATE_3TO5.split('');
+          arr[9] = 'A';
+          mutState.mutantTemplate = arr.join('');
+          mutState.opDescription = 'Silent Mutation: Template G→A changes mRNA CCC→CCU (both Pro)';
+        } else if (m === 'nonsense_premature') {
+          // Pos #17 (0-idx 16) T -> A changes mRNA AGA (Arg) to UGA (STOP)
+          mutState.selectedIdx = 16;
+          const arr = WT_TEMPLATE_3TO5.split('');
+          arr[16] = 'A';
+          mutState.mutantTemplate = arr.join('');
+          mutState.opDescription = 'Nonsense Mutation: mRNA AGA (Arg) → UGA (Premature STOP)';
+        } else if (m === 'inframe_3bp') {
+          mutState.selectedIdx = 10;
+          const arr = WT_TEMPLATE_3TO5.split('');
+          arr.splice(10, 3);
+          mutState.mutantTemplate = arr.join('');
+          mutState.opDescription = 'In-Frame 3-bp Deletion: Removes 1 codon, preserves downstream frame';
+        }
+        renderModule3();
+      });
+    });
+
+    /***************************************************************************
+     * 6. MODULE 4: PROKARYOTES VS EUKARYOTES & PRE-mRNA SPLICING STUDIO
+     ***************************************************************************/
+    const PERTURBATIONS = {
+      normal: {
+        banner: '<strong>Wild-Type Comparison:</strong> Prokaryotes couple transcription and translation simultaneously in the cytoplasm. Eukaryotes transcribe pre-mRNA in the nucleus, add a 5\' GTP cap & 3\' poly-A tail, splice out introns via the spliceosome, and export mature mRNA to cytoplasmic ribosomes.',
+        style: 'bg-emerald-50 border-emerald-200 text-emerald-950'
+      },
+      no_cap: {
+        banner: '<strong>Perturbation — 5\' GTP Cap Deleted (Eukaryotes):</strong> Without the 5\' methylguanosine cap, eukaryotic mRNA is rapidly degraded by 5\'→3\' exonucleases, fails to export efficiently through nuclear pores, and cannot be recognized by the small ribosomal subunit!',
+        style: 'bg-rose-50 border-rose-300 text-rose-950'
+      },
+      no_tail: {
+        banner: '<strong>Perturbation — 3\' Poly-A Tail Removed (Eukaryotes):</strong> Without the 3\' poly-A tail (50–250 Adenines added by poly-A polymerase), mRNA lifespan drops dramatically due to rapid 3\'→5\' cytoplasmic degradation, sharply reducing total protein yield.',
+        style: 'bg-amber-50 border-amber-300 text-amber-950'
+      },
+      no_splice: {
+        banner: '<strong>Perturbation — Spliceosome Inhibited / Intron Retained (Eukaryotes):</strong> Introns remain inside the mRNA! If exported and translated, the ribosome reads noncoding intron bases, shifting the reading frame and almost always hitting a premature stop codon.',
+        style: 'bg-rose-50 border-rose-300 text-rose-950'
+      },
+      add_nucleus: {
+        banner: '<strong>Thought Experiment — Adding a Nuclear Envelope to a Prokaryote:</strong> Coupled transcription-translation immediately stops! Transcription and translation become spatially and temporally separated, forcing mRNA to be exported before ribosomes can access it.',
+        style: 'bg-indigo-50 border-indigo-300 text-indigo-950'
+      }
+    };
+
+    function renderProkEukDiagrams(pert = 'normal') {
+      document.querySelectorAll('.pert-btn').forEach(btn => {
+        btn.className = btn.dataset.pert === pert
+          ? 'pert-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-sm'
+          : 'pert-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200';
+      });
+
+      const pInfo = PERTURBATIONS[pert];
+      const banner = document.getElementById('perturbation-banner');
+      banner.className = `p-4 rounded-xl border text-xs sm:text-sm ${pInfo.style}`;
+      banner.innerHTML = pInfo.banner;
+
+      // Prokaryote SVG
+      const prokSvg = document.getElementById('prok-svg');
+      const hasHypoNucleus = pert === 'add_nucleus';
+      prokSvg.innerHTML = `
+        <rect x="10" y="10" width="400" height="210" rx="18" fill="#f0f9ff" stroke="#0284c7" stroke-width="2.5"/>
+        <text x="24" y="32" fill="#0369a1" font-size="11" font-weight="bold">CYTOPLASM (Single Compartment)</text>
+        ${hasHypoNucleus ? `
+          <rect x="25" y="42" width="185" height="160" rx="14" fill="#e0e7ff" stroke="#4f46e5" stroke-width="2" stroke-dasharray="5 3"/>
+          <text x="38" y="60" fill="#3730a3" font-size="10" font-weight="bold">Hypothetical Nucleus</text>
+          <line x1="40" y1="115" x2="180" y2="115" stroke="#0284c7" stroke-width="4"/>
+          <circle cx="125" cy="115" r="16" fill="#0ea5e9"/>
+          <text x="125" y="119" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold">RNAP</text>
+          <text x="295" y="120" text-anchor="middle" fill="#e11d48" font-size="11" font-weight="bold">Coupling Broken!</text>
+        ` : `
+          <!-- Circular DNA / Gene -->
+          <line x1="35" y1="90" x2="385" y2="90" stroke="#0284c7" stroke-width="5"/>
+          <text x="40" y="78" fill="#0284c7" font-size="11" font-weight="bold">Prokaryotic DNA</text>
+          <!-- RNA Polymerase -->
+          <ellipse cx="260" cy="90" rx="24" ry="18" fill="#0369a1"/>
+          <text x="260" y="94" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">RNAP</text>
+          <!-- Nascent mRNA being translated simultaneously -->
+          <path d="M260,108 Q220,145 110,145" fill="none" stroke="#059669" stroke-width="4"/>
+          <text x="95" y="149" fill="#059669" font-family="monospace" font-size="11" font-weight="bold">5'</text>
+          <!-- Polysome Ribosomes translating while transcribing -->
+          <circle cx="135" cy="145" r="14" fill="#7c3aed"/>
+          <circle cx="180" cy="145" r="14" fill="#7c3aed"/>
+          <text x="158" y="176" text-anchor="middle" fill="#6d28d9" font-size="10" font-weight="bold">Ribosomes Translating Simultaneously!</text>
+        `}
+      `;
+
+      // Eukaryote SVG
+      const eukSvg = document.getElementById('euk-svg');
+      const capMissing = pert === 'no_cap';
+      const tailMissing = pert === 'no_tail';
+      const intronRetained = pert === 'no_splice';
+
+      eukSvg.innerHTML = `
+        <!-- Nucleus (Left) -->
+        <rect x="10" y="10" width="205" height="210" rx="18" fill="#eef2ff" stroke="#4f46e5" stroke-width="2.5"/>
+        <text x="22" y="30" fill="#3730a3" font-size="11" font-weight="bold">NUCLEUS</text>
+        <!-- DNA -->
+        <line x1="25" y1="58" x2="195" y2="58" stroke="#0284c7" stroke-width="4"/>
+        <text x="25" y="48" fill="#0284c7" font-size="10" font-weight="bold">DNA (Exons + Introns)</text>
+        <!-- Pre-mRNA -->
+        <line x1="25" y1="105" x2="195" y2="105" stroke="#059669" stroke-width="4"/>
+        <rect x="75" y="98" width="45" height="14" rx="3" fill="#f43f5e"/>
+        <text x="97" y="108" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">Intron</text>
+        <text x="25" y="90" fill="#047857" font-size="10" font-weight="bold">Pre-mRNA + Processing</text>
+
+        <!-- Mature mRNA inside Nucleus -->
+        <g transform="translate(22, 155)">
+          ${!capMissing ? `<circle cx="10" cy="10" r="9" fill="#f59e0b"/><text x="10" y="13" text-anchor="middle" fill="#fff" font-size="8" font-weight="bold">5'Cap</text>` : `<text x="12" y="13" fill="#e11d48" font-size="9" font-weight="bold">No Cap!</text>`}
+          <rect x="24" y="4" width="110" height="12" rx="4" fill="#10b981"/>
+          ${intronRetained ? `<rect x="62" y="4" width="34" height="12" fill="#e11d48"/>` : ''}
+          ${!tailMissing ? `<text x="140" y="14" fill="#047857" font-family="monospace" font-size="10" font-weight="bold">AAAA</text>` : `<text x="138" y="14" fill="#e11d48" font-size="9" font-weight="bold">No Tail</text>`}
+        </g>
+
+        <!-- Nuclear Pore Arrow -->
+        <line x1="205" y1="165" x2="245" y2="165" stroke="#4f46e5" stroke-width="3" marker-end="url(#arrow)"/>
+        <text x="225" y="154" text-anchor="middle" fill="#3730a3" font-size="9" font-weight="bold">Pore</text>
+
+        <!-- Cytoplasm (Right) -->
+        <rect x="235" y="10" width="175" height="210" rx="18" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+        <text x="248" y="30" fill="#475569" font-size="11" font-weight="bold">CYTOPLASM</text>
+        ${capMissing || tailMissing ? `
+          <text x="322" y="125" text-anchor="middle" fill="#e11d48" font-size="12" font-weight="bold">mRNA Degraded!</text>
+          <text x="322" y="143" text-anchor="middle" fill="#64748b" font-size="10">Little/no protein made</text>
+        ` : intronRetained ? `
+          <ellipse cx="322" cy="130" rx="34" ry="22" fill="#e11d48"/>
+          <text x="322" y="134" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Aberrant Protein</text>
+          <text x="322" y="168" text-anchor="middle" fill="#be123c" font-size="10" font-weight="bold">Intron Translated!</text>
+        ` : `
+          <ellipse cx="322" cy="130" rx="34" ry="22" fill="#7c3aed"/>
+          <text x="322" y="134" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">Ribosome</text>
+          <text x="322" y="170" text-anchor="middle" fill="#059669" font-size="10" font-weight="bold">Functional Protein!</text>
+        `}
+      `;
+    }
+
+    document.querySelectorAll('.pert-btn').forEach(btn => {
+      btn.addEventListener('click', () => renderProkEukDiagrams(btn.dataset.pert));
+    });
+
+    // Alternative Splicing Builder
+    let spliceState = {
+      exons: [true, true, true, true],
+      retainIntron2: false
+    };
+
+    const EXON_DATA = [
+      { id: 1, name: 'Exon 1', domain: 'Signal Peptide + N-Term', aaCount: 32, col: 'bg-indigo-600 text-white' },
+      { id: 2, name: 'Exon 2', domain: 'Catalytic Active Site', aaCount: 58, col: 'bg-sky-600 text-white' },
+      { id: 3, name: 'Exon 3', domain: 'Transmembrane Anchor', aaCount: 28, col: 'bg-emerald-600 text-white' },
+      { id: 4, name: 'Exon 4', domain: 'Regulatory C-Term', aaCount: 42, col: 'bg-violet-600 text-white' },
+    ];
+
+    function renderSplicingWorkbench() {
+      const container = document.getElementById('splicing-workbench');
+      const includedExons = EXON_DATA.filter((_, i) => spliceState.exons[i]);
+      const totalAA = includedExons.reduce((sum, e) => sum + e.aaCount, 0);
+
+      let proteinNote = '';
+      if (spliceState.retainIntron2) {
+        proteinNote = `
+          <div class="p-3 rounded-xl bg-rose-50 border border-rose-300 text-xs text-rose-950 font-semibold">
+            Spliceosome Defect: Intron 2 was NOT excised! Its noncoding sequence enters the mature mRNA, causing a frameshift and premature stop codon after Exon 2 (nonfunctional truncated polypeptide).
+          </div>
+        `;
+      } else if (!spliceState.exons[2] && spliceState.exons[0] && spliceState.exons[1] && spliceState.exons[3]) {
+        proteinNote = `
+          <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-xs text-emerald-950 font-semibold">
+            Alternative Splicing Isoform B (Secreted Soluble Enzyme): Skipping Exon 3 removes the hydrophobic transmembrane anchor while keeping the catalytic domain intact, converting a membrane-bound protein into a secreted soluble isoform!
+          </div>
+        `;
+      } else {
+        proteinNote = `
+          <div class="p-3 rounded-xl bg-indigo-50 border border-indigo-200 text-xs text-indigo-950 font-semibold">
+            Mature mRNA Joins ${includedExons.length} Exon(s) → ${totalAA}-Amino-Acid Polypeptide. Introns 1, 2, and 3 are removed as lariat loops by the spliceosome inside the nucleus.
+          </div>
+        `;
+      }
+
+      container.innerHTML = `
+        <!-- Pre-mRNA Track with Toggleable Exons -->
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+          <div class="text-xs font-bold text-slate-700">1. Primary Pre-mRNA Transcript (Click Exons to Include/Skip in Mature mRNA):</div>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <span class="px-2 py-1 rounded-full bg-amber-500 text-white font-mono text-xs font-bold">5' Cap</span>
+            ${EXON_DATA.map((ex, idx) => `
+              <button onclick="toggleSpliceExon(${idx})"
+                class="px-3 py-2 rounded-lg text-xs font-bold transition shadow-2xs ${spliceState.exons[idx] ? ex.col : 'bg-slate-200 text-slate-500 line-through opacity-60'}">
+                ${ex.name} (${ex.aaCount} aa)
+              </button>
+              ${idx < 3 ? `
+                <span class="px-2 py-1 rounded text-[11px] font-mono ${idx === 1 && spliceState.retainIntron2 ? 'bg-rose-600 text-white font-bold' : 'bg-slate-200/70 text-slate-500 border border-dashed border-slate-400'}">
+                  Intron ${idx + 1} ${idx === 1 && spliceState.retainIntron2 ? '(RETAINED!)' : '(excised)'}
+                </span>
+              ` : ''}
+            `).join('')}
+            <span class="px-2 py-1 rounded-full bg-emerald-700 text-white font-mono text-xs font-bold">3' Poly-A</span>
+          </div>
+        </div>
+
+        <!-- Mature Spliced mRNA Track -->
+        <div class="bg-white p-4 rounded-xl border border-slate-200 space-y-2">
+          <div class="text-xs font-bold text-slate-700">2. Mature Exported mRNA (Sent to Cytoplasmic Ribosomes):</div>
+          <div class="flex flex-wrap items-center gap-1">
+            <span class="px-2 py-1 rounded-l-full bg-amber-500 text-white font-mono text-xs font-bold">5' Cap</span>
+            ${EXON_DATA.map((ex, idx) => `
+              ${spliceState.exons[idx] ? `<span class="px-3 py-1.5 text-xs font-bold ${ex.col}">${ex.name}: ${ex.domain}</span>` : ''}
+              ${idx === 1 && spliceState.retainIntron2 ? `<span class="px-3 py-1.5 text-xs font-bold bg-rose-600 text-white">INTRON 2 (Frameshift + Premature Stop)</span>` : ''}
+            `).join('')}
+            <span class="px-2 py-1 rounded-r-full bg-emerald-700 text-white font-mono text-xs font-bold">3' AAAAA</span>
+          </div>
+          ${proteinNote}
+        </div>
+      `;
+    }
+
+    window.toggleSpliceExon = function(idx) {
+      spliceState.retainIntron2 = false;
+      spliceState.exons[idx] = !spliceState.exons[idx];
+      if (!spliceState.exons.some(Boolean)) spliceState.exons[0] = true; // keep at least 1 exon
+      renderSplicingWorkbench();
+    };
+
+    document.getElementById('splice-all-exons').addEventListener('click', () => {
+      spliceState = { exons: [true, true, true, true], retainIntron2: false };
+      renderSplicingWorkbench();
+    });
+    document.getElementById('splice-alt-skip3').addEventListener('click', () => {
+      spliceState = { exons: [true, true, false, true], retainIntron2: false };
+      renderSplicingWorkbench();
+    });
+    document.getElementById('splice-retain-intron').addEventListener('click', () => {
+      spliceState = { exons: [true, true, true, true], retainIntron2: true };
+      renderSplicingWorkbench();
+    });
+
+    /***************************************************************************
+     * 7. MODULE 5: TOP 8 MISCONCEPTION BUSTER CARDS & 10-QUESTION EXAM QUIZ
+     ***************************************************************************/
+    const MYTHS = [
+      {
+        num: 1,
+        myth: '“I can transcribe a 5\' → 3\' DNA template strand directly from left to right.”',
+        reality: 'RNA Polymerase ALWAYS reads the DNA template strand 3\' → 5\' to synthesize mRNA 5\' → 3\'. If an exam gives you a 5\' → 3\' template strand, you must reverse its polarity to 3\' → 5\' first!'
+      },
+      {
+        num: 2,
+        myth: '“The coding strand (non-template strand) is the strand transcribed by RNA Polymerase.”',
+        reality: 'False! The template strand is transcribed. The non-template strand is called the "coding" strand only because its 5\' → 3\' base sequence matches the 5\' → 3\' mRNA transcript (with T instead of U).'
+      },
+      {
+        num: 3,
+        myth: '“Translation starts at the very first 3 nucleotides of mRNA, and AUG is just a signal that isn\'t translated.”',
+        reality: 'The small ribosomal subunit binds near the 5\' end and scans 5\' → 3\' past the 5\' UTR until it reaches the first 5\' AUG 3\'. AUG both sets the reading frame AND codes for Methionine (Met).'
+      },
+      {
+        num: 4,
+        myth: '“UAA, UAG, and UGA code for an amino acid called ‘Stop’, so 5 codons = 5 amino acids.”',
+        reality: 'Stop codons do NOT code for any amino acid and have no matching tRNA. They recruit a protein Release Factor that terminates translation. 4 sense codons + 1 stop codon = 4 amino acids!'
+      },
+      {
+        num: 5,
+        myth: '“To find the amino acid carried by a tRNA with anticodon 3\' UCA 5\', I look up UCA in the codon table.”',
+        reality: 'The genetic code table lists 5\' → 3\' mRNA codons! A tRNA anticodon 3\' UCA 5\' pairs antiparallel with mRNA codon 5\' AGU 3\', which encodes Serine (Ser)—not UCA (Ser happens to be Ser by coincidence, whereas 3\' CCC 5\' pairs with 5\' GGG 3\' = Gly, NOT Pro!).'
+      },
+      {
+        num: 6,
+        myth: '“On the ribosome, ‘E-site’ stands for Entry site where new tRNAs enter.”',
+        reality: 'E stands for EXIT! Charged aminoacyl-tRNAs enter at the A-site (Aminoacyl), hold the growing chain in the P-site (Peptidyl), and exit uncharged through the E-site.'
+      },
+      {
+        num: 7,
+        myth: '“Every point mutation changes the protein, and every insertion/deletion causes a frameshift.”',
+        reality: 'Because the genetic code is redundant (degenerate), wobble-position substitutions are often silent. And insertions/deletions of multiples of 3 bp add/remove whole codons without shifting the downstream reading frame!'
+      },
+      {
+        num: 8,
+        myth: '“Ribosomes skip over introns during translation in the cytoplasm.”',
+        reality: 'Ribosomes CANNOT distinguish introns from exons! In eukaryotes, introns must be excised by the spliceosome inside the nucleus during pre-mRNA processing before nuclear export.'
+      }
+    ];
+
+    function renderMythCards() {
+      const grid = document.getElementById('myth-cards-grid');
+      grid.innerHTML = MYTHS.map(m => `
+        <div onclick="this.classList.toggle('flipped')" class="cursor-pointer rounded-xl border border-slate-200 bg-slate-50/70 hover:border-sky-400 p-4 transition space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 text-[11px] font-extrabold uppercase">Misconception #${m.num}</span>
+            <span class="text-[11px] text-slate-400 font-semibold">Myth vs. Molecular Reality</span>
+          </div>
+          <div class="p-2.5 rounded-lg bg-rose-50/80 border border-rose-200 text-xs font-semibold text-rose-950">
+            <span class="font-extrabold text-rose-700">MYTH:</span> ${m.myth}
+          </div>
+          <div class="p-2.5 rounded-lg bg-emerald-50/90 border border-emerald-200 text-xs text-emerald-950 leading-relaxed">
+            <span class="font-extrabold text-emerald-700">REALITY:</span> ${m.reality}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    const QUIZ_QUESTIONS = [
+      {
+        q: '1. A DNA template strand is given as: 5\' C A T G G G C A T A C T 3\'. What is the 5\' → 3\' mRNA sequence transcribed from this template?',
+        options: [
+          '5\' G U A C C C G U A U G A 3\'',
+          '5\' A G U A U G C C C A U G 3\'',
+          '5\' C A U G G G C A U A C U 3\'',
+          '5\' U C A U A C G G G U A C 3\''
+        ],
+        correct: 1,
+        explanations: [
+          'Trap! You complemented the template directly without flipping its 5\'→3\' polarity to 3\'→5\' first.',
+          'Correct! First flip the 5\'→3\' template to 3\' T C A T A C G G G T A C 5\', then transcribe 5\'→3\' complementary mRNA: 5\' A G U A U G C C C A U G 3\'.',
+          'Trap! That simply replaced T with U on the template strand—which gives the non-template strand\'s RNA equivalent, not the complementary transcript.',
+          'Trap! That is the 3\'→5\' mRNA orientation, not 5\'→3\'.'
+        ]
+      },
+      {
+        q: '2. If the 5\' → 3\' non-template (coding) strand of a gene is 5\' G C A A T G T G G T A A 3\', what is the encoded polypeptide?',
+        options: [
+          'N - Ala - Met - Trp - Stop - C (4 amino acids)',
+          'N - Met - Trp - C (2 amino acids)',
+          'N - Arg - Tyr - Thr - Ile - C (4 amino acids)',
+          'N - Met - Trp - Stop - C (3 amino acids)'
+        ],
+        correct: 1,
+        explanations: [
+          'Two traps! You started before AUG (ignoring the 5\' UTR GCA) AND counted Stop as an amino acid.',
+          'Correct! The 5\'→3\' mRNA is 5\' G C A A U G U G G U A A 3\'. Scanning past GCA finds 5\' AUG 3\' (Met), followed by 5\' UGG 3\' (Trp), and halts at 5\' UAA 3\' (Stop) = 2 amino acids.',
+          'Trap! You transcribed the coding strand as if it were the template strand.',
+          'Trap! UAA is a stop codon that recruits a Release Factor—it does NOT add a 3rd amino acid.'
+        ]
+      },
+      {
+        q: '3. A tRNA molecule has the anticodon 3\' C C C 5\'. Which amino acid does this tRNA carry?',
+        options: [
+          'Proline (Pro), because CCC codes for Pro in the genetic code chart',
+          'Glycine (Gly), because 3\' CCC 5\' pairs with mRNA codon 5\' GGG 3\'',
+          'Arginine (Arg), because 3\' CCC 5\' pairs with 5\' CGG 3\'',
+          'Tryptophan (Trp)'
+        ],
+        correct: 1,
+        explanations: [
+          'Classic Trap! You looked up the tRNA anticodon directly in the mRNA codon table without complementing it to the mRNA codon.',
+          'Correct! Antiparallel pairing between tRNA anticodon 3\' CCC 5\' and mRNA codon 5\' GGG 3\' specifies Glycine (Gly).',
+          'Incorrect base pairing: C pairs with G, not C.',
+          'Trp is encoded by 5\' UGG 3\' (tRNA anticodon 3\' ACC 5\').'
+        ]
+      },
+      {
+        q: '4. Which statement accurately describes the ribosome\'s E, P, and A sites during translation elongation?',
+        options: [
+          'New charged tRNAs enter at the E-site (Entry), move to P, and exit at A',
+          'New charged tRNAs enter at the A-site, transfer their amino acid to the chain in the P-site, and exit uncharged at the E-site',
+          'The initiator Met-tRNA enters at the A-site before shifting to the P-site',
+          'Peptide bond formation is catalyzed by a protein enzyme located in the E-site'
+        ],
+        correct: 1,
+        explanations: [
+          'Trap! E stands for Exit, NOT Entry!',
+          'Correct! Aminoacyl-tRNAs arrive at the A-site, the growing polypeptide is held in the P-site (Peptidyl), and uncharged tRNAs leave via the E-site (Exit).',
+          'Exception rule: Initiator Met-tRNA binds directly in the P-site during initiation.',
+          'Peptide bond formation occurs between the P and A sites and is catalyzed by rRNA (a ribozyme).'
+        ]
+      },
+      {
+        q: '5. A single base-pair substitution in the coding region changes an mRNA codon from 5\' G C U 3\' to 5\' G C C 3\'. Both codons specify Alanine. This mutation is:',
+        options: [
+          'A missense mutation',
+          'A nonsense mutation',
+          'A silent mutation enabled by redundancy (degeneracy) of the genetic code',
+          'A frameshift mutation'
+        ],
+        correct: 2,
+        explanations: [
+          'Missense mutations change one amino acid to a different amino acid.',
+          'Nonsense mutations convert an amino-acid codon into a premature stop codon.',
+          'Correct! Multiple codons specifying the same amino acid (redundancy/degeneracy, often at the 3rd wobble position) result in a silent mutation with no change to the primary amino acid sequence.',
+          'Base substitutions do not shift the reading frame; only indels not divisible by 3 cause frameshifts.'
+        ]
+      },
+      {
+        q: '6. Which mutation in the middle of an exon is MOST likely to preserve the reading frame of all downstream codons?',
+        options: [
+          'A 1-base-pair insertion',
+          'A 2-base-pair deletion',
+          'A 3-base-pair deletion',
+          'A 4-base-pair insertion'
+        ],
+        correct: 2,
+        explanations: [
+          '1 bp is not a multiple of 3, causing a frameshift of every downstream codon.',
+          '2 bp is not a multiple of 3, causing a frameshift.',
+          'Correct! Because codons are non-overlapping triplets, deleting (or inserting) 3 nucleotides removes (or adds) 1 whole amino acid while keeping every downstream triplet in frame!',
+          '4 bp is not a multiple of 3, causing a frameshift.'
+        ]
+      },
+      {
+        q: '7. Why can bacteria begin translating an mRNA molecule while it is still being transcribed by RNA Polymerase, whereas human cells cannot?',
+        options: [
+          'Bacterial ribosomes lack rRNA and bind directly to DNA',
+          'Bacteria lack a nuclear envelope, so transcription and translation both occur in the cytoplasm',
+          'Human RNA Polymerase synthesizes mRNA in the 3\' → 5\' direction',
+          'Bacterial mRNAs contain introns that must be spliced by ribosomes'
+        ],
+        correct: 1,
+        explanations: [
+          'Bacterial ribosomes contain rRNA and bind mRNA, not DNA.',
+          'Correct! Without a nuclear membrane separating DNA from ribosomes, bacterial ribosomes attach to the 5\' end of nascent mRNA immediately during transcription.',
+          'All RNA Polymerases synthesize RNA 5\' → 3\'.',
+          'Bacteria generally lack spliceosomal introns, and ribosomes never splice introns.'
+        ]
+      },
+      {
+        q: '8. What would happen in a eukaryotic cell if a mutation completely inactivated the spliceosome?',
+        options: [
+          'Transcription by RNA Polymerase II would stop immediately',
+          'Introns would remain in the mRNA, leading to translation of noncoding sequences and premature stop codons',
+          'The 5\' GTP cap would be attached to the 3\' end instead',
+          'tRNA molecules would no longer bind amino acids'
+        ],
+        correct: 1,
+        explanations: [
+          'Transcription occurs before/during splicing; RNA Pol II still transcribes pre-mRNA.',
+          'Correct! Without spliceosome-mediated excision of introns, retained introns disrupt the coding sequence and typically introduce premature stop codons.',
+          '5\' capping and 3\' polyadenylation are distinct from splicing.',
+          'Aminoacyl-tRNA synthetases charge tRNAs independently of the spliceosome.'
+        ]
+      },
+      {
+        q: '9. What is the function of the 5\' methylguanosine cap and 3\' poly-A tail on eukaryotic mRNA?',
+        options: [
+          'They code for Methionine and Lysine at the ends of the protein',
+          'They protect mRNA from exonuclease degradation, aid nuclear export, and facilitate ribosome binding',
+          'They serve as promoters where RNA Polymerase binds DNA',
+          'They catalyze peptide bond formation during elongation'
+        ],
+        correct: 1,
+        explanations: [
+          'The 5\' cap and 3\' poly-A tail are outside the translated coding region (flanking the 5\' and 3\' UTRs).',
+          'Correct! These modifications stabilize mRNA in the cytoplasm, mark it for export through nuclear pores, and help the small ribosomal subunit recognize the 5\' end.',
+          'Promoters are DNA sequences upstream of the transcription start site.',
+          'rRNA catalyzes peptide bond formation.'
+        ]
+      },
+      {
+        q: '10. When a ribosome\'s A-site encounters 5\' UAG 3\' on an mRNA, what binds to the A-site?',
+        options: [
+          'A tRNA with anticodon 3\' AUC 5\' carrying the amino acid "Stop"',
+          'A tRNA with anticodon 5\' AUC 3\' carrying Methionine',
+          'A protein Release Factor that triggers hydrolysis of the polypeptide from the P-site tRNA',
+          'RNA Polymerase to terminate transcription'
+        ],
+        correct: 2,
+        explanations: [
+          'Trap! There is NO tRNA for stop codons and NO amino acid called "Stop."',
+          'Methionine is encoded only by 5\' AUG 3\'.',
+          'Correct! A protein Release Factor recognizes the stop codon in the A-site, cleaves the ester bond holding the polypeptide in the P-site, and disassembles the ribosome.',
+          'RNA Polymerase performs transcription, not translation.'
+        ]
+      }
+    ];
+
+    let quizAnswers = {};
+
+    function renderQuiz() {
+      const container = document.getElementById('quiz-container');
+      let score = 0;
+      Object.keys(quizAnswers).forEach(qIdx => {
+        if (quizAnswers[qIdx] === QUIZ_QUESTIONS[qIdx].correct) score++;
+      });
+      document.getElementById('quiz-score').textContent = score;
+
+      container.innerHTML = QUIZ_QUESTIONS.map((item, qIdx) => {
+        const chosen = quizAnswers[qIdx];
+        const isAnswered = chosen !== undefined;
+        return `
+          <div class="rounded-xl border border-slate-200 bg-slate-50/50 p-4 sm:p-5 space-y-3">
+            <h3 class="font-bold text-slate-900 text-sm sm:text-base leading-snug">${item.q}</h3>
+            <div class="grid grid-cols-1 gap-2">
+              ${item.options.map((opt, oIdx) => {
+                let btnStyle = 'bg-white border-slate-200 hover:border-sky-400 text-slate-800';
+                if (isAnswered) {
+                  if (oIdx === item.correct) {
+                    btnStyle = 'bg-emerald-50 border-emerald-500 text-emerald-950 font-semibold ring-1 ring-emerald-500';
+                  } else if (oIdx === chosen) {
+                    btnStyle = 'bg-rose-50 border-rose-500 text-rose-950 font-semibold';
+                  } else {
+                    btnStyle = 'bg-white border-slate-200 text-slate-500 opacity-75';
+                  }
+                }
+                return `
+                  <button onclick="answerQuiz(${qIdx}, ${oIdx})"
+                    class="text-left p-3 rounded-xl border text-xs sm:text-sm transition flex items-start gap-2.5 ${btnStyle}">
+                    <span class="w-5 h-5 rounded-full border border-current flex items-center justify-center text-[11px] font-bold shrink-0 mt-0.5">
+                      ${String.fromCharCode(65 + oIdx)}
+                    </span>
+                    <span>${opt}</span>
+                  </button>
+                `;
+              }).join('')}
+            </div>
+            ${isAnswered ? `
+              <div class="p-3 rounded-xl text-xs leading-relaxed ${chosen === item.correct ? 'bg-emerald-100/80 border border-emerald-300 text-emerald-950' : 'bg-rose-100/80 border border-rose-300 text-rose-950'}">
+                <strong>${chosen === item.correct ? '✓ Spot On!' : '✗ Misconception Diagnosis:'}</strong> ${item.explanations[chosen]}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    window.answerQuiz = function(qIdx, oIdx) {
+      quizAnswers[qIdx] = oIdx;
+      renderQuiz();
+    };
+
+    document.getElementById('quiz-reset-btn').addEventListener('click', () => {
+      quizAnswers = {};
+      renderQuiz();
+    });
+
+    /***************************************************************************
+     * 8. INITIALIZE ALL MODULES ON LOAD
+     ***************************************************************************/
+    window.addEventListener('DOMContentLoaded', () => {
+      renderMod1Pipeline();
+      buildGeneticCodeTable();
+      renderAnticodonConverter();
+      renderRibosomeStage(0);
+      renderModule3();
+      renderProkEukDiagrams('normal');
+      renderSplicingWorkbench();
+      renderMythCards();
+      renderQuiz();
+    });
+  </script>
+</body>
+</html>
