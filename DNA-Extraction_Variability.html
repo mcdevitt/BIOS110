@@ -1,0 +1,1415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BIOS 110 | DNA Extraction &amp; Sources of Variability</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        biotech: {
+                            950: '#070f1d',
+                            900: '#0f172a',
+                            800: '#1e293b',
+                            700: '#334155',
+                            teal: '#14b8a6',
+                            emerald: '#10b981',
+                            amber: '#f59e0b',
+                            coral: '#f43f5e'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom subtle scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Range slider styling */
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            background: transparent;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            background: #cbd5e1;
+            height: 0.45rem;
+            border-radius: 0.5rem;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: -5px;
+            background-color: #0d9488;
+            height: 1.15rem;
+            width: 1.15rem;
+            border-radius: 9999px;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        /* Yellow Microcentrifuge Tube Liquid Animation */
+        .tube-liquid {
+            transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.4s ease;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased selection:bg-teal-100 selection:text-teal-900">
+
+    <!-- Top Navigation & Pedagogical Hero Banner -->
+    <header class="bg-gradient-to-r from-biotech-950 via-biotech-900 to-slate-900 text-white border-b border-slate-800 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                <div>
+                    <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-500/20 text-teal-300 border border-teal-500/30 tracking-wide uppercase">
+                            BIOS 110 • DNA Extraction Lab Companion
+                        </span>
+                        <span class="text-xs text-slate-400">From Probiotic Sample to Yellow gDNA Tube</span>
+                    </div>
+                    <h1 class="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-white">
+                        Why Lab Notes Matter: Exploring Sources of Variability
+                    </h1>
+                    <p class="text-slate-300 text-sm sm:text-base mt-1 max-w-3xl">
+                        See how probiotic biology, the 5 core DNA extraction steps, and future DNA barcode reading shape your results—and why unexpected outcomes are rarely "just student error."
+                    </p>
+                </div>
+
+                <!-- Quick Reassurance Callout Pill -->
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-3.5 max-w-md shrink-0 backdrop-blur-sm">
+                    <div class="flex items-start gap-3">
+                        <div class="p-2 rounded-lg bg-amber-500/20 text-amber-300 shrink-0 mt-0.5">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                            </svg>
+                        </div>
+                        <div class="text-xs leading-relaxed text-slate-300">
+                            <span class="font-semibold text-white block mb-0.5">Today's Goal at Your Bench:</span>
+                            You won't see which bacteria were in your yellow tube until weeks from now! Recording quick observations today turns potential mysteries into <span class="text-amber-300 font-medium">explainable scientific evidence</span>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs -->
+            <nav class="flex flex-wrap gap-2 mt-6 pt-4 border-t border-slate-800/80" aria-label="Main Navigation">
+                <button onclick="switchTab('simulator')" id="tab-btn-simulator" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all bg-teal-600 text-white shadow-md shadow-teal-950/50">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    <span>1. Interactive Variability Simulator</span>
+                </button>
+                <button onclick="switchTab('cases')" id="tab-btn-cases" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all bg-slate-800/70 text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    <span>2. Case Files: Who Caused the Surprise?</span>
+                    <span class="px-1.5 py-0.2 text-xs rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">5 Cases</span>
+                </button>
+                <button onclick="switchTab('reflection')" id="tab-btn-reflection" class="tab-btn flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all bg-slate-800/70 text-slate-300 hover:bg-slate-800 hover:text-white">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span>3. My Live Lab Reflection Builder</span>
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+        <!-- ===================================================================== -->
+        <!-- TAB 1: INTERACTIVE VARIABILITY SIMULATOR                              -->
+        <!-- ===================================================================== -->
+        <section id="view-simulator" class="space-y-6">
+            
+            <!-- Preset Quick-Scenario Bar -->
+            <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Try a Scenario:</span>
+                    <span class="text-xs text-slate-400 hidden sm:inline">See how different factors change your yellow tube &amp; future bacterial data</span>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="applyPreset('ideal')" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition">
+                        Textbook Run
+                    </button>
+                    <button onclick="applyPreset('tough_walls')" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100 transition">
+                        Flawless Technique, Missing Bifidobacterium
+                    </button>
+                    <button onclick="applyPreset('rushed_wash')" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-amber-50 text-amber-700 border border-amber-200 hover:bg-amber-100 transition">
+                        Rushed Dry Spin (Leftover Wash Salts)
+                    </button>
+                    <button onclick="applyPreset('low_cfu_clump')" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 hover:bg-indigo-100 transition">
+                        Low-CFU Toddler Powder + Settled Sample
+                    </button>
+                </div>
+            </div>
+
+            <!-- Two-Column Workspace: Controls Left (7 cols), Live Tube & Profile Outputs Right (5 cols) -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                
+                <!-- LEFT COLUMN: THE 3 SOURCES OF VARIABILITY -->
+                <div class="lg:col-span-7 space-y-6">
+
+                    <!-- CATEGORY 1: THE PROBIOTIC PRODUCT & SAMPLE -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="bg-slate-800 text-white px-5 py-3.5 flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-6 h-6 rounded-full bg-teal-500 text-slate-950 font-bold text-xs flex items-center justify-center">1</span>
+                                <h2 class="font-bold text-sm sm:text-base">The Probiotic Product &amp; Sample</h2>
+                            </div>
+                            <span class="text-xs px-2.5 py-0.5 rounded-full bg-slate-700 text-teal-300 font-medium">Beyond Student Control</span>
+                        </div>
+
+                        <div class="p-5 space-y-5">
+                            <!-- Product Formulation Selector -->
+                            <div>
+                                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
+                                    A. Probiotic Product Formulation
+                                </label>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                                    <button type="button" onclick="setProductType('capsule')" id="prod-capsule" class="prod-btn text-left p-3 rounded-lg border-2 border-teal-600 bg-teal-50/60 transition">
+                                        <div class="font-semibold text-xs text-slate-900">Multi-Species Capsule</div>
+                                        <div class="text-[11px] text-slate-600 mt-0.5">High CFU • <em>Lactobacillus</em>, <em>Bifidobacterium</em> &amp; <em>Streptococcus</em></div>
+                                    </button>
+                                    <button type="button" onclick="setProductType('spore')" id="prod-spore" class="prod-btn text-left p-3 rounded-lg border border-slate-200 hover:border-slate-300 transition">
+                                        <div class="font-semibold text-xs text-slate-900">Spore-Forming Gummy/Blend</div>
+                                        <div class="text-[11px] text-slate-600 mt-0.5">Contains tough <em>Bacillus</em> endospores + <em>Lactobacillus</em></div>
+                                    </button>
+                                    <button type="button" onclick="setProductType('toddler')" id="prod-toddler" class="prod-btn text-left p-3 rounded-lg border border-slate-200 hover:border-slate-300 transition">
+                                        <div class="font-semibold text-xs text-slate-900">Low-CFU Toddler Powder</div>
+                                        <div class="text-[11px] text-slate-600 mt-0.5">Low starting bacteria + heavy starch/prebiotic fillers</div>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Non-Homogeneous Sample / Clumping Slider -->
+                            <div class="bg-slate-50 p-3.5 rounded-lg border border-slate-200/80">
+                                <div class="flex justify-between items-center mb-1.5">
+                                    <label for="homogeneitySlider" class="text-xs font-bold text-slate-700">
+                                        B. Sample Clumping &amp; Settling (Your 200 µL Transfer)
+                                    </label>
+                                    <span id="homogeneityLabel" class="text-xs font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Well-Mixed Suspension</span>
+                                </div>
+                                <input type="range" id="homogeneitySlider" min="0" max="100" value="15" oninput="updateSimulation()" class="w-full">
+                                <div class="flex justify-between text-[11px] text-slate-500 mt-1">
+                                    <span>Well-Mixed Powder</span>
+                                    <span>Clumped / Settled in Tube</span>
+                                </div>
+                                <p class="text-xs text-slate-600 mt-2">
+                                    <strong>Why it matters:</strong> You only pipette <code class="font-mono text-teal-700 bg-teal-50 px-1 rounded">200 µL</code> from the probiotic tube. If powder clumps or settles to the bottom, two lab partners sampling the exact same bottle can capture different proportions of bacteria!
+                                </p>
+                            </div>
+
+                            <!-- Biological Toggles -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                                    <input type="checkbox" id="toggleCellWall" checked onchange="updateSimulation()" class="mt-1 w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500">
+                                    <div>
+                                        <span class="block text-xs font-bold text-slate-800">Tough Gram-Positive Cell Walls</span>
+                                        <span class="block text-[11px] text-slate-500 mt-0.5"><em>Bifidobacterium</em> &amp; bacterial spores have extra-thick cell coats that break open less easily than <em>Streptococcus</em>.</span>
+                                    </div>
+                                </label>
+
+                                <label class="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition">
+                                    <input type="checkbox" id="toggleDeadCells" checked onchange="updateSimulation()" class="mt-1 w-4 h-4 text-teal-600 rounded border-slate-300 focus:ring-teal-500">
+                                    <div>
+                                        <span class="block text-xs font-bold text-slate-800">Dead vs. Living Cells in Bottle</span>
+                                        <span class="block text-[11px] text-slate-500 mt-0.5">DNA extraction pulls DNA out of <strong>both live and dead cells</strong>—even if some bacteria died on the store shelf.</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CATEGORY 2: THE 5 CORE DNA EXTRACTION PROCESSES -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="bg-teal-900 text-white px-5 py-3.5 flex flex-wrap items-center justify-between gap-2">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-6 h-6 rounded-full bg-teal-400 text-teal-950 font-bold text-xs flex items-center justify-center">2</span>
+                                <h2 class="font-bold text-sm sm:text-base">The 5 Core DNA Extraction Steps (Today's Lab)</h2>
+                            </div>
+                            <span class="text-xs px-2.5 py-0.5 rounded-full bg-teal-800 text-teal-200 font-medium border border-teal-700">Method Limits + Technique</span>
+                        </div>
+
+                        <div class="p-5 space-y-3">
+                            <p class="text-xs text-slate-600 mb-2">
+                                Adjust what happens at each of the 5 core processes from your BIOS 110 DNA Extraction Lab Manual. Notice how some variations are normal reagent/method quirks while others are technique details.
+                            </p>
+
+                            <!-- Step 1: Cell Lysis -->
+                            <div class="p-3.5 rounded-lg border border-slate-200 bg-slate-50/70">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                    <div>
+                                        <span class="text-xs font-extrabold text-teal-800 uppercase tracking-wide">Step 1: Cell Lysis</span>
+                                        <p class="text-[11px] text-slate-600">Lysozyme + DNA Shield (Enzymes lab) + bead beating + Lysis Buffers A &amp; B</p>
+                                    </div>
+                                    <select id="step1Select" onchange="updateSimulation()" class="text-xs font-medium rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-slate-800 focus:ring-2 focus:ring-teal-500">
+                                        <option value="optimal">Complete enzymatic + bead + chemical lysis</option>
+                                        <option value="precipitate">White precipitate formed after Buffer B (warmed/spun)</option>
+                                        <option value="incomplete">Incomplete mixing / tough cell walls resisted lysis</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Step 2: DNA Binding -->
+                            <div class="p-3.5 rounded-lg border border-slate-200 bg-slate-50/70">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                    <div>
+                                        <span class="text-xs font-extrabold text-teal-800 uppercase tracking-wide">Step 2: DNA Binding</span>
+                                        <p class="text-[11px] text-slate-600">High-salt conditions bind DNA onto white silica membrane in spin column</p>
+                                    </div>
+                                    <select id="step2Select" onchange="updateSimulation()" class="text-xs font-medium rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-slate-800 focus:ring-2 focus:ring-teal-500">
+                                        <option value="optimal">Clear liquid loaded cleanly onto intact silica membrane</option>
+                                        <option value="debris">Cloudy filler debris carried onto column (slow flow)</option>
+                                        <option value="punctured">Pipette tip accidentally touched/nicked silica membrane</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Washing -->
+                            <div class="p-3.5 rounded-lg border border-slate-200 bg-slate-50/70">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                    <div>
+                                        <span class="text-xs font-extrabold text-teal-800 uppercase tracking-wide">Step 3: Washing</span>
+                                        <p class="text-[11px] text-slate-600">Wash 1 &amp; Wash 2 + 2-min empty dry spin to remove proteins, salts &amp; ethanol</p>
+                                    </div>
+                                    <select id="step3Select" onchange="updateSimulation()" class="text-xs font-medium rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-slate-800 focus:ring-2 focus:ring-teal-500">
+                                        <option value="optimal">Both washes + full 2-min dry spin completed</option>
+                                        <option value="skipped_dry">Rushed/shortened dry spin (leftover wash salts/ethanol)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Step 4: Elution -->
+                            <div class="p-3.5 rounded-lg border border-slate-200 bg-slate-50/70">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                    <div>
+                                        <span class="text-xs font-extrabold text-teal-800 uppercase tracking-wide">Step 4: Elution</span>
+                                        <p class="text-[11px] text-slate-600">20 µL low-salt Elution Buffer on membrane center + 2-min soak into yellow tube</p>
+                                    </div>
+                                    <select id="step4Select" onchange="updateSimulation()" class="text-xs font-medium rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-slate-800 focus:ring-2 focus:ring-teal-500">
+                                        <option value="optimal">20 µL drop on center + 2-min soak + saved flow-through</option>
+                                        <option value="no_soak">Forgot 2-min soak / buffer ran down plastic wall</option>
+                                        <option value="discarded">Accidentally discarded flow-through instead of saving it</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Step 5: Pure gDNA Extract -->
+                            <div class="p-3.5 rounded-lg border border-slate-200 bg-slate-50/70">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                    <div>
+                                        <span class="text-xs font-extrabold text-teal-800 uppercase tracking-wide">Step 5: Pure gDNA Extract</span>
+                                        <p class="text-[11px] text-slate-600">Final DNA dissolved in yellow collection tube, labeled &amp; stored for future labs</p>
+                                    </div>
+                                    <select id="step5Select" onchange="updateSimulation()" class="text-xs font-medium rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-slate-800 focus:ring-2 focus:ring-teal-500">
+                                        <option value="optimal">Clean ~18–20 µL in labeled yellow tube, stored properly</option>
+                                        <option value="low_vol">Small droplet (~8 µL) recovered, properly labeled</option>
+                                        <option value="unlabeled">Missing/smudged tube label or uncapped near another sample</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CATEGORY 3: FUTURE DOWNSTREAM STEPS (SNEAK PEEK) -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="bg-indigo-950 text-white px-5 py-3.5 flex items-center justify-between">
+                            <div class="flex items-center gap-2.5">
+                                <span class="w-6 h-6 rounded-full bg-indigo-400 text-indigo-950 font-bold text-xs flex items-center justify-center">3</span>
+                                <h2 class="font-bold text-sm sm:text-base">Future Downstream Steps (Weeks From Now)</h2>
+                            </div>
+                            <span class="text-xs px-2.5 py-0.5 rounded-full bg-indigo-900 text-indigo-200 font-medium border border-indigo-700">Sneak Peek</span>
+                        </div>
+
+                        <div class="p-5 space-y-3">
+                            <p class="text-xs text-slate-600">
+                                Later this semester, your yellow tube will go through <strong>gene copying</strong> and <strong>DNA barcode reading</strong> so we can identify which bacteria are inside. Even if you extract DNA perfectly today, those future machines have natural limits:
+                            </p>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <button type="button" onclick="setDownstreamBias(false)" id="bias-equal" class="text-left p-3.5 rounded-lg border border-slate-200 hover:border-indigo-300 transition">
+                                    <div class="font-bold text-xs text-slate-900">Idealized Machine Reading</div>
+                                    <div class="text-[11px] text-slate-500 mt-1">Assumes every bacterial species gets copied equally and every rare bacterium is detected.</div>
+                                </button>
+                                <button type="button" onclick="setDownstreamBias(true)" id="bias-natural" class="text-left p-3.5 rounded-lg border-2 border-indigo-600 bg-indigo-50/60 transition">
+                                    <div class="font-bold text-xs text-indigo-950">Natural Copying Bias &amp; Detection Limits (Realistic)</div>
+                                    <div class="text-[11px] text-slate-600 mt-1">Future machines copy some bacterial DNA faster than others, can miss very rare bacteria (&lt;1%), and report broad genus names rather than trademarked brand strains.</div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT COLUMN: LIVE YELLOW TUBE & FUTURE BACTERIAL PROFILE (STICKY) -->
+                <div class="lg:col-span-5 space-y-6 lg:sticky lg:top-6">
+
+                    <!-- OUTPUT 1: WHAT'S IN YOUR YELLOW TUBE TODAY -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-md overflow-hidden">
+                        <div class="px-5 py-3.5 bg-slate-900 text-white flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+                                <h3 class="font-bold text-xs sm:text-sm uppercase tracking-wide">What's in Your Yellow Tube Today</h3>
+                            </div>
+                            <span class="text-[11px] font-mono text-amber-300 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded">Step 5 Extract</span>
+                        </div>
+
+                        <div class="p-5">
+                            <div class="flex items-center gap-5">
+                                <!-- Visual Microcentrifuge Tube Illustration -->
+                                <div class="shrink-0 flex flex-col items-center">
+                                    <div class="w-16 h-36 relative flex flex-col items-center">
+                                        <!-- Yellow Snap Cap -->
+                                        <div class="w-14 h-3 bg-amber-400 rounded-t-md border border-amber-500 shadow-sm"></div>
+                                        <div class="w-12 h-1.5 bg-amber-500"></div>
+                                        <!-- Tube Body (Conical) -->
+                                        <div class="w-12 h-28 bg-amber-50/70 border-2 border-amber-300/90 rounded-b-3xl relative overflow-hidden flex items-end justify-center shadow-inner">
+                                            <!-- Graduation Tick Marks -->
+                                            <div class="absolute left-1 top-4 w-2 h-[1px] bg-amber-400/70"></div>
+                                            <div class="absolute left-1 top-10 w-3 h-[1px] bg-amber-400/70"></div>
+                                            <div class="absolute left-1 top-16 w-2 h-[1px] bg-amber-400/70"></div>
+                                            <!-- Liquid Fill -->
+                                            <div id="tubeLiquidFill" class="tube-liquid w-full bg-teal-400/75 border-t border-teal-500/50" style="height: 45%;"></div>
+                                        </div>
+                                    </div>
+                                    <span id="tubeVolumeLabel" class="text-[11px] font-mono font-bold text-slate-600 mt-1.5">~20 µL Pure gDNA</span>
+                                </div>
+
+                                <!-- Meters & Status Badges -->
+                                <div class="flex-1 space-y-3.5">
+                                    <!-- Extracted gDNA Amount Meter -->
+                                    <div>
+                                        <div class="flex justify-between text-xs font-bold mb-1">
+                                            <span class="text-slate-700">Extracted gDNA Yield</span>
+                                            <span id="yieldStatusText" class="text-emerald-700">High Yield</span>
+                                        </div>
+                                        <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                                            <div id="yieldMeterBar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 85%;"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Purity / Cleanliness Meter -->
+                                    <div>
+                                        <div class="flex justify-between text-xs font-bold mb-1">
+                                            <span class="text-slate-700">Purity (Free of Wash Salts)</span>
+                                            <span id="purityStatusText" class="text-teal-700">Clean &amp; Ready</span>
+                                        </div>
+                                        <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200">
+                                            <div id="purityMeterBar" class="h-full bg-teal-500 transition-all duration-300" style="width: 95%;"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Plain-Language Tube Summary -->
+                                    <p id="tubeSummaryText" class="text-xs text-slate-600 bg-slate-50 p-2.5 rounded-lg border border-slate-200/80 leading-relaxed">
+                                        Your yellow tube contains clean, concentrated bacterial genomic DNA ready for future labs.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OUTPUT 2: FUTURE BACTERIAL PROFILE PREVIEW -->
+                    <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+                        <div class="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                            <div>
+                                <h3 class="font-bold text-xs sm:text-sm text-slate-800">Future Bacterial Profile Preview</h3>
+                                <p class="text-[11px] text-slate-500">Weeks from now, when DNA barcodes are read from your yellow tube:</p>
+                            </div>
+                            <span id="matchBadge" class="px-2.5 py-1 rounded-full font-mono text-xs font-bold bg-emerald-100 text-emerald-800">82% Label Match</span>
+                        </div>
+
+                        <div class="p-5 space-y-4">
+                            <!-- Expected vs Detected Bars -->
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                                        <span>Probiotic Bottle Label (Expected)</span>
+                                        <span class="text-slate-400 font-normal">100%</span>
+                                    </div>
+                                    <div id="expectedTaxaBar" class="w-full h-7 rounded-lg overflow-hidden flex shadow-inner bg-slate-100 border border-slate-200"></div>
+                                </div>
+
+                                <div>
+                                    <div class="flex justify-between text-xs font-semibold text-slate-700 mb-1">
+                                        <span>Future Barcode Detection (Observed)</span>
+                                        <span id="detectionQualityText" class="text-teal-700 font-medium text-[11px]">Strong Signal</span>
+                                    </div>
+                                    <div id="observedTaxaBar" class="w-full h-7 rounded-lg overflow-hidden flex shadow-inner bg-slate-100 border border-slate-200"></div>
+                                </div>
+                            </div>
+
+                            <!-- Legend -->
+                            <div id="taxaLegend" class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-xs"></div>
+
+                            <!-- Plain-Language Biological Explanation -->
+                            <div id="profileExplanationBox" class="p-3 rounded-lg bg-indigo-50/80 border border-indigo-200/80 text-xs text-indigo-950 leading-relaxed">
+                                Even when your extraction goes smoothly, bacteria with thicker cell walls (like <em>Bifidobacterium</em>) release slightly less DNA than easier-to-lyse species.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- OUTPUT 3: "WHY LAB NOTES MATTER" DIAGNOSTIC CALLOUT -->
+                    <div class="bg-amber-50 border-2 border-amber-300/90 rounded-xl p-4 shadow-sm space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-extrabold uppercase tracking-wider text-amber-900 flex items-center gap-1.5">
+                                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                                Why Lab Notes Matter Weeks Later
+                            </span>
+                            <span id="primarySourcePill" class="text-[11px] font-bold px-2 py-0.5 rounded bg-amber-200/80 text-amber-950">Sample Biology</span>
+                        </div>
+                        <p id="whyNotesMatterText" class="text-xs text-amber-950 leading-relaxed">
+                            If you jot down today that your probiotic contains tough-walled Gram-positive species, you won't panic weeks from now when <em>Bifidobacterium</em> appears at a lower percentage than the bottle label!
+                        </p>
+                        <div class="bg-white/80 rounded-lg p-2.5 border border-amber-200 text-[11px] font-mono text-slate-700">
+                            <span class="font-bold text-amber-900">Sample Worksheet Note:</span> <span id="suggestedNoteSnippet">"Resuspended probiotic capsule; 40-min bead beating completed; 20 µL eluted cleanly into yellow tube."</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- TAB 2: CASE FILES: WHO CAUSED THE SURPRISE?                           -->
+        <!-- ===================================================================== -->
+        <section id="view-cases" class="hidden space-y-6">
+            <div class="bg-white rounded-xl border border-slate-200 p-5 sm:p-6 shadow-sm">
+                <div class="max-w-3xl">
+                    <span class="text-xs font-bold uppercase tracking-wider text-teal-700">DNA Extraction Lab Detective Activity</span>
+                    <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">Case Files: Who Caused the Surprise?</h2>
+                    <p class="text-sm text-slate-600 mt-1.5">
+                        When students look at their DNA extraction results—or see their bacterial profiles weeks later—their first instinct is often <em>"I messed up!"</em> Explore these 5 BIOS 110 cases to practice diagnosing what really happened using student lab notes.
+                    </p>
+                </div>
+
+                <!-- 5 Case Selector Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mt-6" id="caseSelectorGrid"></div>
+            </div>
+
+            <!-- Active Case Workspace -->
+            <div id="activeCaseContainer" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start"></div>
+        </section>
+
+        <!-- ===================================================================== -->
+        <!-- TAB 3: MY LIVE LAB REFLECTION BUILDER                                 -->
+        <!-- ===================================================================== -->
+        <section id="view-reflection" class="hidden space-y-6">
+            <div class="bg-white rounded-xl border border-slate-200 p-5 sm:p-6 shadow-sm">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-slate-200">
+                    <div class="max-w-3xl">
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-700">Use At Your Lab Bench Today</span>
+                        <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 mt-1">My Live Lab Reflection Builder</h2>
+                        <p class="text-sm text-slate-600 mt-1.5">
+                            Check off what you observe during today's 5 DNA extraction processes and add any quick details. When you're done, copy your formatted reflection summary straight into your BIOS 110 DNA Extraction Worksheet!
+                        </p>
+                    </div>
+                    <button onclick="copyReflectionNotes()" id="copyNotesBtn" class="shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-700 text-white font-semibold text-sm shadow-sm transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                        <span id="copyBtnLabel">Copy Summary for Worksheet</span>
+                    </button>
+                </div>
+
+                <!-- Copy Toast Notification -->
+                <div id="copyToast" class="hidden mt-4 p-3 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                    <span>Copied to clipboard! You can now paste this directly into your BIOS 110 DNA Extraction Worksheet.</span>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mt-6">
+                    <!-- Left: Checklist & Notes Inputs (7 cols) -->
+                    <div class="lg:col-span-7 space-y-4">
+                        
+                        <!-- Sample Info -->
+                        <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/60 space-y-3">
+                            <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-800">Probiotic Sample &amp; Starting Appearance</h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Probiotic Brand / Form</label>
+                                    <input type="text" id="refProduct" oninput="updateReflectionPreview()" placeholder="e.g., Culturelle capsule, gummy, powder..." class="w-full text-xs rounded-lg border border-slate-300 px-3 py-2 bg-white focus:ring-2 focus:ring-teal-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-semibold text-slate-700 mb-1">Suspension Appearance (200 µL transfer)</label>
+                                    <select id="refSuspension" onchange="updateReflectionPreview()" class="w-full text-xs rounded-lg border border-slate-300 px-3 py-2 bg-white focus:ring-2 focus:ring-teal-500">
+                                        <option value="Well-mixed, uniform cloudy suspension">Well-mixed, uniform cloudy suspension</option>
+                                        <option value="Clumpy powder / settled quickly before transfer">Clumpy powder / settled quickly before transfer</option>
+                                        <option value="Very clear / low visible turbidity">Very clear / low visible turbidity</option>
+                                        <option value="Thick / viscous gummy or starch mixture">Thick / viscous gummy or starch mixture</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 5 Steps Reflection Checkboxes -->
+                        <div class="space-y-3" id="reflectionStepsForm">
+                            <!-- Step 1 -->
+                            <div class="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-xs font-extrabold text-teal-800 uppercase">1. Cell Lysis (Lysozyme + Bead Beating + Buffers A &amp; B)</span>
+                                </div>
+                                <div class="flex flex-wrap gap-2 text-xs">
+                                    <label class="inline-flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded border border-slate-200 cursor-pointer">
+                                        <input type="checkbox" class="ref-check text-teal-600 rounded" data-step="Cell Lysis" value="Full 40-min bead beating completed" checked onchange="updateReflectionPreview()">
+                                        <span>Full bead beating completed</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded border border-slate-200 cursor-pointer">
+                                        <input type="checkbox" class="ref-check text-teal-600 rounded" data-step="Cell Lysis" value="White precipitate formed after Buffer B" onchange="updateReflectionPreview()">
+                                        <span>White precipitate formed</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded border border-slate-200 cursor-pointer">
+                                        <input type="checkbox" class="ref-check text-teal-600 rounded" data-step="Cell Lysis" value="Product contains tough Gram+ / spore species" onchange="updateReflectionPreview()">
+                                        <span>Tough Gram+ / spore species on label</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Step 2 -->
+                            <div class="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
+                                <span class="text-xs font-extrabold text-teal-800 uppercase block">2. DNA Binding (Silica Spin Column)</span>
+                                <div class="flex flex-wrap gap-2 text-xs">
+                                    <label class="inline-flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded border border-slate-200 cursor-pointer">
+                                        <input type="checkbox" class="ref-check text-teal-600 rounded" data-step="DNA Binding" value="Clear liquid loaded onto intact membrane" checked onchange="updateReflectionPreview()">
+                                        <span>Clear liquid loaded cleanly</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded border border-slate-200 cursor-pointer">
+                                        <input type="checkbox" class="ref-check text-teal-600 rounded" data-step="DNA Binding" value="Some debris carried over / drained slowly" onchange="updateReflectionPreview()">
+                                        <span>Debris carried over / slow drain</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Step 3 -->
+                            <div class="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
+                                <span class="text-xs font-extrabold text-teal-800 uppercase block">3. Washing (Wash 1, Wash 2 &amp; Dry Spin)</span>
+                                <div class="flex flex-wrap gap-2 text-xs">
+                                    <label class="inline-flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded border border-slate-200 cursor-pointer">
+                                        <input type="checkbox" class="ref-check text-teal-600 rounded" data-step="Washing" value="Completed Wash 1, Wash 2, and full dry spin" checked onchange="updateReflectionPreview()">
+                                        <span>Completed both washes + full dry spin</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded border border-slate-200 cursor-pointer">
+                                        <input type="checkbox" class="ref-check text-teal-600 rounded" data-step="Washing" value="Shortened dry spin / faint ethanol smell" onchange="updateReflectionPreview()">
+                                        <span>Shortened dry spin / residual droplets</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Step 4 & 5 -->
+                            <div class="p-4 rounded-xl border border-slate-200 bg-white space-y-2">
+                                <span class="text-xs font-extrabold text-teal-800 uppercase block">4. Elution &amp; 5. Pure gDNA Extract (Yellow Tube)</span>
+                                <div class="flex flex-wrap gap-2 text-xs">
+                                    <label class="inline-flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded border border-slate-200 cursor-pointer">
+                                        <input type="checkbox" class="ref-check text-teal-600 rounded" data-step="Elution & Extract" value="20 µL Elution Buffer soaked 2 min on membrane center" checked onchange="updateReflectionPreview()">
+                                        <span>20 µL soaked 2 min on center</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded border border-slate-200 cursor-pointer">
+                                        <input type="checkbox" class="ref-check text-teal-600 rounded" data-step="Elution & Extract" value="Buffer hit side wall or skipped 2-min soak" onchange="updateReflectionPreview()">
+                                        <span>Hit side wall / skipped soak</span>
+                                    </label>
+                                    <label class="inline-flex items-center gap-1.5 bg-slate-50 px-2.5 py-1.5 rounded border border-slate-200 cursor-pointer">
+                                        <input type="checkbox" class="ref-check text-teal-600 rounded" data-step="Elution & Extract" value="Saved flow-through in labeled yellow tube" checked onchange="updateReflectionPreview()">
+                                        <span>Saved in labeled yellow tube</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Extra Custom Note -->
+                            <div class="p-4 rounded-xl border border-slate-200 bg-white">
+                                <label for="refCustomNote" class="block text-xs font-bold text-slate-700 mb-1">Additional Lab Partner Observations (Optional)</label>
+                                <textarea id="refCustomNote" rows="2" oninput="updateReflectionPreview()" placeholder="Anything else you noticed? (e.g., final volume looked closer to ~10 µL, capsule shell didn't fully dissolve, etc.)" class="w-full text-xs rounded-lg border border-slate-300 p-2.5 focus:ring-2 focus:ring-teal-500"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Formatted Preview Box (5 cols) -->
+                    <div class="lg:col-span-5">
+                        <div class="bg-slate-900 text-slate-100 rounded-xl p-5 border border-slate-800 shadow-md sticky top-6 space-y-3">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                                <span class="text-xs font-bold uppercase tracking-wider text-teal-300">Worksheet Reflection Preview</span>
+                                <span class="text-[11px] font-mono text-slate-400">Ready to Copy</span>
+                            </div>
+                            <pre id="reflectionOutputPreview" class="text-xs font-mono text-slate-200 whitespace-pre-wrap leading-relaxed bg-slate-950 p-4 rounded-lg border border-slate-800 min-h-[260px]"></pre>
+                            <p class="text-[11px] text-slate-400 leading-relaxed">
+                                Tip: Keep this note! If your group gets a surprising bacterial chart later in the semester, you'll already know whether it came from sample clumping, tough bacterial cell walls, or an extraction detail.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <div>
+                <span class="font-semibold text-slate-700">BIOS 110: Introduction to Cell &amp; Molecular Biology</span> • DNA Extraction Lab Companion
+            </div>
+            <div>
+                Built to connect today's bench observations with future microbiome data interpretation.
+            </div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        // =========================================================================
+        // STATE & PRODUCT PROFILES
+        // =========================================================================
+        const state = {
+            productType: 'capsule', // 'capsule', 'spore', 'toddler'
+            homogeneity: 15,        // 0 to 100
+            cellWallBias: true,
+            deadCells: true,
+            step1: 'optimal',
+            step2: 'optimal',
+            step3: 'optimal',
+            step4: 'optimal',
+            step5: 'optimal',
+            downstreamBias: true,
+            activeCaseIndex: 0,
+            selectedCategory: null,
+            selectedStep: null
+        };
+
+        const productProfiles = {
+            capsule: {
+                name: 'Multi-Species Probiotic Capsule',
+                baseYield: 85,
+                labelTaxa: [
+                    { name: 'Lactobacillus', labelDetail: 'L. acidophilus & L. rhamnosus', pct: 45, color: '#0d9488' },
+                    { name: 'Bifidobacterium', labelDetail: 'B. lactis & B. longum (thick cell wall)', pct: 40, color: '#4f46e5' },
+                    { name: 'Streptococcus', labelDetail: 'S. thermophilus (easier to lyse)', pct: 15, color: '#f59e0b' }
+                ]
+            },
+            spore: {
+                name: 'Spore-Forming Gummy / Blend',
+                baseYield: 62,
+                labelTaxa: [
+                    { name: 'Lactobacillus', labelDetail: 'L. paracasei', pct: 50, color: '#0d9488' },
+                    { name: 'Bacillus (Endospores)', labelDetail: 'B. coagulans (ultra-tough spore coat)', pct: 35, color: '#ec4899' },
+                    { name: 'Bifidobacterium', labelDetail: 'B. bifidum', pct: 15, color: '#4f46e5' }
+                ]
+            },
+            toddler: {
+                name: 'Low-CFU Toddler Powder (High Starch Filler)',
+                baseYield: 28,
+                labelTaxa: [
+                    { name: 'Lactobacillus', labelDetail: 'L. rhamnosus GG', pct: 55, color: '#0d9488' },
+                    { name: 'Bifidobacterium', labelDetail: 'B. infantis', pct: 40, color: '#4f46e5' },
+                    { name: 'Streptococcus', labelDetail: 'S. thermophilus (low abundance)', pct: 5, color: '#f59e0b' }
+                ]
+            }
+        };
+
+        // =========================================================================
+        // TAB SWITCHING
+        // =========================================================================
+        function switchTab(tabName) {
+            ['simulator', 'cases', 'reflection'].forEach(v => {
+                const viewEl = document.getElementById(`view-${v}`);
+                const btnEl = document.getElementById(`tab-btn-${v}`);
+                if (v === tabName) {
+                    viewEl.classList.remove('hidden');
+                    btnEl.className = 'tab-btn flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all bg-teal-600 text-white shadow-md shadow-teal-950/50';
+                } else {
+                    viewEl.classList.add('hidden');
+                    btnEl.className = 'tab-btn flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all bg-slate-800/70 text-slate-300 hover:bg-slate-800 hover:text-white';
+                }
+            });
+        }
+
+        // =========================================================================
+        // SIMULATOR CONTROLS & PRESETS
+        // =========================================================================
+        function setProductType(type) {
+            state.productType = type;
+            ['capsule', 'spore', 'toddler'].forEach(t => {
+                const btn = document.getElementById(`prod-${t}`);
+                btn.className = (t === type)
+                    ? 'prod-btn text-left p-3 rounded-lg border-2 border-teal-600 bg-teal-50/60 transition'
+                    : 'prod-btn text-left p-3 rounded-lg border border-slate-200 hover:border-slate-300 transition';
+            });
+            updateSimulation();
+        }
+
+        function setDownstreamBias(hasBias) {
+            state.downstreamBias = hasBias;
+            const equalBtn = document.getElementById('bias-equal');
+            const natBtn = document.getElementById('bias-natural');
+            if (hasBias) {
+                natBtn.className = 'text-left p-3.5 rounded-lg border-2 border-indigo-600 bg-indigo-50/60 transition';
+                equalBtn.className = 'text-left p-3.5 rounded-lg border border-slate-200 hover:border-indigo-300 transition';
+            } else {
+                equalBtn.className = 'text-left p-3.5 rounded-lg border-2 border-indigo-600 bg-indigo-50/60 transition';
+                natBtn.className = 'text-left p-3.5 rounded-lg border border-slate-200 hover:border-indigo-300 transition';
+            }
+            updateSimulation();
+        }
+
+        function applyPreset(preset) {
+            if (preset === 'ideal') {
+                setProductType('capsule');
+                document.getElementById('homogeneitySlider').value = 5;
+                document.getElementById('toggleCellWall').checked = false;
+                document.getElementById('toggleDeadCells').checked = false;
+                document.getElementById('step1Select').value = 'optimal';
+                document.getElementById('step2Select').value = 'optimal';
+                document.getElementById('step3Select').value = 'optimal';
+                document.getElementById('step4Select').value = 'optimal';
+                document.getElementById('step5Select').value = 'optimal';
+                setDownstreamBias(false);
+            } else if (preset === 'tough_walls') {
+                setProductType('capsule');
+                document.getElementById('homogeneitySlider').value = 20;
+                document.getElementById('toggleCellWall').checked = true;
+                document.getElementById('toggleDeadCells').checked = true;
+                document.getElementById('step1Select').value = 'optimal';
+                document.getElementById('step2Select').value = 'optimal';
+                document.getElementById('step3Select').value = 'optimal';
+                document.getElementById('step4Select').value = 'optimal';
+                document.getElementById('step5Select').value = 'optimal';
+                setDownstreamBias(true);
+            } else if (preset === 'rushed_wash') {
+                setProductType('capsule');
+                document.getElementById('homogeneitySlider').value = 15;
+                document.getElementById('toggleCellWall').checked = true;
+                document.getElementById('toggleDeadCells').checked = false;
+                document.getElementById('step1Select').value = 'optimal';
+                document.getElementById('step2Select').value = 'optimal';
+                document.getElementById('step3Select').value = 'skipped_dry';
+                document.getElementById('step4Select').value = 'optimal';
+                document.getElementById('step5Select').value = 'optimal';
+                setDownstreamBias(true);
+            } else if (preset === 'low_cfu_clump') {
+                setProductType('toddler');
+                document.getElementById('homogeneitySlider').value = 80;
+                document.getElementById('toggleCellWall').checked = true;
+                document.getElementById('toggleDeadCells').checked = true;
+                document.getElementById('step1Select').value = 'precipitate';
+                document.getElementById('step2Select').value = 'optimal';
+                document.getElementById('step3Select').value = 'optimal';
+                document.getElementById('step4Select').value = 'optimal';
+                document.getElementById('step5Select').value = 'optimal';
+                setDownstreamBias(true);
+            }
+            updateSimulation();
+        }
+
+        // =========================================================================
+        // CORE SIMULATION ENGINE (NO GEL OR PCR JARGON)
+        // =========================================================================
+        function updateSimulation() {
+            state.homogeneity = parseInt(document.getElementById('homogeneitySlider').value, 10);
+            state.cellWallBias = document.getElementById('toggleCellWall').checked;
+            state.deadCells = document.getElementById('toggleDeadCells').checked;
+            state.step1 = document.getElementById('step1Select').value;
+            state.step2 = document.getElementById('step2Select').value;
+            state.step3 = document.getElementById('step3Select').value;
+            state.step4 = document.getElementById('step4Select').value;
+            state.step5 = document.getElementById('step5Select').value;
+
+            // Update Homogeneity Badge
+            const homLabel = document.getElementById('homogeneityLabel');
+            if (state.homogeneity < 30) {
+                homLabel.textContent = 'Well-Mixed Suspension';
+                homLabel.className = 'text-xs font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800';
+            } else if (state.homogeneity < 70) {
+                homLabel.textContent = 'Moderate Settling';
+                homLabel.className = 'text-xs font-semibold px-2 py-0.5 rounded bg-amber-100 text-amber-800';
+            } else {
+                homLabel.textContent = 'Clumped / Uneven 200 µL';
+                homLabel.className = 'text-xs font-semibold px-2 py-0.5 rounded bg-rose-100 text-rose-800';
+            }
+
+            // 1. Compute Yellow Tube Yield (0-100) & Purity (0-100) & Volume
+            const profile = productProfiles[state.productType];
+            let dnaYield = profile.baseYield;
+            let purity = 96;
+            let volumeText = '~20 µL Pure gDNA';
+
+            if (state.homogeneity > 60) dnaYield *= 0.85;
+            if (state.step1 === 'precipitate') dnaYield *= 0.85;
+            if (state.step1 === 'incomplete') dnaYield *= 0.45;
+
+            if (state.step2 === 'debris') {
+                dnaYield *= 0.65;
+                purity -= 12;
+            }
+            if (state.step2 === 'punctured') {
+                dnaYield *= 0.15;
+                purity -= 20;
+            }
+
+            if (state.step3 === 'skipped_dry') {
+                purity = 28; // Leftover ethanol/salts!
+                volumeText = '~23 µL (Diluted w/ Wash)';
+            }
+
+            if (state.step4 === 'no_soak') {
+                dnaYield *= 0.35;
+                volumeText = '~18 µL (Low Conc.)';
+            }
+            if (state.step4 === 'discarded') {
+                dnaYield = 0;
+                volumeText = '0 µL (Empty Tube)';
+            }
+
+            if (state.step5 === 'low_vol') {
+                dnaYield *= 0.75;
+                volumeText = '~8 µL Pure gDNA';
+            }
+            if (state.step5 === 'unlabeled') {
+                purity -= 15;
+            }
+
+            dnaYield = Math.round(Math.max(0, Math.min(100, dnaYield)));
+            purity = Math.round(Math.max(0, Math.min(100, purity)));
+
+            renderYellowTube(dnaYield, purity, volumeText);
+            renderFutureProfile(dnaYield, purity);
+            renderDiagnosticCallout(dnaYield, purity);
+        }
+
+        function renderYellowTube(dnaYield, purity, volumeText) {
+            const liquidEl = document.getElementById('tubeLiquidFill');
+            const volLabel = document.getElementById('tubeVolumeLabel');
+            const yieldText = document.getElementById('yieldStatusText');
+            const yieldBar = document.getElementById('yieldMeterBar');
+            const purityText = document.getElementById('purityStatusText');
+            const purityBar = document.getElementById('purityMeterBar');
+            const summaryEl = document.getElementById('tubeSummaryText');
+
+            volLabel.textContent = volumeText;
+
+            // Tube liquid height & color
+            if (dnaYield === 0) {
+                liquidEl.style.height = '0%';
+            } else {
+                liquidEl.style.height = state.step5 === 'low_vol' ? '22%' : '48%';
+                liquidEl.className = purity < 50
+                    ? 'tube-liquid w-full bg-amber-300/80 border-t border-amber-500/60'
+                    : 'tube-liquid w-full bg-teal-400/75 border-t border-teal-500/50';
+            }
+
+            // Yield Meter
+            yieldBar.style.width = `${dnaYield}%`;
+            if (dnaYield >= 60) {
+                yieldText.textContent = 'High DNA Yield';
+                yieldText.className = 'text-emerald-700';
+                yieldBar.className = 'h-full bg-emerald-500 transition-all duration-300';
+            } else if (dnaYield >= 25) {
+                yieldText.textContent = 'Moderate / Low Yield';
+                yieldText.className = 'text-amber-700';
+                yieldBar.className = 'h-full bg-amber-500 transition-all duration-300';
+            } else if (dnaYield > 0) {
+                yieldText.textContent = 'Very Low Yield (Trace)';
+                yieldText.className = 'text-amber-700';
+                yieldBar.className = 'h-full bg-amber-500 transition-all duration-300';
+            } else {
+                yieldText.textContent = 'No DNA Recovered';
+                yieldText.className = 'text-rose-700';
+                yieldBar.className = 'h-full bg-rose-500 transition-all duration-300';
+            }
+
+            // Purity Meter
+            purityBar.style.width = `${purity}%`;
+            if (purity >= 80) {
+                purityText.textContent = 'Clean & Pure';
+                purityText.className = 'text-teal-700';
+                purityBar.className = 'h-full bg-teal-500 transition-all duration-300';
+            } else if (purity >= 50) {
+                purityText.textContent = 'Minor Residue';
+                purityText.className = 'text-amber-700';
+                purityBar.className = 'h-full bg-amber-500 transition-all duration-300';
+            } else {
+                purityText.textContent = 'Wash Salts / Ethanol Present';
+                purityText.className = 'text-rose-700';
+                purityBar.className = 'h-full bg-rose-500 transition-all duration-300';
+            }
+
+            // Tube Summary Text
+            if (dnaYield === 0) {
+                summaryEl.innerHTML = `<strong class="text-rose-700">Empty Extract:</strong> Because the liquid spun through the column during Elution was discarded, no DNA was saved in the yellow tube.`;
+            } else if (purity < 50) {
+                summaryEl.innerHTML = `<strong class="text-amber-800">High DNA, Leftover Wash Buffer:</strong> You extracted plenty of bacterial DNA, but skipping the dry spin left traces of wash ethanol/salts in your yellow tube that can block future DNA copying.`;
+            } else if (dnaYield < 35) {
+                summaryEl.innerHTML = `<strong class="text-teal-800">Low-Concentration Pure DNA:</strong> Even though total DNA in your yellow tube is low (due to low starting bacteria or skipped elution soak), future copying machines can often still detect the bacteria inside!`;
+            } else {
+                summaryEl.innerHTML = `<strong class="text-emerald-800">Clean, Ready-to-Use gDNA:</strong> Your yellow tube holds clean bacterial genomic DNA dissolved in low-salt Elution Buffer, ready for future labs.`;
+            }
+        }
+
+        function renderFutureProfile(dnaYield, purity) {
+            const profile = productProfiles[state.productType];
+            const expectedBar = document.getElementById('expectedTaxaBar');
+            const observedBar = document.getElementById('observedTaxaBar');
+            const legendEl = document.getElementById('taxaLegend');
+            const matchBadge = document.getElementById('matchBadge');
+            const detQualityEl = document.getElementById('detectionQualityText');
+            const expBox = document.getElementById('profileExplanationBox');
+
+            // Render Expected Label Bar
+            expectedBar.innerHTML = profile.labelTaxa.map(t =>
+                `<div style="width: ${t.pct}%; background-color: ${t.color};" class="h-full flex items-center justify-center text-[10px] font-bold text-white truncate px-1">${t.pct >= 12 ? t.pct + '%' : ''}</div>`
+            ).join('');
+
+            // Handle failure cases (0 DNA or severe wash salt interference)
+            if (dnaYield === 0 || purity < 40) {
+                observedBar.innerHTML = `<div class="w-full h-full bg-slate-200 flex items-center justify-center text-xs font-semibold text-slate-600">Insufficient Clean DNA for Future Barcode Reading</div>`;
+                matchBadge.textContent = 'No Profile';
+                matchBadge.className = 'px-2.5 py-1 rounded-full font-mono text-xs font-bold bg-rose-100 text-rose-800';
+                detQualityEl.textContent = purity < 40 ? 'Blocked by Wash Salts' : 'No DNA in Tube';
+                expBox.innerHTML = purity < 40
+                    ? `<strong>Why Nothing Showed Up:</strong> Your yellow tube actually had DNA, but leftover wash buffer/ethanol from Step 3 interfered with the future DNA-copying enzymes!`
+                    : `<strong>Why Nothing Showed Up:</strong> No DNA was saved in the yellow tube during Step 4 (Elution).`;
+                return;
+            }
+
+            // Compute shifted relative abundances
+            let weights = profile.labelTaxa.map(t => t.pct);
+
+            // Tough Gram+ cell walls & spores resist lysis
+            if (state.cellWallBias) {
+                if (state.productType === 'capsule') {
+                    weights[0] *= 1.15; // Lactobacillus
+                    weights[1] *= 0.48; // Bifidobacterium tough wall
+                    weights[2] *= 1.45; // Streptococcus easier to lyse
+                } else if (state.productType === 'spore') {
+                    weights[0] *= 1.35; // Lactobacillus
+                    weights[1] *= 0.30; // Bacillus endospores very hard to break open
+                    weights[2] *= 0.65; // Bifidobacterium
+                } else if (state.productType === 'toddler') {
+                    weights[0] *= 1.25;
+                    weights[1] *= 0.55;
+                    weights[2] *= 1.10;
+                }
+            }
+
+            // Sample clumping / non-homogeneous 200 uL aliquot
+            if (state.homogeneity > 40) {
+                const factor = (state.homogeneity - 40) / 60;
+                weights[0] *= (1 + 0.35 * factor);
+                weights[1] *= (1 - 0.25 * factor);
+                if (state.productType === 'toddler' && state.homogeneity > 70) {
+                    weights[2] = 0; // Rare 5% species missed in clumped 200 uL aliquot
+                }
+            }
+
+            // Future machine copying bias & detection limit
+            if (state.downstreamBias) {
+                weights[0] *= 1.25;
+                weights[1] *= 0.70;
+                if (state.productType === 'toddler') {
+                    weights[2] = 0; // Below detection threshold
+                }
+            }
+
+            // Normalize to 100%
+            const sum = weights.reduce((a, b) => a + b, 0);
+            const obsPcts = weights.map(w => Math.round((w / sum) * 100));
+            const drift = 100 - obsPcts.reduce((a, b) => a + b, 0);
+            obsPcts[0] += drift;
+
+            // Render Observed Bar
+            observedBar.innerHTML = profile.labelTaxa.map((t, i) =>
+                obsPcts[i] > 0
+                    ? `<div style="width: ${obsPcts[i]}%; background-color: ${t.color};" class="h-full flex items-center justify-center text-[10px] font-bold text-white truncate px-1 transition-all duration-300">${obsPcts[i] >= 12 ? obsPcts[i] + '%' : ''}</div>`
+                    : ''
+            ).join('');
+
+            // Compute Similarity Match
+            let diffSum = 0;
+            for (let i = 0; i < weights.length; i++) {
+                diffSum += Math.abs(profile.labelTaxa[i].pct - obsPcts[i]);
+            }
+            const similarity = Math.max(30, Math.round(100 - diffSum / 2));
+
+            matchBadge.textContent = `${similarity}% Label Match`;
+            if (similarity >= 80) {
+                matchBadge.className = 'px-2.5 py-1 rounded-full font-mono text-xs font-bold bg-emerald-100 text-emerald-800';
+            } else if (similarity >= 60) {
+                matchBadge.className = 'px-2.5 py-1 rounded-full font-mono text-xs font-bold bg-amber-100 text-amber-800';
+            } else {
+                matchBadge.className = 'px-2.5 py-1 rounded-full font-mono text-xs font-bold bg-indigo-100 text-indigo-800';
+            }
+
+            detQualityEl.textContent = dnaYield < 35 ? 'Detected from Trace DNA' : 'Clear Barcode Signal';
+
+            // Legend
+            legendEl.innerHTML = profile.labelTaxa.map((t, i) => `
+                <div class="flex items-start gap-2 p-2 rounded bg-slate-50 border border-slate-100">
+                    <span class="w-3 h-3 rounded-sm shrink-0 mt-0.5" style="background-color: ${t.color};"></span>
+                    <div class="leading-tight">
+                        <span class="font-bold text-slate-800">${t.name}</span>
+                        <span class="font-mono text-[11px] text-slate-500 ml-1">(${t.pct}% → ${obsPcts[i]}%)</span>
+                        <span class="text-[10px] text-slate-400 block mt-0.5">${t.labelDetail}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            // Explanation Text
+            let reasons = [];
+            if (state.cellWallBias) {
+                reasons.push(`Bacteria with extra-thick cell coats (like <em>Bifidobacterium</em> or <em>Bacillus</em> spores) break open less completely during Step 1 Lysis than softer-walled bacteria.`);
+            }
+            if (state.homogeneity > 45) {
+                reasons.push(`Because the sample clumped/settled before your 200 µL transfer, low-abundance bacteria were unevenly captured.`);
+            }
+            if (state.downstreamBias) {
+                reasons.push(`Later in the semester, DNA-copying enzymes naturally copy some species faster than others and only report broad genus names.`);
+            }
+            expBox.innerHTML = reasons.length > 0
+                ? reasons.join(' ')
+                : `With idealized uniform cell walls, perfect mixing, and zero downstream copying bias, the detected percentages match the bottle label closely.`;
+        }
+
+        function renderDiagnosticCallout(dnaYield, purity) {
+            const pill = document.getElementById('primarySourcePill');
+            const textEl = document.getElementById('whyNotesMatterText');
+            const snippetEl = document.getElementById('suggestedNoteSnippet');
+
+            let notes = [];
+            if (state.homogeneity > 45) notes.push("Sample looked clumpy/settled before 200 µL transfer");
+            if (state.step1 === 'precipitate') notes.push("Step 1: White precipitate formed after Buffer B");
+            if (state.step1 === 'incomplete') notes.push("Step 1: Incomplete mixing during lysis");
+            if (state.step2 === 'debris') notes.push("Step 2: Cloudy debris carried onto silica column");
+            if (state.step2 === 'punctured') notes.push("Step 2: Pipette tip touched silica membrane");
+            if (state.step3 === 'skipped_dry') notes.push("Step 3: Shortened dry spin after Wash 2");
+            if (state.step4 === 'no_soak') notes.push("Step 4: Skipped 2-min soak before spinning Elution Buffer");
+            if (state.step4 === 'discarded') notes.push("Step 4: Accidentally discarded eluate flow-through");
+            if (state.step5 === 'low_vol') notes.push("Step 5: ~8 µL recovered in yellow tube");
+            if (state.step5 === 'unlabeled') notes.push("Step 5: Tube label smudged");
+
+            // Determine primary attribution & pedagogical explanation
+            if (state.step3 === 'skipped_dry' || state.step4 === 'no_soak' || state.step4 === 'discarded' || state.step2 === 'punctured' || state.step5 === 'unlabeled') {
+                pill.textContent = 'Lab Technique Clue';
+                pill.className = 'text-[11px] font-bold px-2 py-0.5 rounded bg-rose-100 text-rose-900';
+                textEl.innerHTML = `Writing down what happened at the bench today is super helpful—not to grade yourself down, but so you can <strong>connect today's handling to future outcomes</strong> instead of guessing weeks later!`;
+            } else if (state.step1 === 'precipitate' || state.productType === 'toddler' || state.homogeneity > 50) {
+                pill.textContent = 'Sample & Reagent Factor';
+                pill.className = 'text-[11px] font-bold px-2 py-0.5 rounded bg-amber-200/80 text-amber-950';
+                textEl.innerHTML = `Notice that clumpy powders, starch fillers, or white precipitates after Buffer B are <strong>inherent properties of the probiotic product or kit reagents</strong>—not student mistakes! Recording them today explains low yield or missing rare species weeks later.`;
+            } else {
+                pill.textContent = 'Biology & Method Limits';
+                pill.className = 'text-[11px] font-bold px-2 py-0.5 rounded bg-teal-100 text-teal-900';
+                textEl.innerHTML = `Even when you execute all 5 extraction steps accurately, <strong>thick bacterial cell walls</strong> and <strong>future copying biases</strong> naturally shift species percentages away from the bottle label. Good lab notes prove your technique was solid!`;
+            }
+
+            snippetEl.textContent = notes.length > 0
+                ? `"${notes.join('; ')}."`
+                : `"Resuspended ${productProfiles[state.productType].name}; completed all 5 extraction steps cleanly; ~20 µL saved in labeled yellow tube."`;
+        }
+
+        // =========================================================================
+        // TAB 2: 5 CASE FILES (DNA EXTRACTION LAB CONTEXT ONLY)
+        // =========================================================================
+        const mysteryCases = [
+            {
+                id: 'case1',
+                badge: 'Case 1',
+                student: 'Maya',
+                title: 'Flawless Technique, Missing Bifidobacterium',
+                tag: 'Biology & Method Limit',
+                observation: 'Maya followed every single pipetting step carefully and saved 20 µL of clean gDNA in her yellow tube. Weeks later, when the class sees their bacterial profiles, her sample shows 78% Lactobacillus and only 12% Bifidobacterium—even though the bottle label claims a 50/50 split!',
+                labNotes: [
+                    'Product: Multi-species capsule (50% L. acidophilus, 50% B. lactis).',
+                    'Sample: Powder mixed smoothly in DNA Shield; took 200 µL aliquot.',
+                    'Steps 1–5: Full 40-min bead beating, full dry spin, 2-min elution soak completed.'
+                ],
+                correctCategory: 'biology',
+                correctStep: 'step1',
+                explanation: 'Maya did NOT mess up! Bifidobacterium has an extra-thick Gram-positive cell wall that breaks open less completely during Step 1 (Cell Lysis) than Lactobacillus, AND future DNA-copying steps naturally copy Lactobacillus slightly faster. Because Maya wrote clear notes confirming she followed every step, she can confidently explain this as a biological/method effect rather than a lab error.'
+            },
+            {
+                id: 'case2',
+                badge: 'Case 2',
+                student: 'Jordan',
+                title: 'White Precipitate & Settled Stock Tube',
+                tag: 'Reagent / Pre-Lab Factor',
+                observation: 'Jordan got a noticeably lower amount of extracted DNA in the yellow tube compared to the lab bench next door, and a rare 5% species on the label didn\'t show up at all in future detection.',
+                labNotes: [
+                    'Pre-Lab Sample: Shared probiotic stock tube had settled at the bench; Jordan pipetted 200 µL from the clearer liquid near the top.',
+                    'Step 1 (Cell Lysis): "Thick white precipitate formed right after adding Lysis Buffer B; warmed tube and spun down debris as instructed."'
+                ],
+                correctCategory: 'reagent',
+                correctStep: 'prelab',
+                explanation: 'This variability started BEFORE Jordan even began pipetting! Probiotic powders and prebiotic fillers settle rapidly in liquid. Taking 200 µL from the top of a settled tube captures fewer bacteria (and misses rare species), and precipitates from Buffer B reactions are normal chemical interactions with product fillers—not a student mistake.'
+            },
+            {
+                id: 'case3',
+                badge: 'Case 3',
+                student: 'Alex',
+                title: 'Plenty of DNA, Blocked Future Reading',
+                tag: 'Wash Step Carryover',
+                observation: 'Alex\'s yellow tube looked completely full (~23 µL) at the end of the DNA Extraction lab. However, weeks later, the future DNA-copying step failed to read any bacterial barcodes from Alex\'s tube!',
+                labNotes: [
+                    'Step 1 & 2: Full lysis and clean loading onto the silica spin column.',
+                    'Step 3 (Washing): "Was running short on time after Wash 2, so I shortened the empty dry spin to 20 seconds instead of 2 minutes."',
+                    'Step 4 (Elution): Added 20 µL Elution Buffer; recovered ~23 µL in yellow tube.'
+                ],
+                correctCategory: 'technique',
+                correctStep: 'step3',
+                explanation: 'Look at that golden clue in Alex\'s Step 3 lab note! Wash Buffer 2 contains ethanol and salts. Skipping the full 2-minute dry spin leaves tiny droplets of wash buffer trapped in the white silica membrane—which then wash into the yellow tube during Elution (explaining why 23 µL came out when only 20 µL went in!). Leftover ethanol blocks the enzymes used weeks later.'
+            },
+            {
+                id: 'case4',
+                badge: 'Case 4',
+                student: 'Sam',
+                title: 'DNA Still Stuck on the White Silica Membrane',
+                tag: 'Elution Soak & Drop Placement',
+                observation: 'Sam used a high-CFU probiotic capsule, yet ended up with a very low concentration of extracted DNA in the yellow tube.',
+                labNotes: [
+                    'Step 1–3: Completed full 40-min bead beating, clean binding, and both washes + dry spin.',
+                    'Step 4 (Elution): "Pipetted 20 µL Elution Buffer onto the side wall of the column and spun the centrifuge immediately without waiting 2 minutes."'
+                ],
+                correctCategory: 'technique',
+                correctStep: 'step4',
+                explanation: 'Because BIOS 110 uses a tiny 20 µL volume of Elution Buffer to keep your DNA concentrated, that droplet needs to land directly on the center of the white silica membrane and soak for 2 minutes so the low-salt buffer can release the DNA. Spinning immediately leaves most of the DNA still clinging to the column!'
+            },
+            {
+                id: 'case5',
+                badge: 'Case 5',
+                student: 'Priya',
+                title: 'Strong DNA Signal from an Expired Drink',
+                tag: 'Dead vs. Living Cells',
+                observation: 'Priya tested a shelf-stable probiotic drink that had been sitting near its expiration date. Surprisingly, Priya extracted a high amount of clean gDNA and detected every single species listed on the bottle!',
+                labNotes: [
+                    'Product: Shelf-stable probiotic beverage stored at room temperature near expiration.',
+                    'Steps 1–5: All extraction steps completed cleanly; 20 µL saved in yellow tube.',
+                    'Reflection question: "If the drink was almost expired, why did we still get so much bacterial DNA?"'
+                ],
+                correctCategory: 'biology',
+                correctStep: 'prelab',
+                explanation: 'Great scientific insight! DNA is a remarkably stable molecule—it stays intact inside dead bacterial cells long after those cells lose the ability to grow on a petri dish. Step 1 (Cell Lysis) breaks open BOTH living and dead cells, meaning DNA extraction measures total bacterial DNA present, not whether the probiotics were still alive!'
+            }
+        ];
+
+        function initCases() {
+            const grid = document.getElementById('caseSelectorGrid');
+            grid.innerHTML = mysteryCases.map((c, idx) => `
+                <button onclick="selectCase(${idx})" id="case-card-${idx}" class="text-left p-3.5 rounded-xl border transition-all ${idx === 0 ? 'border-teal-600 bg-teal-50/70 ring-2 ring-teal-500/20' : 'border-slate-200 bg-slate-50/50 hover:bg-white hover:border-slate-300'}">
+                    <div class="flex items-center justify-between mb-1.5">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-800 text-teal-300">${c.badge}: ${c.student}</span>
+                    </div>
+                    <div class="font-bold text-xs sm:text-sm text-slate-900 leading-snug">${c.title}</div>
+                    <div class="text-[11px] text-slate-500 mt-1">${c.tag}</div>
+                </button>
+            `).join('');
+            renderActiveCase();
+        }
+
+        function selectCase(idx) {
+            state.activeCaseIndex = idx;
+            state.selectedCategory = null;
+            state.selectedStep = null;
+            mysteryCases.forEach((_, i) => {
+                const card = document.getElementById(`case-card-${i}`);
+                card.className = (i === idx)
+                    ? 'text-left p-3.5 rounded-xl border transition-all border-teal-600 bg-teal-50/70 ring-2 ring-teal-500/20'
+                    : 'text-left p-3.5 rounded-xl border transition-all border-slate-200 bg-slate-50/50 hover:bg-white hover:border-slate-300';
+            });
+            renderActiveCase();
+        }
+
+        function setCaseGuess(type, value) {
+            if (type === 'category') state.selectedCategory = value;
+            if (type === 'step') state.selectedStep = value;
+            renderActiveCase();
+        }
+
+        function renderActiveCase() {
+            const c = mysteryCases[state.activeCaseIndex];
+            const container = document.getElementById('activeCaseContainer');
+            const bothAnswered = state.selectedCategory !== null && state.selectedStep !== null;
+            const isFullyCorrect = state.selectedCategory === c.correctCategory && state.selectedStep === c.correctStep;
+
+            const categories = [
+                { id: 'biology', label: 'Sample / Bacterial Biology', desc: 'Cell walls, live vs. dead cells, or downstream limits' },
+                { id: 'reagent', label: 'Pre-Lab Sample / Reagent Factor', desc: 'Settled stock tube, fillers, or normal precipitates' },
+                { id: 'technique', label: 'Lab Technique / Protocol Step', desc: 'Something adjustable during pipetting, spinning, or soaking' }
+            ];
+
+            const steps = [
+                { id: 'prelab', label: 'Pre-Lab Sample / Product' },
+                { id: 'step1', label: 'Step 1: Cell Lysis' },
+                { id: 'step2', label: 'Step 2: DNA Binding' },
+                { id: 'step3', label: 'Step 3: Washing & Dry Spin' },
+                { id: 'step4', label: 'Step 4: Elution' },
+                { id: 'step5', label: 'Step 5: Pure gDNA Storage' }
+            ];
+
+            container.innerHTML = `
+                <!-- Left: Student Scenario & Lab Notes (5 cols) -->
+                <div class="lg:col-span-5 bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs font-extrabold uppercase tracking-wider text-teal-700">${c.badge} • Student: ${c.student}</span>
+                        <span class="text-xs font-medium px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">${c.tag}</span>
+                    </div>
+
+                    <h3 class="text-lg font-extrabold text-slate-900">${c.title}</h3>
+
+                    <div class="p-3.5 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-700 leading-relaxed">
+                        <strong class="text-slate-900 block mb-1">What Happened:</strong>
+                        ${c.observation}
+                    </div>
+
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-amber-800 mb-2 flex items-center gap-1.5">
+                            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            ${c.student}'s DNA Extraction Lab Notes
+                        </h4>
+                        <ul class="space-y-1.5 text-xs text-amber-950 bg-amber-50/80 p-3.5 rounded-lg border border-amber-200 font-mono">
+                            ${c.labNotes.map(n => `<li>• ${n}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Right: Two-Part Interactive Diagnosis (7 cols) -->
+                <div class="lg:col-span-7 bg-white rounded-xl border border-slate-200 p-5 sm:p-6 shadow-sm space-y-5">
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-700">Step A of Diagnosis</span>
+                        <h4 class="text-sm sm:text-base font-bold text-slate-900 mt-0.5">1. What is the primary source of this surprise?</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-2.5">
+                            ${categories.map(cat => {
+                                const selected = state.selectedCategory === cat.id;
+                                return `
+                                    <button onclick="setCaseGuess('category', '${cat.id}')" class="text-left p-3 rounded-xl border-2 transition ${selected ? 'border-indigo-600 bg-indigo-50/70' : 'border-slate-200 hover:border-indigo-300'}">
+                                        <div class="font-bold text-xs text-slate-900">${cat.label}</div>
+                                        <div class="text-[11px] text-slate-500 mt-1">${cat.desc}</div>
+                                    </button>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-teal-700">Step B of Diagnosis</span>
+                        <h4 class="text-sm sm:text-base font-bold text-slate-900 mt-0.5">2. Which stage of the workflow explains it best?</h4>
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2.5">
+                            ${steps.map(st => {
+                                const selected = state.selectedStep === st.id;
+                                return `
+                                    <button onclick="setCaseGuess('step', '${st.id}')" class="text-left px-3 py-2.5 rounded-lg border-2 text-xs font-semibold transition ${selected ? 'border-teal-600 bg-teal-50/70 text-teal-950' : 'border-slate-200 text-slate-700 hover:border-teal-300'}">
+                                        ${st.label}
+                                    </button>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Feedback Box once both are selected -->
+                    ${bothAnswered ? `
+                        <div class="p-4 rounded-xl border-2 ${isFullyCorrect ? 'bg-emerald-50/90 border-emerald-400 text-emerald-950' : 'bg-amber-50/90 border-amber-400 text-amber-950'} space-y-2">
+                            <div class="font-extrabold text-sm flex items-center gap-2">
+                                ${isFullyCorrect
+                                    ? '<span class="text-emerald-600">✓ Spot On! Great Lab Detective Work.</span>'
+                                    : '<span class="text-amber-700">Almost! Check the Clue in the Lab Notes:</span>'}
+                            </div>
+                            <p class="text-xs leading-relaxed">${c.explanation}</p>
+                        </div>
+                    ` : `
+                        <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-500 text-center">
+                            Select both a <strong>Source of Variability</strong> (1) and a <strong>Workflow Stage</strong> (2) above to unlock the scientific explanation!
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        // =========================================================================
+        // TAB 3: MY LIVE LAB REFLECTION BUILDER
+        // =========================================================================
+        function updateReflectionPreview() {
+            const product = document.getElementById('refProduct').value.trim() || '[Probiotic Product Name]';
+            const suspension = document.getElementById('refSuspension').value;
+            const customNote = document.getElementById('refCustomNote').value.trim();
+
+            const checkedBoxes = Array.from(document.querySelectorAll('.ref-check:checked'));
+            const grouped = {};
+            checkedBoxes.forEach(cb => {
+                const step = cb.getAttribute('data-step');
+                if (!grouped[step]) grouped[step] = [];
+                grouped[step].push(cb.value);
+            });
+
+            let lines = [
+                `BIOS 110 — DNA EXTRACTION LAB REFLECTION NOTES`,
+                `----------------------------------------------`,
+                `• Probiotic Sample: ${product}`,
+                `• Sample Appearance (200 µL transfer): ${suspension}`,
+                ``
+            ];
+
+            ['Cell Lysis', 'DNA Binding', 'Washing', 'Elution & Extract'].forEach(step => {
+                const items = grouped[step];
+                lines.push(`• ${step}: ${items && items.length > 0 ? items.join('; ') : 'Completed per protocol'}.`);
+            });
+
+            if (customNote) {
+                lines.push(``);
+                lines.push(`• Additional Bench Observations: ${customNote}`);
+            }
+
+            lines.push(``);
+            lines.push(`Diagnostic Takeaway: If future bacterial profiles differ from the product label, these notes help distinguish biological factors (cell wall thickness, clumping, dead cells) from extraction steps.`);
+
+            document.getElementById('reflectionOutputPreview').textContent = lines.join('\n');
+        }
+
+        function copyReflectionNotes() {
+            const text = document.getElementById('reflectionOutputPreview').textContent;
+            const tempArea = document.createElement('textarea');
+            tempArea.value = text;
+            document.body.appendChild(tempArea);
+            tempArea.select();
+            try {
+                document.execCommand('copy');
+                const toast = document.getElementById('copyToast');
+                const btnLabel = document.getElementById('copyBtnLabel');
+                toast.classList.remove('hidden');
+                btnLabel.textContent = 'Copied!';
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                    btnLabel.textContent = 'Copy Summary for Worksheet';
+                }, 3000);
+            } catch (err) {
+                // Fallback visual highlight if clipboard restricted
+                document.getElementById('reflectionOutputPreview').classList.add('ring-2', 'ring-teal-400');
+            }
+            document.body.removeChild(tempArea);
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', () => {
+            updateSimulation();
+            initCases();
+            updateReflectionPreview();
+        });
+    </script>
+</body>
+</html>
