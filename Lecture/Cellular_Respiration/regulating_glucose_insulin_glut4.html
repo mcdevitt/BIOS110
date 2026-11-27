@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Regulating Glucose: Insulin &amp; GLUT4</title>
+  <style>
+    :root {
+      --bg-page: #FBF8F3;
+      --bg-card: #FFFFFF;
+      --bg-soft: #F3EFE8;
+      --border-soft: #E3DDD2;
+      --text-main: #1E2421;
+      --text-muted: #525D57;
+      --accent-teal: #0F6E64;
+      --accent-teal-soft: #E3F4F1;
+      --accent-amber: #A15308;
+      --accent-amber-soft: #FEF1DF;
+      --accent-red: #C92A2A;
+      --accent-purple: #6F42C1;
+      --accent-green: #2B8A3E;
+      --accent-blue: #1C7ED6;
+      --radius-lg: 16px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+      --shadow-card: 0 3px 14px -6px rgba(30, 36, 33, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 0 18px;
+    }
+
+    /* Header */
+    .site-header {
+      background-color: var(--bg-card);
+      border-bottom: 1px solid var(--border-soft);
+      padding: 16px 0;
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+
+    .header-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .site-title {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+    }
+
+    .site-subtitle {
+      margin: 3px 0 0;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-soft);
+      background-color: var(--bg-card);
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
+    }
+
+    .btn:hover {
+      background-color: var(--bg-soft);
+    }
+
+    .btn:active {
+      transform: translateY(1px);
+    }
+
+    .btn-primary {
+      background-color: var(--accent-teal);
+      border-color: var(--accent-teal);
+      color: #FFFFFF;
+    }
+
+    .btn-primary:hover {
+      background-color: #0B564E;
+      border-color: #0B564E;
+    }
+
+    /* Main Layout */
+    .studio-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      padding: 22px 0 44px;
+    }
+
+    .top-panel-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 0.9fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (max-width: 980px) {
+      .top-panel-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-lg);
+      padding: 18px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .card-heading {
+      margin: 0 0 6px;
+      font-size: 17px;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .card-desc {
+      margin: 0 0 14px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* State Switcher & Cascade Stepper */
+    .state-toggle-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 540px) {
+      .state-toggle-group {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .state-btn {
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--border-soft);
+      background-color: var(--bg-soft);
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 700;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .state-btn:hover {
+      border-color: #C8C0B2;
+    }
+
+    .state-btn.is-active-no-insulin {
+      background-color: var(--accent-amber-soft);
+      border-color: var(--accent-amber);
+      color: #6B3603;
+    }
+
+    .state-btn.is-active-insulin {
+      background-color: var(--accent-teal-soft);
+      border-color: var(--accent-teal);
+      color: #084942;
+    }
+
+    .cascade-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-md);
+      background-color: var(--bg-soft);
+      border: 1px solid var(--border-soft);
+      margin-bottom: 14px;
+    }
+
+    .step-dots {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .step-pill {
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid var(--border-soft);
+      background-color: var(--bg-card);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .step-pill.is-done {
+      background-color: var(--accent-teal-soft);
+      border-color: rgba(15, 110, 100, 0.35);
+      color: var(--accent-teal);
+    }
+
+    .step-pill.is-current {
+      background-color: var(--accent-teal);
+      border-color: var(--accent-teal);
+      color: #FFFFFF;
+    }
+
+    /* SVG Diagram Container */
+    .diagram-frame {
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-md);
+      background-color: #FFFDF9;
+      padding: 8px;
+      overflow: hidden;
+    }
+
+    .diagram-frame svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    /* Gentle SVG motion when active */
+    @keyframes pulseFlow {
+      0%, 100% { opacity: 0.95; transform: translateY(0px); }
+      50% { opacity: 0.65; transform: translateY(2px); }
+    }
+
+    .flow-animate {
+      animation: pulseFlow 1.6s ease-in-out infinite;
+    }
+
+    /* Live Readouts Grid */
+    .readouts-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    @media (max-width: 560px) {
+      .readouts-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .readout-tile {
+      padding: 11px 13px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-soft);
+      background-color: var(--bg-soft);
+    }
+
+    .readout-label {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+    }
+
+    .readout-value {
+      margin-top: 3px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .readout-sub {
+      margin-top: 2px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Slide Concept Sections */
+    .concept-block {
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
+      background-color: var(--bg-soft);
+      border: 1px solid var(--border-soft);
+      margin-bottom: 10px;
+    }
+
+    .concept-block:last-child {
+      margin-bottom: 0;
+    }
+
+    .concept-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--accent-teal);
+      margin: 0 0 5px;
+    }
+
+    .concept-list {
+      margin: 0;
+      padding-left: 18px;
+      font-size: 13px;
+      color: var(--text-main);
+    }
+
+    .concept-list li {
+      margin-bottom: 4px;
+    }
+
+    .concept-list li:last-child {
+      margin-bottom: 0;
+    }
+
+    /* Self-Check Questions */
+    .question-box {
+      padding: 13px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border-soft);
+      background-color: #FCFBF8;
+      margin-bottom: 12px;
+    }
+
+    .question-box:last-child {
+      margin-bottom: 0;
+    }
+
+    .question-prompt {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin: 0 0 8px;
+    }
+
+    .option-btn {
+      width: 100%;
+      text-align: left;
+      padding: 8px 11px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-soft);
+      background-color: var(--bg-card);
+      color: var(--text-main);
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 6px;
+      transition: border-color 0.14s ease, background-color 0.14s ease;
+    }
+
+    .option-btn:last-of-type {
+      margin-bottom: 0;
+    }
+
+    .option-btn:hover {
+      background-color: var(--bg-soft);
+    }
+
+    .option-btn.is-selected-correct {
+      background-color: var(--accent-teal-soft);
+      border-color: var(--accent-teal);
+      color: #074740;
+      font-weight: 700;
+    }
+
+    .option-btn.is-selected-wrong {
+      background-color: var(--accent-amber-soft);
+      border-color: var(--accent-amber);
+      color: #6B3603;
+      font-weight: 700;
+    }
+
+    .feedback-note {
+      margin-top: 8px;
+      padding: 9px 11px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .feedback-good {
+      background-color: var(--accent-teal-soft);
+      border: 1px solid rgba(15, 110, 100, 0.25);
+      color: #094E47;
+    }
+
+    .feedback-check {
+      background-color: var(--accent-amber-soft);
+      border: 1px solid rgba(161, 83, 8, 0.28);
+      color: #6B3603;
+    }
+  </style>
+</head>
+<body>
+  <!-- 1. Clean Header -->
+  <header class="site-header">
+    <div class="container header-row">
+      <div>
+        <h1 class="site-title">Regulating Glucose: Insulin &amp; GLUT4</h1>
+        <p class="site-subtitle">Why It Matters, How Glucose Enters Cells, and Regulatory Control Points</p>
+      </div>
+      <button id="resetBtn" type="button" class="btn">Reset Simulation</button>
+    </div>
+  </header>
+
+  <!-- Main Interactive Workspace -->
+  <main class="container studio-stack">
+    <!-- Top Primary Panel: Slide Concepts + Interactive Diagram & Live Status Cards -->
+    <section class="card">
+      <div class="top-panel-grid">
+        <!-- Left Side: Interactive Diagram, Controls & Live Status Cards -->
+        <div class="stack">
+          <div>
+            <h2 class="card-heading">Interactive Bloodstream &amp; Cell Membrane Model</h2>
+            <p class="card-desc">
+              Switch between insulin states or step through the signaling cascade to see how GLUT4 moves and lets glucose enter muscle and fat cells.
+            </p>
+
+            <!-- State Switch -->
+            <div class="state-toggle-group" role="group" aria-label="Insulin State Switch">
+              <button id="withoutInsulinBtn" type="button" class="state-btn is-active-no-insulin">
+                Without Insulin (Low / Absent)
+                <div style="font-size:11px;font-weight:500;opacity:0.85;margin-top:2px;">GLUT4 stays inside vesicle; glucose stays out</div>
+              </button>
+              <button id="withInsulinBtn" type="button" class="state-btn">
+                With Insulin (Bound to Receptor)
+                <div style="font-size:11px;font-weight:500;opacity:0.85;margin-top:2px;">Signaling cascade fuses GLUT4; glucose enters</div>
+              </button>
+            </div>
+
+            <!-- Step-by-Step Cascade Bar -->
+            <div class="cascade-bar">
+              <button id="stepCascadeBtn" type="button" class="btn btn-primary">
+                Step-by-Step Cascade &rarr;
+              </button>
+              <div class="step-dots" id="cascadeStepPills">
+                <button type="button" class="step-pill" data-step="1">1. Insulin Binds Receptor</button>
+                <button type="button" class="step-pill" data-step="2">2. Signaling Cascade</button>
+                <button type="button" class="step-pill" data-step="3">3. GLUT4 Vesicle Fuses</button>
+                <button type="button" class="step-pill" data-step="4">4. Glucose Enters Cell</button>
+              </div>
+            </div>
+
+            <!-- Interactive SVG Diagram (Generous, Non-Overlapping Coordinates) -->
+            <div class="diagram-frame">
+              <svg id="glucoseSvg" viewBox="0 0 820 460" role="img" aria-label="Insulin binding receptor, signaling cascade, GLUT4 vesicle fusion, and glucose entry into cell">
+                <defs>
+                  <marker id="arrowRed" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 1 L 9 5 L 0 9 z" fill="#C92A2A"></path>
+                  </marker>
+                  <marker id="arrowGold" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 1 L 9 5 L 0 9 z" fill="#D9820B"></path>
+                  </marker>
+                  <marker id="arrowTeal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                    <path d="M 0 1 L 9 5 L 0 9 z" fill="#0F6E64"></path>
+                  </marker>
+                </defs>
+
+                <!-- Bloodstream / Extracellular Region (Top: y=12..118) -->
+                <rect x="14" y="12" width="792" height="106" rx="12" fill="#FFF4E6" stroke="#E8D8C3" stroke-width="1.5" />
+                <text x="28" y="32" font-size="11.5" font-weight="800" fill="#7C4408">BLOODSTREAM / EXTRACELLULAR SPACE</text>
+
+                <!-- Cell Interior / Cytoplasm Region (Bottom: y=142..446) -->
+                <rect x="14" y="142" width="792" height="304" rx="16" fill="#FCEFD9" stroke="#E59858" stroke-width="2" />
+                <text x="28" y="164" font-size="12" font-weight="800" fill="#7C3F09">CELL INTERIOR (CYTOPLASM — MUSCLE / FAT CELL)</text>
+
+                <!-- Plasma Membrane (Orange Bilayer at y=118..134) -->
+                <rect x="14" y="118" width="792" height="16" rx="8" fill="#F28C38" />
+                <text x="790" y="112" text-anchor="end" font-size="11" font-weight="700" fill="#9A4808">Plasma Membrane (Bilayer)</text>
+
+                <!-- Insulin Receptor on Plasma Membrane (x=150) -->
+                <g id="receptorGroup">
+                  <rect x="138" y="108" width="24" height="36" rx="6" fill="#1C7ED6" stroke="#125694" stroke-width="2" />
+                  <line x1="150" y1="108" x2="150" y2="86" stroke="#1E2421" stroke-width="1.8" />
+                  <text x="150" y="68" text-anchor="middle" font-size="11" font-weight="700" fill="#1E2421">Insulin</text>
+                  <text x="150" y="81" text-anchor="middle" font-size="11" font-weight="700" fill="#1E2421">receptor</text>
+                </g>
+
+                <!-- Red Insulin Circles in Bloodstream (x=285..365, y=58..86) -->
+                <g id="insulinCirclesGroup">
+                  <text x="325" y="34" text-anchor="middle" font-size="11.5" font-weight="800" fill="#B01E1E">Insulin (red)</text>
+                  <circle cx="294" cy="64" r="7" fill="#E03131" />
+                  <circle cx="320" cy="54" r="7" fill="#E03131" />
+                  <circle cx="346" cy="66" r="7" fill="#E03131" />
+                  <circle cx="314" cy="84" r="7" fill="#E03131" />
+                  <circle cx="340" cy="88" r="7" fill="#E03131" />
+                </g>
+
+                <!-- Bound Insulin on Receptor (Shown cleanly above receptor at x=150) -->
+                <g id="boundInsulinGroup" opacity="0">
+                  <circle cx="150" cy="99" r="7.5" fill="#E03131" stroke="#FFFFFF" stroke-width="2" />
+                  <rect x="98" y="38" width="104" height="20" rx="5" fill="#FFF5F5" stroke="#FFA8A8" />
+                  <text x="150" y="52" text-anchor="middle" font-size="10.5" font-weight="800" fill="#B01E1E">Insulin Bound!</text>
+                </g>
+
+                <!-- Yellow Glucose Circles in Bloodstream (x=500..585, y=58..88) -->
+                <g id="bloodGlucoseGroup">
+                  <text x="542" y="34" text-anchor="middle" font-size="11.5" font-weight="800" fill="#8C6200">Glucose (yellow)</text>
+                  <circle cx="508" cy="64" r="7" fill="#FCC419" stroke="#C99204" stroke-width="1.5" />
+                  <circle cx="534" cy="56" r="7" fill="#FCC419" stroke="#C99204" stroke-width="1.5" />
+                  <circle cx="560" cy="64" r="7" fill="#FCC419" stroke="#C99204" stroke-width="1.5" />
+                  <circle cx="524" cy="84" r="7" fill="#FCC419" stroke="#C99204" stroke-width="1.5" />
+                  <circle cx="550" cy="86" r="7" fill="#FCC419" stroke="#C99204" stroke-width="1.5" />
+                </g>
+
+                <!-- Signaling Cascade Arrows & Pill (x=150 -> vesicle at x=225, y=282 -> membrane channel at x=542) -->
+                <g id="signalingArrowsGroup" opacity="0">
+                  <path d="M 150 152 Q 155 235 184 268" fill="none" stroke="#C92A2A" stroke-width="2.4" stroke-dasharray="5 3" marker-end="url(#arrowRed)" />
+                  <path d="M 268 274 Q 360 225 524 146" fill="none" stroke="#0F6E64" stroke-width="2.4" marker-end="url(#arrowTeal)" />
+                  <rect x="166" y="182" width="166" height="24" rx="6" fill="#FFFFFF" stroke="#E3DDD2" />
+                  <text x="249" y="198" text-anchor="middle" font-size="10.5" font-weight="800" fill="#C92A2A">Signaling Cascade Active</text>
+                </g>
+
+                <!-- Intracellular Purple Vesicle Carrying Green GLUT4 (cx=225, cy=285) -->
+                <g id="vesicleGroup">
+                  <circle id="vesicleCircle" cx="225" cy="285" r="30" fill="#F3E8FF" stroke="#6F42C1" stroke-width="3.5" />
+                  <rect id="vesicleGlut4" x="217" y="249" width="16" height="14" rx="4" fill="#2F9E44" stroke="#1B5E20" stroke-width="1.5" />
+                  <text x="225" y="332" text-anchor="middle" font-size="11.5" font-weight="800" fill="#522B96">Intracellular Vesicle</text>
+                  <text x="225" y="346" text-anchor="middle" font-size="11" font-weight="700" fill="#2B8A3E">carrying GLUT4 (green)</text>
+                </g>
+
+                <!-- Blocked Glucose Indicator (x=455..630, y=178..224, when step < 3) -->
+                <g id="blockedGlucoseGroup">
+                  <line x1="542" y1="98" x2="542" y2="174" stroke="#C92A2A" stroke-width="2" stroke-dasharray="3 3" />
+                  <rect x="454" y="178" width="176" height="44" rx="8" fill="#FFF5F5" stroke="#FFA8A8" stroke-width="1.5" />
+                  <text x="542" y="196" text-anchor="middle" font-size="11" font-weight="800" fill="#C92A2A">Glucose Blocked Outside</text>
+                  <text x="542" y="211" text-anchor="middle" font-size="10" font-weight="600" fill="#7C2D12">GLUT4 is inside vesicle</text>
+                </g>
+
+                <!-- Fused GLUT4 Channel in Plasma Membrane (x=542, y=116..136) -->
+                <g id="fusedGlut4Group" opacity="0">
+                  <rect x="524" y="115" width="36" height="22" rx="6" fill="#2B8A3E" stroke="#164E22" stroke-width="2" />
+                  <rect x="537" y="115" width="10" height="22" fill="#E3F4F1" />
+                  <rect x="572" y="144" width="142" height="22" rx="6" fill="#E3F4F1" stroke="#96D6CB" />
+                  <text x="643" y="159" text-anchor="middle" font-size="10.5" font-weight="800" fill="#1E6B2D">Fused GLUT4 Channel</text>
+                </g>
+
+                <!-- Glucose Entering Cell & Downstream Callout Box (Right side: x=450..790, y=174..394) -->
+                <g id="enteringGlucoseGroup" opacity="0">
+                  <line x1="542" y1="88" x2="542" y2="168" stroke="#D9820B" stroke-width="2.4" marker-end="url(#arrowGold)" />
+                  <circle cx="542" cy="182" r="6.5" fill="#FCC419" stroke="#C99204" stroke-width="1.5" class="flow-animate" />
+                  <circle cx="518" cy="204" r="6.5" fill="#FCC419" stroke="#C99204" stroke-width="1.5" class="flow-animate" />
+                  <circle cx="566" cy="206" r="6.5" fill="#FCC419" stroke="#C99204" stroke-width="1.5" class="flow-animate" />
+
+                  <rect x="452" y="226" width="336" height="156" rx="12" fill="#E3F4F1" stroke="#0F6E64" stroke-width="1.5" />
+                  <text x="468" y="248" font-size="12" font-weight="800" fill="#0B564E">Downstream in Cell (Muscle &amp; Fat):</text>
+                  <text x="468" y="270" font-size="11.5" font-weight="600" fill="#1E2421">&#8226; Glycolysis initiated in cytoplasm</text>
+                  <text x="468" y="290" font-size="11.5" font-weight="600" fill="#1E2421">&#8226; Energy production (ATP) supported</text>
+                  <text x="468" y="310" font-size="11.5" font-weight="600" fill="#1E2421">&#8226; Blood sugar levels lowered/regulated</text>
+                  <rect x="468" y="330" width="304" height="36" rx="7" fill="#FFFFFF" stroke="#B2DFD8" />
+                  <text x="620" y="352" text-anchor="middle" font-size="11" font-weight="800" fill="#0F6E64">GLUT4 vesicle fused &rarr; Glucose channel open!</text>
+                </g>
+
+                <!-- Dedicated Bottom Step Caption Box (x=28..432, y=400..434) -->
+                <g id="captionGroup">
+                  <rect x="28" y="400" width="408" height="34" rx="8" fill="#FFFFFF" stroke="#E3DDD2" />
+                  <text id="svgStepCaption" x="38" y="421" font-size="11" font-weight="700" fill="#1E2421">
+                    Without Insulin: GLUT4 stays inside the vesicle; glucose cannot enter.
+                  </text>
+                </g>
+              </svg>
+            </div>
+
+            <!-- Live Status Cards Directly Below Diagram -->
+            <div class="readouts-grid">
+              <div class="readout-tile">
+                <div class="readout-label">GLUT4 Location</div>
+                <div id="readoutGlut4" class="readout-value">Stored Inside Intracellular Vesicle</div>
+                <div id="readoutGlut4Sub" class="readout-sub">Not yet fused with plasma membrane</div>
+              </div>
+
+              <div class="readout-tile">
+                <div class="readout-label">Glucose Entry</div>
+                <div id="readoutEntry" class="readout-value" style="color:var(--accent-red);">Blocked (Cannot Enter Cell)</div>
+                <div id="readoutEntrySub" class="readout-sub">Glucose remains outside in bloodstream</div>
+              </div>
+
+              <div class="readout-tile">
+                <div class="readout-label">Blood Sugar Effect</div>
+                <div id="readoutBloodSugar" class="readout-value">Remains Higher in Bloodstream</div>
+                <div id="readoutBloodSugarSub" class="readout-sub">Uptake into muscle &amp; fat cells is limited</div>
+              </div>
+
+              <div class="readout-tile">
+                <div class="readout-label">Downstream Impact</div>
+                <div id="readoutImpact" class="readout-value">Glycolysis &amp; Energy Constrained</div>
+                <div id="readoutImpactSub" class="readout-sub">Fewer glucose molecules enter for glycolysis &amp; ATP</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side of First Panel: Integrated Slide Concepts -->
+    <!-- Right Column: Core Concepts & 3 Self-Check Questions -->
+    <section class="stack">
+      <div class="card">
+        <h2 class="card-heading">Core Concepts: Regulating Glucose</h2>
+        <p class="card-desc">
+          Key concepts on how insulin controls glucose uptake in muscle and fat cells.
+        </p>
+
+        <div class="concept-block">
+              <h3 class="concept-title">Why It Matters</h3>
+              <ul class="concept-list">
+                <li>Glucose is essential fuel for most cells, so its uptake and usage must be tightly regulated to maintain <strong>energy balance</strong> and <strong>blood sugar levels</strong>.</li>
+              </ul>
+            </div>
+
+            <div class="concept-block">
+              <h3 class="concept-title">How Glucose Enters Cells</h3>
+              <ul class="concept-list">
+                <li><strong>GLUT transporters</strong> (especially <strong>GLUT4</strong>) allow glucose to move from the bloodstream into cells.</li>
+                <li>GLUT4 is stored in <strong>vesicles</strong> inside the cell until signaled.</li>
+              </ul>
+            </div>
+
+            <div class="concept-block">
+              <h3 class="concept-title">When Insulin Binds Its Receptor</h3>
+              <ul class="concept-list">
+                <li>When <strong>insulin</strong> binds to its receptor on the cell membrane, a <strong>signaling cascade</strong> causes <strong>GLUT4 vesicles to fuse</strong> with the plasma membrane.</li>
+                <li>This creates channels for <strong>glucose to enter</strong> the cell.</li>
+              </ul>
+            </div>
+
+            <div class="concept-block">
+              <h3 class="concept-title">Regulatory Control Points</h3>
+              <ul class="concept-list">
+                <li><strong>Insulin</strong> acts as a key signal for glucose uptake, especially in <strong>muscle and fat cells</strong>.</li>
+                <li><strong>Without insulin</strong>, GLUT4 stays inside the cell and <strong>glucose cannot enter</strong>.</li>
+                <li>This mechanism is crucial for <strong>energy production</strong>, <strong>glycolysis initiation</strong>, and <strong>blood sugar regulation</strong>.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Full-Width Quick Self-Checks Section at Bottom of Page -->
+    <section class="card">
+      <h2 class="card-heading">Quick Self-Checks</h2>
+      <p class="card-desc">
+        Test your understanding of insulin, GLUT4 vesicle fusion, and glucose regulation.
+      </p>
+
+      <!-- Question 1 -->
+      <div class="question-box" id="q1Box">
+        <p class="question-prompt">1. Why is insulin needed for glucose uptake into muscle and fat cells?</p>
+        <button type="button" class="option-btn" data-q="1" data-opt="a">
+          Insulin binding triggers a signaling cascade that causes GLUT4 vesicles to fuse with the plasma membrane so glucose can enter.
+        </button>
+        <button type="button" class="option-btn" data-q="1" data-opt="b">
+          Insulin is converted directly into glucose molecules inside the cell membrane.
+        </button>
+        <button type="button" class="option-btn" data-q="1" data-opt="c">
+          Insulin dissolves the plasma membrane so glucose diffuses in without any transporter.
+        </button>
+        <div id="q1Feedback" class="feedback-note" style="display:none;"></div>
+      </div>
+
+      <!-- Question 2 -->
+      <div class="question-box" id="q2Box">
+        <p class="question-prompt">2. What happens when insulin is absent (or not bound to its receptor)?</p>
+        <button type="button" class="option-btn" data-q="2" data-opt="a">
+          GLUT4 stays inside intracellular vesicles rather than fusing with the plasma membrane, so glucose cannot enter the cell.
+        </button>
+        <button type="button" class="option-btn" data-q="2" data-opt="b">
+          GLUT4 pumps glucose out of the cell into the bloodstream at high speed.
+        </button>
+        <button type="button" class="option-btn" data-q="2" data-opt="c">
+          Glucose enters freely through the phospholipid bilayer without GLUT4.
+        </button>
+        <div id="q2Feedback" class="feedback-note" style="display:none;"></div>
+      </div>
+
+      <!-- Question 3 -->
+      <div class="question-box" id="q3Box">
+        <p class="question-prompt">3. How does insulin-regulated GLUT4 fusion connect to broader cellular function?</p>
+        <button type="button" class="option-btn" data-q="3" data-opt="a">
+          It brings glucose into the cell to support glycolysis initiation, energy production, and blood sugar regulation.
+        </button>
+        <button type="button" class="option-btn" data-q="3" data-opt="b">
+          It stops glycolysis so glucose stays trapped as a membrane lipid.
+        </button>
+        <button type="button" class="option-btn" data-q="3" data-opt="c">
+          It replaces the need for glucose in energy production altogether.
+        </button>
+        <div id="q3Feedback" class="feedback-note" style="display:none;"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /*
+       * Cascade stages:
+       * 0 = Without Insulin (vesicle inside cell, glucose blocked)
+       * 1 = Insulin Binds Receptor
+       * 2 = Signaling Cascade
+       * 3 = GLUT4 Vesicle Fuses & Opens Channel
+       * 4 = Glucose Enters for Glycolysis & Energy (full With Insulin state)
+       */
+      var state = {
+        cascadeStep: 0,
+        quizAnswers: {}
+      };
+
+      var STEP_CAPTIONS = {
+        0: 'Without Insulin: GLUT4 stays inside the vesicle; glucose cannot enter.',
+        1: 'Step 1: Insulin binds to the insulin receptor on the plasma membrane.',
+        2: 'Step 2: Signaling cascade activates inside the cell toward the GLUT4 vesicle.',
+        3: 'Step 3: GLUT4 vesicle fuses with the plasma membrane, opening a channel.',
+        4: 'Step 4: Glucose enters to support glycolysis, energy & blood sugar control.'
+      };
+
+      var STEP_CAPTIONS = {
+        0: 'Without Insulin: GLUT4 stays inside the vesicle; glucose cannot enter.',
+        1: 'Step 1: Insulin binds to the insulin receptor on the plasma membrane.',
+        2: 'Step 2: Signaling cascade activates inside the cell toward the GLUT4 vesicle.',
+        3: 'Step 3: GLUT4 vesicle fuses with the plasma membrane, opening a glucose channel.',
+        4: 'Step 4: Glucose enters the cell to support glycolysis, energy & blood sugar control.'
+      };
+
+      var QUIZ_DATA = {
+        1: {
+          correct: 'a',
+          goodText: 'Correct! Binding insulin to its receptor starts a signaling cascade that causes GLUT4-containing vesicles to fuse with the plasma membrane, giving glucose a channel to enter.',
+          wrongText: 'Not quite. Insulin is a signaling hormone—it does not turn into glucose or dissolve the membrane. Instead, insulin binding triggers a signaling cascade so GLUT4 vesicles fuse with the plasma membrane and let glucose in.'
+        },
+        2: {
+          correct: 'a',
+          goodText: 'Correct! Without insulin signaling in these cells, GLUT4 remains stored inside intracellular vesicles rather than fusing with the plasma membrane, blocking glucose entry.',
+          wrongText: 'Not quite. Glucose cannot cross the membrane easily on its own without a fused GLUT4 channel; when insulin is absent, GLUT4 stays inside the cell in vesicles and glucose cannot enter.'
+        },
+        3: {
+          correct: 'a',
+          goodText: 'Correct! Allowing glucose into muscle and fat cells initiates glycolysis, supports cellular energy production, and helps regulate blood sugar levels.',
+          wrongText: 'Not quite. Glucose entering via fused GLUT4 channels provides fuel to initiate glycolysis and support energy production while helping lower/regulate blood sugar.'
+        }
+      };
+
+      var dom = {};
+
+      function cacheDom() {
+        dom.withoutInsulinBtn = document.getElementById('withoutInsulinBtn');
+        dom.withInsulinBtn = document.getElementById('withInsulinBtn');
+        dom.stepCascadeBtn = document.getElementById('stepCascadeBtn');
+        dom.resetBtn = document.getElementById('resetBtn');
+        dom.cascadeStepPills = document.getElementById('cascadeStepPills');
+
+        dom.boundInsulinGroup = document.getElementById('boundInsulinGroup');
+        dom.signalingArrowsGroup = document.getElementById('signalingArrowsGroup');
+        dom.vesicleGroup = document.getElementById('vesicleGroup');
+        dom.vesicleCircle = document.getElementById('vesicleCircle');
+        dom.vesicleGlut4 = document.getElementById('vesicleGlut4');
+        dom.blockedGlucoseGroup = document.getElementById('blockedGlucoseGroup');
+        dom.fusedGlut4Group = document.getElementById('fusedGlut4Group');
+        dom.enteringGlucoseGroup = document.getElementById('enteringGlucoseGroup');
+        dom.svgStepCaption = document.getElementById('svgStepCaption');
+
+        dom.readoutGlut4 = document.getElementById('readoutGlut4');
+        dom.readoutGlut4Sub = document.getElementById('readoutGlut4Sub');
+        dom.readoutEntry = document.getElementById('readoutEntry');
+        dom.readoutEntrySub = document.getElementById('readoutEntrySub');
+        dom.readoutBloodSugar = document.getElementById('readoutBloodSugar');
+        dom.readoutBloodSugarSub = document.getElementById('readoutBloodSugarSub');
+        dom.readoutImpact = document.getElementById('readoutImpact');
+        dom.readoutImpactSub = document.getElementById('readoutImpactSub');
+      }
+
+      function setCascadeStep(step) {
+        state.cascadeStep = Math.max(0, Math.min(4, Number(step)));
+        renderSimulation();
+      }
+
+      function advanceCascadeStep() {
+        if (state.cascadeStep < 4) {
+          setCascadeStep(state.cascadeStep + 1);
+        } else {
+          setCascadeStep(0);
+        }
+      }
+
+      function renderSimulation() {
+        var s = state.cascadeStep;
+        var hasInsulin = s >= 1;
+        var hasCascade = s >= 2;
+        var isFused = s >= 3;
+        var isEntering = s >= 4;
+
+        // Toggle button active styles
+        if (hasInsulin) {
+          dom.withInsulinBtn.classList.add('is-active-insulin');
+          dom.withoutInsulinBtn.classList.remove('is-active-no-insulin');
+        } else {
+          dom.withoutInsulinBtn.classList.add('is-active-no-insulin');
+          dom.withInsulinBtn.classList.remove('is-active-insulin');
+        }
+
+        // Step pills
+        var pills = dom.cascadeStepPills.querySelectorAll('.step-pill');
+        pills.forEach(function (pill) {
+          var pillStep = Number(pill.getAttribute('data-step'));
+          pill.classList.remove('is-done', 'is-current');
+          if (pillStep === s) {
+            pill.classList.add('is-current');
+          } else if (pillStep < s) {
+            pill.classList.add('is-done');
+          }
+        });
+
+        dom.stepCascadeBtn.textContent = s < 4
+          ? 'Step-by-Step Cascade (' + s + '/4) →'
+          : 'Restart Cascade (4/4) ↻';
+
+        // SVG element states
+        dom.boundInsulinGroup.setAttribute('opacity', hasInsulin ? '1' : '0');
+        dom.signalingArrowsGroup.setAttribute('opacity', hasCascade ? '1' : '0');
+
+        if (isFused) {
+          // Move vesicle smoothly to fuse with the membrane channel at x=542, y=126
+          dom.vesicleGroup.setAttribute('transform', 'translate(317, -159)');
+          dom.vesicleCircle.setAttribute('opacity', '0.28');
+          dom.vesicleGlut4.setAttribute('opacity', '0.2');
+          dom.fusedGlut4Group.setAttribute('opacity', '1');
+          dom.blockedGlucoseGroup.setAttribute('opacity', '0');
+        } else {
+          dom.vesicleGroup.setAttribute('transform', 'translate(0, 0)');
+          dom.vesicleCircle.setAttribute('opacity', '1');
+          dom.vesicleGlut4.setAttribute('opacity', '1');
+          dom.fusedGlut4Group.setAttribute('opacity', '0');
+          dom.blockedGlucoseGroup.setAttribute('opacity', '1');
+        }
+
+        dom.enteringGlucoseGroup.setAttribute('opacity', isEntering ? '1' : '0');
+        dom.svgStepCaption.textContent = STEP_CAPTIONS[s] || STEP_CAPTIONS[0];
+
+        // Readouts
+        if (!hasInsulin) {
+          dom.readoutGlut4.textContent = 'Stored Inside Intracellular Vesicle';
+          dom.readoutGlut4Sub.textContent = 'Without insulin, GLUT4 stays inside the cell';
+
+          dom.readoutEntry.textContent = 'Blocked (Cannot Enter Cell)';
+          dom.readoutEntry.style.color = '#C92A2A';
+          dom.readoutEntrySub.textContent = 'No fused GLUT4 channel in plasma membrane';
+
+          dom.readoutBloodSugar.textContent = 'Remains Higher in Bloodstream';
+          dom.readoutBloodSugarSub.textContent = 'Muscle & fat uptake is not stimulated';
+
+          dom.readoutImpact.textContent = 'Glycolysis & Energy Constrained';
+          dom.readoutImpactSub.textContent = 'Less glucose available to start glycolysis & make ATP';
+        } else if (!isFused) {
+          dom.readoutGlut4.textContent = hasCascade ? 'Moving / Fusing With Membrane' : 'Signal Started at Receptor';
+          dom.readoutGlut4Sub.textContent = hasCascade
+            ? 'Signaling cascade driving GLUT4 vesicle toward membrane'
+            : 'Insulin bound to receptor; signaling cascade initiating';
+
+          dom.readoutEntry.textContent = 'Opening Soon';
+          dom.readoutEntry.style.color = '#A15308';
+          dom.readoutEntrySub.textContent = 'Waiting for GLUT4 vesicle fusion with membrane';
+
+          dom.readoutBloodSugar.textContent = 'Transitioning Toward Uptake';
+          dom.readoutBloodSugarSub.textContent = 'Signal triggered for glucose clearance';
+
+          dom.readoutImpact.textContent = 'Preparing for Glucose Entry';
+          dom.readoutImpactSub.textContent = 'Next step fuses GLUT4 so glucose can enter';
+        } else {
+          dom.readoutGlut4.textContent = 'Fused in Plasma Membrane';
+          dom.readoutGlut4Sub.textContent = 'GLUT4 vesicle fused, forming an open glucose channel';
+
+          dom.readoutEntry.textContent = isEntering ? 'Entering Cell Through GLUT4' : 'Channel Ready for Glucose';
+          dom.readoutEntry.style.color = '#0F6E64';
+          dom.readoutEntrySub.textContent = 'Glucose moves from bloodstream into cytoplasm';
+
+          dom.readoutBloodSugar.textContent = 'Promotes Blood Sugar Regulation';
+          dom.readoutBloodSugarSub.textContent = 'Glucose moves out of blood into muscle & fat cells';
+
+          dom.readoutImpact.textContent = 'Supports Glycolysis & Energy Production';
+          dom.readoutImpactSub.textContent = 'Incoming glucose fuels glycolysis and energy balance';
+        }
+      }
+
+      function handleQuizClick(qNum, optId) {
+        state.quizAnswers[qNum] = optId;
+        var qData = QUIZ_DATA[qNum];
+        var box = document.getElementById('q' + qNum + 'Box');
+        var fb = document.getElementById('q' + qNum + 'Feedback');
+        if (!box || !qData || !fb) return;
+
+        var buttons = box.querySelectorAll('.option-btn');
+        buttons.forEach(function (btn) {
+          var bOpt = btn.getAttribute('data-opt');
+          btn.classList.remove('is-selected-correct', 'is-selected-wrong');
+          if (bOpt === optId) {
+            if (bOpt === qData.correct) {
+              btn.classList.add('is-selected-correct');
+            } else {
+              btn.classList.add('is-selected-wrong');
+            }
+          }
+        });
+
+        var isCorrect = optId === qData.correct;
+        fb.style.display = 'block';
+        fb.className = 'feedback-note ' + (isCorrect ? 'feedback-good' : 'feedback-check');
+        fb.innerHTML = '<strong>' + (isCorrect ? 'Why this works: ' : 'Check this misconception: ') + '</strong>' +
+          (isCorrect ? qData.goodText : qData.wrongText);
+      }
+
+      function resetAll() {
+        state.cascadeStep = 0;
+        state.quizAnswers = {};
+        [1, 2, 3].forEach(function (qNum) {
+          var box = document.getElementById('q' + qNum + 'Box');
+          var fb = document.getElementById('q' + qNum + 'Feedback');
+          if (box) {
+            box.querySelectorAll('.option-btn').forEach(function (btn) {
+              btn.classList.remove('is-selected-correct', 'is-selected-wrong');
+            });
+          }
+          if (fb) {
+            fb.style.display = 'none';
+            fb.innerHTML = '';
+          }
+        });
+        renderSimulation();
+      }
+
+      function bindEvents() {
+        dom.withoutInsulinBtn.addEventListener('click', function () {
+          setCascadeStep(0);
+        });
+
+        dom.withInsulinBtn.addEventListener('click', function () {
+          setCascadeStep(4);
+        });
+
+        dom.stepCascadeBtn.addEventListener('click', function () {
+          advanceCascadeStep();
+        });
+
+        dom.cascadeStepPills.querySelectorAll('.step-pill').forEach(function (pill) {
+          pill.addEventListener('click', function () {
+            setCascadeStep(Number(pill.getAttribute('data-step')));
+          });
+        });
+
+        dom.resetBtn.addEventListener('click', function () {
+          resetAll();
+        });
+
+        document.querySelectorAll('.option-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            handleQuizClick(Number(btn.getAttribute('data-q')), btn.getAttribute('data-opt'));
+          });
+        });
+      }
+
+      function init() {
+        cacheDom();
+        bindEvents();
+        renderSimulation();
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+    })();
+  </script>
+</body>
+</html>
