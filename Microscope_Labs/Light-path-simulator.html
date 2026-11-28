@@ -236,10 +236,10 @@
     </section>
 
     <!-- Two-Column Visualization Stage (side-by-side even on mobile for simultaneous comparison) -->
-    <div class="grid grid-cols-2 lg:grid-cols-12 gap-2.5 sm:gap-5 items-stretch">
+    <div class="grid grid-cols-[1.38fr_1fr] sm:grid-cols-2 lg:grid-cols-12 gap-2 sm:gap-5 items-stretch">
       <!-- Left: Microscope Light Path Diagram -->
       <section aria-labelledby="light-path-heading" class="col-span-1 lg:col-span-7 bg-lab-surface rounded-2xl border border-lab-line shadow-card overflow-hidden flex flex-col">
-        <div class="px-2.5 sm:px-5 py-2 sm:py-3.5 border-b border-lab-line bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
+        <div class="px-2 sm:px-5 py-2 sm:py-3.5 border-b border-lab-line bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
           <div class="min-w-0">
             <h2 id="light-path-heading" class="text-[11px] sm:text-sm font-bold uppercase tracking-wider text-lab-ink truncate">
               Light Path
@@ -253,8 +253,8 @@
           </span>
         </div>
 
-        <div class="p-1.5 sm:p-4 flex-1 flex items-center justify-center bg-white">
-          <svg id="light-path-svg" viewBox="0 0 760 540" class="w-full h-auto max-h-[240px] sm:max-h-[520px] select-none" role="img" aria-label="Diagram of the light path through a compound microscope from base lamp to eyepiece">
+        <div class="p-0.5 sm:p-4 flex-1 flex items-center justify-center bg-white">
+          <svg id="light-path-svg" viewBox="122 34 485 475" class="w-full h-auto max-h-[290px] sm:max-h-[520px] select-none" role="img" aria-label="Diagram of the light path through a compound microscope from base lamp to eyepiece">
             <defs>
               <linearGradient id="lampGlowGrad" x1="50%" y1="100%" x2="50%" y2="0%">
                 <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.95" />
@@ -420,7 +420,7 @@
           </div>
 
           <!-- Circular Microscope Field of View Canvas -->
-          <div class="relative mx-auto w-full max-w-[148px] sm:max-w-[320px] aspect-square rounded-full overflow-hidden border-4 sm:border-8 border-slate-800 shadow-inner bg-slate-950 flex items-center justify-center">
+          <div class="relative mx-auto w-full max-w-[132px] sm:max-w-[320px] aspect-square rounded-full overflow-hidden border-4 sm:border-8 border-slate-800 shadow-inner bg-slate-950 flex items-center justify-center">
             <canvas id="cell-canvas" width="320" height="320" class="w-full h-full block"></canvas>
           </div>
         </div>
