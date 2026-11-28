@@ -138,27 +138,27 @@
           type="button"
           class="min-h-[44px] px-3.5 py-2 rounded-xl text-sm font-semibold border border-lab-line bg-white hover:bg-slate-50 text-lab-ink transition"
         >
-          Reset Lab
+          Reset
         </button>
       </div>
     </div>
   </header>
 
   <!-- Main Workspace -->
-  <main id="main-lab" tabindex="-1" class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-5 focus:outline-none">
+  <main id="main-lab" tabindex="-1" class="flex-1 max-w-7xl w-full mx-auto px-2.5 sm:px-6 lg:px-8 py-3 sm:py-6 space-y-3 sm:space-y-5 focus:outline-none">
     <!-- Control Console Bar -->
-    <section aria-label="Microscope Controls" class="bg-lab-surface rounded-2xl border border-lab-line shadow-card p-4 sm:p-5">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-4 sm:gap-5 items-center">
+    <section aria-label="Microscope Controls" class="bg-lab-surface rounded-2xl border border-lab-line shadow-card p-3 sm:p-5">
+      <div class="grid grid-cols-2 lg:grid-cols-12 gap-3 sm:gap-5 items-center">
         <!-- 1. Power Switch -->
-        <div class="lg:col-span-2 flex sm:flex-col items-center sm:items-start justify-between gap-2 pb-3 sm:pb-0 border-b sm:border-b-0 border-lab-line">
-          <span class="text-xs font-bold uppercase tracking-wider text-lab-muted">Power Switch</span>
+        <div class="col-span-1 lg:col-span-2 flex flex-col items-start justify-between gap-1.5 pb-1 sm:pb-0">
+          <span class="text-[11px] sm:text-xs font-bold uppercase tracking-wider text-lab-muted">Power Switch</span>
           <button
             id="power-toggle-btn"
             type="button"
             role="switch"
             aria-checked="true"
             aria-label="Toggle microscope power"
-            class="min-h-[44px] inline-flex items-center gap-2.5 px-4 py-2 rounded-xl font-semibold text-sm border transition cursor-pointer bg-emerald-600 text-white border-emerald-700 shadow-sm"
+            class="w-full sm:w-auto min-h-[40px] sm:min-h-[44px] inline-flex items-center justify-center sm:justify-start gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl font-semibold text-xs sm:text-sm border transition cursor-pointer bg-emerald-600 text-white border-emerald-700 shadow-sm"
           >
             <span id="power-dot" class="w-2.5 h-2.5 rounded-full bg-white" aria-hidden="true"></span>
             <span id="power-label">ON</span>
@@ -166,13 +166,13 @@
         </div>
 
         <!-- 2. Lamp Intensity -->
-        <div class="lg:col-span-3">
-          <div class="flex items-center justify-between text-xs mb-1">
-            <label for="intensity-slider" class="font-bold uppercase tracking-wider text-lab-muted">Light Intensity</label>
+        <div class="col-span-1 lg:col-span-3">
+          <div class="flex items-center justify-between text-[11px] sm:text-xs mb-0.5 sm:mb-1">
+            <label for="intensity-slider" class="font-bold uppercase tracking-wider text-lab-muted truncate">Intensity</label>
             <span id="intensity-readout" aria-live="polite" class="font-bold text-lab-ink">75%</span>
           </div>
           <input id="intensity-slider" type="range" min="0" max="100" value="75" aria-valuemin="0" aria-valuemax="100" aria-valuenow="75" class="lab-slider" />
-          <div class="flex justify-between text-[11px] text-lab-muted mt-0.5" aria-hidden="true">
+          <div class="hidden sm:flex justify-between text-[11px] text-lab-muted mt-0.5" aria-hidden="true">
             <span>0% Off</span>
             <span>50%</span>
             <span>100% Bright</span>
@@ -180,23 +180,23 @@
         </div>
 
         <!-- 3. Objective Lenses -->
-        <div class="lg:col-span-3">
-          <div class="flex items-center justify-between text-xs mb-1.5">
+        <div class="col-span-2 sm:col-span-1 lg:col-span-3">
+          <div class="flex items-center justify-between text-[11px] sm:text-xs mb-1 sm:mb-1.5">
             <span class="font-bold uppercase tracking-wider text-lab-muted">Objective Lens</span>
             <span id="objective-badge" class="font-semibold text-lab-accentDark">10× (100× total)</span>
           </div>
           <div class="grid grid-cols-3 gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200/80" role="group" aria-label="Objective Lens Magnification">
-            <button type="button" data-obj="4" aria-pressed="false" class="obj-btn min-h-[40px] py-1.5 rounded-lg text-xs font-bold transition text-lab-muted hover:text-lab-ink">4×</button>
-            <button type="button" data-obj="10" aria-pressed="true" class="obj-btn min-h-[40px] py-1.5 rounded-lg text-xs font-bold transition bg-white text-lab-accent shadow-sm">10×</button>
-            <button type="button" data-obj="40" aria-pressed="false" class="obj-btn min-h-[40px] py-1.5 rounded-lg text-xs font-bold transition text-lab-muted hover:text-lab-ink">40×</button>
+            <button type="button" data-obj="4" aria-pressed="false" class="obj-btn min-h-[38px] sm:min-h-[40px] py-1 rounded-lg text-xs font-bold transition text-lab-muted hover:text-lab-ink">4×</button>
+            <button type="button" data-obj="10" aria-pressed="true" class="obj-btn min-h-[38px] sm:min-h-[40px] py-1 rounded-lg text-xs font-bold transition bg-white text-lab-accent shadow-sm">10×</button>
+            <button type="button" data-obj="40" aria-pressed="false" class="obj-btn min-h-[38px] sm:min-h-[40px] py-1 rounded-lg text-xs font-bold transition text-lab-muted hover:text-lab-ink">40×</button>
           </div>
         </div>
 
         <!-- 4. Condenser Lever (Iris) with 40x / 10x / 4x objective scale ticks -->
-        <div class="lg:col-span-2">
-          <div class="flex items-center justify-between text-xs mb-1">
-            <label for="condenser-slider" class="font-bold uppercase tracking-wider text-lab-muted">Condenser Lever</label>
-            <span id="condenser-readout" aria-live="polite" class="font-bold text-lab-ink">Moderate (55)</span>
+        <div class="col-span-1 lg:col-span-2">
+          <div class="flex items-center justify-between gap-1 text-[11px] sm:text-xs mb-0.5 sm:mb-1">
+            <label for="condenser-slider" class="font-bold uppercase tracking-wider text-lab-muted truncate">Condenser</label>
+            <span id="condenser-readout" aria-live="polite" class="font-bold text-lab-ink truncate">Moderate (55)</span>
           </div>
           <div class="relative">
             <input id="condenser-slider" type="range" min="15" max="100" value="55" aria-valuemin="15" aria-valuemax="100" aria-valuenow="55" class="lab-slider relative z-10" />
@@ -218,43 +218,43 @@
         </div>
 
         <!-- 5. Focus Knob -->
-        <div class="lg:col-span-2">
-          <div class="flex items-center justify-between text-xs mb-1">
-            <label for="focus-slider" class="font-bold uppercase tracking-wider text-lab-muted">Focus Knob</label>
-            <button id="focus-zero-btn" type="button" class="min-h-[32px] px-2.5 py-0.5 text-[11px] font-semibold rounded-md bg-slate-100 hover:bg-slate-200 text-lab-ink">
+        <div class="col-span-1 lg:col-span-2">
+          <div class="flex items-center justify-between gap-1 text-[11px] sm:text-xs mb-0.5 sm:mb-1">
+            <label for="focus-slider" class="font-bold uppercase tracking-wider text-lab-muted truncate">Focus</label>
+            <button id="focus-zero-btn" type="button" class="min-h-[28px] sm:min-h-[32px] px-2 py-0.5 text-[10px] sm:text-[11px] font-semibold rounded-md bg-slate-100 hover:bg-slate-200 text-lab-ink">
               Snap 0
             </button>
           </div>
           <input id="focus-slider" type="range" min="-100" max="100" value="0" aria-valuemin="-100" aria-valuemax="100" aria-valuenow="0" class="lab-slider" />
-          <div class="flex justify-between items-center text-[11px] text-lab-muted mt-0.5">
-            <span>Coarse −</span>
-            <span id="focus-readout" aria-live="polite" class="font-semibold text-emerald-700">In Focus (0)</span>
-            <span>+ Fine</span>
+          <div class="flex justify-between items-center text-[10px] sm:text-[11px] text-lab-muted mt-0.5">
+            <span class="hidden sm:inline">Coarse −</span>
+            <span id="focus-readout" aria-live="polite" class="font-semibold text-emerald-700 truncate">In Focus (0)</span>
+            <span class="hidden sm:inline">+ Fine</span>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Two-Column Visualization Stage -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-      <!-- Left: Microscope Light Path Diagram (7 cols) -->
-      <section aria-labelledby="light-path-heading" class="lg:col-span-7 bg-lab-surface rounded-2xl border border-lab-line shadow-card overflow-hidden flex flex-col">
-        <div class="px-4 sm:px-5 py-3.5 border-b border-lab-line bg-slate-50/70 flex flex-wrap items-center justify-between gap-2">
-          <div>
-            <h2 id="light-path-heading" class="text-sm font-bold uppercase tracking-wider text-lab-ink">
-              Light Path Through Microscope
+    <!-- Two-Column Visualization Stage (side-by-side even on mobile for simultaneous comparison) -->
+    <div class="grid grid-cols-2 lg:grid-cols-12 gap-2.5 sm:gap-5 items-stretch">
+      <!-- Left: Microscope Light Path Diagram -->
+      <section aria-labelledby="light-path-heading" class="col-span-1 lg:col-span-7 bg-lab-surface rounded-2xl border border-lab-line shadow-card overflow-hidden flex flex-col">
+        <div class="px-2.5 sm:px-5 py-2 sm:py-3.5 border-b border-lab-line bg-slate-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
+          <div class="min-w-0">
+            <h2 id="light-path-heading" class="text-[11px] sm:text-sm font-bold uppercase tracking-wider text-lab-ink truncate">
+              Light Path
             </h2>
-            <p class="text-xs text-lab-muted">
+            <p class="hidden sm:block text-xs text-lab-muted">
               Lamp → Collector → Condenser Iris → Specimen Stage → Objective → Eyepiece
             </p>
           </div>
-          <span id="cone-angle-badge" aria-live="polite" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-900">
+          <span id="cone-angle-badge" aria-live="polite" class="self-start sm:self-auto text-[10px] sm:text-xs font-semibold px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-full bg-amber-100 text-amber-900">
             Cone: Moderate
           </span>
         </div>
 
-        <div class="p-3 sm:p-4 flex-1 flex items-center justify-center bg-white">
-          <svg id="light-path-svg" viewBox="0 0 760 540" class="w-full h-auto max-h-[520px] select-none" role="img" aria-label="Diagram of the light path through a compound microscope from base lamp to eyepiece">
+        <div class="p-1.5 sm:p-4 flex-1 flex items-center justify-center bg-white">
+          <svg id="light-path-svg" viewBox="0 0 760 540" class="w-full h-auto max-h-[240px] sm:max-h-[520px] select-none" role="img" aria-label="Diagram of the light path through a compound microscope from base lamp to eyepiece">
             <defs>
               <linearGradient id="lampGlowGrad" x1="50%" y1="100%" x2="50%" y2="0%">
                 <stop offset="0%" stop-color="#f59e0b" stop-opacity="0.95" />
@@ -402,31 +402,31 @@
         </div>
       </section>
 
-      <!-- Right: Specimen Cell View & Diagnostic Readout (5 cols) -->
-      <section aria-labelledby="specimen-heading" class="lg:col-span-5 bg-lab-surface rounded-2xl border border-lab-line shadow-card p-4 sm:p-5 flex flex-col justify-between gap-4">
+      <!-- Right: Specimen Cell View & Diagnostic Readout -->
+      <section aria-labelledby="specimen-heading" class="col-span-1 lg:col-span-5 bg-lab-surface rounded-2xl border border-lab-line shadow-card p-2.5 sm:p-5 flex flex-col justify-between gap-2.5 sm:gap-4">
         <div>
-          <div class="flex items-center justify-between gap-2 mb-3">
-            <div>
-              <h2 id="specimen-heading" class="text-sm font-bold uppercase tracking-wider text-lab-ink">
-                Specimen Cell View
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2 mb-2 sm:mb-3">
+            <div class="min-w-0">
+              <h2 id="specimen-heading" class="text-[11px] sm:text-sm font-bold uppercase tracking-wider text-lab-ink truncate">
+                Specimen Cell
               </h2>
-              <p class="text-xs text-lab-muted">
+              <p class="hidden sm:block text-xs text-lab-muted">
                 How light intensity, condenser iris, and focus affect the cell
               </p>
             </div>
-            <span id="cell-view-status" aria-live="polite" class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
+            <span id="cell-view-status" aria-live="polite" class="self-start sm:self-auto text-[10px] sm:text-xs font-semibold px-2 py-0.5 sm:px-2.5 rounded-full bg-emerald-100 text-emerald-800">
               Clear View
             </span>
           </div>
 
           <!-- Circular Microscope Field of View Canvas -->
-          <div class="relative mx-auto w-full max-w-[320px] aspect-square rounded-full overflow-hidden border-8 border-slate-800 shadow-inner bg-slate-950 flex items-center justify-center">
+          <div class="relative mx-auto w-full max-w-[148px] sm:max-w-[320px] aspect-square rounded-full overflow-hidden border-4 sm:border-8 border-slate-800 shadow-inner bg-slate-950 flex items-center justify-center">
             <canvas id="cell-canvas" width="320" height="320" class="w-full h-full block"></canvas>
           </div>
         </div>
 
         <!-- Live Optical Diagnostics & Student Takeaway -->
-        <div class="bg-slate-50 rounded-xl border border-slate-200/80 p-3.5 sm:p-4 space-y-2.5">
+        <div class="hidden sm:block bg-slate-50 rounded-xl border border-slate-200/80 p-3.5 sm:p-4 space-y-2.5">
           <div class="flex flex-wrap items-center justify-between gap-2">
             <span class="text-xs font-bold uppercase tracking-wider text-lab-accentDark">What’s Happening to the Light &amp; Cell</span>
             <span id="recommended-lever-badge" class="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-sky-100 text-sky-900">
@@ -443,6 +443,19 @@
         </div>
       </section>
     </div>
+
+    <!-- Mobile-only compact observation card right below the dual view -->
+    <section aria-label="Mobile Optical Observations" class="sm:hidden bg-lab-surface rounded-2xl border border-lab-line shadow-card p-3 space-y-1.5">
+      <div class="flex items-center justify-between gap-2">
+        <span class="text-[11px] font-bold uppercase tracking-wider text-lab-accentDark">Light &amp; Cell Notes</span>
+        <span id="mobile-recommended-badge" class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-sky-100 text-sky-900">
+          10×: ~60% / 55
+        </span>
+      </div>
+      <p id="mobile-observation-summary" aria-live="polite" class="text-xs text-slate-800 leading-snug">
+        Light travels from the base lamp through the collector lens, condenser iris, and stage into the 10× objective.
+      </p>
+    </section>
   </main>
 
   <script>
@@ -504,6 +517,8 @@
       cellCanvas: document.getElementById('cell-canvas'),
       cellViewStatus: document.getElementById('cell-view-status'),
       recommendedLeverBadge: document.getElementById('recommended-lever-badge'),
+      mobileRecommendedBadge: document.getElementById('mobile-recommended-badge'),
+      mobileObservationSummary: document.getElementById('mobile-observation-summary'),
       observationSummary: document.getElementById('observation-summary'),
       observationBullets: document.getElementById('observation-bullets')
     };
@@ -847,6 +862,9 @@
       }
 
       els.recommendedLeverBadge.textContent = `${state.objective}× Target: Light ~${rec.intensityIdeal}%, Condenser ~${rec.irisIdeal}`;
+      if (els.mobileRecommendedBadge) {
+        els.mobileRecommendedBadge.textContent = `${state.objective}×: ~${rec.intensityIdeal}% / ${rec.irisIdeal}`;
+      }
 
       if (!state.powerOn) {
         els.observationSummary.textContent =
@@ -877,6 +895,9 @@
         <li>${bullet1}</li>
         <li>${bullet2}</li>
       `;
+      if (els.mobileObservationSummary) {
+        els.mobileObservationSummary.textContent = els.observationSummary.textContent;
+      }
     }
 
     function refreshAll() {
