@@ -57,14 +57,28 @@
     .hotspot-pin {
       position: absolute;
       transform: translate(-50%, -50%);
+      min-width: 44px;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: manipulation;
       transition: transform 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
       z-index: 10;
     }
 
-    .hotspot-pin:hover,
-    .hotspot-pin:focus-visible {
-      transform: translate(-50%, -50%) scale(1.14);
-      z-index: 20;
+    @media (hover: hover) {
+      .hotspot-pin:hover {
+        transform: translate(-50%, -50%) scale(1.14);
+        z-index: 20;
+      }
+    }
+
+    .hotspot-pin:focus-visible,
+    button:focus-visible,
+    [role="tab"]:focus-visible {
+      outline: 3px solid #0369a1;
+      outline-offset: 2px;
     }
 
     .hotspot-pin.is-active {
@@ -123,38 +137,49 @@
     .callout-target-dot.is-quiz-target {
       fill: #d97706;
     }
+
+    @media (prefers-reduced-motion: reduce) {
+      .hotspot-pin,
+      .hotspot-pin.is-active,
+      .hotspot-pin.is-quiz-target,
+      .callout-line,
+      .callout-target-dot {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
   </style>
 </head>
-<body class="bg-lab-bg text-lab-ink font-sans antialiased min-h-screen flex flex-col">
+<body class="bg-lab-bg text-lab-ink font-sans antialiased min-h-screen flex flex-col overflow-x-hidden">
+  <a
+    href="#main-workspace"
+    class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2.5 focus:rounded-xl focus:bg-lab-accent focus:text-white focus:font-semibold focus:shadow-lg"
+  >
+    Skip to microscope workspace
+  </a>
+
   <!-- Top Header & Module Switcher -->
   <header class="bg-lab-surface border-b border-lab-line sticky top-0 z-30">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between py-3.5 gap-3">
-        <!-- Brand / Title -->
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-lab-accentSoft text-lab-accent flex items-center justify-center font-bold text-lg shrink-0 border border-sky-200/80" aria-hidden="true">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="3" />
-              <path d="M12 2v3m0 14v3M2 12h3m14 0h3M5.6 5.6l2.1 2.1m8.6 8.6l2.1 2.1m0-12.8l-2.1 2.1m-8.6 8.6l-2.1 2.1" />
-            </svg>
-          </div>
-          <div>
-            <h1 class="text-lg sm:text-xl font-bold tracking-tight text-lab-ink leading-tight">
-              Microscope Explorer
-            </h1>
-          </div>
-        </div>
-
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between py-3 gap-2.5">
         <!-- Mode Switcher (Explore vs Quiz) -->
-        <div class="flex items-center gap-2 self-start md:self-auto bg-slate-100 p-1 rounded-xl border border-slate-200/80" role="tablist" aria-label="Learning Mode">
+        <div class="flex items-center gap-1.5 w-full sm:w-auto self-start md:self-auto bg-slate-100 p-1 rounded-xl border border-slate-200/80" role="tablist" aria-label="Learning Mode">
           <button
             id="mode-explore-btn"
             type="button"
             role="tab"
             aria-selected="true"
-            class="px-3.5 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 bg-white text-lab-accent shadow-sm"
+            class="flex-1 sm:flex-initial min-h-[44px] px-3.5 py-2 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 bg-white text-lab-accent shadow-sm"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
             </svg>
@@ -165,9 +190,9 @@
             type="button"
             role="tab"
             aria-selected="false"
-            class="px-3.5 py-2 rounded-lg text-sm font-semibold transition-all flex items-center gap-2 text-lab-muted hover:text-lab-ink"
+            class="flex-1 sm:flex-initial min-h-[44px] px-3.5 py-2 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 text-lab-muted hover:text-lab-ink"
           >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Practice Quiz
@@ -180,36 +205,36 @@
         <button
           type="button"
           data-module="overview"
-          class="module-tab shrink-0 px-4 py-2 rounded-xl text-sm font-medium border transition-all flex items-center gap-2"
+          class="module-tab shrink-0 min-h-[44px] px-3.5 sm:px-4 py-2 rounded-xl text-sm font-medium border transition-all flex items-center gap-2"
         >
-          <span class="w-2 h-2 rounded-full bg-sky-500"></span>
+          <span class="w-2 h-2 rounded-full bg-sky-500" aria-hidden="true"></span>
           Overview
           <span class="text-xs px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-semibold" data-count="overview">0</span>
         </button>
         <button
           type="button"
           data-module="eyepiece"
-          class="module-tab shrink-0 px-4 py-2 rounded-xl text-sm font-medium border transition-all flex items-center gap-2"
+          class="module-tab shrink-0 min-h-[44px] px-3.5 sm:px-4 py-2 rounded-xl text-sm font-medium border transition-all flex items-center gap-2"
         >
-          <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+          <span class="w-2 h-2 rounded-full bg-indigo-500" aria-hidden="true"></span>
           Eyepiece
           <span class="text-xs px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-semibold" data-count="eyepiece">0</span>
         </button>
         <button
           type="button"
           data-module="stage"
-          class="module-tab shrink-0 px-4 py-2 rounded-xl text-sm font-medium border transition-all flex items-center gap-2"
+          class="module-tab shrink-0 min-h-[44px] px-3.5 sm:px-4 py-2 rounded-xl text-sm font-medium border transition-all flex items-center gap-2"
         >
-          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500" aria-hidden="true"></span>
           Mechanical Stage
           <span class="text-xs px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-semibold" data-count="stage">0</span>
         </button>
         <button
           type="button"
           data-module="condenser"
-          class="module-tab shrink-0 px-4 py-2 rounded-xl text-sm font-medium border transition-all flex items-center gap-2"
+          class="module-tab shrink-0 min-h-[44px] px-3.5 sm:px-4 py-2 rounded-xl text-sm font-medium border transition-all flex items-center gap-2"
         >
-          <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+          <span class="w-2 h-2 rounded-full bg-amber-500" aria-hidden="true"></span>
           Condenser
           <span class="text-xs px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600 font-semibold" data-count="condenser">0</span>
         </button>
@@ -218,9 +243,9 @@
   </header>
 
   <!-- Main Workspace -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  <main id="main-workspace" tabindex="-1" class="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 focus:outline-none">
     <!-- Module Intro & Quick Controls Banner -->
-    <section class="bg-lab-surface rounded-2xl border border-lab-line shadow-card p-4 sm:p-5 mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <section aria-labelledby="module-title" class="bg-lab-surface rounded-2xl border border-lab-line shadow-card p-4 sm:p-5 mb-4 sm:mb-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
       <div>
         <div class="flex flex-wrap items-center gap-2 mb-1">
           <span id="module-badge" class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-lab-accentSoft text-lab-accentDark">
@@ -241,7 +266,7 @@
           id="toggle-labels-btn"
           type="button"
           aria-pressed="true"
-          class="px-3.5 py-2 rounded-xl text-sm font-medium border border-lab-line bg-slate-50 hover:bg-slate-100 text-lab-ink transition flex items-center gap-2"
+          class="min-h-[44px] px-3.5 py-2 rounded-xl text-sm font-medium border border-lab-line bg-slate-50 hover:bg-slate-100 text-lab-ink transition flex items-center gap-2"
         >
           <svg id="label-eye-icon" class="w-4 h-4 text-lab-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
@@ -252,7 +277,7 @@
         <button
           id="clear-selection-btn"
           type="button"
-          class="px-3.5 py-2 rounded-xl text-sm font-medium border border-lab-line bg-white hover:bg-slate-50 text-lab-muted hover:text-lab-ink transition"
+          class="min-h-[44px] px-3.5 py-2 rounded-xl text-sm font-medium border border-lab-line bg-white hover:bg-slate-50 text-lab-muted hover:text-lab-ink transition"
         >
           Reset Selection
         </button>
@@ -264,14 +289,16 @@
           <button
             id="quiz-type-pin"
             type="button"
-            class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-white text-lab-accent shadow-sm transition"
+            aria-pressed="true"
+            class="min-h-[40px] px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold bg-white text-lab-accent shadow-sm transition"
           >
             Identify Pin
           </button>
           <button
             id="quiz-type-locate"
             type="button"
-            class="px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-lab-muted hover:text-lab-ink transition"
+            aria-pressed="false"
+            class="min-h-[40px] px-3 py-1.5 rounded-lg text-xs sm:text-sm font-semibold text-lab-muted hover:text-lab-ink transition"
           >
             Click Part on Diagram
           </button>
@@ -280,7 +307,7 @@
         <button
           id="quiz-restart-btn"
           type="button"
-          class="px-3.5 py-2 rounded-xl text-sm font-medium border border-lab-line bg-white hover:bg-slate-50 text-lab-ink transition flex items-center gap-1.5"
+          class="min-h-[44px] px-3.5 py-2 rounded-xl text-sm font-medium border border-lab-line bg-white hover:bg-slate-50 text-lab-ink transition flex items-center gap-1.5"
         >
           <svg class="w-4 h-4 text-lab-muted" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -291,20 +318,20 @@
     </section>
 
     <!-- Main 12-Column Grid: Interactive Diagram (7 cols) + Synced Part Card / Quiz Panel (5 cols) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
       <!-- Diagram Canvas Container -->
-      <section class="lg:col-span-7 bg-lab-surface rounded-2xl border border-lab-line shadow-card overflow-hidden">
-        <div class="px-4 py-3 border-b border-lab-line bg-slate-50/70 flex items-center justify-between gap-2">
+      <section aria-label="Interactive Microscope Diagram" class="lg:col-span-7 bg-lab-surface rounded-2xl border border-lab-line shadow-card overflow-hidden">
+        <div class="px-4 py-3 border-b border-lab-line bg-slate-50/70 flex flex-wrap items-center justify-between gap-2">
           <span class="text-xs font-semibold uppercase tracking-wider text-lab-muted" id="canvas-instruction">
             Click any numbered pin to inspect its name and function
           </span>
-          <span id="explored-progress" class="text-xs font-semibold text-lab-accent bg-lab-accentSoft px-2.5 py-1 rounded-full">
+          <span id="explored-progress" aria-live="polite" class="text-xs font-semibold text-lab-accent bg-lab-accentSoft px-2.5 py-1 rounded-full">
             0 of 0 inspected
           </span>
         </div>
 
         <!-- Diagram Wrapper with Aspect Ratio & Overlay Pins -->
-        <div id="diagram-stage" class="relative w-full bg-white select-none overflow-hidden">
+        <div id="diagram-stage" class="relative w-full min-h-[260px] sm:min-h-[380px] bg-white select-none overflow-hidden">
           <div id="diagram-visual-host" class="w-full h-auto block max-h-[560px] mx-auto flex items-center justify-center"></div>
           <!-- Leader lines & arrows rendered dynamically here -->
           <svg id="callout-layer" class="callout-layer hidden" viewBox="0 0 1000 620" preserveAspectRatio="none" aria-hidden="true">
@@ -333,13 +360,13 @@
         <!-- EXPLORE VIEW -->
         <div id="explore-panel" class="space-y-6">
           <!-- Selected Part Detail Card -->
-          <div id="part-detail-card" class="bg-lab-surface rounded-2xl border border-lab-line shadow-card p-5 sm:p-6 transition-all">
+          <div id="part-detail-card" aria-live="polite" class="bg-lab-surface rounded-2xl border border-lab-line shadow-card p-4 sm:p-6 transition-all">
             <div class="flex items-start justify-between gap-3 mb-3">
               <div>
                 <span id="detail-pin-badge" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold bg-lab-accentSoft text-lab-accentDark mb-2">
                   Part #1
                 </span>
-                <h3 id="detail-part-name" class="text-xl font-bold text-lab-ink">
+                <h3 id="detail-part-name" class="text-lg sm:text-xl font-bold text-lab-ink">
                   Select a Hotspot Pin
                 </h3>
                 <p id="detail-part-category" class="text-xs font-medium uppercase tracking-wider text-lab-muted mt-0.5">
@@ -349,7 +376,7 @@
               <button
                 id="next-part-btn"
                 type="button"
-                class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-lab-ink transition shrink-0"
+                class="min-h-[44px] px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-lab-ink transition shrink-0"
                 title="Jump to next part on this diagram"
               >
                 Next Part &rarr;
@@ -381,7 +408,7 @@
               </h3>
               <span class="text-xs text-lab-muted">Synced with pins</span>
             </div>
-            <ul id="part-list" class="space-y-2 max-h-72 overflow-y-auto pr-1">
+            <ul id="part-list" class="space-y-2 max-h-80 lg:max-h-72 overflow-y-auto pr-1">
               <!-- Populated by JavaScript -->
             </ul>
           </div>
@@ -445,11 +472,11 @@
             </div>
 
             <!-- Next Question Button -->
-            <div class="mt-5 flex items-center justify-between gap-3">
+            <div class="mt-5 flex flex-wrap items-center justify-between gap-3">
               <button
                 id="quiz-hint-btn"
                 type="button"
-                class="px-3 py-2 rounded-xl text-xs font-semibold text-lab-muted hover:text-lab-ink bg-slate-100 hover:bg-slate-200 transition"
+                class="min-h-[44px] px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-lab-muted hover:text-lab-ink bg-slate-100 hover:bg-slate-200 transition"
               >
                 Show Function Clue
               </button>
@@ -457,7 +484,7 @@
                 id="quiz-next-btn"
                 type="button"
                 disabled
-                class="px-4 py-2.5 rounded-xl text-sm font-semibold bg-lab-accent hover:bg-lab-accentDark disabled:opacity-40 disabled:cursor-not-allowed text-white transition shadow-sm"
+                class="min-h-[44px] px-4 py-2.5 rounded-xl text-sm font-semibold bg-lab-accent hover:bg-lab-accentDark disabled:opacity-40 disabled:cursor-not-allowed text-white transition shadow-sm"
               >
                 Next Question &rarr;
               </button>
@@ -2146,6 +2173,7 @@
       } else {
         buildQuizRound();
       }
+      requestAnimationFrame(() => renderHotspots());
     }
 
     function bindEvents() {
@@ -2176,15 +2204,17 @@
       window.addEventListener('resize', () => {
         requestAnimationFrame(() => renderHotspots());
       });
+
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', () => {
+          requestAnimationFrame(() => renderHotspots());
+        });
+      }
     }
 
     function initApp() {
-      try {
-        bindEvents();
-        switchModule(state.currentModuleId);
-      } catch (err) {
-        showStatusBanner('There was an error initializing the application.', 'error');
-      }
+      bindEvents();
+      switchModule(state.currentModuleId);
     }
 
     if (document.readyState === 'loading') {
